@@ -2,8 +2,10 @@
   <div class="container flex max-w-4xl">
     <NuxtRouteAnnouncer />
     <div class="flex-1 text-white flex flex-col rounded-md overflow-hidden">
-      <header class="border-b-2 pb-2 flex justify-between items-center">
-        <h1 class="text-xl">Garden Of Eden</h1>
+      <header
+        class="flex flex-col gap-y-2 md:gap-y-0 md:flex-row border-b-2 pb-2 justify-between items-center"
+      >
+        <h1 class="text-2xl">Garden Of Eden</h1>
         <nav class="flex gap-x-4 justify-end items-center">
           <template v-if="authData?.user">
             <span>
@@ -74,56 +76,104 @@
             </p>
           </div>
 
-          <div v-else>
-            <div class="flex justify-end">
-              <button
-                type="button"
-                :disabled="status === 'pending'"
-                @click="fetchScroll()"
-              >
-                <font-awesome-icon
-                  icon="rotate"
-                  class="mr-1"
-                  :class="{ 'animate-spin': status === 'pending' }"
-                />
-                Reload
-              </button>
-            </div>
-            <div
-              class="inline-grid md:grid-cols-[auto_1fr_auto] gap-y-1 gap-x-4 items-center"
+          <form
+            v-else
+            @submit.prevent="saveScroll()"
+          >
+            <fieldset
+              class="space-y-4"
+              :disabled="status === 'pending'"
+              :class="{
+                'opacity-50': status === 'pending',
+              }"
             >
-              <span>&nbsp;</span>
-              <b>Name/Code</b>
-              <b>In The Garden</b>
-              <template
-                v-for="dragon in dragons"
-                :key="dragon.id"
-              >
-                <img :src="`https://dragcave.net/image/${dragon.id}/0.gif`" />
-                <div>
-                  <b class="block">{{ dragon.name ?? "Unnamed" }}</b>
-                  <i class="text-sm">({{ dragon.id }})</i>
-                </div>
-                <input
-                  type="checkbox"
-                  v-model="dragon.inHatchery"
-                />
-              </template>
-              <div class="col-span-2">&nbsp;</div>
-              <input
-                type="checkbox"
-                :checked="dragons.every((dragon) => dragon.inHatchery)"
-                @change="
-                  dragons.forEach(
-                    (dragon) =>
-                      (dragon.inHatchery = (
-                        $event.target as HTMLInputElement
-                      ).checked)
-                  )
-                "
+              <ScrollToolbar
+                :dragons
+                v-model:sort="sort"
+                :status
+                @reload="refreshScroll()"
+                @toggle-all="toggleAll"
               />
-            </div>
-          </div>
+              <div
+                class="grid gap-6"
+                :style="{
+                  gridTemplateColumns: `repeat(auto-fit, minmax(15rem, 1fr))`,
+                }"
+              >
+                <div
+                  v-for="dragon in dragons"
+                  :key="dragon.id"
+                  @click="dragon.inHatchery = !dragon.inHatchery"
+                  class="relative cursor-pointer"
+                >
+                  <div
+                    class="grid grid-cols-[2rem_auto_1fr] gap-x-4 gap-y-2 p-2 pb-4 rounded-md items-center border content-border"
+                    :class="
+                      dragon.inHatchery
+                        ? 'bg-green-500 border-transparent'
+                        : 'border-green-500'
+                    "
+                  >
+                    <img
+                      class="justify-self-center max-w-full max-h-full"
+                      :src="`https://dragcave.net/image/${dragon.id}/0.gif`"
+                    />
+                    <div>
+                      <b class="block">{{ dragon.name ?? "Unnamed" }}</b>
+                      <i class="text-sm">({{ dragon.id }})</i>
+                    </div>
+
+                    <div
+                      class="text-xs bg-green-700 p-1 rounded-md self-start *:underline-offset-2"
+                    >
+                      {{ formatNumber(dragon.views)
+                      }}<abbr title="Views">V</abbr> /
+                      {{ formatNumber(dragon.clicks)
+                      }}<abbr title="Clicks">C</abbr> /
+                      {{ formatNumber(dragon.unique)
+                      }}<abbr title="Unique Views">U</abbr>
+                    </div>
+                    <input
+                      class="justify-self-end-top-2 -right-2 absolute"
+                      type="checkbox"
+                      v-model="dragon.inHatchery"
+                    />
+                  </div>
+                  <div
+                    class="text-xs bg-green-800 text-left px-2 py-0.5 rounded-md absolute -bottom-1 right-1 divide-x divide-white *:px-2"
+                  >
+                    <span class="!pl-0.5">
+                      {{ dragon.parent_f && dragon.parent_m ? "L" : "CB" }}
+                    </span>
+                    <span
+                      v-if="dragon.gender"
+                      :title="dragon.gender"
+                    >
+                      <font-awesome-icon
+                        icon="mars"
+                        v-if="dragon.gender === 'Male'"
+                      />
+                      <font-awesome-icon
+                        icon="venus"
+                        v-else-if="dragon.gender === 'Female'"
+                      />
+                    </span>
+                    <span class="!pr-0.5">
+                      {{ formatHoursLeft(dragon.hoursleft) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <ScrollToolbar
+                :dragons
+                :status
+                v-model:sort="sort"
+                @reload="refreshScroll()"
+                @toggle-all="toggleAll"
+                @submit="saveScroll()"
+              />
+            </fieldset>
+          </form>
         </div>
         <div class="bg-green-500 p-2 rounded-sm">some more dragons be here</div>
       </main>
@@ -138,6 +188,45 @@ const {
   execute: fetchScroll,
   status,
 } = await useFetch("/api/user/scroll", {
-  watch: [authData?.user],
+  default() {
+    return [];
+  },
 });
+
+const sort = ref<"Youngest First" | "Oldest First">("Oldest First");
+
+watch(
+  sort,
+  () => {
+    dragons.value.sort((a, b) => {
+      if (sort.value === "Youngest First") return a.hoursleft - b.hoursleft;
+      return b.hoursleft - a.hoursleft;
+    });
+  },
+  {
+    immediate: true,
+  }
+);
+
+async function refreshScroll() {
+  const currentState = [...dragons.value];
+  await fetchScroll();
+  dragons.value.forEach((dragon) => {
+    const oldDragon = currentState.find((d) => d.id === dragon.id);
+    if (oldDragon) dragon.inHatchery = oldDragon.inHatchery;
+  });
+}
+
+function toggleAll(checked: boolean) {
+  dragons.value.forEach((dragon) => (dragon.inHatchery = checked));
+}
+
+function formatNumber(num: number) {
+  return Intl.NumberFormat().format(num);
+}
+
+function formatHoursLeft(hours: number) {
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d ${hours % 24}h`;
+}
 </script>

@@ -14,4 +14,8 @@ body {
 
 input {
   @apply p-2 rounded-md;
+
+  &[type="checkbox"] {
+    @apply overflow-hidden size-6  rounded-full border-2 border-white bg-white appearance-none checked:bg-yellow-400;
+  }
 }
