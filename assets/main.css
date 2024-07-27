@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  @apply h-full;
+}
+body {
+  @apply min-h-full flex;
+}
+#__nuxt {
+  @apply flex-1 flex flex-col pt-4 items-center bg-green-700;
+}
+
+input {
+  @apply p-2 rounded-md;
+}
