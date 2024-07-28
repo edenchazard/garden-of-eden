@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     1000 * 60,
     async () => {
       const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
-        `SELECT COUNT(*) AS total, COUNT(DISTINCT(username)) AS scrolls FROM hatchery`
+        `SELECT COUNT(*) AS total, COUNT(DISTINCT(user_id)) AS scrolls FROM hatchery`
       );
 
       return {

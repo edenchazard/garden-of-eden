@@ -28,4 +28,10 @@ declare global {
     code: string;
     username: string;
   };
+
+  type UserSettings = {
+    frequency: number;
+    perPage: number;
+    sort: "Youngest First" | "Oldest First";
+  };
 }

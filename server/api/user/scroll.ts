@@ -18,8 +18,8 @@ export default defineEventHandler(async (event) => {
   );
 
   const [usersDragonsInHatchery] = await pool.execute<RowDataPacket[]>(
-    `SELECT code FROM hatchery WHERE username = ?`,
-    [token?.username]
+    `SELECT code FROM hatchery WHERE user_id = ?`,
+    [token?.userId]
   );
 
   const existingCodes = usersDragonsInHatchery.map((row) => row.code);

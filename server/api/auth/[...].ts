@@ -1,5 +1,6 @@
 import { NuxtAuthHandler } from "#auth";
 import config from "~/server/config";
+import pool from "~/server/pool";
 
 export default NuxtAuthHandler({
   secret: config.nextAuthSecret,
@@ -58,13 +59,27 @@ export default NuxtAuthHandler({
     },
   ],
   callbacks: {
-    jwt({ token, user, account }) {
+    async jwt({ token, user, account }) {
       if (account) {
         token.sessionToken = account.access_token;
+        const con = await pool.getConnection();
+
+        await con.beginTransaction();
+        await con.execute(
+          `INSERT IGNORE INTO users (id, username) VALUES (?, ?)`,
+          [user.id, user.username]
+        );
+        await con.execute(
+          `INSERT IGNORE INTO user_settings (user_id) VALUES (?)`,
+          [user.id]
+        );
+        await con.commit();
+        con.release();
       }
 
       if (user) {
         token.username = user.username;
+        token.userId = parseInt(user.id);
       }
 
       return token;

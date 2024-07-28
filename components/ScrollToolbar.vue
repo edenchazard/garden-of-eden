@@ -70,6 +70,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { PropType } from "vue";
+
 const emit = defineEmits(["reload", "toggle-all", "submit"]);
 
 defineProps<{
@@ -79,7 +81,7 @@ defineProps<{
 }>();
 
 const sort = defineModel("sort", {
-  type: String,
-  default: "Oldest",
+  type: String as PropType<UserSettings["sort"]>,
+  default: "Oldest First",
 });
 </script>

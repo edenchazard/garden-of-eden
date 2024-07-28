@@ -1,5 +1,5 @@
 export function useFrequency(
-  frequency: Ref<string | number>,
+  userSettings: Ref<UserSettings>,
   paused: Ref<boolean>,
   callback: () => void
 ) {
@@ -9,11 +9,11 @@ export function useFrequency(
     clearInterval(interval);
     interval = setInterval(
       callback,
-      parseInt(frequency.value.toString()) * 1000
+      parseInt(userSettings.value.frequency.toString()) * 1000
     );
   }
 
-  const unwatch = watch(frequency, setFrequency);
+  const unwatch = watch(() => userSettings.value.frequency, setFrequency);
   watch(paused, (value) => {
     if (value) {
       clearInterval(interval);

@@ -89,7 +89,7 @@
             >
               <ScrollToolbar
                 :dragons
-                v-model:sort="sort"
+                v-model:sort="userSettings.sort"
                 :fetch-scroll-status
                 :save-scroll-status
                 class="md:hidden"
@@ -174,7 +174,7 @@
                 :dragons
                 :fetch-scroll-status
                 :save-scroll-status
-                v-model:sort="sort"
+                v-model:sort="userSettings.sort"
                 @reload="refreshScroll()"
                 @toggle-all="toggleAll"
               />
@@ -190,7 +190,7 @@
           <div class="bg-green-500 p-2 rounded-md my-4 flex items-center">
             <label class="mr-2">Showing</label>
             <select
-              v-model="showing"
+              v-model.number="userSettings.perPage"
               class="text-black"
             >
               <option value="10">10 dragons</option>
@@ -199,7 +199,7 @@
               <option value="100">100 dragons</option>
             </select>
             <label class="mx-2">every</label>
-            <select v-model="frequency">
+            <select v-model.number="userSettings.frequency">
               <option value="30">30 seconds</option>
               <option value="60">1 minute</option>
               <option value="120">2 minutes</option>
@@ -260,12 +260,18 @@
 </template>
 
 <script setup lang="ts">
-const sort = ref<"Youngest First" | "Oldest First">("Oldest First");
-const showing = ref("10");
-const frequency = ref("30");
 const paused = ref(false);
 
 const { data: authData, signIn, signOut } = useAuth();
+
+const { data: userSettings } = await useFetch("/api/user/settings", {
+  default: () => ({
+    frequency: 30,
+    perPage: 50,
+    sort: "Youngest First" as const,
+  }),
+});
+
 const {
   data: dragons,
   execute: fetchScroll,
@@ -282,9 +288,9 @@ const {
 } = await useFetch("/api/hatchery/viewer", {
   default: () => [],
   params: {
-    limit: showing,
+    limit: userSettings.value.perPage,
   },
-  watch: [showing, frequency],
+  watch: [() => [userSettings.value.frequency, userSettings.value.perPage]],
 });
 
 const { data: statistics } = await useFetch("/api/hatchery/statistics", {
@@ -315,17 +321,31 @@ const {
   }
 );
 
-useFrequency(frequency, paused, fetchHatchery);
+useFrequency(userSettings, paused, fetchHatchery);
 
 const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes("pending")
 );
 
 watch(
-  [sort, dragons],
+  userSettings,
+  () => {
+    $fetch("/api/user/settings", {
+      method: "PATCH",
+      body: userSettings.value,
+    });
+  },
+  {
+    deep: true,
+  }
+);
+
+watch(
+  () => [userSettings.value.sort, dragons],
   () => {
     dragons.value.sort((a, b) => {
-      if (sort.value === "Youngest First") return a.hoursleft - b.hoursleft;
+      if (userSettings.value.sort === "Youngest First")
+        return a.hoursleft - b.hoursleft;
       return b.hoursleft - a.hoursleft;
     });
   },

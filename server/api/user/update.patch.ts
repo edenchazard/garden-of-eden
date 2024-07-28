@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
 
   // delete
   await pool.execute<RowDataPacket[]>(
-    `DELETE FROM hatchery WHERE username = ?`,
-    [token?.username]
+    `DELETE FROM hatchery WHERE user_id = ?`,
+    [token?.userId]
   );
 
   const body = await readBody(event);
@@ -16,8 +16,8 @@ export default defineEventHandler(async (event) => {
   // insert only if dragons were selected
   if (body.length > 0) {
     const bulkInsert = pool.format(
-      `INSERT INTO hatchery (code, username) VALUES ?`,
-      [body.map((id: string) => [id, token?.username])]
+      `INSERT INTO hatchery (code, user_id) VALUES ?`,
+      [body.map((id: string) => [id, token?.userId])]
     );
 
     await pool.execute<RowDataPacket[]>(bulkInsert);
