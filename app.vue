@@ -181,19 +181,25 @@
             </fieldset>
           </form>
         </div>
-        <div class="bg-green-500 p-2 rounded-sm">
-          <h2 class="text-2xl text-green-950 mb-2">Garden</h2>
-          <a
-            :href="`https://dragcave.net/view/${dragon.code}`"
-            target="_blank"
-            v-for="dragon in hatchery"
-            :key="dragon.id"
-          >
-            <img
-              class="inline"
-              :src="`https://dragcave.net/image/${dragon.code}.gif`"
-            />
-          </a>
+        <div class="bg-green-500 p-2 rounded-sm space-y-2">
+          <h2 class="text-2xl text-green-950">Garden</h2>
+          <p>
+            There are currently <b>{{ statistics.total }}</b> dragons from a
+            total of <b>{{ statistics.scrolls }}</b> scrolls.
+          </p>
+          <div>
+            <a
+              :href="`https://dragcave.net/view/${dragon.code}`"
+              target="_blank"
+              v-for="dragon in hatchery"
+              :key="dragon.id"
+            >
+              <img
+                class="inline"
+                :src="`https://dragcave.net/image/${dragon.code}.gif`"
+              />
+            </a>
+          </div>
         </div>
       </main>
     </div>
@@ -213,6 +219,13 @@ const {
 
 const { data: hatchery } = await useFetch("/api/hatchery/viewer", {
   default: () => [],
+});
+
+const { data: statistics } = await useFetch("/api/hatchery/statistics", {
+  default: () => ({
+    total: 0,
+    scrolls: 0,
+  }),
 });
 
 const {
