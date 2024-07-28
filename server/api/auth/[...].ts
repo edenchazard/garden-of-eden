@@ -1,17 +1,15 @@
 import { NuxtAuthHandler } from "#auth";
-const CLIENT_ID = "dc-tools-but-testing.1486295473e9b66f";
-const CLIENT_SECRET = "sqN14ARc6vthXJcqgrBY8oHBWnTDEhWbs";
-const NEXT_SECRET = "your secret here";
+import config from "~/server/config";
 
 export default NuxtAuthHandler({
-  secret: NEXT_SECRET,
+  secret: config.nextAuthSecret,
   providers: [
     {
       id: "dragcave",
       name: "Dragon Cave",
       type: "oauth",
-      clientId: CLIENT_ID,
-      clientSecret: CLIENT_SECRET,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
       checks: ["state", "pkce"],
       authorization: {
         url: "https://dragcave.net/oauth_login",

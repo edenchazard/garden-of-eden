@@ -1,4 +1,6 @@
 import { getServerSession, getToken } from "#auth";
+import { RowDataPacket } from "mysql2";
+import pool from "~/server/pool";
 
 type DragonData = {
   id: string;
@@ -43,10 +45,18 @@ export default defineEventHandler(async (event) => {
       },
     }
   );
+
+  const [usersDragonsInHatchery] = await pool.execute<RowDataPacket[]>(
+    `SELECT code FROM hatchery WHERE username = ?`,
+    [token.username]
+  );
+
+  const existingCodes = usersDragonsInHatchery.map((row) => row.code);
+
   const dragonsWithData =
     Object.entries(response.dragons).map<ScrollView>(([id, data]) => ({
       ...data,
-      inHatchery: false,
+      inHatchery: existingCodes.includes(id),
     })) ?? [];
 
   return dragonsWithData;

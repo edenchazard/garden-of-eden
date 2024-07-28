@@ -20,4 +20,7 @@ export default defineNuxtConfig({
       addDefaultCallbackUrl: true,
     },
   },
+  build: {
+    transpile: ["@fortawesome/vue-fontawesome"],
+  },
 });

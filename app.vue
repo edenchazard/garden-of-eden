@@ -26,7 +26,7 @@
               title="Sign out"
             >
               <font-awesome-icon
-                icon="arrow-right-from-bracket"
+                :icon="['fas', 'arrow-right-from-bracket']"
                 class="mr-1"
               />
               Sign out
@@ -39,12 +39,12 @@
             @click="signIn('dragcave')"
             title="Sign in"
           >
-            <font-awesome-icon icon="arrow-right-to-bracket" />
+            <font-awesome-icon :icon="['fas', 'arrow-right-to-bracket']" />
           </button>
         </nav>
       </header>
 
-      <main class="bg-green-600 p-4 space-y-2">
+      <main class="bg-green-600 p-4 space-y-6">
         <div class="w-full text-center">
           <div
             v-if="!authData?.user"
@@ -81,16 +81,17 @@
             @submit.prevent="saveScroll()"
           >
             <fieldset
-              class="space-y-4"
-              :disabled="status === 'pending'"
+              class="space-y-4 transition-opacity"
+              :disabled="isProcessing"
               :class="{
-                'opacity-50': status === 'pending',
+                'opacity-50': isProcessing,
               }"
             >
               <ScrollToolbar
                 :dragons
                 v-model:sort="sort"
-                :status
+                :fetch-scroll-status
+                :save-scroll-status
                 @reload="refreshScroll()"
                 @toggle-all="toggleAll"
               />
@@ -105,6 +106,10 @@
                   :key="dragon.id"
                   @click="dragon.inHatchery = !dragon.inHatchery"
                   class="relative cursor-pointer"
+                  :class="{
+                    ' shadow-[0px_0px_15px_1px] shadow-yellow-600 transition-shadow':
+                      recentlyAdded.includes(dragon.id),
+                  }"
                 >
                   <div
                     class="grid grid-cols-[2rem_auto_1fr] gap-x-4 gap-y-2 p-2 pb-4 rounded-md items-center border content-border"
@@ -134,7 +139,7 @@
                       }}<abbr title="Unique Views">U</abbr>
                     </div>
                     <input
-                      class="justify-self-end-top-2 -right-2 absolute"
+                      class="justify-self-end -top-2 -right-2 absolute"
                       type="checkbox"
                       v-model="dragon.inHatchery"
                     />
@@ -150,11 +155,11 @@
                       :title="dragon.gender"
                     >
                       <font-awesome-icon
-                        icon="mars"
+                        :icon="['fas', 'mars']"
                         v-if="dragon.gender === 'Male'"
                       />
                       <font-awesome-icon
-                        icon="venus"
+                        :icon="['fas', 'venus']"
                         v-else-if="dragon.gender === 'Female'"
                       />
                     </span>
@@ -166,16 +171,29 @@
               </div>
               <ScrollToolbar
                 :dragons
-                :status
+                :fetch-scroll-status
+                :save-scroll-status
                 v-model:sort="sort"
                 @reload="refreshScroll()"
                 @toggle-all="toggleAll"
-                @submit="saveScroll()"
               />
             </fieldset>
           </form>
         </div>
-        <div class="bg-green-500 p-2 rounded-sm">some more dragons be here</div>
+        <div class="bg-green-500 p-2 rounded-sm">
+          <h2 class="text-2xl text-green-950 mb-2">Garden</h2>
+          <a
+            :href="`https://dragcave.net/view/${dragon.code}`"
+            target="_blank"
+            v-for="dragon in hatchery"
+            :key="dragon.id"
+          >
+            <img
+              class="inline"
+              :src="`https://dragcave.net/image/${dragon.code}.gif`"
+            />
+          </a>
+        </div>
       </main>
     </div>
   </div>
@@ -186,17 +204,49 @@ const { data: authData, signIn, signOut } = useAuth();
 const {
   data: dragons,
   execute: fetchScroll,
-  status,
+  status: fetchScrollStatus,
 } = await useFetch("/api/user/scroll", {
+  immediate: !!authData.value?.user,
   default() {
     return [];
   },
 });
 
+const { data: hatchery } = await useFetch("/api/hatchery/viewer", {
+  default() {
+    return [];
+  },
+});
+
+const {
+  data: recentlyAdded,
+  execute: saveScroll,
+  status: saveScrollStatus,
+} = useAsyncData(
+  () =>
+    $fetch("/api/user/update", {
+      method: "PATCH",
+      body: dragons.value
+        .filter((dragon) => dragon.inHatchery)
+        .map((dragon) => dragon.id),
+      onResponse() {
+        setTimeout(() => (recentlyAdded.value = []), 1000);
+      },
+    }),
+  {
+    immediate: false,
+    default: () => [],
+  }
+);
+
 const sort = ref<"Youngest First" | "Oldest First">("Oldest First");
 
+const isProcessing = computed(() =>
+  [fetchScrollStatus.value, saveScrollStatus.value].includes("pending")
+);
+
 watch(
-  sort,
+  [sort, dragons],
   () => {
     dragons.value.sort((a, b) => {
       if (sort.value === "Youngest First") return a.hoursleft - b.hoursleft;

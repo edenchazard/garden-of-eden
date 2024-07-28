@@ -42,9 +42,9 @@
       @click="emit('reload')"
     >
       <font-awesome-icon
-        icon="rotate"
+        :icon="['fas', 'rotate']"
         class="mr-1"
-        :class="{ 'animate-spin': status === 'pending' }"
+        :class="{ 'animate-spin': fetchScrollStatus === 'pending' }"
       />
       Reload
     </button>
@@ -55,6 +55,16 @@
       @click="emit('submit')"
     >
       Submit
+      <font-awesome-icon
+        :icon="['fas', 'spinner']"
+        class="ml-1 animate-spin size-4"
+        v-if="saveScrollStatus === 'pending'"
+      />
+      <font-awesome-icon
+        v-else
+        :icon="['fas', 'dragon']"
+        class="ml-1 size-4"
+      />
     </button>
   </div>
 </template>
@@ -64,7 +74,8 @@ const emit = defineEmits(["reload", "toggle-all", "submit"]);
 
 defineProps({
   dragons: Array,
-  status: String,
+  fetchScrollStatus: String,
+  saveScrollStatus: String,
 });
 
 const sort = defineModel("sort", {

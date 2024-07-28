@@ -7,6 +7,8 @@ import {
   faArrowRightToBracket,
   faMars,
   faVenus,
+  faSpinner,
+  faDragon,
 } from "@fortawesome/free-solid-svg-icons";
 
 // This is important, we are going to let Nuxt worry about the CSS
@@ -19,7 +21,9 @@ library.add(
   faArrowRightFromBracket,
   faArrowRightToBracket,
   faMars,
-  faVenus
+  faVenus,
+  faSpinner,
+  faDragon
 );
 
 export default defineNuxtPlugin((nuxtApp) => {
