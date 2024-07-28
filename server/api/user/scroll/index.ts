@@ -17,6 +17,18 @@ export default defineEventHandler(async (event) => {
     }
   );
 
+  // resync dragcave scroll and hatchery for the user
+  const toDelete = Object.keys(response.dragons);
+
+  if (toDelete.length) {
+    await pool.execute<RowDataPacket[]>(
+      `DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (` +
+        toDelete.map((id) => `'${id}'`).join(",") +
+        `)`,
+      [token?.userId]
+    );
+  }
+
   const [usersDragonsInHatchery] = await pool.execute<RowDataPacket[]>(
     `SELECT code FROM hatchery WHERE user_id = ?`,
     [token?.userId]
