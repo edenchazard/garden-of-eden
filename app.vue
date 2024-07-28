@@ -207,15 +207,11 @@ const {
   status: fetchScrollStatus,
 } = await useFetch("/api/user/scroll", {
   immediate: !!authData.value?.user,
-  default() {
-    return [];
-  },
+  default: () => [],
 });
 
 const { data: hatchery } = await useFetch("/api/hatchery/viewer", {
-  default() {
-    return [];
-  },
+  default: () => [],
 });
 
 const {
