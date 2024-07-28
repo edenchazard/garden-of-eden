@@ -1,16 +1,10 @@
 import pool from "~/server/pool";
 import type { RowDataPacket } from "mysql2";
-import { getServerSession, getToken } from "#auth";
+import { getToken } from "#auth";
 
 export default defineEventHandler(async (event) => {
-  const [session, token] = await Promise.all([
-    getServerSession(event),
-    getToken({ event }),
-  ]);
+  const token = await getToken({ event });
 
-  if (!session || !token) {
-    //return { status: 401 };
-  }
   // delete
   await pool.execute<RowDataPacket[]>(
     `DELETE FROM hatchery WHERE username = ?`,

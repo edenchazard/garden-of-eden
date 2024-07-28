@@ -1,4 +1,4 @@
-import { getServerSession, getToken } from "#auth";
+import { getToken } from "#auth";
 import { RowDataPacket } from "mysql2";
 import pool from "~/server/pool";
 
@@ -25,14 +25,7 @@ type ScrollView = DragonData & {
 };
 
 export default defineEventHandler(async (event) => {
-  const [session, token] = await Promise.all([
-    getServerSession(event),
-    getToken({ event }),
-  ]);
-
-  if (!session || !token) {
-    //return { status: 401 };
-  }
+  const token = await getToken({ event });
 
   const response = await $fetch<{
     errors: unknown[];
