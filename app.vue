@@ -181,12 +181,31 @@
             </fieldset>
           </form>
         </div>
-        <div class="bg-green-500 p-2 rounded-sm space-y-2">
+        <section class="bg-green-500 p-2 rounded-sm space-y-2">
           <h2 class="text-2xl text-green-950">Garden</h2>
           <p>
             There are currently <b>{{ statistics.total }}</b> dragons from a
             total of <b>{{ statistics.scrolls }}</b> scrolls.
           </p>
+          <div>
+            <label class="mr-1">Showing</label>
+            <select
+              v-model="showing"
+              class="text-black"
+            >
+              <option value="10">10 dragons</option>
+              <option value="25">25 dragons</option>
+              <option value="50">50 dragons</option>
+              <option value="100">100 dragons</option>
+            </select>
+            <label class="mx-1">every</label>
+            <select v-model="frequency">
+              <option value="30">30 seconds</option>
+              <option value="60">1 minute</option>
+              <option value="120">2 minutes</option>
+              <option value="300">5 minutes</option>
+            </select>
+          </div>
           <div>
             <a
               :href="`https://dragcave.net/view/${dragon.code}`"
@@ -200,13 +219,17 @@
               />
             </a>
           </div>
-        </div>
+        </section>
       </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const sort = ref<"Youngest First" | "Oldest First">("Oldest First");
+const showing = ref("10");
+const frequency = ref("30");
+
 const { data: authData, signIn, signOut } = useAuth();
 const {
   data: dragons,
@@ -217,9 +240,16 @@ const {
   default: () => [],
 });
 
-const { data: hatchery } = await useFetch("/api/hatchery/viewer", {
-  default: () => [],
-});
+const { data: hatchery, execute: fetchHatchery } = await useFetch(
+  "/api/hatchery/viewer",
+  {
+    default: () => [],
+    params: {
+      limit: showing,
+    },
+    watch: [showing, frequency],
+  }
+);
 
 const { data: statistics } = await useFetch("/api/hatchery/statistics", {
   default: () => ({
@@ -249,7 +279,7 @@ const {
   }
 );
 
-const sort = ref<"Youngest First" | "Oldest First">("Oldest First");
+useFrequency(frequency, fetchHatchery);
 
 const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes("pending")

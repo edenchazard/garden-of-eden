@@ -10,7 +10,7 @@
         Sort by:
       </label>
       <select
-        class="w-full sm:max-w-60 text-black p-2 rounded-md"
+        class="w-full sm:max-w-60"
         id="sort"
         v-model="sort"
       >
