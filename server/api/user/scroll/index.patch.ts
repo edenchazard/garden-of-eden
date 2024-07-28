@@ -3,15 +3,16 @@ import type { RowDataPacket } from "mysql2";
 import { getToken } from "#auth";
 
 export default defineEventHandler(async (event) => {
-  const token = await getToken({ event });
+  const [token, body] = await Promise.all([
+    getToken({ event }),
+    readBody<string[]>(event),
+  ]);
 
   // delete
   await pool.execute<RowDataPacket[]>(
     `DELETE FROM hatchery WHERE user_id = ?`,
     [token?.userId]
   );
-
-  const body = await readBody(event);
 
   // insert only if dragons were selected
   if (body.length > 0) {

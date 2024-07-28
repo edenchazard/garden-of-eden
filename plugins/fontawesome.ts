@@ -11,6 +11,7 @@ import {
   faDragon,
   faPause,
   faPlay,
+  faBroom,
 } from "@fortawesome/free-solid-svg-icons";
 
 // This is important, we are going to let Nuxt worry about the CSS
@@ -27,7 +28,8 @@ library.add(
   faSpinner,
   faDragon,
   faPause,
-  faPlay
+  faPlay,
+  faBroom
 );
 
 export default defineNuxtPlugin((nuxtApp) => {

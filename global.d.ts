@@ -34,4 +34,6 @@ declare global {
     perPage: number;
     sort: "Youngest First" | "Oldest First";
   };
+
+  type UserRole = "owner" | "user";
 }

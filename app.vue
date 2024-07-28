@@ -8,6 +8,15 @@
         <h1 class="text-2xl">Garden Of Eden</h1>
         <nav class="flex gap-x-4 justify-end items-center">
           <template v-if="authData?.user">
+            <button
+              v-if="authData.user.role === 'owner'"
+              type="button"
+              title="Clean"
+              class="rounded-full bg-blue-500 size-8"
+              @click="cleanUp()"
+            >
+              <font-awesome-icon :icon="['fas', 'broom']" />
+            </button>
             <span>
               Logged in as
               <a
@@ -306,7 +315,7 @@ const {
   status: saveScrollStatus,
 } = useAsyncData(
   () =>
-    $fetch("/api/user/update", {
+    $fetch("/api/user/scroll", {
       method: "PATCH",
       body: dragons.value
         .filter((dragon) => dragon.inHatchery)
@@ -320,6 +329,12 @@ const {
     default: () => [],
   }
 );
+
+const { execute: cleanUp } = useFetch("/api/hatchery", {
+  method: "DELETE",
+  immediate: false,
+  body: {},
+});
 
 useFrequency(userSettings, paused, fetchHatchery);
 

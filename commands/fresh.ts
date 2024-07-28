@@ -22,7 +22,8 @@ await con.execute(`
 await con.execute(`
   CREATE TABLE IF NOT EXISTS users (
     id mediumint UNSIGNED NOT NULL AUTO_INCREMENT,
-    username varchar(32) NOT NULL, 
+    username varchar(32) NOT NULL,
+    role varchar(11) NOT NULL DEFAULT 'user',
     PRIMARY KEY (id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 `);

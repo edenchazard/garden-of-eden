@@ -1,4 +1,5 @@
 import { NuxtAuthHandler } from "#auth";
+import { RowDataPacket } from "mysql2";
 import config from "~/server/config";
 import pool from "~/server/pool";
 
@@ -84,8 +85,15 @@ export default NuxtAuthHandler({
 
       return token;
     },
-    session({ session, token }) {
+    async session({ session, token }) {
+      const [[{ role }]] = await pool.execute<RowDataPacket[]>(
+        `SELECT role FROM users WHERE id = ?`,
+        [token.userId]
+      );
+
       session.user.username = token.username as string;
+      session.user.role = role;
+
       return session;
     },
   },
