@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: false },
+  modules: ["@sidebase/nuxt-auth"],
   css: ["~/assets/main.css", "@fortawesome/fontawesome-svg-core/styles.css"],
   postcss: {
     plugins: {
@@ -9,18 +10,17 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-
-  modules: ["@sidebase/nuxt-auth"],
+  build: {
+    transpile: ["@fortawesome/vue-fontawesome"],
+  },
   auth: {
     isEnabled: true,
     baseURL: "http://localhost:3000/api/auth",
     provider: {
+      defaultProvider: "dragcave",
       type: "authjs",
       trustHost: true,
       addDefaultCallbackUrl: true,
     },
-  },
-  build: {
-    transpile: ["@fortawesome/vue-fontawesome"],
   },
 });
