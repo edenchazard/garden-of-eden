@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   // delete
   await pool.execute<RowDataPacket[]>(
     `DELETE FROM hatchery WHERE username = ?`,
-    [token.username]
+    [token?.username]
   );
 
   const body = await readBody(event);
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   if (body.length > 0) {
     const bulkInsert = pool.format(
       `INSERT INTO hatchery (code, username) VALUES ?`,
-      [body.map((id: string) => [id, token.username])]
+      [body.map((id: string) => [id, token?.username])]
     );
 
     await pool.execute<RowDataPacket[]>(bulkInsert);

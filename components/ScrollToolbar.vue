@@ -72,11 +72,11 @@
 <script lang="ts" setup>
 const emit = defineEmits(["reload", "toggle-all", "submit"]);
 
-defineProps({
-  dragons: Array,
-  fetchScrollStatus: String,
-  saveScrollStatus: String,
-});
+defineProps<{
+  dragons: ScrollView[];
+  fetchScrollStatus: string;
+  saveScrollStatus: string;
+}>();
 
 const sort = defineModel("sort", {
   type: String,

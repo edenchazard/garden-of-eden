@@ -22,10 +22,13 @@ export default NuxtAuthHandler({
         async request(context) {
           const params = new URLSearchParams();
           params.append("grant_type", "authorization_code");
-          params.append("code_verifier", context.checks.code_verifier);
-          params.append("code", context.params.code);
-          params.append("client_id", context.client.client_id);
-          params.append("client_secret", context.client.client_secret);
+          params.append("code_verifier", context.checks.code_verifier ?? "");
+          params.append("code", context.params.code ?? "");
+          params.append("client_id", context.client.client_id as string);
+          params.append(
+            "client_secret",
+            context.client.client_secret as string
+          );
           params.append(
             "redirect_uri",
             "http://localhost:3000/api/auth/callback/dragcave"
@@ -67,7 +70,7 @@ export default NuxtAuthHandler({
       return token;
     },
     session({ session, token }) {
-      session.user.username = token.username;
+      session.user.username = token.username as string;
       return session;
     },
   },
