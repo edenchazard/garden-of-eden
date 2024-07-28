@@ -1,7 +1,7 @@
 import mysql from "mysql2/promise";
-import config from "./config";
+const { db } = useRuntimeConfig();
 
 export default mysql.createPool({
-  ...config.db,
+  ...db,
   connectionLimit: 10,
 });

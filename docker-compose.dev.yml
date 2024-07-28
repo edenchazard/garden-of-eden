@@ -1,0 +1,25 @@
+services:
+  hatchery:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    command: npm run dev
+    volumes:
+      - .:/src
+      - node_modules:/src/node_modules
+    ports:
+      - "3000:3000"
+
+  db:
+    image: mariadb:10
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
+  node_modules:
+
+networks:
+  internal:
+  dragcave:
+    external: false

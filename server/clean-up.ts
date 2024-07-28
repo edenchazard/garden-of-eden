@@ -1,8 +1,9 @@
 import { RowDataPacket } from "mysql2";
-import config from "~/server/config";
 import pool from "~/server/pool";
 
 export async function cleanUp() {
+  const { clientSecret } = useRuntimeConfig();
+
   console.log("Clean up in progress.");
   const start = new Date().getTime();
 
@@ -19,7 +20,7 @@ export async function cleanUp() {
   }>(`https://dragcave.net/api/v2/dragons`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${config.clientSecret}`,
+      Authorization: `Bearer ${clientSecret}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: params,

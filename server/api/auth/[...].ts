@@ -1,23 +1,25 @@
 import { NuxtAuthHandler } from "#auth";
 import { RowDataPacket } from "mysql2";
-import config from "~/server/config";
 import pool from "~/server/pool";
 
+const { clientSecret, clientId, nextAuthSecret, baseUrl, origin } =
+  useRuntimeConfig();
+
 export default NuxtAuthHandler({
-  secret: config.nextAuthSecret,
+  secret: nextAuthSecret,
   providers: [
     {
       id: "dragcave",
       name: "Dragon Cave",
       type: "oauth",
-      clientId: config.clientId,
-      clientSecret: config.clientSecret,
+      clientId: clientId,
+      clientSecret: clientSecret,
       checks: ["state", "pkce"],
       authorization: {
         url: "https://dragcave.net/oauth_login",
         params: {
           scope: "identify dragons",
-          redirect_uri: "http://localhost:3000/api/auth/callback/dragcave",
+          redirect_uri: `${origin}${baseUrl}/api/auth/callback/dragcave`,
         },
       },
       token: {
@@ -33,7 +35,7 @@ export default NuxtAuthHandler({
           );
           params.append(
             "redirect_uri",
-            "http://localhost:3000/api/auth/callback/dragcave"
+            `${origin}${baseUrl}/api/auth/callback/dragcave`
           );
 
           const response = await fetch(
@@ -82,7 +84,6 @@ export default NuxtAuthHandler({
         token.username = user.username;
         token.userId = parseInt(user.id);
       }
-
       return token;
     },
     async session({ session, token }) {
@@ -95,6 +96,9 @@ export default NuxtAuthHandler({
       session.user.role = role;
 
       return session;
+    },
+    redirect(params) {
+      return baseUrl;
     },
   },
 });

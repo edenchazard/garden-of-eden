@@ -108,7 +108,7 @@
               <div
                 class="grid gap-6"
                 :style="{
-                  gridTemplateColumns: `repeat(auto-fit, minmax(15rem, 1fr))`,
+                  gridTemplateColumns: `repeat(auto-fill, minmax(15rem, 1fr))`,
                 }"
               >
                 <div
@@ -196,7 +196,9 @@
             There are currently <b>{{ statistics.total }}</b> dragons from a
             total of <b>{{ statistics.scrolls }}</b> scrolls.
           </p>
-          <div class="bg-green-500 p-2 rounded-md my-4 flex items-center">
+          <div
+            class="bg-green-500 p-2 rounded-md my-4 flex flex-col md:flex-row items-center"
+          >
             <label class="mr-2">Showing</label>
             <select
               v-model.number="userSettings.perPage"
@@ -214,7 +216,7 @@
               <option value="120">2 minutes</option>
               <option value="300">5 minutes</option>
             </select>
-            <div class="flex-1 flex gap-x-2 justify-end">
+            <div class="flex-1 flex flex-col md:flex-row gap-x-2 justify-end">
               <button
                 v-if="!paused"
                 type="button"

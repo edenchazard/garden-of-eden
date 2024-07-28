@@ -10,16 +10,34 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+  app: {
+    baseURL: process.env.BASE_URL,
+    buildAssetsDir: "/assets",
+  },
   build: {
     transpile: ["@fortawesome/vue-fontawesome"],
   },
+  runtimeConfig: {
+    clientId: process.env.CLIENT_ID ?? "",
+    clientSecret: process.env.CLIENT_SECRET,
+    nextAuthSecret: process.env.NEXT_SECRET,
+    baseUrl: process.env.BASE_URL,
+    origin: process.env.ORIGIN,
+    db: {
+      port: 3306,
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      database: process.env.MYSQL_DATABASE,
+      password: process.env.MYSQL_PASSWORD,
+    },
+    public: {},
+  },
   auth: {
     isEnabled: true,
-    baseURL: "http://localhost:3000/api/auth",
+    baseURL: `${process.env.ORIGIN}${process.env.BASE_URL}/api/auth`,
     provider: {
       type: "authjs",
-      trustHost: true,
-      addDefaultCallbackUrl: true,
+      trustHost: false,
     },
   },
 });

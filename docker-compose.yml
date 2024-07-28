@@ -1,20 +1,15 @@
 services:
-  app:
+  hatchery:
     build:
       context: .
-      dockerfile: ./Dockerfile.dev
-    command: npm run dev
-    volumes:
-      - .:/src
-      - node_modules:/src/node_modules
+    command: node .output/server/index.mjs
     env_file:
       - .env
-    ports:
-      - "3000:3000"
     depends_on:
       - db
     networks:
       - internal
+      - dragcave
 
   db:
     image: mariadb:10
@@ -23,14 +18,13 @@ services:
       - dbdata:/var/lib/mysql
     env_file:
       - .env
-    ports:
-      - "3306:3306"
     networks:
       - internal
 
 volumes:
   dbdata:
-  node_modules:
 
 networks:
   internal:
+  dragcave:
+    external: true
