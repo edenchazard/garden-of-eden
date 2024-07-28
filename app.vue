@@ -92,6 +92,7 @@
                 v-model:sort="sort"
                 :fetch-scroll-status
                 :save-scroll-status
+                class="md:hidden"
                 @reload="refreshScroll()"
                 @toggle-all="toggleAll"
               />
