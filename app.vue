@@ -44,7 +44,7 @@
         </nav>
       </header>
 
-      <main class="bg-green-600 p-4 space-y-6">
+      <main class="bg-green-600 p-4 space-y-4">
         <div class="w-full text-center">
           <div
             v-if="!authData?.user"
@@ -181,14 +181,14 @@
             </fieldset>
           </form>
         </div>
-        <section class="bg-green-500 p-2 rounded-sm space-y-2">
-          <h2 class="text-2xl text-green-950">Garden</h2>
-          <p>
+        <section class="p-2 rounded-sm border-t-2">
+          <h2 class="text-2xl text-white">Garden</h2>
+          <p class="my-1">
             There are currently <b>{{ statistics.total }}</b> dragons from a
             total of <b>{{ statistics.scrolls }}</b> scrolls.
           </p>
-          <div>
-            <label class="mr-1">Showing</label>
+          <div class="bg-green-500 p-2 rounded-md my-4 flex items-center">
+            <label class="mr-2">Showing</label>
             <select
               v-model="showing"
               class="text-black"
@@ -198,13 +198,47 @@
               <option value="50">50 dragons</option>
               <option value="100">100 dragons</option>
             </select>
-            <label class="mx-1">every</label>
+            <label class="mx-2">every</label>
             <select v-model="frequency">
               <option value="30">30 seconds</option>
               <option value="60">1 minute</option>
               <option value="120">2 minutes</option>
               <option value="300">5 minutes</option>
             </select>
+            <div class="flex-1 flex gap-x-2 justify-end">
+              <button
+                v-if="!paused"
+                type="button"
+                class="bg-red-600 text-white px-4 py-2 rounded-md"
+                @click="paused = true"
+              >
+                <font-awesome-icon :icon="['fas', 'pause']" />
+                Pause
+              </button>
+
+              <button
+                v-else
+                type="button"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md"
+                @click="paused = false"
+              >
+                <font-awesome-icon :icon="['fas', 'play']" />
+                Continue
+              </button>
+              <button
+                type="button"
+                class="bg-green-700 text-white px-4 py-2 rounded-md"
+                @click="fetchHatchery()"
+              >
+                <font-awesome-icon
+                  :icon="['fas', 'rotate']"
+                  :class="{
+                    'animate-spin': hatcheryStatus === 'pending',
+                  }"
+                />
+                Reload
+              </button>
+            </div>
           </div>
           <div>
             <a
@@ -229,6 +263,7 @@
 const sort = ref<"Youngest First" | "Oldest First">("Oldest First");
 const showing = ref("10");
 const frequency = ref("30");
+const paused = ref(false);
 
 const { data: authData, signIn, signOut } = useAuth();
 const {
@@ -240,16 +275,17 @@ const {
   default: () => [],
 });
 
-const { data: hatchery, execute: fetchHatchery } = await useFetch(
-  "/api/hatchery/viewer",
-  {
-    default: () => [],
-    params: {
-      limit: showing,
-    },
-    watch: [showing, frequency],
-  }
-);
+const {
+  data: hatchery,
+  execute: fetchHatchery,
+  status: hatcheryStatus,
+} = await useFetch("/api/hatchery/viewer", {
+  default: () => [],
+  params: {
+    limit: showing,
+  },
+  watch: [showing, frequency],
+});
 
 const { data: statistics } = await useFetch("/api/hatchery/statistics", {
   default: () => ({
@@ -279,7 +315,7 @@ const {
   }
 );
 
-useFrequency(frequency, fetchHatchery);
+useFrequency(frequency, paused, fetchHatchery);
 
 const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes("pending")

@@ -1,5 +1,6 @@
 export function useFrequency(
   frequency: Ref<string | number>,
+  paused: Ref<boolean>,
   callback: () => void
 ) {
   let interval: ReturnType<typeof setInterval> | undefined;
@@ -13,6 +14,15 @@ export function useFrequency(
   }
 
   const unwatch = watch(frequency, setFrequency);
+  watch(paused, (value) => {
+    if (value) {
+      clearInterval(interval);
+      return;
+    }
+
+    callback();
+    setFrequency();
+  });
 
   onNuxtReady(setFrequency);
 
