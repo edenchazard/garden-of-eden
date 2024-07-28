@@ -20,14 +20,16 @@ export async function cache<T = unknown>(
   expiry: number,
   callback: () => Promise<unknown>
 ) {
-  if (
-    key in simpleCache === false ||
-    new Date().getTime() - simpleCache[key].lastUpdate >= expiry
-  ) {
+  if (key in simpleCache === false) {
     simpleCache[key] = {
-      data: await callback(),
+      data: {},
       lastUpdate: new Date().getTime(),
     };
+  }
+
+  if (new Date().getTime() - simpleCache[key].lastUpdate >= expiry) {
+    simpleCache[key].lastUpdate = new Date().getTime();
+    simpleCache[key].data = await callback();
   }
 
   return simpleCache[key].data as T;

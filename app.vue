@@ -294,7 +294,7 @@ const {
   data: hatchery,
   execute: fetchHatchery,
   status: hatcheryStatus,
-} = await useFetch("/api/hatchery/viewer", {
+} = await useFetch("/api/hatchery", {
   default: () => [],
   params: {
     limit: userSettings.value.perPage,
