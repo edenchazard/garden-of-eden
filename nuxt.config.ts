@@ -17,7 +17,6 @@ export default defineNuxtConfig({
     isEnabled: true,
     baseURL: "http://localhost:3000/api/auth",
     provider: {
-      defaultProvider: "dragcave",
       type: "authjs",
       trustHost: true,
       addDefaultCallbackUrl: true,
