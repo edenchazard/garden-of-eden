@@ -357,9 +357,9 @@ const {
   status: hatcheryStatus,
 } = await useFetch("/api/hatchery", {
   default: () => [],
-  params: {
+  params: computed(() => ({
     limit: userSettings.value.perPage,
-  },
+  })),
   watch: [() => [userSettings.value.frequency, userSettings.value.perPage]],
 });
 
