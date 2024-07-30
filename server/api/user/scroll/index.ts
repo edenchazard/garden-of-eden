@@ -17,8 +17,12 @@ export default defineEventHandler(async (event) => {
     }
   );
 
+  const filteredScroll = Object.values(response.dragons).filter(
+    (dragon) => dragon.hoursleft >= 0
+  );
+
   // resync dragcave scroll and hatchery for the user
-  const toDelete = Object.keys(response.dragons);
+  const toDelete = filteredScroll.map((dragon) => dragon.id);
 
   if (toDelete.length) {
     await pool.execute<RowDataPacket[]>(
@@ -36,11 +40,10 @@ export default defineEventHandler(async (event) => {
 
   const existingCodes = usersDragonsInHatchery.map((row) => row.code);
 
-  const dragonsWithData =
-    Object.entries(response.dragons).map<ScrollView>(([id, data]) => ({
-      ...data,
-      inHatchery: existingCodes.includes(id),
-    })) ?? [];
+  const dragonsWithData = filteredScroll.map<ScrollView>((dragon) => ({
+    ...dragon,
+    inHatchery: existingCodes.includes(dragon.id),
+  }));
 
   return dragonsWithData;
 });
