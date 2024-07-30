@@ -13,6 +13,11 @@ export default defineNuxtConfig({
   app: {
     baseURL: process.env.BASE_URL,
     buildAssetsDir: "/assets",
+    head: {
+      htmlAttrs: {
+        lang: "en",
+      },
+    },
   },
   build: {
     transpile: ["@fortawesome/vue-fontawesome"],
