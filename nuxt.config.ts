@@ -17,6 +17,17 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "en",
       },
+      meta: [
+        {
+          name: "description",
+          content: "View and click other people's dragons.",
+        },
+        {
+          name: "keywords",
+          content:
+            "dragcave, dragons, dragon cave, hatchery, garden, eden, hatchery, nursery, eggs, hatchlings",
+        },
+      ],
     },
   },
   build: {

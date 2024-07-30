@@ -100,6 +100,7 @@
                 'opacity-50': isProcessing,
               }"
             >
+              <legend class="text-2xl sr-only">Your scroll</legend>
               <ScrollToolbar
                 id="scroll-toolbar-1"
                 :dragons
@@ -320,14 +321,6 @@
 <script setup lang="ts">
 useHead({
   title: "Garden Of Eden",
-  meta: [
-    { name: "description", content: "View and click other people's dragons." },
-    {
-      name: "keywords",
-      content:
-        "dragcave, dragons, dragon cave, hatchery, garden, eden, hatchery, nursery, eggs, hatchlings",
-    },
-  ],
 });
 
 const paused = ref(false);
