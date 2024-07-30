@@ -318,6 +318,18 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+  title: "Garden Of Eden",
+  meta: [
+    { name: "description", content: "View and click other people's dragons." },
+    {
+      name: "keywords",
+      content:
+        "dragcave, dragons, dragon cave, hatchery, garden, eden, hatchery, nursery, eggs, hatchlings",
+    },
+  ],
+});
+
 const paused = ref(false);
 
 const { data: authData, signIn, signOut } = useAuth();
