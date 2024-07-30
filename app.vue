@@ -176,8 +176,8 @@
                       }}<abbr title="Views">V</abbr> /
                       {{ formatNumber(dragon.unique)
                       }}<abbr title="Unique Views">U</abbr> /
-                      {{ formatNumber(dragon.clicks) }}
-                      <abbr title="Clicks">C</abbr>
+                      {{ formatNumber(dragon.clicks)
+                      }}<abbr title="Clicks">C</abbr>
                     </div>
                     <input
                       :id="`dragon-check-${dragon.id}`"
