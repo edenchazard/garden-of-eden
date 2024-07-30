@@ -232,7 +232,7 @@
             total of <b>{{ statistics.scrolls }}</b> scrolls.
           </p>
           <div
-            class="bg-green-500 p-2 rounded-md my-4 flex flex-col md:flex-row items-center"
+            class="bg-green-500 gap-y-4 text-center p-2 rounded-md my-4 flex flex-col md:flex-row md:items-center"
           >
             <label
               class="mr-2"
@@ -263,7 +263,9 @@
               <option value="120">2 minutes</option>
               <option value="300">5 minutes</option>
             </select>
-            <div class="flex-1 flex flex-col md:flex-row gap-x-2 justify-end">
+            <div
+              class="flex-1 flex flex-col md:flex-row gap-x-2 gap-y-4 md:justify-end"
+            >
               <button
                 v-if="!paused"
                 type="button"
