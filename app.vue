@@ -126,7 +126,7 @@
                   }"
                 >
                   <div
-                    class="grid grid-cols-[2rem_auto_1fr] gap-x-4 gap-y-2 p-2 pb-4 rounded-md items-center border content-border"
+                    class="grid grid-cols-[2rem_1fr] gap-x-4 gap-y-2 p-2 pb-4 rounded-md items-center border content-border justify-items-start overflow-hidden"
                     :class="
                       dragon.inHatchery
                         ? 'bg-green-500 border-transparent'
@@ -134,24 +134,27 @@
                     "
                   >
                     <img
+                      alt=""
                       loading="lazy"
                       class="justify-self-center max-w-full max-h-full"
                       :src="`https://dragcave.net/image/${dragon.id}/0.gif`"
                     />
-                    <div>
-                      <b class="block">{{ dragon.name ?? "Unnamed" }}</b>
-                      <i class="text-sm">({{ dragon.id }})</i>
+                    <div class="text-left w-full">
+                      <b class="block truncate">
+                        {{ dragon.name ?? "Unnamed" }}
+                      </b>
+                      <i class="text-sm pl-3">({{ dragon.id }})</i>
                     </div>
 
                     <div
-                      class="text-xs bg-green-700 p-1 rounded-md self-start *:underline-offset-2"
+                      class="text-xs bg-green-700 p-1 rounded-md self-end *:underline-offset-2 absolute right-3 bottom-4"
                     >
                       {{ formatNumber(dragon.views)
                       }}<abbr title="Views">V</abbr> /
-                      {{ formatNumber(dragon.clicks)
-                      }}<abbr title="Clicks">C</abbr> /
                       {{ formatNumber(dragon.unique)
-                      }}<abbr title="Unique Views">U</abbr>
+                      }}<abbr title="Unique Views">U</abbr> /
+                      {{ formatNumber(dragon.clicks) }}
+                      <abbr title="Clicks">C</abbr>
                     </div>
                     <input
                       class="justify-self-end -top-2 -right-2 absolute"
@@ -160,7 +163,7 @@
                     />
                   </div>
                   <div
-                    class="text-xs bg-green-800 text-left px-2 py-0.5 rounded-md absolute -bottom-1 right-1 divide-x divide-white *:px-2"
+                    class="text-xs bg-green-800 text-left px-2 py-0.5 rounded-md absolute -bottom-2 right-1 divide-x divide-white *:px-2"
                   >
                     <span class="!pl-0.5">
                       {{ dragon.parent_f && dragon.parent_m ? "L" : "CB" }}
@@ -264,6 +267,7 @@
               :key="dragon.id"
             >
               <img
+                alt=""
                 loading="lazy"
                 class="inline"
                 :src="`https://dragcave.net/image/${dragon.code}.gif`"
