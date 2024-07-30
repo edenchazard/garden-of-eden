@@ -54,7 +54,6 @@
       class="bg-green-700 text-white px-4 py-2 rounded-md"
       @click="emit('submit')"
     >
-      Submit
       <font-awesome-icon
         :icon="['fas', 'spinner']"
         class="ml-1 animate-spin size-4"
@@ -65,6 +64,7 @@
         :icon="['fas', 'dragon']"
         class="ml-1 size-4"
       />
+      Submit
     </button>
   </div>
 </template>
