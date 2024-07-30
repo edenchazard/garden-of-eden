@@ -133,17 +133,32 @@
                         : 'border-green-500'
                     "
                   >
-                    <img
-                      alt=""
-                      loading="lazy"
-                      class="justify-self-center max-w-full max-h-full"
-                      :src="`https://dragcave.net/image/${dragon.id}/0.gif`"
-                    />
+                    <a
+                      :href="`https://dragcave.net/view/${dragon.id}`"
+                      target="_blank"
+                      class="justify-self-center"
+                      :aria-labelledby="`dragon-${dragon.id}`"
+                    >
+                      <img
+                        alt=""
+                        loading="lazy"
+                        class="max-w-full max-h-full"
+                        :src="`https://dragcave.net/image/${dragon.id}/0.gif`"
+                      />
+                    </a>
                     <div class="text-left w-full">
-                      <b class="block truncate">
+                      <span
+                        class="block truncate font-bold"
+                        :id="dragon.name ? `dragon-${dragon.id}` : undefined"
+                      >
                         {{ dragon.name ?? "Unnamed" }}
-                      </b>
-                      <i class="text-sm pl-3">({{ dragon.id }})</i>
+                      </span>
+                      <span class="text-sm pl-3 italic">
+                        (<span
+                          :id="!dragon.name ? `dragon-${dragon.id}` : undefined"
+                          >{{ dragon.id }}</span
+                        >)
+                      </span>
                     </div>
 
                     <div
