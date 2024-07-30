@@ -48,7 +48,11 @@
             @click="signIn('dragcave')"
             title="Sign in"
           >
-            <font-awesome-icon :icon="['fas', 'arrow-right-to-bracket']" />
+            <font-awesome-icon
+              :icon="['fas', 'arrow-right-to-bracket']"
+              class="mr-1"
+            />
+            Sign in
           </button>
         </nav>
       </header>
