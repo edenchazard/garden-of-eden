@@ -306,7 +306,6 @@
             >
               <img
                 alt=""
-                loading="lazy"
                 class="inline"
                 :src="`https://dragcave.net/image/${dragon.code}.gif`"
               />
