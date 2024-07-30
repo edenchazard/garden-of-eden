@@ -4,14 +4,14 @@
   >
     <div class="flex">
       <label
-        for="sort"
+        :for="`${id}-sort`"
         class="mr-1 sr-only"
       >
         Sort by:
       </label>
       <select
         class="w-full sm:max-w-60"
-        id="sort"
+        :id="`${id}-sort`"
         v-model="sort"
       >
         <option value="Oldest First">Oldest First</option>
@@ -21,7 +21,7 @@
 
     <div class="flex gap-x-2">
       <input
-        id="select-all-hatchery"
+        :id="`${id}-select-all-hatchery`"
         type="checkbox"
         :checked="dragons.every((dragon) => dragon.inHatchery)"
         @change="
@@ -29,7 +29,7 @@
         "
       />
       <label
-        for="select-all-hatchery"
+        :for="`${id}-select-all-hatchery`"
         class="flex-1 text-left"
       >
         Select all
@@ -78,6 +78,7 @@ defineProps<{
   dragons: ScrollView[];
   fetchScrollStatus: string;
   saveScrollStatus: string;
+  id: string;
 }>();
 
 const sort = defineModel("sort", {

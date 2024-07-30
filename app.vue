@@ -101,6 +101,7 @@
               }"
             >
               <ScrollToolbar
+                id="scroll-toolbar-1"
                 :dragons
                 v-model:sort="userSettings.sort"
                 :fetch-scroll-status
@@ -149,15 +150,22 @@
                     <div class="text-left w-full">
                       <span
                         class="block truncate font-bold"
-                        :id="dragon.name ? `dragon-${dragon.id}` : undefined"
+                        :id="`dragon-${dragon.id}`"
                       >
-                        {{ dragon.name ?? "Unnamed" }}
+                        <span :aria-hidden="!dragon.name">{{
+                          dragon.name ?? "Unnamed"
+                        }}</span>
+                        <span
+                          class="sr-only"
+                          :aria-hidden="!!dragon.name"
+                          >({{ dragon.id }})</span
+                        >
                       </span>
-                      <span class="text-sm pl-3 italic">
-                        (<span
-                          :id="!dragon.name ? `dragon-${dragon.id}` : undefined"
-                          >{{ dragon.id }}</span
-                        >)
+                      <span
+                        class="text-sm pl-3 italic"
+                        :aria-hidden="!dragon.name"
+                      >
+                        ({{ dragon.id }})
                       </span>
                     </div>
 
@@ -172,9 +180,11 @@
                       <abbr title="Clicks">C</abbr>
                     </div>
                     <input
+                      :id="`dragon-check-${dragon.id}`"
                       class="justify-self-end -top-2 -right-2 absolute"
                       type="checkbox"
                       v-model="dragon.inHatchery"
+                      :aria-labelledby="`dragon-${dragon.id}`"
                     />
                   </div>
                   <div
@@ -203,6 +213,7 @@
                 </div>
               </div>
               <ScrollToolbar
+                id="scroll-toolbar-2"
                 :dragons
                 :fetch-scroll-status
                 :save-scroll-status
@@ -222,8 +233,13 @@
           <div
             class="bg-green-500 p-2 rounded-md my-4 flex flex-col md:flex-row items-center"
           >
-            <label class="mr-2">Showing</label>
+            <label
+              class="mr-2"
+              for="showing"
+              >Showing</label
+            >
             <select
+              id="showing"
               v-model.number="userSettings.perPage"
               class="text-black"
             >
@@ -232,8 +248,15 @@
               <option value="50">50 dragons</option>
               <option value="100">100 dragons</option>
             </select>
-            <label class="mx-2">every</label>
-            <select v-model.number="userSettings.frequency">
+            <label
+              class="mx-2"
+              for="every"
+              >every</label
+            >
+            <select
+              v-model.number="userSettings.frequency"
+              id="every"
+            >
               <option value="30">30 seconds</option>
               <option value="60">1 minute</option>
               <option value="120">2 minutes</option>
