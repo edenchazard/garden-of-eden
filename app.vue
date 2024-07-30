@@ -117,7 +117,7 @@
                   @click="dragon.inHatchery = !dragon.inHatchery"
                   class="relative cursor-pointer"
                   :class="{
-                    ' shadow-[0px_0px_15px_1px] shadow-yellow-600 transition-shadow':
+                    'shadow-[0px_0px_15px_1px] shadow-yellow-600 transition-shadow':
                       recentlyAdded.includes(dragon.id),
                   }"
                 >
@@ -130,6 +130,7 @@
                     "
                   >
                     <img
+                      loading="lazy"
                       class="justify-self-center max-w-full max-h-full"
                       :src="`https://dragcave.net/image/${dragon.id}/0.gif`"
                     />
@@ -259,6 +260,7 @@
               :key="dragon.id"
             >
               <img
+                loading="lazy"
                 class="inline"
                 :src="`https://dragcave.net/image/${dragon.code}.gif`"
               />
