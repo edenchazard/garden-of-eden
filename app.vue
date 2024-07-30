@@ -162,7 +162,7 @@
                     </div>
 
                     <div
-                      class="text-xs bg-green-700 p-1 rounded-md self-end *:underline-offset-2 absolute right-3 bottom-4"
+                      class="text-xs bg-green-700 p-1 rounded-md self-end *:underline-offset-2 absolute right-3 bottom-4 px-1.5"
                     >
                       {{ formatNumber(dragon.views)
                       }}<abbr title="Views">V</abbr> /
