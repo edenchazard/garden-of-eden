@@ -2,24 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  @apply text-white dark:text-stone-200;
+}
+
 html {
   @apply h-full;
 }
+
 body {
   @apply min-h-full flex;
 }
+
 #__nuxt {
-  @apply flex-1 flex flex-col pt-4 items-center bg-green-700;
+  @apply flex-1 flex flex-col pt-4 items-center bg-green-800 dark:bg-neutral-950;
+}
+
+button {
+  @apply py-2 px-4 rounded-md dark:shadow-[inset_0px_0px_6px_-3px_#000];
+
+  & svg {
+    @apply mr-1.5;
+  }
+
+  &.btn-primary {
+    @apply bg-orange-200 text-black  dark:bg-sky-900 dark:text-white;
+  }
+
+  &.btn-secondary {
+    @apply bg-emerald-500 dark:bg-rose-900 dark:text-white;
+  }
+}
+
+.mint button.btn-primary svg {
+  filter: brightness(0) saturate(0%);
 }
 
 input {
   @apply p-2 rounded-md;
 
   &[type="checkbox"] {
-    @apply overflow-hidden size-6  rounded-full border-2 border-white bg-white appearance-none checked:bg-yellow-400;
+    @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-neutral-500;
   }
 }
 
 select {
-  @apply text-black p-2 rounded-md;
+  @apply !text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
+}
+
+option {
+  @apply !text-black;
+}
+
+a {
+  @apply underline underline-offset-4 text-yellow-300 dark:text-sky-500;
 }

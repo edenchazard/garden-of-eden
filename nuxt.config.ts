@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: false },
-  modules: ["@sidebase/nuxt-auth"],
+  modules: ["@sidebase/nuxt-auth", "@nuxtjs/color-mode"],
   css: ["~/assets/main.css", "@fortawesome/fontawesome-svg-core/styles.css"],
   postcss: {
     plugins: {
@@ -55,5 +55,8 @@ export default defineNuxtConfig({
       type: "authjs",
       trustHost: false,
     },
+  },
+  colorMode: {
+    classSuffix: "",
   },
 });

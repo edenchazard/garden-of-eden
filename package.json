@@ -13,9 +13,13 @@
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@nuxtjs/color-mode": "^3.4.2",
     "@sidebase/nuxt-auth": "^0.8.1",
+    "@vueuse/core": "^10.11.0",
+    "i": "^0.3.7",
     "mysql2": "^3.11.0",
     "next-auth": "^4.21.1",
+    "npm": "^10.8.2",
     "nuxt": "^3.12.3",
     "vue": "latest"
   },

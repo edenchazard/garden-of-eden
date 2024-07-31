@@ -38,12 +38,11 @@
 
     <button
       type="button"
-      class="bg-green-500 text-white px-4 py-2 rounded-md"
+      class="btn-secondary"
       @click="emit('reload')"
     >
       <font-awesome-icon
         :icon="['fas', 'rotate']"
-        class="mr-1"
         :class="{ 'animate-spin': fetchScrollStatus === 'pending' }"
       />
       Reload
@@ -51,7 +50,7 @@
 
     <button
       type="submit"
-      class="bg-green-700 text-white px-4 py-2 rounded-md"
+      class="btn-primary"
       @click="emit('submit')"
     >
       <font-awesome-icon
