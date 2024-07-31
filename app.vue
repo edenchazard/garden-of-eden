@@ -164,6 +164,7 @@
                         target="_blank"
                         class="justify-self-center"
                         :aria-labelledby="`dragon-${dragon.id}`"
+                        @click.stop
                       >
                         <img
                           alt=""
