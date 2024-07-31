@@ -54,7 +54,7 @@
                   {{ authData?.user.username }}
                 </a>
               </span>
-              <span class="hidden md:inline">&bull</span>
+              <span class="hidden md:inline">&bull;</span>
               <button
                 class="underline-offset-4 underline !px-0 !shadow-none"
                 type="button"
