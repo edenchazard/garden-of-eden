@@ -145,7 +145,7 @@
                         alt=""
                         loading="lazy"
                         class="max-w-full max-h-full"
-                        :src="`https://dragcave.net/image/${dragon.id}/0.gif`"
+                        :src="`https://dragcave.net/image/${dragon.id}/1`"
                       />
                     </a>
                     <div class="text-left w-full">
