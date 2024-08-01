@@ -23,7 +23,7 @@ export async function cache<T = unknown>(
   if (key in simpleCache === false) {
     simpleCache[key] = {
       data: {},
-      lastUpdate: new Date().getTime(),
+      lastUpdate: -1,
     };
   }
 
