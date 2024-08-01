@@ -448,14 +448,25 @@ watch(
 watch(
   () => [userSettings.value.sort, dragons],
   () => {
-    dragons.value.sort((a, b) => {
-      if (userSettings.value.sort === "Youngest First")
-        return a.hoursleft - b.hoursleft;
-      return b.hoursleft - a.hoursleft;
-    });
+    if (userSettings.value.sort === "Youngest First") {
+      dragons.value.sort((a, b) => {
+        const valueA = a.hatch + "" + a.hoursleft;
+        const valueB = b.hatch + "" + b.hoursleft;
+        return valueA.localeCompare(valueB);
+      });
+    }
+
+    if (userSettings.value.sort === "Oldest First") {
+      dragons.value.sort((a, b) => {
+        const valueA = a.hatch + "" + a.hoursleft;
+        const valueB = b.hatch + "" + b.hoursleft;
+        return valueB.localeCompare(valueA);
+      });
+    }
   },
   {
     immediate: true,
+    deep: true,
   }
 );
 
