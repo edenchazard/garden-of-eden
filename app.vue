@@ -47,12 +47,12 @@
               </label>
               <span>
                 Logged in as
-                <a
-                  :href="`https://dragcave.net/user/${authData?.user.username}`"
+                <NuxtLink
+                  :to="`https://dragcave.net/user/${authData?.user.username}`"
                   target="_blank"
                 >
                   {{ authData?.user.username }}
-                </a>
+                </NuxtLink>
               </span>
               <span class="hidden md:inline">&bull;</span>
               <button
@@ -159,8 +159,8 @@
                           : 'border-green-500 dark:border-neutral-600'
                       "
                     >
-                      <a
-                        :href="`https://dragcave.net/view/${dragon.id}`"
+                      <NuxtLink
+                        :to="`https://dragcave.net/view/${dragon.id}`"
                         target="_blank"
                         class="justify-self-center"
                         :aria-labelledby="`dragon-${dragon.id}`"
@@ -172,7 +172,7 @@
                           class="max-w-full max-h-full"
                           :src="`https://dragcave.net/image/${dragon.id}/1`"
                         />
-                      </a>
+                      </NuxtLink>
                       <div class="text-left w-full">
                         <span
                           class="block truncate font-bold"
