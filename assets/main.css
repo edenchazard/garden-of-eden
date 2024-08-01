@@ -42,7 +42,7 @@ input {
   @apply p-2 rounded-md;
 
   &[type="checkbox"] {
-    @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-neutral-500;
+    @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
   }
 }
 
