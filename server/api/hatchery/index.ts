@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const [dragons] = await pool.execute<RowDataPacket[]>(
-    `SELECT * FROM hatchery ORDER BY RAND() LIMIT ?`,
+    `SELECT code FROM hatchery ORDER BY RAND() LIMIT ?`,
     [query.limit]
   );
 

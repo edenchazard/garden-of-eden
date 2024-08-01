@@ -333,7 +333,7 @@
                 :href="`https://dragcave.net/view/${dragon.code}`"
                 target="_blank"
                 v-for="dragon in hatchery.dragons"
-                :key="dragon.id"
+                :key="dragon.code"
               >
                 <img
                   alt=""
