@@ -256,8 +256,8 @@
             <p
               class="p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
             >
-              There are currently <b>{{ statistics.total }}</b> dragons from a
-              total of <b>{{ statistics.scrolls }}</b> scrolls.
+              There are currently <b>{{ hatchery.statistics.total }}</b> dragons
+              from a total of <b>{{ hatchery.statistics.scrolls }}</b> scrolls.
             </p>
             <div
               class="gap-y-4 text-center p-2 rounded-md flex flex-col md:flex-row md:items-center bg-black/30"
@@ -332,7 +332,7 @@
               <a
                 :href="`https://dragcave.net/view/${dragon.code}`"
                 target="_blank"
-                v-for="dragon in hatchery"
+                v-for="dragon in hatchery.dragons"
                 :key="dragon.id"
               >
                 <img
@@ -385,18 +385,17 @@ const {
   execute: fetchHatchery,
   status: hatcheryStatus,
 } = await useFetch("/api/hatchery", {
-  default: () => [],
+  default: () => ({
+    dragons: [],
+    statistics: {
+      total: 0,
+      scrolls: 0,
+    },
+  }),
   params: computed(() => ({
     limit: userSettings.value.perPage,
   })),
   watch: [() => [userSettings.value.frequency, userSettings.value.perPage]],
-});
-
-const { data: statistics } = await useFetch("/api/hatchery/statistics", {
-  default: () => ({
-    total: 0,
-    scrolls: 0,
-  }),
 });
 
 const {

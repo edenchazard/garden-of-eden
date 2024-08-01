@@ -1,5 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import pool from "~/server/pool";
+import { cache } from "~/utils";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery<{ limit: number }>(event);
@@ -8,10 +9,28 @@ export default defineEventHandler(async (event) => {
     query.limit = 10;
   }
 
-  const [rows] = await pool.execute<RowDataPacket[]>(
+  const [dragons] = await pool.execute<RowDataPacket[]>(
     `SELECT * FROM hatchery ORDER BY RAND() LIMIT ?`,
     [query.limit]
   );
 
-  return rows as HatcheryDragon[];
+  const statistics = await cache<{ total: number; scrolls: number }>(
+    "statistics",
+    1000 * 60,
+    async () => {
+      const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
+        `SELECT COUNT(*) AS total, COUNT(DISTINCT(user_id)) AS scrolls FROM hatchery`
+      );
+
+      return {
+        total,
+        scrolls,
+      };
+    }
+  );
+
+  return { statistics, dragons } as {
+    statistics: { total: number; scrolls: number };
+    dragons: HatcheryDragon[];
+  };
 });
