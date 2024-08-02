@@ -196,7 +196,7 @@
                       </div>
 
                       <div
-                        class="text-xs bg-green-900/70 dark:bg-neutral-950/70 p-1 rounded-md self-end *:underline-offset-2 absolute right-3 bottom-4 px-1.5"
+                        class="uppercase text-xs bg-green-900/70 dark:bg-neutral-950/70 p-1 rounded-md self-end *:underline-offset-2 absolute right-3 bottom-4 px-1.5"
                       >
                         {{ formatNumber(dragon.views)
                         }}<abbr title="Views">V</abbr> /
@@ -217,7 +217,15 @@
                       class="bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 right-1 *:px-2"
                     >
                       <span class="!pl-0.5">
-                        {{ dragon.parent_f && dragon.parent_m ? "L" : "CB" }}
+                        <NuxtLink
+                          v-if="dragon.parent_f && dragon.parent_m"
+                          class="text-white dark:text-stone-200 decoration-transparent"
+                          :to="`https://dragcave.net/lineage/${dragon.id}`"
+                          target="_blank"
+                          @click.stop
+                          >LINEAGE</NuxtLink
+                        >
+                        <span v-else>CB</span>
                       </span>
                       <span
                         v-if="dragon.gender"
