@@ -10,15 +10,16 @@ export default defineEventHandler(async (event) => {
 
   const con = await pool.getConnection();
   await con.beginTransaction();
-
-  await con.execute<RowDataPacket[]>(`DELETE FROM hatchery WHERE user_id = ?`, [
-    token?.userId,
-  ]);
+  const bulkDelete = con.format(
+    `DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (?)`,
+    [token?.userId, body]
+  );
+  await con.execute<RowDataPacket[]>(bulkDelete);
 
   // insert only if dragons were selected
   if (body.length > 0) {
     const bulkInsert = con.format(
-      `INSERT INTO hatchery (code, user_id) VALUES ?`,
+      `INSERT INTO hatchery (code, user_id) VALUES ? ON DUPLICATE KEY UPDATE id=id`,
       [body.map((id: string) => [id, token?.userId])]
     );
 
