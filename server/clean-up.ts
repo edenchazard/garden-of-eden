@@ -31,11 +31,8 @@ export async function cleanUp() {
     )
   );
 
-  const dragons = apiResponse.flatMap((response) =>
-    Object.values(response.dragons)
-  );
-
-  const toDelete = dragons
+  const toDelete = apiResponse
+    .flatMap((response) => Object.values(response.dragons))
     .filter((dragon) => dragon.hoursleft < 0)
     .map((dragon) => dragon.id);
 
