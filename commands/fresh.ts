@@ -1,17 +1,15 @@
 import pool from "../server/pool";
 
-const table = "hatchery";
-
 const con = await pool.getConnection();
 
-await con.execute(`DROP TABLE IF EXISTS ${table}`);
+await con.execute(`DROP TABLE IF EXISTS hatchery`);
 await con.execute(`DROP TABLE IF EXISTS users`);
 await con.execute(`DROP TABLE IF EXISTS user_settings`);
 
 await con.beginTransaction();
 
 await con.execute(`
-  CREATE TABLE IF NOT EXISTS ${table} (
+  CREATE TABLE IF NOT EXISTS hatchery (
     id int UNSIGNED NOT NULL AUTO_INCREMENT,
     code char(5) NOT NULL,
     user_id mediumint NOT NULL, 
@@ -36,6 +34,23 @@ await con.execute(`
     sort varchar(32) NOT NULL DEFAULT 'Youngest First',
     PRIMARY KEY (user_id)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+`);
+
+await con.execute(`
+  ALTER TABLE \`hatchery\`
+	CHANGE COLUMN \`user_id\` \`user_id\` mediumint UNSIGNED NOT NULL AFTER \`code\`,
+	ADD INDEX \`user_id\` (\`user_id\`),
+	ADD UNIQUE INDEX \`code\` (\`code\`);
+`);
+
+await con.execute(`
+  ALTER TABLE \`hatchery\`
+	ADD CONSTRAINT \`FK_hatchery_users\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON UPDATE RESTRICT ON DELETE CASCADE;
+`);
+
+await con.execute(`
+  ALTER TABLE \`user_settings\`
+	ADD CONSTRAINT \`FK_user_settings_users\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON UPDATE RESTRICT ON DELETE CASCADE;
 `);
 
 await con.commit();
