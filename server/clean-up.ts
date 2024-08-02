@@ -1,5 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import pool from "~/server/pool";
+import chunkArray from "~/utils/chunkArray";
 
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
@@ -7,32 +8,36 @@ export async function cleanUp() {
   console.log("Clean up in progress.");
   const start = new Date().getTime();
 
-  const [dragons] = await pool.execute<RowDataPacket[]>(
+  const [codes] = await pool.execute<RowDataPacket[]>(
     `SELECT code FROM hatchery`
   );
 
-  const params = new URLSearchParams();
-  params.append("ids", dragons.map((dragon) => dragon.code).join(","));
+  const chunkedDragons = chunkArray(codes, 400);
+  const apiResponse = await Promise.all(
+    chunkedDragons.map((chunk) =>
+      $fetch<{
+        errors: unknown[];
+        dragons: Record<string, DragonData>;
+      }>(`https://dragcave.net/api/v2/dragons`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${clientSecret}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          ids: chunk.map((dragon) => dragon.code).join(","),
+        }),
+      })
+    )
+  );
 
-  const response = await $fetch<{
-    errors: unknown[];
-    dragons: Record<string, DragonData>;
-  }>(`https://dragcave.net/api/v2/dragons`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${clientSecret}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: params,
-  });
+  const dragons = apiResponse.flatMap((response) =>
+    Object.values(response.dragons)
+  );
 
-  const toDelete = [];
-
-  for (const id in response.dragons) {
-    if (response.dragons[id].hoursleft < 0) {
-      toDelete.push(id);
-    }
-  }
+  const toDelete = dragons
+    .filter((dragon) => dragon.hoursleft < 0)
+    .map((dragon) => dragon.id);
 
   if (toDelete.length) {
     await pool.execute<RowDataPacket[]>(
@@ -43,8 +48,9 @@ export async function cleanUp() {
   }
 
   const end = new Date().getTime();
-
   console.log(
-    `Clean up complete in ${end - start}ms. ${toDelete.length} dragons removed.`
+    `Clean up complete in ${end - start}ms. ${
+      toDelete.length
+    } dragons removed. ${chunkedDragons.length} chunks.`
   );
 }
