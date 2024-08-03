@@ -100,7 +100,11 @@
               </button>
               <p class="text-xs">
                 * The above link will take you directly to
-                <b class="font-normal">dragcave.net</b>
+                <b class="font-normal">dragcave.net</b>.
+                <em class="italic"
+                  >The Garden Of Eden only stores your user id and username, not
+                  your password.</em
+                >
               </p>
               <p>
                 Without signing in, you can still give views and clicks, but you
