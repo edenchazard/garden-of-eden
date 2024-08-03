@@ -7,6 +7,14 @@ export function formatHoursLeft(hours: number) {
   return `${Math.floor(hours / 24)}d ${hours % 24}h`;
 }
 
+export function formatRatio(a: number, b: number) {
+  return (
+    Intl.NumberFormat(undefined, {
+      maximumFractionDigits: 1,
+    }).format(a / b) + `:${1}`
+  );
+}
+
 const simpleCache: Record<
   string,
   {

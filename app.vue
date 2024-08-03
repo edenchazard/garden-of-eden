@@ -216,7 +216,12 @@
                     <div
                       class="bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 right-1 *:px-2"
                     >
-                      <span class="!pl-0.5">
+                      <span
+                        class="!pl-0.5"
+                        title="Views to unique views ratio"
+                        >{{ formatRatio(dragon.views, dragon.unique) }}</span
+                      >
+                      <span>
                         <NuxtLink
                           v-if="dragon.parent_f && dragon.parent_m"
                           class="text-white dark:text-stone-200 decoration-transparent"
