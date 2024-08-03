@@ -1,13 +1,14 @@
 import type { RowDataPacket } from "mysql2";
 import pool from "~/server/pool";
 import { cache } from "~/utils";
+import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery<{ limit: number }>(event);
-
-  if (!query.limit) {
-    query.limit = 10;
-  }
+  const query = z
+    .object({
+      limit: z.coerce.number().default(50),
+    })
+    .parse(getQuery(event));
 
   const [dragons] = await pool.execute<RowDataPacket[]>(
     `SELECT code FROM hatchery ORDER BY RAND() LIMIT ?`,

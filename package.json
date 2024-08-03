@@ -19,7 +19,8 @@
     "next-auth": "^4.21.1",
     "npm": "^10.8.2",
     "nuxt": "^3.12.3",
-    "vue": "latest"
+    "vue": "latest",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
