@@ -1,7 +1,7 @@
 <template>
   <ColorScheme
     placeholder=""
-    tag="span"
+    tag="div"
   >
     <div class="container flex max-w-4xl">
       <NuxtRouteAnnouncer />
