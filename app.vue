@@ -128,16 +128,6 @@
                 }"
               >
                 <legend class="text-2xl sr-only">Your scroll</legend>
-                <ScrollToolbar
-                  id="scroll-toolbar-1"
-                  :dragons
-                  v-model:sort="userSettings.sort"
-                  :fetch-scroll-status
-                  :save-scroll-status
-                  class="md:hidden"
-                  @reload="refreshScroll()"
-                  @toggle-all="toggleAll"
-                />
                 <div
                   class="grid gap-6"
                   :style="{
