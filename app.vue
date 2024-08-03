@@ -63,8 +63,7 @@
               >
                 <font-awesome-icon
                   :icon="['fas', 'arrow-right-from-bracket']"
-                />
-                Sign out
+                />Sign out
               </button>
             </template>
             <button
@@ -74,8 +73,9 @@
               @click="signIn('dragcave')"
               title="Sign in"
             >
-              <font-awesome-icon :icon="['fas', 'arrow-right-to-bracket']" />
-              Sign in
+              <font-awesome-icon
+                :icon="['fas', 'arrow-right-to-bracket']"
+              />Sign in
             </button>
           </nav>
         </header>
