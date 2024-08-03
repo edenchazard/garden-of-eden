@@ -3,11 +3,11 @@
     placeholder=""
     tag="div"
   >
-    <div class="container flex max-w-screen-lg">
+    <div class="w-full max-w-screen-lg space-y-4">
       <NuxtRouteAnnouncer />
-      <div class="flex-1 text-white flex flex-col rounded-md overflow-hidden">
+      <div class="text-white flex flex-col rounded-md overflow-hidden">
         <header
-          class="flex flex-col gap-y-2 md:gap-y-0 md:flex-row border-b-2 pb-2 justify-between items-center"
+          class="px-2 lg:px-0 flex flex-col gap-y-2 md:gap-y-0 md:flex-row border-b-2 pb-2 justify-between items-center"
         >
           <h1 class="text-2xl">Garden Of Eden</h1>
           <nav
@@ -257,6 +257,26 @@
           </section>
         </main>
       </div>
+      <footer
+        class="pb-4 px-2 lg:px-0 text-right text-xs [&_a]:tracking-wider [&_a]:decoration-dotted"
+      >
+        <p class="italic leading-4">
+          powered by
+          <font-awesome-icon :icon="['fas', 'leaf']" /><br />
+          handcrafted by eden chazard
+          <font-awesome-icon :icon="['fas', 'hammer']" />
+        </p>
+        <div class="flex gap-x-2 justify-end">
+          <NuxtLink
+            to="https://forums.dragcave.net/topic/189636-chazzas-dc-tools-garden-of-eden-lineage-builder-fart/"
+          >
+            forum thread</NuxtLink
+          >&bull;<NuxtLink to="https://ko-fi.com/dctools">ko-fi</NuxtLink
+          >&bull;<NuxtLink to="https://github.com/edenchazard/garden-of-eden"
+            >github</NuxtLink
+          >&bull;<NuxtLink to="https://chazza.me/dc/tools">want more?</NuxtLink>
+        </div>
+      </footer>
     </div>
   </ColorScheme>
 </template>
