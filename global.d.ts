@@ -24,7 +24,6 @@ declare global {
   };
 
   type HatcheryDragon = {
-    id: number;
     code: string;
     username: string;
   };

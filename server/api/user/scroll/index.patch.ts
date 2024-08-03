@@ -12,12 +12,13 @@ export default defineEventHandler(async (event) => {
   const codesIn = z.string().array().parse(body);
   const con = await pool.getConnection();
   await con.beginTransaction();
-  const bulkDelete = con.format(
-    `DELETE FROM hatchery WHERE user_id = ?` +
-      (codesIn.length ? ` AND code NOT IN (?)` : ""),
-    [token?.userId, codesIn]
+  await con.execute<RowDataPacket[]>(
+    con.format(
+      `DELETE FROM hatchery WHERE user_id = ?` +
+        (codesIn.length ? ` AND code NOT IN (?)` : ""),
+      [token?.userId, codesIn]
+    )
   );
-  await con.execute<RowDataPacket[]>(bulkDelete);
 
   // insert only if dragons were selected
   if (codesIn.length > 0) {
