@@ -24,19 +24,34 @@ export default defineEventHandler(async (event) => {
   // resync dragcave scroll and hatchery for the user
   const toDelete = filteredScroll.map((dragon) => dragon.id);
 
+  const con = await pool.getConnection();
+  await con.beginTransaction();
+
   if (toDelete.length) {
-    await pool.execute<RowDataPacket[]>(
-      `DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (` +
-        toDelete.map((id) => `'${id}'`).join(",") +
-        `)`,
-      [token?.userId]
+    // if a dragon that was in the hatchery has been moved to this scroll,
+    // we should update its user id to reflect the change of ownership
+    await con.execute<RowDataPacket[]>(
+      con.format(`UPDATE hatchery SET user_id = ? WHERE code IN (?)`, [
+        token?.userId,
+        toDelete,
+      ])
+    );
+
+    await con.execute<RowDataPacket[]>(
+      con.format(`DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (?)`, [
+        token?.userId,
+        toDelete,
+      ])
     );
   }
 
-  const [usersDragonsInHatchery] = await pool.execute<RowDataPacket[]>(
+  const [usersDragonsInHatchery] = await con.execute<RowDataPacket[]>(
     `SELECT code FROM hatchery WHERE user_id = ?`,
     [token?.userId]
   );
+
+  con.commit();
+  con.release();
 
   const existingCodes = usersDragonsInHatchery.map((row) => row.code);
 

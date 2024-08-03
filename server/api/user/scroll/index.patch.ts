@@ -21,12 +21,12 @@ export default defineEventHandler(async (event) => {
 
   // insert only if dragons were selected
   if (codesIn.length > 0) {
-    const bulkInsert = con.format(
-      `INSERT INTO hatchery (code, user_id) VALUES ? ON DUPLICATE KEY UPDATE code=code`,
-      [codesIn.map((id: string) => [id, token?.userId])]
+    await con.execute<RowDataPacket[]>(
+      con.format(
+        `INSERT INTO hatchery (code, user_id) VALUES ? ON DUPLICATE KEY UPDATE user_id = ?`,
+        [codesIn.map((id: string) => [id, token?.userId]), token?.userId]
+      )
     );
-
-    await con.execute<RowDataPacket[]>(bulkInsert);
   }
 
   await con.commit();
