@@ -141,7 +141,7 @@
                 <div
                   class="grid gap-6"
                   :style="{
-                    gridTemplateColumns: `repeat(auto-fill, minmax(16rem, 1fr))`,
+                    gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
                   }"
                 >
                   <div
@@ -156,7 +156,7 @@
                     }"
                   >
                     <div
-                      class="grid grid-cols-[2rem_1fr] gap-x-4 gap-y-2 p-2 pb-4 rounded-md items-center border content-border justify-items-start overflow-hidden"
+                      class="grid grid-cols-[45px_1fr] gap-x-3 gap-y-2 p-2 pb-4 rounded-md items-center border content-border justify-items-start overflow-hidden"
                       :class="
                         dragon.inHatchery
                           ? 'bg-green-500 dark:bg-neutral-800 border-transparent'
@@ -166,7 +166,7 @@
                       <NuxtLink
                         :to="`https://dragcave.net/view/${dragon.id}`"
                         target="_blank"
-                        class="justify-self-center"
+                        class="size-full flex items-center justify-center"
                         :aria-labelledby="`dragon-${dragon.id}`"
                         @click.stop
                       >
@@ -345,15 +345,22 @@
                 </button>
               </div>
             </div>
-            <div>
+            <div
+              class="grid justify-center gap-1 mx-auto"
+              :style="{
+                gridTemplateColumns: `repeat(auto-fit, 45px)`,
+                gridAutoRows: `45px`,
+              }"
+            >
               <a
+                class="size-full flex items-center justify-center"
                 :href="`https://dragcave.net/view/${dragon.code}`"
                 target="_blank"
                 v-for="dragon in hatchery.dragons"
                 :key="dragon.code"
               >
                 <img
-                  alt=""
+                  :alt="dragon.code"
                   class="inline"
                   :src="`https://dragcave.net/image/${dragon.code}.gif`"
                 />
