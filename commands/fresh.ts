@@ -53,6 +53,11 @@ await con.execute(`
 	ADD CONSTRAINT \`FK_user_settings_users\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON UPDATE RESTRICT ON DELETE CASCADE;
 `);
 
+await con.execute(`
+  ALTER TABLE \`users\`
+	ADD COLUMN \`registered_on\` DATETIME NOT NULL DEFAULT NOW() AFTER \`role\`;
+`);
+
 await con.commit();
 
 con.release();
