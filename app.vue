@@ -361,7 +361,6 @@
               >
                 <img
                   :alt="dragon.code"
-                  class="inline"
                   :src="`https://dragcave.net/image/${dragon.code}.gif`"
                 />
               </a>
