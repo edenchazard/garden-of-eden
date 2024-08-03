@@ -3,7 +3,7 @@
     placeholder=""
     tag="div"
   >
-    <div class="container flex max-w-4xl">
+    <div class="container flex max-w-screen-lg">
       <NuxtRouteAnnouncer />
       <div class="flex-1 text-white flex flex-col rounded-md overflow-hidden">
         <header
