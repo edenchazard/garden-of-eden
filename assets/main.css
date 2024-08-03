@@ -55,5 +55,5 @@ option {
 }
 
 a {
-  @apply underline underline-offset-4 text-yellow-300 dark:text-sky-500;
+  @apply underline underline-offset-4 !text-yellow-300 dark:!text-sky-500;
 }
