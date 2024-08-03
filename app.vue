@@ -137,7 +137,7 @@
                 <div
                   class="grid gap-6"
                   :style="{
-                    gridTemplateColumns: `repeat(auto-fill, minmax(15rem, 1fr))`,
+                    gridTemplateColumns: `repeat(auto-fill, minmax(16rem, 1fr))`,
                   }"
                 >
                   <div
