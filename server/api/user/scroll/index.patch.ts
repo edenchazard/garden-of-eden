@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   // insert only if dragons were selected
   if (body.length > 0) {
     const bulkInsert = con.format(
-      `INSERT INTO hatchery (code, user_id) VALUES ? ON DUPLICATE KEY UPDATE id=id`,
+      `INSERT INTO hatchery (code, user_id) VALUES ? ON DUPLICATE KEY UPDATE code=code`,
       [body.map((id: string) => [id, token?.userId])]
     );
 

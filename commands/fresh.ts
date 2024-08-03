@@ -58,6 +58,19 @@ await con.execute(`
 	ADD COLUMN \`registered_on\` DATETIME NOT NULL DEFAULT NOW() AFTER \`role\`;
 `);
 
+await con.execute(`
+  ALTER TABLE \`hatchery\`
+	DROP COLUMN \`id\`,
+	DROP PRIMARY KEY,
+	DROP INDEX \`code\`,
+	ADD PRIMARY KEY (\`code\`);
+`);
+
+await con.execute(`
+  ALTER TABLE \`users\`
+	CHANGE COLUMN \`id\` \`id\` MEDIUMINT UNSIGNED NOT NULL FIRST;
+`);
+
 await con.commit();
 
 con.release();
