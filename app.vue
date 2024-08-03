@@ -258,7 +258,9 @@
               >
                 <img
                   :alt="dragon.code"
-                  :src="`https://dragcave.net/image/${dragon.code}.gif`"
+                  :src="`https://dragcave.net/image/${
+                    dragon.code
+                  }.gif/?cb=${Date.now()}`"
                 />
               </a>
             </div>
