@@ -19,7 +19,7 @@
       <NuxtLink
         :to="`https://dragcave.net/view/${dragon.id}`"
         target="_blank"
-        class="size-full flex items-center justify-center"
+        class="size-full flex items-center justify-center rounded-md border border-green-400 dark:border-stone-700"
         :aria-labelledby="`dragon-${dragon.id}`"
         @click.stop
       >
@@ -53,7 +53,7 @@
       </div>
 
       <div
-        class="uppercase text-xs bg-green-900/70 dark:bg-neutral-950/70 p-1 rounded-md self-end *:underline-offset-2 absolute right-3 bottom-4 px-1.5"
+        class="uppercase text-xs bg-green-900/70 dark:bg-neutral-950/70 p-1 rounded-md self-end *:underline-offset-2 absolute -right-2 bottom-4 px-1.5"
       >
         {{ formatNumber(dragon.views) }}<abbr title="Views">V</abbr> /
         {{ formatNumber(dragon.unique) }}<abbr title="Unique Views">U</abbr> /
@@ -68,7 +68,7 @@
       />
     </div>
     <div
-      class="bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 right-1 *:px-2"
+      class="bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
     >
       <span
         class="!pl-0.5"
