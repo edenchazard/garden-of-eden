@@ -233,6 +233,7 @@
               </div>
             </div>
             <div
+              v-memo="hatchery.dragons"
               class="grid justify-center gap-1 mx-auto"
               :style="{
                 gridTemplateColumns: `repeat(auto-fit, 45px)`,
