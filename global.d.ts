@@ -5,10 +5,10 @@ declare global {
     id: string;
     name: string;
     owner: string;
-    start: string | 0;
-    hatch: string | 0;
-    grow: string | 0;
-    death: string | 0;
+    start: string;
+    hatch: string;
+    grow: string;
+    death: string;
     views: number;
     unique: number;
     clicks: number;

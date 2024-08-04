@@ -19,7 +19,7 @@
       <NuxtLink
         :to="`https://dragcave.net/view/${dragon.id}`"
         target="_blank"
-        class="size-full flex items-center justify-center rounded-md border border-green-400 dark:border-stone-700"
+        class="size-[45px] flex items-center justify-center rounded-md border border-green-400 dark:border-stone-700"
         :aria-labelledby="`dragon-${dragon.id}`"
         @click.stop
       >
@@ -35,9 +35,11 @@
           class="block truncate font-bold"
           :id="`dragon-${dragon.id}`"
         >
-          <span :aria-hidden="!dragon.name">{{
-            dragon.name ?? "Unnamed"
-          }}</span>
+          <span
+            v-if="dragon.hatch !== '0'"
+            :aria-hidden="!dragon.name"
+            >{{ dragon.name ?? "Unnamed" }}</span
+          >
           <span
             class="sr-only"
             :aria-hidden="!!dragon.name"
