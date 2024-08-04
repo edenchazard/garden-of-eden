@@ -157,12 +157,20 @@
 
           <section class="py-2 rounded-sm border-t-2 space-y-4">
             <h2 class="text-2xl text-white">Garden</h2>
-            <p
+            <div
               class="p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
             >
-              There are currently <b>{{ hatchery.statistics.total }}</b> dragons
-              from a total of <b>{{ hatchery.statistics.scrolls }}</b> scrolls.
-            </p>
+              <p>
+                You enter the garden and see many large dragons scattered about,
+                some with saplings&mdash; <em class="italic">Wait, what</em>?
+                This is a garden, not a dragon's cave!
+              </p>
+              <p>
+                There are currently
+                <b>{{ hatchery.statistics.total }}</b> dragons from a total of
+                <b>{{ hatchery.statistics.scrolls }}</b> scrolls.
+              </p>
+            </div>
             <div
               class="gap-y-4 text-center p-2 rounded-md flex flex-col md:flex-row md:items-center bg-black/30"
             >
