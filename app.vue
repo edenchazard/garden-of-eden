@@ -228,7 +228,13 @@
                 <button
                   type="button"
                   class="btn-primary"
-                  @click="fetchHatchery()"
+                  @click="
+                    () => {
+                      pause();
+                      resume();
+                      fetchHatchery();
+                    }
+                  "
                 >
                   <font-awesome-icon
                     :icon="['fas', 'rotate']"
