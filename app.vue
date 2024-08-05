@@ -223,7 +223,12 @@
                   v-else
                   type="button"
                   class="bg-emerald-900 text-white motion-safe:animate-pulse"
-                  @click="resume()"
+                  @click="
+                    () => {
+                      resume();
+                      fetchHatchery();
+                    }
+                  "
                 >
                   <font-awesome-icon :icon="['fas', 'play']" />
                   Continue
@@ -233,8 +238,10 @@
                   class="btn-primary"
                   @click="
                     () => {
-                      pause();
-                      resume();
+                      if (refreshing) {
+                        pause();
+                        resume();
+                      }
                       fetchHatchery();
                     }
                   "
@@ -312,7 +319,6 @@ useHead({
 });
 
 const colorMode = useColorMode();
-
 const { data: authData, signIn, signOut } = useAuth();
 
 const { data: userSettings } = await useFetch("/api/user/settings", {
@@ -383,10 +389,7 @@ const {
   isActive: refreshing,
 } = useIntervalFn(
   fetchHatchery,
-  computed(() => userSettings.value.frequency * 1000),
-  {
-    immediateCallback: true,
-  }
+  computed(() => userSettings.value.frequency * 1000)
 );
 
 const isProcessing = computed(() =>
