@@ -396,6 +396,10 @@ const isProcessing = computed(() =>
 watch(
   userSettings,
   () => {
+    if (!authData.value?.user) {
+      return;
+    }
+
     $fetch("/api/user/settings", {
       method: "PATCH",
       body: userSettings.value,
