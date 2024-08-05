@@ -9,13 +9,13 @@ export default defineEventHandler(async (event) => {
         `SELECT recorded_on, value FROM recordings
         WHERE record_type = 'total_scrolls'
         ORDER BY recorded_on ASC
-        LIMIT 144`
+        LIMIT 48`
       ),
       pool.execute<RowDataPacket[]>(
         `SELECT recorded_on, value FROM recordings
       WHERE record_type = 'total_dragons'
       ORDER BY recorded_on ASC
-      LIMIT 14`
+      LIMIT 48`
       ),
     ]);
 
