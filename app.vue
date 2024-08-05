@@ -207,10 +207,10 @@
                 class="flex-1 flex flex-col md:flex-row gap-y-4 gap-x-8 md:justify-end"
               >
                 <button
-                  v-if="!paused"
+                  v-if="refreshing"
                   type="button"
                   class="bg-rose-900 text-white"
-                  @click="paused = true"
+                  @click="pause()"
                 >
                   <font-awesome-icon :icon="['fas', 'pause']" />
                   Pause
@@ -220,7 +220,7 @@
                   v-else
                   type="button"
                   class="bg-emerald-900 text-white motion-safe:animate-pulse"
-                  @click="paused = false"
+                  @click="resume()"
                 >
                   <font-awesome-icon :icon="['fas', 'play']" />
                   Continue
@@ -295,13 +295,13 @@ export default {
 };
 </script>
 <script setup lang="ts">
+import { useIntervalFn } from "@vueuse/core";
 import ScrollPanel from "~/components/ScrollPanel.vue";
 
 useHead({
   title: "Garden Of Eden",
 });
 
-const paused = ref(false);
 const colorMode = useColorMode();
 
 const { data: authData, signIn, signOut } = useAuth();
@@ -368,7 +368,17 @@ const { execute: cleanUp } = useFetch("/api/hatchery", {
   body: {},
 });
 
-useFrequency(userSettings, paused, fetchHatchery);
+const {
+  pause,
+  resume,
+  isActive: refreshing,
+} = useIntervalFn(
+  fetchHatchery,
+  computed(() => userSettings.value.frequency * 1000),
+  {
+    immediateCallback: true,
+  }
+);
 
 const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes("pending")
