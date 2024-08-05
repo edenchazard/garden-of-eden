@@ -5,7 +5,6 @@ import chunkArray from "~/utils/chunkArray";
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
 
-  console.log("Clean up in progress.");
   const start = new Date().getTime();
 
   const [codes] = await pool.execute<RowDataPacket[]>(
@@ -45,9 +44,9 @@ export async function cleanUp() {
   }
 
   const end = new Date().getTime();
-  console.log(
-    `Clean up complete in ${end - start}ms. ${
-      toDelete.length
-    } dragons removed. ${chunkedDragons.length} chunks.`
+
+  pool.execute(
+    `INSERT INTO recordings (value, record_type, extra) VALUES (?, ?, ?)`,
+    [toDelete.length, "removed", JSON.stringify({ start, end })]
   );
 }

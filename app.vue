@@ -280,6 +280,46 @@
               </a>
             </div>
           </section>
+          <div class="w-full hidden lg:block">
+            <p
+              class="p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
+            >
+              The Garden of Eden takes its plant growth very seriously. That's
+              why stats are continuously logged throughout the day to ensure
+              optimum health of the plants.
+            </p>
+            <div>
+              <Line
+                class="h-32 w-full"
+                v-if="statisticsLoaded"
+                :data="chartData"
+                :options="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                  scales: {
+                    y: {
+                      ticks: {
+                        color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                      },
+                    },
+                    x: {
+                      ticks: {
+                        color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                      },
+                    },
+                  },
+                  plugins: {
+                    title: {
+                      color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                      display: true,
+                      text: 'Garden Growth',
+                    },
+                  },
+                }"
+              />
+            </div>
+          </div>
         </main>
       </div>
       <footer
@@ -312,6 +352,9 @@ export default {
 </script>
 <script setup lang="ts">
 import { useIntervalFn } from "@vueuse/core";
+import type { scales } from "chart.js";
+import type { color } from "chart.js/helpers";
+import { Line } from "vue-chartjs";
 import ScrollPanel from "~/components/ScrollPanel.vue";
 
 useHead({
@@ -327,6 +370,46 @@ const { data: userSettings } = await useFetch("/api/user/settings", {
     perPage: 50,
     sort: "Youngest First" as const,
   }),
+});
+
+const chartData = ref();
+
+const statisticsLoaded = ref(false);
+const { data: stats, execute: fetchStats } = useAsyncData(() =>
+  $fetch("/api/statistics")
+);
+
+onNuxtReady(async () => {
+  await fetchStats();
+  const statistics = stats.value;
+  if (statistics === null) return;
+
+  const labels = statistics.dragons.map((stat) =>
+    Intl.DateTimeFormat(undefined, {
+      timeStyle: "short",
+    }).format(new Date(stat.recorded_on))
+  );
+
+  chartData.value = {
+    labels,
+    datasets: [
+      {
+        label: "Dragons in garden",
+        backgroundColor: "#fed7aa",
+        borderColor: "#fed7aa",
+        stepped: true,
+        data: statistics.dragons.map((stat) => stat.value),
+      },
+      {
+        label: "Scrolls with dragons",
+        backgroundColor: "#fde047",
+        borderColor: "#fde047",
+        stepped: true,
+        data: statistics.scrolls.map((stat) => stat.value),
+      },
+    ],
+  };
+  statisticsLoaded.value = true;
 });
 
 const {

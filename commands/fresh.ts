@@ -71,6 +71,17 @@ await con.execute(`
 	CHANGE COLUMN \`id\` \`id\` MEDIUMINT UNSIGNED NOT NULL FIRST;
 `);
 
+await con.execute(`
+  CREATE TABLE \`recordings\` (
+	\`recorded_on\` DATETIME NULL DEFAULT NULL,
+	\`value\` BIGINT UNSIGNED NOT NULL,
+	\`record_type\` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_general_ci',
+  \`extra\` LONGTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
+	INDEX \`record_type\` (\`record_type\`) USING BTREE,
+	INDEX \`recorded_on\` (\`recorded_on\`) USING BTREE,
+	CONSTRAINT \`extra\` CHECK (json_valid(\`extra\`))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;`);
+
 await con.commit();
 
 con.release();
