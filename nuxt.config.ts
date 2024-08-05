@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: false },
-  modules: ["@sidebase/nuxt-auth", "@nuxtjs/color-mode"],
+  modules: ["@sidebase/nuxt-auth", "@nuxtjs/color-mode", "nuxt-cron"],
   css: ["~/assets/main.css", "@fortawesome/fontawesome-svg-core/styles.css"],
   postcss: {
     plugins: {
@@ -58,5 +58,9 @@ export default defineNuxtConfig({
   },
   colorMode: {
     classSuffix: "",
+  },
+  cron: {
+    runOnInit: true,
+    jobsDir: "cron",
   },
 });
