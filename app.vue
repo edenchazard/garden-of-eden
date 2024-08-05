@@ -188,6 +188,8 @@
                 <option value="25">25 dragons</option>
                 <option value="50">50 dragons</option>
                 <option value="100">100 dragons</option>
+                <option value="150">150 dragons</option>
+                <option value="200">200 dragons</option>
               </select>
               <label
                 class="mx-2"
@@ -198,6 +200,7 @@
                 v-model.number="userSettings.frequency"
                 id="every"
               >
+                <option value="15">15 seconds</option>
                 <option value="30">30 seconds</option>
                 <option value="60">1 minute</option>
                 <option value="120">2 minutes</option>
