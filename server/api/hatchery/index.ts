@@ -10,12 +10,23 @@ export default defineEventHandler(async (event) => {
     })
     .parse(getQuery(event));
 
+  const statistics = await cache("current_statistics", 60 * 1000, async () => {
+    const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
+      `SELECT
+        COUNT(*) AS total, 
+        COUNT(DISTINCT(user_id)) AS scrolls
+        FROM hatchery`
+    );
+
+    return { total, scrolls };
+  });
+
   const [dragons] = await pool.execute<RowDataPacket[]>(
     `SELECT code FROM hatchery ORDER BY RAND() LIMIT ?`,
     [query.limit]
   );
 
-  return { statistics: await cache("statistics"), dragons } as {
+  return { statistics, dragons } as {
     statistics: { total: number; scrolls: number };
     dragons: HatcheryDragon[];
   };
