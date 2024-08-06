@@ -290,7 +290,7 @@
             </p>
             <div>
               <Line
-                class="h-32 w-full"
+                class="h-[32rem] w-full"
                 v-if="statisticsLoaded"
                 :data="chartData"
                 :options="{
@@ -352,8 +352,6 @@ export default {
 </script>
 <script setup lang="ts">
 import { useIntervalFn } from "@vueuse/core";
-import type { scales } from "chart.js";
-import type { color } from "chart.js/helpers";
 import { Line } from "vue-chartjs";
 import ScrollPanel from "~/components/ScrollPanel.vue";
 
