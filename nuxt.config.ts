@@ -60,7 +60,7 @@ export default defineNuxtConfig({
     classSuffix: "",
   },
   cron: {
-    runOnInit: true,
+    runOnInit: false,
     jobsDir: "cron",
   },
 });
