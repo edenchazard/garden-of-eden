@@ -5,8 +5,8 @@
       class="p-4 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
     >
       <p>
-        The Garden of Eden takes its plant growth very seriously. That's why
-        stats are continuously logged throughout the day to ensure optimum
+        The Garden of Eden takes plant growth very seriously. That's why
+        statistics are logged continuously throughout the day to ensure optimum
         health of the plants.
       </p>
       <p class="text-xs text-right italic">All times shown local to you.</p>
@@ -17,8 +17,8 @@
         <figure class="graph">
           <div>
             <Line
-              class="h-[26rem]"
               v-if="statisticsLoaded"
+              class="h-[26rem]"
               :data="dragons"
               :options="{
                 normalized: true,
@@ -40,7 +40,7 @@
                   title: {
                     color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
                     display: true,
-                    text: 'Dragons in garden',
+                    text: 'Dragons in Garden',
                     font: {
                       size: 20,
                     },
@@ -55,8 +55,8 @@
         <figure class="graph">
           <div>
             <Line
-              class="h-[20rem]"
               v-if="statisticsLoaded"
+              class="h-[15rem]"
               :data="scrolls"
               :options="{
                 normalized: true,
@@ -65,6 +65,7 @@
                 scales: {
                   y: {
                     ticks: {
+                      precision: 0,
                       color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
                     },
                   },
@@ -78,7 +79,7 @@
                   title: {
                     color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
                     display: true,
-                    text: 'Scrolls with dragons',
+                    text: 'Scrolls With Dragons',
                     font: {
                       size: 20,
                     },
@@ -121,8 +122,8 @@ onNuxtReady(async () => {
     datasets: [
       {
         label: "Dragons",
-        backgroundColor: "#0000ff",
-        borderColor: "#0000ff",
+        backgroundColor: "#690033",
+        borderColor: "#690033",
         data: statistics.dragons.map((stat) => stat.value),
       },
     ],
@@ -132,8 +133,8 @@ onNuxtReady(async () => {
     datasets: [
       {
         label: "Scrolls",
-        backgroundColor: "#ff0000",
-        borderColor: "#ff0000",
+        backgroundColor: "#007b80",
+        borderColor: "#007b80",
         data: statistics.scrolls.map((stat) => stat.value),
       },
     ],
