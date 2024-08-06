@@ -31,7 +31,10 @@ export default defineNuxtConfig({
     },
   },
   build: {
-    transpile: ["@fortawesome/vue-fontawesome"],
+    transpile: [
+      "@fortawesome/vue-fontawesome",
+      "@fortawesome/fontawesome-svg-core",
+    ],
   },
   runtimeConfig: {
     clientId: process.env.CLIENT_ID ?? "",
