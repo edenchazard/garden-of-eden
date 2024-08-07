@@ -1,5 +1,4 @@
 import { defineCronHandler } from "#nuxt/cron";
-import { setCache } from "~/utils";
 import pool from "../pool";
 import { RowDataPacket } from "mysql2";
 
