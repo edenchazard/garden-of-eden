@@ -98,6 +98,10 @@
 <script lang="ts" setup>
 import { Line } from "vue-chartjs";
 
+useHead({
+  title: "Statistics",
+});
+
 const scrolls = ref();
 const dragons = ref();
 const statisticsLoaded = ref(false);

@@ -123,6 +123,12 @@
 </template>
 
 <script lang="ts" setup>
+useHead({
+  titleTemplate(titleChunk) {
+    return titleChunk ? `${titleChunk} - Garden of Eden` : "Garden of Eden";
+  },
+});
+
 const colorMode = useColorMode();
 const { data: authData, signIn, signOut } = useAuth();
 

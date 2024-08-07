@@ -204,10 +204,6 @@
 import { useIntervalFn } from "@vueuse/core";
 import ScrollPanel from "~/components/ScrollPanel.vue";
 
-useHead({
-  title: "Garden Of Eden",
-});
-
 const { data: authData, signIn } = useAuth();
 
 const { data: userSettings } = await useFetch("/api/user/settings", {
