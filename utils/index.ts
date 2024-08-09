@@ -63,12 +63,12 @@ export function filterSelectAll(settings: UserSettings) {
   return (dragon: ScrollView) => {
     if (
       dragon.hatch !== "0" &&
-      168 - dragon.hoursleft > settings.hatchlingMinAge
+      168 - dragon.hoursleft >= settings.hatchlingMinAge
     ) {
       return true;
     } else if (
       dragon.hatch === "0" &&
-      168 - dragon.hoursleft > settings.eggMinAge
+      168 - dragon.hoursleft >= settings.eggMinAge
     ) {
       return true;
     }
