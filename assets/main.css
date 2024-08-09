@@ -57,3 +57,14 @@ option {
 a {
   @apply underline underline-offset-4 !text-yellow-300 dark:!text-sky-500;
 }
+
+h1,
+h2 {
+  @apply font-bold;
+}
+h1 {
+  @apply text-3xl;
+}
+h2 {
+  @apply text-2xl;
+}

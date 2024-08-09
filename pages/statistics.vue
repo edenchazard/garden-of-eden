@@ -1,9 +1,7 @@
 <template>
   <div class="space-y-4">
-    <h1 class="text-3xl font-bold">Statistics</h1>
-    <section
-      class="p-4 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
-    >
+    <h1>Statistics</h1>
+    <section class="max-w-prose">
       <p>
         The Garden of Eden takes plant growth very seriously. That's why
         statistics are logged continuously throughout the day to ensure optimum

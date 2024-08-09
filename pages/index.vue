@@ -46,6 +46,9 @@
         }"
       >
         <legend class="text-2xl sr-only">Your scroll</legend>
+        <p class="text-left ml-1 !mt-0 max-w-prose">
+          Hidden dragons are not shown and will be removed regularly.
+        </p>
         <div
           class="grid gap-6"
           :style="{
@@ -73,34 +76,40 @@
     </form>
   </div>
 
-  <section class="py-2 rounded-sm border-t-2 space-y-4">
+  <section class="py-2 rounded-sm space-y-4">
     <h2 class="text-2xl text-white">Garden</h2>
-    <div
-      class="p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
-    >
-      <p>
+    <div class="flex flex-col gap-4 md:flex-row">
+      <p class="max-w-prose">
         You enter the garden and see many large dragons scattered about, some
         with saplings&mdash; <em class="italic">Wait, what</em>? This is a
         garden, not a dragon's cave!
       </p>
-      <p>
-        There are currently
-        <b>{{ hatchery.statistics.total }}</b> dragons from a total of
-        <b>{{ hatchery.statistics.scrolls }}</b> scrolls.
-      </p>
+      <div
+        class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
+      >
+        <div>
+          <b class="text-2xl font-bold block">{{
+            hatchery.statistics.total
+          }}</b>
+          dragons
+        </div>
+        <span class="text-2xl opacity-70 italic">/</span>
+        <div>
+          <b class="text-2xl font-bold block">{{
+            hatchery.statistics.scrolls
+          }}</b>
+          scrolls
+        </div>
+      </div>
     </div>
     <div
-      class="gap-y-4 text-center p-2 rounded-md flex flex-col md:flex-row md:items-center bg-black/30"
+      class="items-center gap-y-2 gap-x-4 text-center p-2 rounded-md grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr] md:grid-cols-[auto_auto_auto_1fr_auto_auto] bg-black/30"
     >
-      <label
-        class="mr-2"
-        for="showing"
-        >Showing</label
-      >
+      <label for="showing">Showing</label>
       <select
         id="showing"
         v-model.number="userSettings.perPage"
-        class="text-black"
+        class="md:min-w-40"
       >
         <option value="10">10 dragons</option>
         <option value="25">25 dragons</option>
@@ -109,14 +118,11 @@
         <option value="150">150 dragons</option>
         <option value="200">200 dragons</option>
       </select>
-      <label
-        class="mx-2"
-        for="every"
-        >every</label
-      >
+      <label for="every">every</label>
       <select
         v-model.number="userSettings.frequency"
         id="every"
+        class="w-full md:max-w-40"
       >
         <option value="15">15 seconds</option>
         <option value="30">30 seconds</option>
@@ -124,57 +130,52 @@
         <option value="120">2 minutes</option>
         <option value="300">5 minutes</option>
       </select>
-      <div
-        class="flex-1 flex flex-col md:flex-row gap-y-4 gap-x-8 md:justify-end"
-      >
-        <ClientOnly>
-          <button
-            v-if="refreshing"
-            type="button"
-            class="bg-rose-900 text-white"
-            @click="pause()"
-          >
-            <font-awesome-icon :icon="['fas', 'pause']" />
-            Pause
-          </button>
-
-          <button
-            v-else
-            type="button"
-            class="bg-emerald-900 text-white motion-safe:animate-pulse"
-            @click="
-              () => {
+      <ClientOnly>
+        <button
+          v-if="refreshing"
+          type="button"
+          class="col-span-full sm:col-span-2 md:col-auto bg-rose-900 text-white"
+          @click="pause()"
+        >
+          <font-awesome-icon :icon="['fas', 'pause']" />
+          Pause
+        </button>
+        <button
+          v-else
+          type="button"
+          class="col-span-full sm:col-span-2 md:col-auto bg-emerald-900 text-white motion-safe:animate-pulse"
+          @click="
+            () => {
+              resume();
+              fetchHatchery();
+            }
+          "
+        >
+          <font-awesome-icon :icon="['fas', 'play']" />
+          Continue
+        </button>
+        <button
+          type="button"
+          class="col-span-full sm:col-span-2 md:col-auto btn-primary"
+          @click="
+            () => {
+              if (refreshing) {
+                pause();
                 resume();
-                fetchHatchery();
               }
-            "
-          >
-            <font-awesome-icon :icon="['fas', 'play']" />
-            Continue
-          </button>
-          <button
-            type="button"
-            class="btn-primary"
-            @click="
-              () => {
-                if (refreshing) {
-                  pause();
-                  resume();
-                }
-                fetchHatchery();
-              }
-            "
-          >
-            <font-awesome-icon
-              :icon="['fas', 'rotate']"
-              :class="{
-                'animate-spin': hatcheryStatus === 'pending',
-              }"
-            />
-            Reload
-          </button>
-        </ClientOnly>
-      </div>
+              fetchHatchery();
+            }
+          "
+        >
+          <font-awesome-icon
+            :icon="['fas', 'rotate']"
+            :class="{
+              'animate-spin': hatcheryStatus === 'pending',
+            }"
+          />
+          Reload
+        </button>
+      </ClientOnly>
     </div>
     <div
       v-memo="hatchery.dragons"

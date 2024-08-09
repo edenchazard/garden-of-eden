@@ -1,8 +1,8 @@
 <template>
   <div
-    class="grid sm:grid-cols-2 md:grid-cols-[1fr_auto_auto_auto] gap-y-4 gap-x-8 items-center"
+    class="grid sm:grid-cols-2 md:grid-cols-[1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
   >
-    <div class="flex">
+    <div class="flex col-span-full sm:col-auto">
       <label
         :for="`${id}-sort`"
         class="mr-1 sr-only"
@@ -10,7 +10,7 @@
         Sort by:
       </label>
       <select
-        class="w-full sm:max-w-60"
+        class="w-full md:max-w-60"
         :id="`${id}-sort`"
         v-model="sort"
       >
@@ -19,7 +19,7 @@
       </select>
     </div>
 
-    <div class="flex gap-x-2">
+    <div class="col-span-full items-center flex gap-x-2 sm:col-auto">
       <input
         :id="`${id}-select-all-hatchery`"
         type="checkbox"
@@ -30,7 +30,7 @@
       />
       <label
         :for="`${id}-select-all-hatchery`"
-        class="flex-1 text-left"
+        class="flex-1 text-left py-2"
       >
         Select all
       </label>
