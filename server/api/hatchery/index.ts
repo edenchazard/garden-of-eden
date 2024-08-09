@@ -6,7 +6,7 @@ import { z } from "zod";
 export default defineEventHandler(async (event) => {
   const query = z
     .object({
-      limit: z.coerce.number().default(50),
+      limit: z.coerce.number().default(100),
     })
     .parse(getQuery(event));
 

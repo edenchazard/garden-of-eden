@@ -82,6 +82,11 @@ await con.execute(`
 	CONSTRAINT \`extra\` CHECK (json_valid(\`extra\`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;`);
 
+await con.execute(`
+  ALTER TABLE \`user_settings\`
+	CHANGE COLUMN \`perPage\` \`perPage\` smallint UNSIGNED NOT NULL AFTER \`frequency\`
+`);
+
 await con.commit();
 
 con.release();
