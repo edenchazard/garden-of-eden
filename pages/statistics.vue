@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 max-w-full">
     <h1>Statistics</h1>
     <section class="max-w-prose">
       <p>
@@ -10,85 +10,87 @@
       <p class="text-xs text-right italic">All times shown local to you.</p>
     </section>
 
-    <section class="space-y-8">
-      <ClientOnly>
-        <figure class="graph">
-          <div>
-            <Line
-              v-if="statisticsLoaded"
-              class="h-[26rem]"
-              :data="dragons"
-              :options="{
-                normalized: true,
-                responsive: true,
-                color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                scales: {
-                  y: {
-                    ticks: {
-                      color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                    },
-                  },
-                  x: {
-                    ticks: {
-                      color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                    },
-                  },
-                },
-                plugins: {
-                  title: {
+    <section
+      class="space-y-8"
+      v-if="statisticsLoaded"
+    >
+      <figure class="graph">
+        <div class="h-[31rem]">
+          <Line
+            :data="dragons"
+            class="w-full"
+            :options="{
+              normalized: true,
+              responsive: true,
+              maintainAspectRatio: false,
+              color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+              scales: {
+                y: {
+                  ticks: {
+                    precision: 0,
                     color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                    display: true,
-                    text: 'Dragons in Garden',
-                    font: {
-                      size: 20,
-                    },
                   },
                 },
-              }"
-            />
-          </div>
-          <figcaption>Data taken in 30 minute intervals.</figcaption>
-        </figure>
+                x: {
+                  ticks: {
+                    color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                  },
+                },
+              },
+              plugins: {
+                title: {
+                  color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                  display: true,
+                  text: 'Dragons in Garden',
+                  font: {
+                    size: 20,
+                  },
+                },
+              },
+            }"
+          />
+        </div>
+        <figcaption>Data taken in 30 minute intervals.</figcaption>
+      </figure>
 
-        <figure class="graph">
-          <div>
-            <Line
-              v-if="statisticsLoaded"
-              class="h-[15rem]"
-              :data="scrolls"
-              :options="{
-                normalized: true,
-                responsive: true,
-                color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                scales: {
-                  y: {
-                    ticks: {
-                      precision: 0,
-                      color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                    },
-                  },
-                  x: {
-                    ticks: {
-                      color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                    },
-                  },
-                },
-                plugins: {
-                  title: {
+      <figure class="graph">
+        <div class="h-[31rem]">
+          <Line
+            class="w-full"
+            :data="scrolls"
+            :options="{
+              normalized: true,
+              responsive: true,
+              maintainAspectRatio: false,
+              color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+              scales: {
+                y: {
+                  ticks: {
+                    precision: 0,
                     color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                    display: true,
-                    text: 'Scrolls With Dragons',
-                    font: {
-                      size: 20,
-                    },
                   },
                 },
-              }"
-            />
-          </div>
-          <figcaption>Data taken in 30 minute intervals.</figcaption>
-        </figure>
-      </ClientOnly>
+                x: {
+                  ticks: {
+                    color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                  },
+                },
+              },
+              plugins: {
+                title: {
+                  color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
+                  display: true,
+                  text: 'Scrolls With Dragons',
+                  font: {
+                    size: 20,
+                  },
+                },
+              },
+            }"
+          />
+        </div>
+        <figcaption>Data taken in 30 minute intervals.</figcaption>
+      </figure>
     </section>
   </div>
 </template>
