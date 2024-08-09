@@ -58,3 +58,21 @@ export async function setCache<T = unknown>(key: string, data: T) {
     expiry: null,
   };
 }
+
+export function filterSelectAll(settings: UserSettings) {
+  return (dragon: ScrollView) => {
+    if (
+      dragon.hatch !== "0" &&
+      168 - dragon.hoursleft > settings.hatchlingMinAge
+    ) {
+      return true;
+    } else if (
+      dragon.hatch === "0" &&
+      168 - dragon.hoursleft > settings.eggMinAge
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+}

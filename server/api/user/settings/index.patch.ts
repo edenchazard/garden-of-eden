@@ -1,29 +1,33 @@
 import pool from "~/server/pool";
 import type { RowDataPacket } from "mysql2";
 import { getToken } from "#auth";
-import { z } from "zod";
+import userSettingsSchema from "~/utils/userSettingsSchema";
 
 export default defineEventHandler(async (event) => {
   const [token, body] = await Promise.all([
     getToken({ event }),
-    readBody<Partial<UserSettings>>(event),
+    readBody<UserSettings>(event),
   ]);
 
-  const settings = z
-    .object({
-      frequency: z.coerce.string().optional(),
-      perPage: z.coerce.number().optional(),
-      sort: z.coerce.string().optional(),
-    })
-    .parse(body);
+  const settings = userSettingsSchema.parse(body);
 
   // delete
   await pool.execute<RowDataPacket[]>(
-    `UPDATE user_settings SET frequency = ?, perPage = ?, sort = ? WHERE user_id = ?`,
+    `UPDATE user_settings SET
+    frequency = ?,
+    perPage = ?,
+    sort = ?,
+    hatchlingMinAge = ?,
+    eggMinAge = ?,
+    showScrollRatio = ?
+    WHERE user_id = ?`,
     [
       settings.frequency ?? null,
       body.perPage ?? null,
       body.sort ?? null,
+      body.hatchlingMinAge ?? null,
+      body.eggMinAge ?? null,
+      body.showScrollRatio ?? null,
       token?.userId,
     ]
   );

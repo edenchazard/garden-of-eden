@@ -2,80 +2,91 @@
   <div class="w-full max-w-screen-lg space-y-4">
     <div class="flex flex-col rounded-md overflow-hidden">
       <header
-        class="px-2 lg:px-0 space-y-4 sm:space-y-0 pb-2 justify-between items-center"
+        class="px-2 lg:px-0 space-y-4 sm:space-y-0 pb-4 justify-between items-center"
       >
-        <div class="flex-1 flex justify-between items-center">
+        <div class="flex justify-end gap-2 pb-3 divide-x">
+          <ClientOnly>
+            <label class="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                :checked="colorMode.preference === 'dark'"
+                @change="
+                  $colorMode.preference = ($event.target as HTMLInputElement)
+                    .checked
+                    ? 'dark'
+                    : 'mint'
+                "
+                class="sr-only peer"
+              />
+              <div
+                class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-sky-900"
+              ></div>
+              <span class="ms-3 text-sm font-medium dark:text-gray-300">
+                {{ colorMode.preference === "dark" ? "Dark" : "Mint" }}
+              </span>
+            </label>
+          </ClientOnly>
           <NuxtLink
-            to="/"
-            class="text-3xl !text-white dark:!text-stone-200 tracking-wide font-thin decoration-1"
-            >Garden of Eden</NuxtLink
+            v-if="authData?.user"
+            to="/settings"
+            class="pl-2 !text-white dark:!text-stone-200 group"
+            ><font-awesome-icon
+              :icon="['fas', 'cog']"
+              class="mr-2 motion-safe:group-hover:animate-spin"
+            />Settings</NuxtLink
           >
-          <div class="flex flex-col items-end gap-y-2">
-            <ClientOnly>
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  :checked="colorMode.preference === 'dark'"
-                  @change="
-                    $colorMode.preference = ($event.target as HTMLInputElement)
-                      .checked
-                      ? 'dark'
-                      : 'mint'
-                  "
-                  class="sr-only peer"
-                />
-                <div
-                  class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-sky-900"
-                ></div>
-                <span class="ms-3 text-sm font-medium dark:text-gray-300">
-                  {{ colorMode.preference === "dark" ? "Dark" : "Mint" }}
-                </span>
-              </label>
-            </ClientOnly>
-          </div>
         </div>
-
-        <nav
-          class="flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
-        >
-          <NuxtLink
-            class="!text-white dark:!text-stone-200"
-            to="/statistics"
-            >Statistics</NuxtLink
-          ><span class="hidden sm:inline">&bull;</span>
-          <template v-if="authData?.user">
-            <span>
-              Logged in as
-              <NuxtLink
-                :to="`https://dragcave.net/user/${authData?.user.username}`"
-                target="_blank"
+        <div class="flex gap-y-4 flex-col sm:flex-row justify-between">
+          <div class="text-center">
+            <NuxtLink
+              to="/"
+              class="text-3xl !text-white dark:!text-stone-200 tracking-wide font-thin decoration-1"
+              >Garden of Eden</NuxtLink
+            >
+          </div>
+          <nav
+            class="flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
+          >
+            <NuxtLink
+              class="!text-white dark:!text-stone-200"
+              to="/statistics"
+              >Statistics</NuxtLink
+            ><span class="hidden sm:inline">&bull;</span>
+            <template v-if="authData?.user">
+              <span>
+                Logged in as
+                <NuxtLink
+                  :to="`https://dragcave.net/user/${authData?.user.username}`"
+                  target="_blank"
+                >
+                  {{ authData?.user.username }}
+                </NuxtLink>
+              </span>
+              <span class="hidden sm:inline">&bull;</span>
+              <button
+                class="underline-offset-4 underline !px-0 !shadow-none"
+                type="button"
+                @click="signOut()"
+                title="Sign out"
               >
-                {{ authData?.user.username }}
-              </NuxtLink>
-            </span>
-            <span class="hidden sm:inline">&bull;</span>
+                <font-awesome-icon
+                  :icon="['fas', 'arrow-right-from-bracket']"
+                />Sign out
+              </button>
+            </template>
             <button
+              v-else
               class="underline-offset-4 underline !px-0 !shadow-none"
               type="button"
-              @click="signOut()"
-              title="Sign out"
+              @click="signIn('dragcave')"
+              title="Sign in"
             >
               <font-awesome-icon
-                :icon="['fas', 'arrow-right-from-bracket']"
-              />Sign out
+                :icon="['fas', 'arrow-right-to-bracket']"
+              />Sign in
             </button>
-          </template>
-          <button
-            v-else
-            class="underline-offset-4 underline !px-0 !shadow-none"
-            type="button"
-            @click="signIn('dragcave')"
-            title="Sign in"
-          >
-            <font-awesome-icon :icon="['fas', 'arrow-right-to-bracket']" />Sign
-            in
-          </button>
-        </nav>
+          </nav>
+        </div>
       </header>
       <main
         class="lg:rounded-t-md bg-green-600/80 dark:bg-neutral-900 p-4 space-y-4 shadow-lg shadow-black/20 dark:shadow-black/50"

@@ -70,10 +70,10 @@
       />
     </div>
     <div
-      class="bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
+      class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
     >
       <span
-        class="!pl-0.5"
+        v-if="settings.showScrollRatio"
         title="Views to unique views ratio"
         >{{ formatRatio(dragon.views, dragon.unique) }}</span
       >
@@ -101,7 +101,7 @@
           v-else-if="dragon.gender === 'Female'"
         />
       </span>
-      <span class="!pr-0.5">
+      <span>
         {{ formatHoursLeft(dragon.hoursleft) }}
       </span>
     </div>
@@ -111,6 +111,7 @@
 <script lang="ts" setup>
 defineProps<{
   recentlyAdded: string[];
+  settings: UserSettings;
 }>();
 
 const dragon = defineModel<ScrollView>({ required: true });

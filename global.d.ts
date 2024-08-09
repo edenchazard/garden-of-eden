@@ -1,3 +1,5 @@
+import type { z } from "zod";
+
 export {};
 
 declare global {
@@ -28,11 +30,7 @@ declare global {
     username: string;
   };
 
-  type UserSettings = {
-    frequency: number;
-    perPage: number;
-    sort: "Youngest First" | "Oldest First";
-  };
+  type UserSettings = z.infer<typeof userSettingsSchema>;
 
   type UserRole = "owner" | "user";
 }

@@ -32,22 +32,42 @@ button {
   &.btn-secondary {
     @apply bg-emerald-500 dark:bg-rose-900 dark:text-white;
   }
+
+  &.btn-danger {
+    @apply bg-red-500 dark:bg-red-900 dark:text-white;
+  }
+
+  &[class*="btn-"] {
+    @apply min-w-32;
+  }
 }
 
 .mint button.btn-primary svg {
   filter: brightness(0) saturate(0%);
 }
 
-input {
-  @apply p-2 rounded-md;
+select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+input[type="color"],
+textarea {
+  @apply !text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
+}
 
+input {
   &[type="checkbox"] {
     @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
   }
-}
-
-select {
-  @apply !text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
 }
 
 option {

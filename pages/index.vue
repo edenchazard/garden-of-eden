@@ -56,6 +56,7 @@
           }"
         >
           <ScrollPanel
+            :settings="userSettings"
             v-for="(dragon, i) in dragons"
             :key="dragon.id"
             :recently-added
@@ -64,8 +65,9 @@
           />
         </div>
         <ScrollToolbar
-          id="scroll-toolbar-2"
+          id="scroll-toolbar"
           :dragons
+          :settings="userSettings"
           :fetch-scroll-status
           :save-scroll-status
           v-model:sort="userSettings.sort"
@@ -134,7 +136,7 @@
         <button
           v-if="refreshing"
           type="button"
-          class="col-span-full sm:col-span-2 md:col-auto bg-rose-900 text-white"
+          class="btn- col-span-full sm:col-span-2 md:col-auto bg-rose-900 text-white"
           @click="pause()"
         >
           <font-awesome-icon :icon="['fas', 'pause']" />
@@ -143,7 +145,7 @@
         <button
           v-else
           type="button"
-          class="col-span-full sm:col-span-2 md:col-auto bg-emerald-900 text-white motion-safe:animate-pulse"
+          class="btn- col-span-full sm:col-span-2 md:col-auto bg-emerald-900 text-white motion-safe:animate-pulse"
           @click="
             () => {
               resume();
@@ -328,6 +330,10 @@ async function refreshScroll() {
 }
 
 function toggleAll(checked: boolean) {
-  dragons.value.forEach((dragon) => (dragon.inHatchery = checked));
+  dragons.value
+    .filter(filterSelectAll(userSettings.value))
+    .forEach((dragon) => {
+      dragon.inHatchery = checked;
+    });
 }
 </script>

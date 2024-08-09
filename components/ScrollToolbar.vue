@@ -23,7 +23,11 @@
       <input
         :id="`${id}-select-all-hatchery`"
         type="checkbox"
-        :checked="dragons.every((dragon) => dragon.inHatchery)"
+        :checked="
+          dragons
+            .filter(filterSelectAll(settings))
+            .every((dragon) => dragon.inHatchery)
+        "
         @change="
           emit('toggle-all', ($event.target as HTMLInputElement).checked)
         "
@@ -78,6 +82,7 @@ defineProps<{
   fetchScrollStatus: string;
   saveScrollStatus: string;
   id: string;
+  settings: UserSettings;
 }>();
 
 const sort = defineModel("sort", {
