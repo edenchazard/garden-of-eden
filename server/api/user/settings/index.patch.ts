@@ -6,12 +6,11 @@ import userSettingsSchema from "~/utils/userSettingsSchema";
 export default defineEventHandler(async (event) => {
   const [token, body] = await Promise.all([
     getToken({ event }),
-    readBody<UserSettings>(event),
+    readBody(event),
   ]);
 
   const settings = userSettingsSchema.parse(body);
 
-  // delete
   await pool.execute<RowDataPacket[]>(
     `UPDATE user_settings SET
     frequency = ?,
@@ -22,12 +21,12 @@ export default defineEventHandler(async (event) => {
     showScrollRatio = ?
     WHERE user_id = ?`,
     [
-      settings.frequency ?? null,
-      body.perPage ?? null,
-      body.sort ?? null,
-      body.hatchlingMinAge ?? null,
-      body.eggMinAge ?? null,
-      body.showScrollRatio ?? null,
+      settings.frequency,
+      settings.perPage,
+      settings.sort,
+      settings.hatchlingMinAge,
+      settings.eggMinAge,
+      settings.showScrollRatio,
       token?.userId,
     ]
   );

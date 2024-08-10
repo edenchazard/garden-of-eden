@@ -70,10 +70,7 @@ useHead({
   title: "Settings",
 });
 
-const settings = useState(() => ({
-  hatchlingMinAge: 0,
-  eggMinAge: 0,
-}));
+const settings = useState(() => userSettingsSchema.parse({}));
 
 await useFetch("/api/user/settings", {
   onResponse({ response: { _data: data } }) {

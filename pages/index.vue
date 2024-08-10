@@ -208,13 +208,8 @@ import { useIntervalFn } from "@vueuse/core";
 import ScrollPanel from "~/components/ScrollPanel.vue";
 
 const { data: authData, signIn } = useAuth();
-
 const { data: userSettings } = await useFetch("/api/user/settings", {
-  default: () => ({
-    frequency: 30,
-    perPage: 100,
-    sort: "Youngest First" as const,
-  }),
+  default: () => userSettingsSchema.parse({}),
 });
 
 const {

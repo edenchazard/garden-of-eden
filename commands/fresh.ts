@@ -84,14 +84,18 @@ await con.execute(`
 
 await con.execute(`
   ALTER TABLE \`user_settings\`
+	ADD CONSTRAINT \`FK_user_settings_users\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON UPDATE RESTRICT ON DELETE CASCADE;
+`);
+
+await con.execute(`
+  ALTER TABLE \`user_settings\`
 	ADD COLUMN \`hatchlingMinAge\` tinyint UNSIGNED NOT NULL DEFAULT 0 AFTER \`sort\`,
 	ADD COLUMN \`eggMinAge\` tinyint UNSIGNED NOT NULL DEFAULT 0 AFTER \`hatchlingMinAge\`,
 	ADD COLUMN \`showScrollRatio\` tinyint UNSIGNED NOT NULL DEFAULT 0 AFTER \`eggMinAge\`;
 `);
 
 await con.execute(`
-  ALTER TABLE \`user_settings\`
-	ADD CONSTRAINT \`FK_user_settings_users\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON UPDATE RESTRICT ON DELETE CASCADE;
+  alter table user_settings change column perPage perPage smallint(5) unsigned not null default 100 after \`sort\`;
 `);
 
 await con.commit();
