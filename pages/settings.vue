@@ -21,7 +21,7 @@
               max="72"
               type="number"
               class="w-20"
-            >
+            />
             hours old.
           </li>
           <li>
@@ -32,7 +32,7 @@
               max="72"
               type="number"
               class="w-20"
-            >
+            />
             hours old.
           </li>
         </ul>
@@ -47,35 +47,30 @@
               v-model="settings.showScrollRatio"
               type="checkbox"
               :checked="settings.showScrollRatio"
-            >
+            />
             <label for="hide-scroll-ratio">
               Show views to unique views ratio.</label
             >
           </li>
         </ul>
       </fieldset>
-      <button
-        type="submit"
-        class="btn-primary self-end"
-      >
-        Save
-      </button>
+      <button type="submit" class="btn-primary self-end">Save</button>
     </form>
   </div>
 </template>
 
 <script lang="ts" setup>
 definePageMeta({
-  middleware: "auth",
+  middleware: 'auth',
 });
 
 useHead({
-  title: "Settings",
+  title: 'Settings',
 });
 
 const settings = useState(() => userSettingsSchema.parse({}));
 
-await useFetch("/api/user/settings", {
+await useFetch('/api/user/settings', {
   onResponse({ response: { _data: data } }) {
     Object.assign(settings.value, data, {
       showScrollRatio: !!data.showScrollRatio,
@@ -83,8 +78,8 @@ await useFetch("/api/user/settings", {
   },
 });
 
-const { execute: saveSettings } = useFetch("/api/user/settings", {
-  method: "PATCH",
+const { execute: saveSettings } = useFetch('/api/user/settings', {
+  method: 'PATCH',
   body: settings,
   immediate: false,
   watch: false,

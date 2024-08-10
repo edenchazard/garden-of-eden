@@ -1,6 +1,6 @@
-import type { RowDataPacket } from "mysql2";
-import pool from "~/server/pool";
-import chunkArray from "~/utils/chunkArray";
+import type { RowDataPacket } from 'mysql2';
+import pool from '~/server/pool';
+import chunkArray from '~/utils/chunkArray';
 
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
@@ -18,13 +18,13 @@ export async function cleanUp() {
         errors: unknown[];
         dragons: Record<string, DragonData>;
       }>(`https://dragcave.net/api/v2/dragons`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${clientSecret}`,
-          "Content-Type": "application/x-www-form-urlencoded",
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          ids: chunk.map((dragon) => dragon.code).join(","),
+          ids: chunk.map((dragon) => dragon.code).join(','),
         }),
       })
     )
@@ -38,7 +38,7 @@ export async function cleanUp() {
   if (toDelete.length) {
     await pool.execute<RowDataPacket[]>(
       `DELETE FROM hatchery WHERE code IN (` +
-        toDelete.map((id) => `'${id}'`).join(",") +
+        toDelete.map((id) => `'${id}'`).join(',') +
         `)`
     );
   }
@@ -47,6 +47,6 @@ export async function cleanUp() {
 
   pool.execute(
     `INSERT INTO recordings (value, record_type, extra) VALUES (?, ?, ?)`,
-    [toDelete.length, "removed", JSON.stringify({ start, end })]
+    [toDelete.length, 'removed', JSON.stringify({ start, end })]
   );
 }

@@ -9,7 +9,7 @@ import {
   LineController,
   LineElement,
   PointElement,
-} from "chart.js";
+} from 'chart.js';
 
 export default defineNuxtPlugin(() => {
   Chart.register(

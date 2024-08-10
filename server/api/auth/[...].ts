@@ -1,6 +1,6 @@
-import { NuxtAuthHandler } from "#auth";
-import type { RowDataPacket } from "mysql2";
-import pool from "~/server/pool";
+import { NuxtAuthHandler } from '#auth';
+import type { RowDataPacket } from 'mysql2';
+import pool from '~/server/pool';
 
 const { clientSecret, clientId, nextAuthSecret, baseUrl, origin } =
   useRuntimeConfig();
@@ -9,41 +9,41 @@ export default NuxtAuthHandler({
   secret: nextAuthSecret,
   providers: [
     {
-      id: "dragcave",
-      name: "Dragon Cave",
-      type: "oauth",
+      id: 'dragcave',
+      name: 'Dragon Cave',
+      type: 'oauth',
       clientId: clientId,
       clientSecret: clientSecret,
-      checks: ["state", "pkce"],
+      checks: ['state', 'pkce'],
       authorization: {
-        url: "https://dragcave.net/oauth_login",
+        url: 'https://dragcave.net/oauth_login',
         params: {
-          scope: "identify dragons",
+          scope: 'identify dragons',
           redirect_uri: `${origin}${baseUrl}/api/auth/callback/dragcave`,
         },
       },
       token: {
         async request(context) {
           const params = new URLSearchParams();
-          params.append("grant_type", "authorization_code");
-          params.append("code_verifier", context.checks.code_verifier ?? "");
-          params.append("code", context.params.code ?? "");
-          params.append("client_id", context.client.client_id as string);
+          params.append('grant_type', 'authorization_code');
+          params.append('code_verifier', context.checks.code_verifier ?? '');
+          params.append('code', context.params.code ?? '');
+          params.append('client_id', context.client.client_id as string);
           params.append(
-            "client_secret",
+            'client_secret',
             context.client.client_secret as string
           );
           params.append(
-            "redirect_uri",
+            'redirect_uri',
             `${origin}${baseUrl}/api/auth/callback/dragcave`
           );
 
           const response = await fetch(
-            "https://dragcave.net/api/oauth2/token",
+            'https://dragcave.net/api/oauth2/token',
             {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
+                'Content-Type': 'application/x-www-form-urlencoded',
               },
               body: params,
             }
@@ -52,7 +52,7 @@ export default NuxtAuthHandler({
           return { tokens };
         },
       },
-      userinfo: "https://dragcave.net/api/v2/me",
+      userinfo: 'https://dragcave.net/api/v2/me',
       profile({ _, data: profile }) {
         return {
           id: profile.user_id,

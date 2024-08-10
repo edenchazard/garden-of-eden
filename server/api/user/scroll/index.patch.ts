@@ -1,7 +1,7 @@
-import pool from "~/server/pool";
-import type { RowDataPacket } from "mysql2";
-import { getToken } from "#auth";
-import { z } from "zod";
+import pool from '~/server/pool';
+import type { RowDataPacket } from 'mysql2';
+import { getToken } from '#auth';
+import { z } from 'zod';
 
 export default defineEventHandler(async (event) => {
   const [token, body] = await Promise.all([
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   await con.execute<RowDataPacket[]>(
     con.format(
       `DELETE FROM hatchery WHERE user_id = ?` +
-        (codesIn.length ? ` AND code NOT IN (?)` : ""),
+        (codesIn.length ? ` AND code NOT IN (?)` : ''),
       [token?.userId, codesIn]
     )
   );

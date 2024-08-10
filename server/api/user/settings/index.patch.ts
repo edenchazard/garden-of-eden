@@ -1,7 +1,7 @@
-import pool from "~/server/pool";
-import type { RowDataPacket } from "mysql2";
-import { getToken } from "#auth";
-import userSettingsSchema from "~/utils/userSettingsSchema";
+import pool from '~/server/pool';
+import type { RowDataPacket } from 'mysql2';
+import { getToken } from '#auth';
+import userSettingsSchema from '~/utils/userSettingsSchema';
 
 export default defineEventHandler(async (event) => {
   const [token, body] = await Promise.all([

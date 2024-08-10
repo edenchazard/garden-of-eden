@@ -1,4 +1,4 @@
-import pool from "../server/pool";
+import pool from '../server/pool';
 
 const con = await pool.getConnection();
 

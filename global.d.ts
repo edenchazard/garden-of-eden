@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import type { z } from 'zod';
 
 export {};
 
@@ -14,7 +14,7 @@ declare global {
     views: number;
     unique: number;
     clicks: number;
-    gender: "Male" | "Female";
+    gender: 'Male' | 'Female';
     acceptaid: boolean;
     hoursleft: number;
     parent_f: string;
@@ -32,5 +32,5 @@ declare global {
 
   type UserSettings = z.infer<typeof userSettingsSchema>;
 
-  type UserRole = "owner" | "user";
+  type UserRole = 'owner' | 'user';
 }

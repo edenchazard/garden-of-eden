@@ -1,8 +1,8 @@
-import { defineCronHandler } from "#nuxt/cron";
-import pool from "../pool";
-import type { RowDataPacket } from "mysql2";
+import { defineCronHandler } from '#nuxt/cron';
+import pool from '../pool';
+import type { RowDataPacket } from 'mysql2';
 
-export default defineCronHandler("everyThirtyMinutes", async () => {
+export default defineCronHandler('everyThirtyMinutes', async () => {
   const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
     `SELECT
       COUNT(*) AS total, 
@@ -12,8 +12,8 @@ export default defineCronHandler("everyThirtyMinutes", async () => {
 
   pool.execute(
     pool.format(`INSERT INTO recordings (value, record_type) VALUES (?), (?)`, [
-      [total, "total_dragons"],
-      [scrolls, "total_scrolls"],
+      [total, 'total_dragons'],
+      [scrolls, 'total_scrolls'],
     ])
   );
   /* 

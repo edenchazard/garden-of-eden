@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div
-      v-if="!authData?.user"
-      class="flex flex-col gap-y-4 text-center"
-    >
+    <div v-if="!authData?.user" class="flex flex-col gap-y-4 text-center">
       <p>
         The <b>Garden of Eden</b> is a highly secure garden where only those
         with a DragCave account can enter. You'll need to sign in to add your
@@ -34,10 +31,7 @@
       </p>
     </div>
 
-    <form
-      v-else
-      @submit.prevent="saveScroll()"
-    >
+    <form v-else @submit.prevent="saveScroll()">
       <fieldset
         class="space-y-6 transition-opacity"
         :disabled="isProcessing"
@@ -204,11 +198,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useIntervalFn } from "@vueuse/core";
-import ScrollPanel from "~/components/ScrollPanel.vue";
+import { useIntervalFn } from '@vueuse/core';
+import ScrollPanel from '~/components/ScrollPanel.vue';
 
 const { data: authData, signIn } = useAuth();
-const { data: userSettings } = await useFetch("/api/user/settings", {
+const { data: userSettings } = await useFetch('/api/user/settings', {
   default: () => userSettingsSchema.parse({}),
 });
 
@@ -216,7 +210,7 @@ const {
   data: dragons,
   execute: fetchScroll,
   status: fetchScrollStatus,
-} = await useFetch("/api/user/scroll", {
+} = await useFetch('/api/user/scroll', {
   immediate: !!authData.value?.user,
   default: () => [],
 });
@@ -225,7 +219,7 @@ const {
   data: hatchery,
   execute: fetchHatchery,
   status: hatcheryStatus,
-} = await useFetch("/api/hatchery", {
+} = await useFetch('/api/hatchery', {
   default: () => ({
     dragons: [],
     statistics: {
@@ -245,8 +239,8 @@ const {
   status: saveScrollStatus,
 } = useAsyncData(
   () =>
-    $fetch("/api/user/scroll", {
-      method: "PATCH",
+    $fetch('/api/user/scroll', {
+      method: 'PATCH',
       body: dragons.value
         .filter((dragon) => dragon.inHatchery)
         .map((dragon) => dragon.id),
@@ -270,7 +264,7 @@ const {
 );
 
 const isProcessing = computed(() =>
-  [fetchScrollStatus.value, saveScrollStatus.value].includes("pending")
+  [fetchScrollStatus.value, saveScrollStatus.value].includes('pending')
 );
 
 watch(
@@ -280,8 +274,8 @@ watch(
       return;
     }
 
-    $fetch("/api/user/settings", {
-      method: "PATCH",
+    $fetch('/api/user/settings', {
+      method: 'PATCH',
       body: userSettings.value,
     });
   },
@@ -293,18 +287,18 @@ watch(
 watch(
   () => [userSettings.value.sort, dragons],
   () => {
-    if (userSettings.value.sort === "Youngest First") {
+    if (userSettings.value.sort === 'Youngest First') {
       dragons.value.sort((a, b) => {
-        const valueA = a.hatch + "" + a.hoursleft;
-        const valueB = b.hatch + "" + b.hoursleft;
+        const valueA = a.hatch + '' + a.hoursleft;
+        const valueB = b.hatch + '' + b.hoursleft;
         return valueA.localeCompare(valueB);
       });
     }
 
-    if (userSettings.value.sort === "Oldest First") {
+    if (userSettings.value.sort === 'Oldest First') {
       dragons.value.sort((a, b) => {
-        const valueA = a.hatch + "" + a.hoursleft;
-        const valueB = b.hatch + "" + b.hoursleft;
+        const valueA = a.hatch + '' + a.hoursleft;
+        const valueB = b.hatch + '' + b.hoursleft;
         return valueB.localeCompare(valueA);
       });
     }

@@ -1,15 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2024-04-03",
+  compatibilityDate: '2024-04-03',
   devtools: { enabled: false },
   modules: [
-    "@sidebase/nuxt-auth",
-    "@nuxtjs/color-mode",
-    "nuxt-cron",
-    "@nuxtjs/robots",
-    "@nuxt/eslint",
+    '@sidebase/nuxt-auth',
+    '@nuxtjs/color-mode',
+    'nuxt-cron',
+    '@nuxtjs/robots',
+    '@nuxt/eslint',
   ],
-  css: ["~/assets/main.css", "@fortawesome/fontawesome-svg-core/styles.css"],
+  css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -18,32 +18,32 @@ export default defineNuxtConfig({
   },
   app: {
     baseURL: process.env.BASE_URL,
-    buildAssetsDir: "/assets",
+    buildAssetsDir: '/assets',
     head: {
       htmlAttrs: {
-        lang: "en",
+        lang: 'en',
       },
       meta: [
         {
-          name: "description",
+          name: 'description',
           content: "View and click other people's dragons.",
         },
         {
-          name: "keywords",
+          name: 'keywords',
           content:
-            "dragcave, dragons, dragon cave, hatchery, garden, eden, hatchery, nursery, eggs, hatchlings",
+            'dragcave, dragons, dragon cave, hatchery, garden, eden, hatchery, nursery, eggs, hatchlings',
         },
       ],
     },
   },
   build: {
     transpile: [
-      "@fortawesome/vue-fontawesome",
-      "@fortawesome/fontawesome-svg-core",
+      '@fortawesome/vue-fontawesome',
+      '@fortawesome/fontawesome-svg-core',
     ],
   },
   runtimeConfig: {
-    clientId: process.env.CLIENT_ID ?? "",
+    clientId: process.env.CLIENT_ID ?? '',
     clientSecret: process.env.CLIENT_SECRET,
     nextAuthSecret: process.env.NEXT_SECRET,
     baseUrl: process.env.BASE_URL,
@@ -61,18 +61,18 @@ export default defineNuxtConfig({
     isEnabled: true,
     baseURL: `${process.env.ORIGIN}${process.env.BASE_URL}/api/auth`,
     provider: {
-      type: "authjs",
+      type: 'authjs',
       trustHost: false,
     },
   },
   colorMode: {
-    classSuffix: "",
+    classSuffix: '',
   },
   cron: {
     runOnInit: false,
-    jobsDir: "cron",
+    jobsDir: 'cron',
   },
   robots: {
-    disallow: ["/api"],
+    disallow: ['/api'],
   },
 });

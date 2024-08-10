@@ -1,7 +1,7 @@
-import type { RowDataPacket } from "mysql2";
-import pool from "~/server/pool";
-import { cache } from "~/utils";
-import { z } from "zod";
+import type { RowDataPacket } from 'mysql2';
+import pool from '~/server/pool';
+import { cache } from '~/utils';
+import { z } from 'zod';
 
 export default defineEventHandler(async (event) => {
   const query = z
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     })
     .parse(getQuery(event));
 
-  const statistics = await cache("current_statistics", 60 * 1000, async () => {
+  const statistics = await cache('current_statistics', 60 * 1000, async () => {
     const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
       `SELECT
         COUNT(*) AS total, 

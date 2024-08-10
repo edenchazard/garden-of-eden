@@ -1,6 +1,6 @@
-import { getToken } from "#auth";
-import type { RowDataPacket } from "mysql2";
-import pool from "~/server/pool";
+import { getToken } from '#auth';
+import type { RowDataPacket } from 'mysql2';
+import pool from '~/server/pool';
 
 export default defineEventHandler(async (event) => {
   const token = await getToken({ event });

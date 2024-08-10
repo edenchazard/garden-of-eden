@@ -1,9 +1,9 @@
-import type { RowDataPacket } from "mysql2";
-import pool from "~/server/pool";
-import { cache } from "~/utils";
+import type { RowDataPacket } from 'mysql2';
+import pool from '~/server/pool';
+import { cache } from '~/utils';
 
 export default defineEventHandler(async () => {
-  return await cache("statistics", 1000 * 60 * 5, async () => {
+  return await cache('statistics', 1000 * 60 * 5, async () => {
     const [[scrolls], [dragons]] = await Promise.all([
       pool.execute<RowDataPacket[]>(
         `SELECT recorded_on, value FROM recordings

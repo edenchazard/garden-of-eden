@@ -10,10 +10,7 @@
       <p class="text-xs text-right italic">All times shown local to you.</p>
     </section>
 
-    <section
-      v-if="statisticsLoaded"
-      class="space-y-8"
-    >
+    <section v-if="statisticsLoaded" class="space-y-8">
       <figure class="graph">
         <div class="h-[31rem]">
           <Line
@@ -96,10 +93,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Line } from "vue-chartjs";
+import { Line } from 'vue-chartjs';
 
 useHead({
-  title: "Statistics",
+  title: 'Statistics',
 });
 
 const scrolls = ref();
@@ -107,7 +104,7 @@ const dragons = ref();
 const statisticsLoaded = ref(false);
 
 const { data: stats, execute: fetchStats } = useAsyncData(() =>
-  $fetch("/api/statistics")
+  $fetch('/api/statistics')
 );
 
 onNuxtReady(async () => {
@@ -117,7 +114,7 @@ onNuxtReady(async () => {
 
   const labels = statistics.dragons.map((stat) =>
     Intl.DateTimeFormat(undefined, {
-      timeStyle: "short",
+      timeStyle: 'short',
     }).format(new Date(stat.recorded_on))
   );
 
@@ -125,9 +122,9 @@ onNuxtReady(async () => {
     labels,
     datasets: [
       {
-        label: "Dragons",
-        backgroundColor: "#690033",
-        borderColor: "#690033",
+        label: 'Dragons',
+        backgroundColor: '#690033',
+        borderColor: '#690033',
         data: statistics.dragons.map((stat) => stat.value),
       },
     ],
@@ -136,9 +133,9 @@ onNuxtReady(async () => {
     labels,
     datasets: [
       {
-        label: "Scrolls",
-        backgroundColor: "#007b80",
-        borderColor: "#007b80",
+        label: 'Scrolls',
+        backgroundColor: '#007b80',
+        borderColor: '#007b80',
         data: statistics.scrolls.map((stat) => stat.value),
       },
     ],

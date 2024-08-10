@@ -28,28 +28,18 @@
           loading="lazy"
           class="max-w-full max-h-full"
           :src="`https://dragcave.net/image/${dragon.id}/1`"
-        >
+        />
       </NuxtLink>
       <div class="text-left w-full">
-        <span
-          :id="`dragon-${dragon.id}`"
-          class="block truncate font-bold"
-        >
-          <span
-            v-if="dragon.hatch !== '0'"
-            :aria-hidden="!dragon.name"
-            >{{ dragon.name ?? "Unnamed" }}</span
-          >
-          <span
-            class="sr-only"
-            :aria-hidden="!!dragon.name"
+        <span :id="`dragon-${dragon.id}`" class="block truncate font-bold">
+          <span v-if="dragon.hatch !== '0'" :aria-hidden="!dragon.name">{{
+            dragon.name ?? 'Unnamed'
+          }}</span>
+          <span class="sr-only" :aria-hidden="!!dragon.name"
             >({{ dragon.id }})</span
           >
         </span>
-        <span
-          class="text-sm pl-3 italic"
-          :aria-hidden="!dragon.name"
-        >
+        <span class="text-sm pl-3 italic" :aria-hidden="!dragon.name">
           ({{ dragon.id }})
         </span>
       </div>
@@ -67,7 +57,7 @@
         class="justify-self-end -top-2 -right-2 absolute"
         type="checkbox"
         :aria-labelledby="`dragon-${dragon.id}`"
-      >
+      />
     </div>
     <div
       class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
@@ -88,10 +78,7 @@
         >
         <span v-else>CB</span>
       </span>
-      <span
-        v-if="dragon.gender"
-        :title="dragon.gender"
-      >
+      <span v-if="dragon.gender" :title="dragon.gender">
         <font-awesome-icon
           v-if="dragon.gender === 'Male'"
           :icon="['fas', 'mars']"
