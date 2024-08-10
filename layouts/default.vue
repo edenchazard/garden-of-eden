@@ -29,7 +29,7 @@
           <NuxtLink
             v-if="authData?.user"
             to="/settings"
-            class="pl-2 !text-white dark:!text-stone-200 group"
+            class="pl-2 text-white dark:text-stone-200 group"
             ><font-awesome-icon
               :icon="['fas', 'cog']"
               class="mr-2 motion-safe:group-hover:animate-spin"
@@ -40,14 +40,14 @@
           <div class="text-center">
             <NuxtLink
               to="/"
-              class="text-3xl !text-white dark:!text-stone-200 tracking-wide font-thin decoration-1"
+              class="text-3xl text-white dark:text-stone-200 tracking-wide font-thin decoration-1"
               >Garden of Eden</NuxtLink
             >
           </div>
           <nav
             class="flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
           >
-            <NuxtLink class="!text-white dark:!text-stone-200" to="/statistics"
+            <NuxtLink class="text-white dark:text-stone-200" to="/statistics"
               >Statistics</NuxtLink
             ><span class="hidden sm:inline">&bull;</span>
             <template v-if="authData?.user">

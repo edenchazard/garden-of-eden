@@ -60,7 +60,7 @@
       />
     </div>
     <div
-      class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
+      class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
     >
       <span
         v-if="settings.showScrollRatio"
@@ -70,7 +70,7 @@
       <span>
         <NuxtLink
           v-if="dragon.parent_f && dragon.parent_m"
-          class="text-white dark:text-stone-200 decoration-transparent"
+          class="decoration-transparent"
           :to="`https://dragcave.net/lineage/${dragon.id}`"
           target="_blank"
           @click.stop

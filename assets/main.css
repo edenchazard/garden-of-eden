@@ -2,16 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  @apply text-white dark:text-stone-200;
-}
-
 html {
   @apply h-full;
 }
 
 body {
-  @apply min-h-full flex;
+  @apply min-h-full flex text-white dark:text-stone-200;
 }
 
 #__nuxt {
@@ -26,7 +22,7 @@ button {
   }
 
   &.btn-primary {
-    @apply bg-orange-200 text-black  dark:bg-sky-900 dark:text-white;
+    @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white;
   }
 
   &.btn-secondary {
@@ -42,8 +38,8 @@ button {
   }
 }
 
-.mint button.btn-primary svg {
-  filter: brightness(0) saturate(0%);
+.mint button.btn-primary {
+  @apply text-black dark:text-white;
 }
 
 input:invalid {
@@ -65,7 +61,7 @@ input[type='month'],
 input[type='week'],
 input[type='color'],
 textarea {
-  @apply !text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
+  @apply text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
 }
 
 input[type='checkbox'] {
@@ -77,11 +73,11 @@ input[type='checkbox'] {
 }
 
 option {
-  @apply !text-black;
+  @apply text-black;
 }
 
 a {
-  @apply underline underline-offset-4 !text-yellow-300 dark:!text-sky-500;
+  @apply underline underline-offset-4 text-yellow-300 dark:text-sky-500;
 }
 
 h1,
