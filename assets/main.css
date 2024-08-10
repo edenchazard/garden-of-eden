@@ -46,6 +46,10 @@ button {
   filter: brightness(0) saturate(0%);
 }
 
+input:invalid {
+  @apply ring-4 ring-red-500;
+}
+
 select,
 input[type='text'],
 input[type='email'],
@@ -64,10 +68,12 @@ textarea {
   @apply !text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
 }
 
-input {
-  &[type='checkbox'] {
-    @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
-  }
+input[type='checkbox'] {
+  @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
+}
+
+[disabled] {
+  @apply cursor-not-allowed opacity-40;
 }
 
 option {
