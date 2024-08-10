@@ -55,7 +55,13 @@
             v-model="dragons[i]"
             :settings="userSettings"
             :recently-added
-            @click="dragon.inHatchery = !dragon.inHatchery"
+            @click="
+              () => {
+                if (!isProcessing) {
+                  dragon.inHatchery = !dragon.inHatchery;
+                }
+              }
+            "
           />
         </div>
         <ScrollToolbar
