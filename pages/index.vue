@@ -5,7 +5,7 @@
       class="flex flex-col gap-y-4 text-center"
     >
       <p>
-        The <b>Garden Of Eden</b> is a highly secure garden where only those
+        The <b>Garden of Eden</b> is a highly secure garden where only those
         with a DragCave account can enter. You'll need to sign in to add your
         <s>plants</s> dragons.
       </p>
@@ -20,7 +20,7 @@
         * The above link will take you directly to
         <b class="font-normal">dragcave.net</b>.
         <em class="italic"
-          >The Garden Of Eden only stores your user id and username, not your
+          >The Garden of Eden only stores your user id and username, not your
           password.</em
         >
       </p>
@@ -196,7 +196,7 @@
           <img
             :alt="dragon.code"
             :src="`https://dragcave.net/image/${dragon.code}.gif`"
-          >
+          />
         </a>
       </div>
     </section>
