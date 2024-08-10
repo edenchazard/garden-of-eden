@@ -28,12 +28,12 @@
           loading="lazy"
           class="max-w-full max-h-full"
           :src="`https://dragcave.net/image/${dragon.id}/1`"
-        />
+        >
       </NuxtLink>
       <div class="text-left w-full">
         <span
-          class="block truncate font-bold"
           :id="`dragon-${dragon.id}`"
+          class="block truncate font-bold"
         >
           <span
             v-if="dragon.hatch !== '0'"
@@ -63,11 +63,11 @@
       </div>
       <input
         :id="`dragon-check-${dragon.id}`"
+        v-model="dragon.inHatchery"
         class="justify-self-end -top-2 -right-2 absolute"
         type="checkbox"
-        v-model="dragon.inHatchery"
         :aria-labelledby="`dragon-${dragon.id}`"
-      />
+      >
     </div>
     <div
       class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 dark:text-stone-400 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
@@ -93,12 +93,12 @@
         :title="dragon.gender"
       >
         <font-awesome-icon
-          :icon="['fas', 'mars']"
           v-if="dragon.gender === 'Male'"
+          :icon="['fas', 'mars']"
         />
         <font-awesome-icon
-          :icon="['fas', 'venus']"
           v-else-if="dragon.gender === 'Female'"
+          :icon="['fas', 'venus']"
         />
       </span>
       <span>

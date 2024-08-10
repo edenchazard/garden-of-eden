@@ -11,8 +11,8 @@
     </section>
 
     <section
-      class="space-y-8"
       v-if="statisticsLoaded"
+      class="space-y-8"
     >
       <figure class="graph">
         <div class="h-[31rem]">

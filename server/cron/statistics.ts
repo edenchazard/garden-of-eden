@@ -1,6 +1,6 @@
 import { defineCronHandler } from "#nuxt/cron";
 import pool from "../pool";
-import { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "mysql2";
 
 export default defineCronHandler("everyThirtyMinutes", async () => {
   const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(

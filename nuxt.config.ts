@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "nuxt-cron",
     "@nuxtjs/robots",
+    "@nuxt/eslint",
   ],
   css: ["~/assets/main.css", "@fortawesome/fontawesome-svg-core/styles.css"],
   postcss: {

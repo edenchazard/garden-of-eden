@@ -1,5 +1,5 @@
 import { NuxtAuthHandler } from "#auth";
-import { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "mysql2";
 import pool from "~/server/pool";
 
 const { clientSecret, clientId, nextAuthSecret, baseUrl, origin } =
@@ -53,7 +53,7 @@ export default NuxtAuthHandler({
         },
       },
       userinfo: "https://dragcave.net/api/v2/me",
-      profile({ errors, data: profile }) {
+      profile({ _, data: profile }) {
         return {
           id: profile.user_id,
           username: profile.username,
@@ -97,7 +97,7 @@ export default NuxtAuthHandler({
 
       return session;
     },
-    redirect(params) {
+    redirect() {
       return baseUrl;
     },
   },

@@ -8,28 +8,31 @@
     >
       <fieldset>
         <legend>Select all protections</legend>
-        <p>Prevent select all from including dragons.</p>
+        <p>
+          Eggs and hatchlings that don't meet these restrictions will be ignored
+          by select all. They can still be manually added.
+        </p>
         <ul class="divide-y *:py-4">
           <li>
-            Only add my hatchlings if they're at least
+            Exclude hatchlings that aren't at least
             <input
+              v-model.number="settings.hatchlingMinAge"
               min="0"
               max="72"
               type="number"
               class="w-20"
-              v-model.number="settings.hatchlingMinAge"
-            />
+            >
             hours old.
           </li>
           <li>
-            Only add my eggs if they're at least
+            Exclude eggs that aren't at least
             <input
+              v-model.number="settings.eggMinAge"
               min="0"
               max="72"
               type="number"
-              v-model.number="settings.eggMinAge"
               class="w-20"
-            />
+            >
             hours old.
           </li>
         </ul>
@@ -41,10 +44,10 @@
           <li class="flex items-center gap-x-2">
             <input
               id="hide-scroll-ratio"
+              v-model="settings.showScrollRatio"
               type="checkbox"
               :checked="settings.showScrollRatio"
-              v-model="settings.showScrollRatio"
-            />
+            >
             <label for="hide-scroll-ratio">
               Show views to unique views ratio.</label
             >

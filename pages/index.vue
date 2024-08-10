@@ -1,8 +1,8 @@
 <template>
-  <div class="w-full text-center">
+  <div>
     <div
       v-if="!authData?.user"
-      class="flex flex-col gap-y-4"
+      class="flex flex-col gap-y-4 text-center"
     >
       <p>
         The <b>Garden Of Eden</b> is a highly secure garden where only those
@@ -56,151 +56,151 @@
           }"
         >
           <ScrollPanel
-            :settings="userSettings"
             v-for="(dragon, i) in dragons"
             :key="dragon.id"
-            :recently-added
             v-model="dragons[i]"
+            :settings="userSettings"
+            :recently-added
             @click="dragon.inHatchery = !dragon.inHatchery"
           />
         </div>
         <ScrollToolbar
           id="scroll-toolbar"
+          v-model:sort="userSettings.sort"
           :dragons
           :settings="userSettings"
           :fetch-scroll-status
           :save-scroll-status
-          v-model:sort="userSettings.sort"
           @reload="refreshScroll()"
           @toggle-all="toggleAll"
         />
       </fieldset>
     </form>
-  </div>
 
-  <section class="py-2 rounded-sm space-y-4">
-    <h2 class="text-2xl text-white">Garden</h2>
-    <div class="flex flex-col gap-4 md:flex-row">
-      <p class="max-w-prose">
-        You enter the garden and see many large dragons scattered about, some
-        with saplings&mdash; <em class="italic">Wait, what</em>? This is a
-        garden, not a dragon's cave!
-      </p>
-      <div
-        class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
-      >
-        <div>
-          <b class="text-2xl font-bold block">{{
-            hatchery.statistics.total
-          }}</b>
-          dragons
-        </div>
-        <span class="text-2xl opacity-70 italic">/</span>
-        <div>
-          <b class="text-2xl font-bold block">{{
-            hatchery.statistics.scrolls
-          }}</b>
-          scrolls
+    <section class="py-2 rounded-sm space-y-4">
+      <h2 class="text-2xl text-white">Garden</h2>
+      <div class="flex flex-col gap-4 md:flex-row">
+        <p class="max-w-prose">
+          You enter the garden and see many large dragons scattered about, some
+          with saplings&mdash; <em class="italic">Wait, what</em>? This is a
+          garden, not a dragon's cave!
+        </p>
+        <div
+          class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
+        >
+          <div>
+            <b class="text-2xl font-bold block">{{
+              hatchery.statistics.total
+            }}</b>
+            dragons
+          </div>
+          <span class="text-2xl opacity-70 italic">/</span>
+          <div>
+            <b class="text-2xl font-bold block">{{
+              hatchery.statistics.scrolls
+            }}</b>
+            scrolls
+          </div>
         </div>
       </div>
-    </div>
-    <div
-      class="items-center gap-y-2 gap-x-4 text-center p-2 rounded-md grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr] md:grid-cols-[auto_auto_auto_1fr_auto_auto] bg-black/30"
-    >
-      <label for="showing">Showing</label>
-      <select
-        id="showing"
-        v-model.number="userSettings.perPage"
-        class="md:min-w-40"
+      <div
+        class="items-center gap-y-2 gap-x-4 text-center p-2 rounded-md grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr] md:grid-cols-[auto_auto_auto_1fr_auto_auto] bg-black/30"
       >
-        <option value="10">10 dragons</option>
-        <option value="25">25 dragons</option>
-        <option value="50">50 dragons</option>
-        <option value="100">100 dragons</option>
-        <option value="150">150 dragons</option>
-        <option value="200">200 dragons</option>
-      </select>
-      <label for="every">every</label>
-      <select
-        v-model.number="userSettings.frequency"
-        id="every"
-        class="w-full md:max-w-40"
-      >
-        <option value="15">15 seconds</option>
-        <option value="30">30 seconds</option>
-        <option value="60">1 minute</option>
-        <option value="120">2 minutes</option>
-        <option value="300">5 minutes</option>
-      </select>
-      <ClientOnly>
-        <button
-          v-if="refreshing"
-          type="button"
-          class="btn- col-span-full sm:col-span-2 md:col-auto bg-rose-900 text-white"
-          @click="pause()"
+        <label for="showing">Showing</label>
+        <select
+          id="showing"
+          v-model.number="userSettings.perPage"
+          class="md:min-w-40"
         >
-          <font-awesome-icon :icon="['fas', 'pause']" />
-          Pause
-        </button>
-        <button
-          v-else
-          type="button"
-          class="btn- col-span-full sm:col-span-2 md:col-auto bg-emerald-900 text-white motion-safe:animate-pulse"
-          @click="
-            () => {
-              resume();
-              fetchHatchery();
-            }
-          "
+          <option value="10">10 dragons</option>
+          <option value="25">25 dragons</option>
+          <option value="50">50 dragons</option>
+          <option value="100">100 dragons</option>
+          <option value="150">150 dragons</option>
+          <option value="200">200 dragons</option>
+        </select>
+        <label for="every">every</label>
+        <select
+          id="every"
+          v-model.number="userSettings.frequency"
+          class="w-full md:max-w-40"
         >
-          <font-awesome-icon :icon="['fas', 'play']" />
-          Continue
-        </button>
-        <button
-          type="button"
-          class="col-span-full sm:col-span-2 md:col-auto btn-primary"
-          @click="
-            () => {
-              if (refreshing) {
-                pause();
+          <option value="15">15 seconds</option>
+          <option value="30">30 seconds</option>
+          <option value="60">1 minute</option>
+          <option value="120">2 minutes</option>
+          <option value="300">5 minutes</option>
+        </select>
+        <ClientOnly>
+          <button
+            v-if="refreshing"
+            type="button"
+            class="btn- col-span-full sm:col-span-2 md:col-auto bg-rose-900 text-white"
+            @click="pause()"
+          >
+            <font-awesome-icon :icon="['fas', 'pause']" />
+            Pause
+          </button>
+          <button
+            v-else
+            type="button"
+            class="btn- col-span-full sm:col-span-2 md:col-auto bg-emerald-900 text-white motion-safe:animate-pulse"
+            @click="
+              () => {
                 resume();
+                fetchHatchery();
               }
-              fetchHatchery();
-            }
-          "
-        >
-          <font-awesome-icon
-            :icon="['fas', 'rotate']"
-            :class="{
-              'animate-spin': hatcheryStatus === 'pending',
-            }"
-          />
-          Reload
-        </button>
-      </ClientOnly>
-    </div>
-    <div
-      v-memo="hatchery.dragons"
-      class="grid justify-center gap-1 mx-auto"
-      :style="{
-        gridTemplateColumns: `repeat(auto-fit, 45px)`,
-        gridAutoRows: `45px`,
-      }"
-    >
-      <a
-        class="size-full flex items-center justify-center"
-        :href="`https://dragcave.net/view/${dragon.code}`"
-        target="_blank"
-        v-for="dragon in hatchery.dragons"
-        :key="dragon.code"
+            "
+          >
+            <font-awesome-icon :icon="['fas', 'play']" />
+            Continue
+          </button>
+          <button
+            type="button"
+            class="col-span-full sm:col-span-2 md:col-auto btn-primary"
+            @click="
+              () => {
+                if (refreshing) {
+                  pause();
+                  resume();
+                }
+                fetchHatchery();
+              }
+            "
+          >
+            <font-awesome-icon
+              :icon="['fas', 'rotate']"
+              :class="{
+                'animate-spin': hatcheryStatus === 'pending',
+              }"
+            />
+            Reload
+          </button>
+        </ClientOnly>
+      </div>
+      <div
+        v-memo="hatchery.dragons"
+        class="grid justify-center gap-1 mx-auto"
+        :style="{
+          gridTemplateColumns: `repeat(auto-fit, 45px)`,
+          gridAutoRows: `45px`,
+        }"
       >
-        <img
-          :alt="dragon.code"
-          :src="`https://dragcave.net/image/${dragon.code}.gif`"
-        />
-      </a>
-    </div>
-  </section>
+        <a
+          v-for="dragon in hatchery.dragons"
+          :key="dragon.code"
+          class="size-full flex items-center justify-center"
+          :href="`https://dragcave.net/view/${dragon.code}`"
+          target="_blank"
+        >
+          <img
+            :alt="dragon.code"
+            :src="`https://dragcave.net/image/${dragon.code}.gif`"
+          >
+        </a>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script lang="ts" setup>

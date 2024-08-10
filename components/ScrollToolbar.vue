@@ -10,9 +10,9 @@
         Sort by:
       </label>
       <select
-        class="w-full md:max-w-60"
         :id="`${id}-sort`"
         v-model="sort"
+        class="w-full md:max-w-60"
       >
         <option value="Oldest First">Oldest First</option>
         <option value="Youngest First">Youngest First</option>
@@ -31,7 +31,7 @@
         @change="
           emit('toggle-all', ($event.target as HTMLInputElement).checked)
         "
-      />
+      >
       <label
         :for="`${id}-select-all-hatchery`"
         class="flex-1 text-left py-2"
@@ -58,9 +58,9 @@
       @click="emit('submit')"
     >
       <font-awesome-icon
+        v-if="saveScrollStatus === 'pending'"
         :icon="['fas', 'spinner']"
         class="ml-1 animate-spin size-4"
-        v-if="saveScrollStatus === 'pending'"
       />
       <font-awesome-icon
         v-else
