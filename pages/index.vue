@@ -83,6 +83,7 @@
         v-model:frequency="userSettings.seedTrayFrequency"
         v-model:per-page="userSettings.seedTrayPerPage"
         :query="{ area: 'seed_tray' }"
+        cache-bust
       >
         <template #blurb="{ statistics }">
           <div class="flex flex-col gap-4 md:flex-row">

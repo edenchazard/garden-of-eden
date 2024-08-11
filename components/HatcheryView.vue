@@ -82,10 +82,16 @@
       :href="`https://dragcave.net/view/${dragon.code}`"
       target="_blank"
     >
-      <img
-        :alt="dragon.code"
-        :src="`https://dragcave.net/image/${dragon.code}.gif`"
-      />
+      <ClientOnly>
+        <img
+          :alt="dragon.code"
+          :src="
+            cacheBust
+              ? `https://dragcave.net/image/${dragon.code}.gif?cb=${Date.now()}`
+              : `https://dragcave.net/image/${dragon.code}.gif`
+          "
+        />
+      </ClientOnly>
     </a>
   </div>
   <slot v-if="hatchery.dragons.length === 0" name="empty" />
@@ -94,9 +100,15 @@
 <script lang="ts" setup>
 import { useIntervalFn } from '@vueuse/core';
 
-const props = defineProps<{
-  query: Record<string, string>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    query: Record<string, string>;
+    cacheBust?: boolean;
+  }>(),
+  {
+    cacheBust: false,
+  }
+);
 
 const frequency = defineModel<number>('frequency', { default: 30 });
 const perPage = defineModel<number>('perPage', { default: 100 });
