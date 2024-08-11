@@ -13,16 +13,20 @@ export default defineEventHandler(async (event) => {
 
   await pool.execute<RowDataPacket[]>(
     `UPDATE user_settings SET
-    frequency = ?,
-    perPage = ?,
+    gardenFrequency = ?,
+    gardenPerPage = ?,
+    seedTrayFrequency = ?,
+    seedTrayPerPage = ?,
     sort = ?,
     hatchlingMinAge = ?,
     eggMinAge = ?,
     showScrollRatio = ?
     WHERE user_id = ?`,
     [
-      settings.frequency,
-      settings.perPage,
+      settings.gardenFrequency,
+      settings.gardenPerPage,
+      settings.seedTrayFrequency,
+      settings.seedTrayPerPage,
       settings.sort,
       settings.hatchlingMinAge,
       settings.eggMinAge,

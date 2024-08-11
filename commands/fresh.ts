@@ -98,6 +98,23 @@ await con.execute(`
   alter table user_settings change column perPage perPage smallint(5) unsigned not null default 100 after \`sort\`;
 `);
 
+await con.execute(`
+  ALTER TABLE \`hatchery\`
+	ADD COLUMN \`in_seed_tray\` TINYINT UNSIGNED NOT NULL DEFAULT '0' AFTER \`user_id\`,
+	ADD COLUMN \`in_garden\` TINYINT UNSIGNED NOT NULL DEFAULT '0' AFTER \`in_seed_tray\`,
+	ADD INDEX \`in_seed_tray\` (\`in_seed_tray\`),
+	ADD INDEX \`in_garden\` (\`in_garden\`);
+`);
+
+await con.execute(`
+  ALTER TABLE \`user_settings\`
+	CHANGE COLUMN \`frequency\` \`gardenFrequency\` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '30' AFTER \`user_id\`,
+	CHANGE COLUMN \`perPage\` \`gardenPerPage\` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '50' AFTER \`gardenFrequency\`,
+	ADD COLUMN \`seedTrayFrequency\` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '30' AFTER \`gardenPerPage\`,
+	ADD COLUMN \`seedTrayPerPage\` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '50' AFTER \`seedTrayFrequency\`,
+	CHANGE COLUMN \`showScrollRatio\` \`showScrollRatio\` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' AFTER \`eggMinAge\`;
+`);
+
 await con.commit();
 
 con.release();

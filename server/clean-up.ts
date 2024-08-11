@@ -30,18 +30,42 @@ export async function cleanUp() {
     )
   );
 
+  const con = await pool.getConnection();
+  await con.beginTransaction();
+
+  const removeFromSeedTray = apiResponse
+    .flatMap((response) => Object.values(response.dragons))
+    .filter((dragon) => dragon.hoursleft >= 96)
+    .map((dragon) => dragon.id);
+
   const toDelete = apiResponse
     .flatMap((response) => Object.values(response.dragons))
     .filter((dragon) => dragon.hoursleft < 0)
     .map((dragon) => dragon.id);
 
+  const queries: Promise<unknown>[] = [];
+
   if (toDelete.length) {
-    await pool.execute<RowDataPacket[]>(
-      `DELETE FROM hatchery WHERE code IN (` +
-        toDelete.map((id) => `'${id}'`).join(',') +
-        `)`
+    queries.push(
+      pool.execute<RowDataPacket[]>(
+        `DELETE FROM hatchery WHERE code IN (` +
+          toDelete.map((id) => `'${id}'`).join(',') +
+          `)`
+      )
     );
   }
+
+  if (removeFromSeedTray.length) {
+    queries.push(
+      pool.execute<RowDataPacket[]>(
+        `UPDATE hatchery SET in_seed_tray = 0 WHERE code IN (` +
+          removeFromSeedTray.map((id) => `'${id}'`).join(',') +
+          `)`
+      )
+    );
+  }
+
+  await Promise.all(queries);
 
   const end = new Date().getTime();
 

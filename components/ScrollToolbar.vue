@@ -17,7 +17,7 @@
         :checked="
           dragons
             .filter(filterSelectAll(settings))
-            .every((dragon) => dragon.inHatchery)
+            .every((dragon) => dragon.in_garden)
         "
         @change="
           emit('toggle-all', ($event.target as HTMLInputElement).checked)

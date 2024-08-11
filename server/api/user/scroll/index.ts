@@ -17,48 +17,48 @@ export default defineEventHandler(async (event) => {
     }
   );
 
-  const filteredScroll = Object.values(response.dragons).filter(
-    (dragon) => dragon.hoursleft >= 0
-  );
+  const scroll = Object.values(response.dragons);
+  const alive = scroll.filter((dragon) => dragon.hoursleft >= 0);
 
   // resync dragcave scroll and hatchery for the user
-  const toDelete = filteredScroll.map((dragon) => dragon.id);
-
   const con = await pool.getConnection();
   await con.beginTransaction();
 
-  if (toDelete.length) {
+  if (alive.length) {
     // if a dragon that was in the hatchery has been moved to this scroll,
     // we should update its user id to reflect the change of ownership
     await con.execute<RowDataPacket[]>(
       con.format(`UPDATE hatchery SET user_id = ? WHERE code IN (?)`, [
         token?.userId,
-        toDelete,
+        alive.map((dragon) => dragon.id),
       ])
     );
 
     await con.execute<RowDataPacket[]>(
       con.format(`DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (?)`, [
         token?.userId,
-        toDelete,
+        alive.map((dragon) => dragon.id),
       ])
     );
   }
 
   const [usersDragonsInHatchery] = await con.execute<RowDataPacket[]>(
-    `SELECT code FROM hatchery WHERE user_id = ?`,
+    `SELECT code, in_garden, in_seed_tray FROM hatchery WHERE user_id = ?`,
     [token?.userId]
   );
 
-  con.commit();
+  await con.commit();
   con.release();
 
-  const existingCodes = usersDragonsInHatchery.map((row) => row.code);
+  return alive.map<ScrollView>((dragon) => {
+    const hatcheryDragon = usersDragonsInHatchery.find(
+      (row) => row.code === dragon.id
+    );
 
-  const dragonsWithData = filteredScroll.map<ScrollView>((dragon) => ({
-    ...dragon,
-    inHatchery: existingCodes.includes(dragon.id),
-  }));
-
-  return dragonsWithData;
+    return {
+      ...dragon,
+      in_garden: !!(hatcheryDragon?.in_garden ?? false),
+      in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+    };
+  });
 });

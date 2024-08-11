@@ -22,11 +22,14 @@ declare global {
   };
 
   type ScrollView = DragonData & {
-    inHatchery: boolean;
+    in_garden: boolean;
+    in_seed_tray: boolean;
   };
 
   type HatcheryDragon = {
     code: string;
+    in_garden: boolean;
+    in_seed_tray: boolean;
     username: string;
   };
 

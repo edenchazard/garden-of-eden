@@ -17,7 +17,7 @@
             Exclude hatchlings that aren't at least
             <span class="inline-flex flex-col mx-2">
               <input
-                v-model.number="settings.hatchlingMinAge"
+                v-model.number="userSettings.hatchlingMinAge"
                 min="0"
                 max="72"
                 type="number"
@@ -31,7 +31,7 @@
             Exclude eggs that aren't at least
             <span class="inline-flex flex-col mx-2">
               <input
-                v-model.number="settings.eggMinAge"
+                v-model.number="userSettings.eggMinAge"
                 min="0"
                 max="72"
                 type="number"
@@ -50,9 +50,9 @@
           <li class="flex items-center gap-x-2">
             <input
               id="hide-scroll-ratio"
-              v-model="settings.showScrollRatio"
+              v-model="userSettings.showScrollRatio"
               type="checkbox"
-              :checked="settings.showScrollRatio"
+              :checked="userSettings.showScrollRatio"
             />
             <label for="hide-scroll-ratio">
               Show views to unique views ratio.</label
@@ -84,19 +84,11 @@ useHead({
   title: 'Settings',
 });
 
-const settings = useState(() => userSettingsSchema.parse({}));
-
-await useFetch('/api/user/settings', {
-  onResponse({ response: { _data: data } }) {
-    Object.assign(settings.value, data, {
-      showScrollRatio: !!data.showScrollRatio,
-    });
-  },
-});
+const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings();
 
 const invalid = computed(() => {
   try {
-    userSettingsSchema.parse(settings.value);
+    userSettingsSchema.parse(userSettings.value);
     return false;
   } catch {
     return true;
@@ -105,15 +97,5 @@ const invalid = computed(() => {
 
 const canSave = computed(
   () => saveSettingsStatus.value === 'pending' || invalid.value
-);
-
-const { execute: saveSettings, status: saveSettingsStatus } = useFetch(
-  '/api/user/settings',
-  {
-    method: 'PATCH',
-    body: settings,
-    immediate: false,
-    watch: false,
-  }
 );
 </script>
