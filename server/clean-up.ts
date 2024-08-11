@@ -67,10 +67,14 @@ export async function cleanUp() {
 
   await Promise.all(queries);
 
+  await con.commit();
+
   const end = new Date().getTime();
 
-  pool.execute(
+  await con.execute(
     `INSERT INTO recordings (value, record_type, extra) VALUES (?, ?, ?)`,
     [toDelete.length, 'removed', JSON.stringify({ start, end })]
   );
+
+  con.release();
 }
