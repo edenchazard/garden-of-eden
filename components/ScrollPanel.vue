@@ -23,12 +23,14 @@
           :aria-labelledby="`dragon-${dragon.id}`"
           @click.stop
         >
-          <img
-            alt=""
-            loading="lazy"
-            class="max-w-full max-h-full"
-            :src="`https://dragcave.net/image/${dragon.id}/1`"
-          />
+          <ClientOnly>
+            <img
+              alt=""
+              loading="lazy"
+              class="max-w-full max-h-full"
+              :src="`https://dragcave.net/image/${dragon.id}/1?cb=${Date.now()}`"
+            />
+          </ClientOnly>
         </NuxtLink>
         <div class="text-left w-full">
           <span :id="`dragon-${dragon.id}`" class="block truncate font-bold">
