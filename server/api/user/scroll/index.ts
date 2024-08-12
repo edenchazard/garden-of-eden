@@ -22,9 +22,9 @@ export default defineEventHandler(async (event) => {
 
   // resync dragcave scroll and hatchery for the user
   const con = await pool.getConnection();
-  await con.beginTransaction();
 
   if (alive.length) {
+    await con.beginTransaction();
     // if a dragon that was in the hatchery has been moved to this scroll,
     // we should update its user id to reflect the change of ownership
     await con.execute<RowDataPacket[]>(
@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
         alive.map((dragon) => dragon.id),
       ])
     );
+    await con.commit();
   }
 
   const [usersDragonsInHatchery] = await con.execute<RowDataPacket[]>(
@@ -47,7 +48,6 @@ export default defineEventHandler(async (event) => {
     [token?.userId]
   );
 
-  await con.commit();
   con.release();
 
   return alive.map<ScrollView>((dragon) => {

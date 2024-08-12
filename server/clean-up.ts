@@ -7,7 +7,9 @@ export async function cleanUp() {
 
   const start = new Date().getTime();
 
-  const [codes] = await pool.execute<RowDataPacket[]>(
+  const con = await pool.getConnection();
+
+  const [codes] = await con.execute<RowDataPacket[]>(
     `SELECT code FROM hatchery`
   );
 
@@ -30,9 +32,6 @@ export async function cleanUp() {
     )
   );
 
-  const con = await pool.getConnection();
-  await con.beginTransaction();
-
   const removeFromSeedTray = apiResponse
     .flatMap((response) => Object.values(response.dragons))
     .filter((dragon) => dragon.hoursleft >= 96)
@@ -43,31 +42,21 @@ export async function cleanUp() {
     .filter((dragon) => dragon.hoursleft < 0)
     .map((dragon) => dragon.id);
 
-  const queries: Promise<unknown>[] = [];
+  await con.beginTransaction();
 
   if (toDelete.length) {
-    queries.push(
-      pool.execute<RowDataPacket[]>(
-        `DELETE FROM hatchery WHERE code IN (` +
-          toDelete.map((id) => `'${id}'`).join(',') +
-          `)`
-      )
+    await con.execute(
+      con.format(`DELETE FROM hatchery WHERE code IN (?)`, [toDelete])
     );
   }
 
   if (removeFromSeedTray.length) {
-    queries.push(
-      pool.execute<RowDataPacket[]>(
-        `UPDATE hatchery SET in_seed_tray = 0 WHERE code IN (` +
-          removeFromSeedTray.map((id) => `'${id}'`).join(',') +
-          `)`
-      )
+    await con.execute(
+      con.format(`UPDATE hatchery SET in_seed_tray = 0 WHERE code IN (?)`, [
+        removeFromSeedTray,
+      ])
     );
   }
-
-  await Promise.all(queries);
-
-  await con.commit();
 
   const end = new Date().getTime();
 
@@ -76,5 +65,6 @@ export async function cleanUp() {
     [toDelete.length, 'removed', JSON.stringify({ start, end })]
   );
 
+  await con.commit();
   con.release();
 }

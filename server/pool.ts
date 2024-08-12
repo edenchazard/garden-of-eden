@@ -3,5 +3,5 @@ const { db } = useRuntimeConfig();
 
 export default mysql.createPool({
   ...db,
-  connectionLimit: 10,
+  connectionLimit: 20,
 });
