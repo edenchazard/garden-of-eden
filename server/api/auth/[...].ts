@@ -1,5 +1,6 @@
 import { NuxtAuthHandler } from '#auth';
 import type { RowDataPacket } from 'mysql2';
+import type { TokenSet } from 'next-auth';
 import pool from '~/server/pool';
 
 const { clientSecret, clientId, nextAuthSecret, baseUrl, origin } =
@@ -38,7 +39,7 @@ export default NuxtAuthHandler({
             `${origin}${baseUrl}/api/auth/callback/dragcave`
           );
 
-          const response = await fetch(
+          const tokens = await $fetch<{ tokens: TokenSet }>(
             'https://dragcave.net/api/oauth2/token',
             {
               method: 'POST',
@@ -48,7 +49,7 @@ export default NuxtAuthHandler({
               body: params,
             }
           );
-          const tokens = await response.json();
+
           return { tokens };
         },
       },

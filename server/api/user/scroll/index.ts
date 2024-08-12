@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
   }>(
     `https://dragcave.net/api/v2/user?username=${token?.username}&filter=GROWING`,
     {
+      timeout: 10000,
       headers: {
         Authorization: `Bearer ${token?.sessionToken}`,
       },
