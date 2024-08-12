@@ -32,6 +32,15 @@
     </div>
 
     <form v-else @submit.prevent="saveScroll()">
+      <p v-if="fetchScrollStatus === 'error'" class="text-center">
+        Aurrrr naurrr!!! There was an error trying to fetch your scroll. Whack
+        that reload button and try again.
+      </p>
+
+      <p v-if="dragons.length" class="text-left ml-1 !mt-0 max-w-prose">
+        Hidden dragons are not shown and will be removed regularly.
+      </p>
+
       <fieldset
         class="space-y-6 transition-opacity"
         :disabled="isProcessing"
@@ -40,9 +49,6 @@
         }"
       >
         <legend class="text-2xl sr-only">Your scroll</legend>
-        <p class="text-left ml-1 !mt-0 max-w-prose">
-          Hidden dragons are not shown and will be removed regularly.
-        </p>
         <div
           class="grid gap-6"
           :style="{
