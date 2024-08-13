@@ -23,6 +23,7 @@ RUN npm prune
 
 # Run
 FROM base
+RUN apt-get update && apt-get install curl -y
 
 ENV PORT=$PORT
 

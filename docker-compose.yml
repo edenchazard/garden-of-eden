@@ -7,6 +7,14 @@ services:
       - .env
     depends_on:
       - db
+    healthcheck:
+      test: 'curl -f http://localhost:3000/dc/hatchery/api/healthcheck || exit 1'
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+    labels:
+      autoheal: true
     networks:
       - internal
       - dragcave
@@ -20,6 +28,20 @@ services:
       - .env
     networks:
       - internal
+
+  autoheal:
+    deploy:
+      replicas: 1
+    environment:
+      AUTOHEAL_INTERVAL: 60
+      AUTOHEAL_START_PERIOD: 300
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: 10
+    image: willfarrell/autoheal:latest
+    network_mode: none
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   dbdata:
