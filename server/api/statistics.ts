@@ -1,9 +1,8 @@
 import type { RowDataPacket } from 'mysql2';
 import pool from '~/server/pool';
-import { cache } from '~/utils';
 
-export default defineEventHandler(async () => {
-  return await cache('statistics', 1000 * 60 * 5, async () => {
+export default defineCachedEventHandler(
+  async () => {
     const [[scrolls], [dragons]] = await Promise.all([
       pool.execute<RowDataPacket[]>(
         `SELECT recorded_on, value FROM recordings
@@ -31,5 +30,8 @@ export default defineEventHandler(async () => {
       scrolls: { recorded_on: string; value: number }[];
       dragons: { recorded_on: string; value: number }[];
     };
-  });
-});
+  },
+  {
+    maxAge: 60 * 5,
+  }
+);

@@ -1,22 +1,26 @@
 import type { RowDataPacket } from 'mysql2';
+import type { H3Event } from 'h3';
 import pool from '~/server/pool';
-import { cache } from '~/utils';
 import { z } from 'zod';
 
-function getCounts(key: string, area: string | null) {
-  return cache(key, 60 * 1000, async () => {
+const getCounts = defineCachedFunction(
+  async (event: H3Event, area: string) => {
     const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
       `
-      SELECT
-      COUNT(*) AS total, 
-      COUNT(DISTINCT(user_id)) AS scrolls
-      FROM hatchery
-      WHERE in_${area} = 1`
+    SELECT
+    COUNT(*) AS total, 
+    COUNT(DISTINCT(user_id)) AS scrolls
+    FROM hatchery
+    WHERE in_${area} = 1`
     );
 
     return { total, scrolls };
-  });
-}
+  },
+  {
+    maxAge: 60,
+    getKey: (event: H3Event, area: string) => area + '-counts',
+  }
+);
 
 function getDragons(limit: number, area: string | null) {
   return pool.execute<RowDataPacket[]>(
@@ -40,7 +44,7 @@ export default defineEventHandler(async (event) => {
     .parse(getQuery(event));
 
   const [statistics, [dragons]] = await Promise.all([
-    getCounts(query.area + '-counts', query.area),
+    getCounts(event, query.area),
     getDragons(query.limit, query.area),
   ]);
 

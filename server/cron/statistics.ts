@@ -16,9 +16,4 @@ export default defineCronHandler('everyThirtyMinutes', async () => {
       [scrolls, 'total_scrolls'],
     ])
   );
-  /* 
-  setCache("current_statistics", {
-    total,
-    scrolls,
-  }); */
 });
