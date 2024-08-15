@@ -1,4 +1,4 @@
-import type { RowDataPacket } from 'mysql2';
+import type { ResultSetHeader, RowDataPacket } from 'mysql2';
 import pool from '~/server/pool';
 import chunkArray from '~/utils/chunkArray';
 
@@ -45,12 +45,6 @@ export async function cleanUp() {
 
   await con.beginTransaction();
 
-  if (toDelete.length) {
-    await con.execute(
-      con.format(`DELETE FROM hatchery WHERE code IN (?)`, [toDelete])
-    );
-  }
-
   if (removeFromSeedTray.length) {
     await con.execute(
       con.format(`UPDATE hatchery SET in_seed_tray = 0 WHERE code IN (?)`, [
@@ -59,11 +53,18 @@ export async function cleanUp() {
     );
   }
 
+  const [deleted] = await con.execute<ResultSetHeader>(
+    con.format(
+      `DELETE FROM hatchery WHERE code IN (?) OR (in_seed_tray = 0 AND in_garden = 0)`,
+      [toDelete.length ? toDelete : null]
+    )
+  );
+
   const end = new Date().getTime();
 
   await con.execute(
     `INSERT INTO recordings (value, record_type, extra) VALUES (?, ?, ?)`,
-    [toDelete.length, 'removed', JSON.stringify({ start, end })]
+    [deleted.affectedRows, 'removed', JSON.stringify({ start, end })]
   );
 
   await con.commit();
