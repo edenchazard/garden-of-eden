@@ -77,8 +77,6 @@ export async function cleanUp() {
       }
 
       await con.commit();
-      console.log('Deleting: ' + removeFromHatchery.join(', '));
-      console.log('Removing from seed tray: ', removeFromSeedTray.join(', '));
     })
   );
 
@@ -86,7 +84,7 @@ export async function cleanUp() {
 
   await con.execute(
     `INSERT INTO recordings (value, record_type, extra) VALUES (?, ?, ?)`,
-    [overallRemoved, 'removed', JSON.stringify({ start, end })]
+    [overallRemoved, 'removed', JSON.stringify({ duration: end - start })]
   );
 
   con.release();
