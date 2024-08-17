@@ -20,38 +20,44 @@ export default defineEventHandler(async (event) => {
     .parse(body);
 
   const con = await pool.getConnection();
-  await con.beginTransaction();
 
-  await con.execute(
-    con.format(`DELETE FROM hatchery WHERE user_id = ? OR code IN (?)`, [
-      token?.userId,
-      dragons.map((dragon) => dragon.id) ?? [null],
-    ])
-  );
-
-  const add = dragons.filter(
-    (dragon) => dragon.in_garden || dragon.in_seed_tray
-  );
-
-  if (add.length > 0) {
-    await con.execute<RowDataPacket[]>(
-      con.format(
-        `
-      INSERT INTO hatchery (code, user_id, in_garden, in_seed_tray) VALUES ? ON DUPLICATE KEY UPDATE user_id = ?`,
-        [
-          add.map((dragon) => [
-            dragon.id,
-            token?.userId,
-            dragon.in_garden,
-            dragon.in_seed_tray,
-          ]),
-          token?.userId,
-        ]
-      )
+  try {
+    await con.beginTransaction();
+    await con.execute(
+      con.format(`DELETE FROM hatchery WHERE user_id = ? OR code IN (?)`, [
+        token?.userId,
+        dragons.map((dragon) => dragon.id) ?? [null],
+      ])
     );
-  }
 
-  await con.commit();
-  con.release();
-  return add.map((dragon) => dragon.id);
+    const add = dragons.filter(
+      (dragon) => dragon.in_garden || dragon.in_seed_tray
+    );
+
+    if (add.length > 0) {
+      await con.execute<RowDataPacket[]>(
+        con.format(
+          `
+      INSERT INTO hatchery (code, user_id, in_garden, in_seed_tray) VALUES ? ON DUPLICATE KEY UPDATE user_id = ?`,
+          [
+            add.map((dragon) => [
+              dragon.id,
+              token?.userId,
+              dragon.in_garden,
+              dragon.in_seed_tray,
+            ]),
+            token?.userId,
+          ]
+        )
+      );
+    }
+
+    await con.commit();
+    return add.map((dragon) => dragon.id);
+  } catch (e) {
+    await con.rollback();
+    throw e;
+  } finally {
+    con.release();
+  }
 });

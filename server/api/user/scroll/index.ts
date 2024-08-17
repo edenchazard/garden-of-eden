@@ -24,42 +24,46 @@ export default defineEventHandler(async (event) => {
   // resync dragcave scroll and hatchery for the user
   const con = await pool.getConnection();
 
-  if (alive.length) {
-    await con.beginTransaction();
-    // if a dragon that was in the hatchery has been moved to this scroll,
-    // we should update its user id to reflect the change of ownership
-    await con.execute<RowDataPacket[]>(
-      con.format(`UPDATE hatchery SET user_id = ? WHERE code IN (?)`, [
-        token?.userId,
-        alive.map((dragon) => dragon.id),
-      ])
+  try {
+    if (alive.length) {
+      await con.beginTransaction();
+      // if a dragon that was in the hatchery has been moved to this scroll,
+      // we should update its user id to reflect the change of ownership
+      await con.execute<RowDataPacket[]>(
+        con.format(`UPDATE hatchery SET user_id = ? WHERE code IN (?)`, [
+          token?.userId,
+          alive.map((dragon) => dragon.id),
+        ])
+      );
+      await con.execute<RowDataPacket[]>(
+        con.format(
+          `DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (?)`,
+          [token?.userId, alive.map((dragon) => dragon.id)]
+        )
+      );
+      await con.commit();
+    }
+
+    const [usersDragonsInHatchery] = await con.execute<RowDataPacket[]>(
+      `SELECT code, in_garden, in_seed_tray FROM hatchery WHERE user_id = ?`,
+      [token?.userId]
     );
 
-    await con.execute<RowDataPacket[]>(
-      con.format(`DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (?)`, [
-        token?.userId,
-        alive.map((dragon) => dragon.id),
-      ])
-    );
-    await con.commit();
+    return alive.map<ScrollView>((dragon) => {
+      const hatcheryDragon = usersDragonsInHatchery.find(
+        (row) => row.code === dragon.id
+      );
+
+      return {
+        ...dragon,
+        in_garden: !!(hatcheryDragon?.in_garden ?? false),
+        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+      };
+    });
+  } catch (e) {
+    await con.rollback();
+    throw e;
+  } finally {
+    con.release();
   }
-
-  const [usersDragonsInHatchery] = await con.execute<RowDataPacket[]>(
-    `SELECT code, in_garden, in_seed_tray FROM hatchery WHERE user_id = ?`,
-    [token?.userId]
-  );
-
-  con.release();
-
-  return alive.map<ScrollView>((dragon) => {
-    const hatcheryDragon = usersDragonsInHatchery.find(
-      (row) => row.code === dragon.id
-    );
-
-    return {
-      ...dragon,
-      in_garden: !!(hatcheryDragon?.in_garden ?? false),
-      in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-    };
-  });
 });

@@ -68,17 +68,23 @@ export default NuxtAuthHandler({
         token.sessionToken = account.access_token;
         const con = await pool.getConnection();
 
-        await con.beginTransaction();
-        await con.execute(
-          `INSERT IGNORE INTO users (id, username) VALUES (?, ?)`,
-          [user.id, user.username]
-        );
-        await con.execute(
-          `INSERT IGNORE INTO user_settings (user_id) VALUES (?)`,
-          [user.id]
-        );
-        await con.commit();
-        con.release();
+        try {
+          await con.beginTransaction();
+          await con.execute(
+            `INSERT IGNORE INTO users (id, username) VALUES (?, ?)`,
+            [user.id, user.username]
+          );
+          await con.execute(
+            `INSERT IGNORE INTO user_settings (user_id) VALUES (?)`,
+            [user.id]
+          );
+          await con.commit();
+        } catch (e) {
+          await con.rollback();
+          throw e;
+        } finally {
+          con.release();
+        }
       }
 
       if (user) {
