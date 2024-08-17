@@ -13,13 +13,12 @@ export async function cleanUp() {
     `SELECT code, in_seed_tray, in_garden FROM hatchery`
   );
 
-  let overallRemoved = 0;
+  const removeFromSeedTray: string[] = [];
+  const removeFromHatchery: string[] = [];
   const chunkedDragons = chunkArray(hatcheryDragons, 400);
 
-  await Promise.all(
+  await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
-      const removeFromSeedTray = [];
-      const removeFromHatchery = [];
       const apiResponse = await $fetch<{
         errors: unknown[];
         dragons: Record<string, DragonData>;
@@ -41,42 +40,41 @@ export async function cleanUp() {
           (d) => d.code === dragon.id
         );
 
+        if (hatcheryStatus?.in_seed_tray === 1 && dragon.hoursleft > 96) {
+          hatcheryStatus.in_seed_tray = 0;
+          removeFromSeedTray.push(code);
+        }
+
         if (
           dragon.hoursleft < 0 ||
           (hatcheryStatus?.in_seed_tray === 0 &&
             hatcheryStatus?.in_garden === 0)
         ) {
           removeFromHatchery.push(code);
-        } else if (
-          hatcheryStatus?.in_seed_tray === 1 &&
-          dragon.hoursleft > 96
-        ) {
-          hatcheryStatus.in_seed_tray = 0;
-          removeFromSeedTray.push(code);
         }
       }
+    })
+  );
 
-      await con.beginTransaction();
+  await Promise.allSettled(
+    chunkArray(removeFromSeedTray, 200).map(async (chunk) =>
+      con.execute(
+        con.format(`UPDATE hatchery SET in_seed_tray = 0 WHERE code IN (?)`, [
+          chunk,
+        ])
+      )
+    )
+  );
 
-      if (removeFromSeedTray.length) {
-        await con.execute(
-          con.format(`UPDATE hatchery SET in_seed_tray = 0 WHERE code IN (?)`, [
-            removeFromSeedTray,
-          ])
-        );
-      }
+  let successfullyRemoved = 0;
 
-      if (removeFromHatchery.length) {
-        const [deleted] = await con.execute<ResultSetHeader>(
-          con.format(`DELETE FROM hatchery WHERE code IN (?)`, [
-            removeFromHatchery,
-          ])
-        );
+  await Promise.allSettled(
+    chunkArray(removeFromHatchery, 200).map(async (chunk) => {
+      const [deleted] = await con.execute<ResultSetHeader>(
+        con.format(`DELETE FROM hatchery WHERE code IN (?)`, [chunk])
+      );
 
-        overallRemoved += deleted.affectedRows;
-      }
-
-      await con.commit();
+      successfullyRemoved += deleted.affectedRows;
     })
   );
 
@@ -84,7 +82,7 @@ export async function cleanUp() {
 
   await con.execute(
     `INSERT INTO recordings (value, record_type, extra) VALUES (?, ?, ?)`,
-    [overallRemoved, 'removed', JSON.stringify({ duration: end - start })]
+    [successfullyRemoved, 'removed', JSON.stringify({ duration: end - start })]
   );
 
   con.release();
