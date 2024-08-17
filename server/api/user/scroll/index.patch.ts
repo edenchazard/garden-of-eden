@@ -25,32 +25,33 @@ export default defineEventHandler(async (event) => {
   await con.execute(
     con.format(`DELETE FROM hatchery WHERE user_id = ? OR code IN (?)`, [
       token?.userId,
-      dragons.map((dragon) => dragon.id),
+      dragons.map((dragon) => dragon.id) ?? [null],
     ])
   );
 
-  await con.execute<RowDataPacket[]>(
-    con.format(
-      `
+  const add = dragons.filter(
+    (dragon) => dragon.in_garden || dragon.in_seed_tray
+  );
+
+  if (add.length > 0) {
+    await con.execute<RowDataPacket[]>(
+      con.format(
+        `
       INSERT INTO hatchery (code, user_id, in_garden, in_seed_tray) VALUES ? ON DUPLICATE KEY UPDATE user_id = ?`,
-      [
-        dragons
-          .filter((dragon) => dragon.in_garden || dragon.in_seed_tray)
-          .map((dragon) => [
+        [
+          add.map((dragon) => [
             dragon.id,
             token?.userId,
             dragon.in_garden,
             dragon.in_seed_tray,
           ]),
-        token?.userId,
-      ]
-    )
-  );
+          token?.userId,
+        ]
+      )
+    );
+  }
 
   await con.commit();
   con.release();
-
-  return dragons
-    .filter((dragon) => dragon.in_garden || dragon.in_seed_tray)
-    .map((dragon) => dragon.id);
+  return add.map((dragon) => dragon.id);
 });
