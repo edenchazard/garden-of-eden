@@ -36,4 +36,10 @@ declare global {
   type UserSettings = z.infer<typeof userSettingsSchema>;
 
   type UserRole = 'owner' | 'user';
+
+  enum RecordType {
+    removed,
+    total_dragons,
+    total_scrolls,
+  }
 }

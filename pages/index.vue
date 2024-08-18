@@ -181,8 +181,27 @@ const {
         in_seed_tray: dragon.in_seed_tray,
         in_garden: dragon.in_garden,
       })),
-      onResponse() {
+      onResponse({ response }) {
+        if (!response.ok) {
+          toast.error('Failed to save your scroll. Please try again.');
+          return;
+        }
+
         setTimeout(() => (recentlyAdded.value = []), 1000);
+
+        const seedTray = dragons.value.filter((dragon) => dragon.in_seed_tray);
+        const garden = dragons.value.filter((dragon) => dragon.in_garden);
+        const texts = [];
+
+        if (seedTray.length) {
+          texts.push(`${seedTray.length} dragons to the seed tray`);
+        }
+        if (garden.length) {
+          texts.push(`${garden.length} dragons to the garden`);
+        }
+
+        toast.success('Added ' + texts.join(' and ') + '.');
+        return;
       },
     }),
   {
@@ -194,7 +213,6 @@ const {
 const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes('pending')
 );
-
 watch(
   () => [userSettings.value.sort, dragons],
   () => {

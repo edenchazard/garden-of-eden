@@ -84,7 +84,10 @@ useHead({
   title: 'Settings',
 });
 
-const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings();
+const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings(
+  false,
+  true
+);
 
 const invalid = computed(() => {
   try {

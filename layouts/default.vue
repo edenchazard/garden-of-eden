@@ -126,6 +126,7 @@ useHead({
 });
 
 const colorMode = useColorMode();
+
 const { data: authData, signIn, signOut } = useAuth();
 
 const { execute: cleanUp } = useFetch('/api/hatchery', {
