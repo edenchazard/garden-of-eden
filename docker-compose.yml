@@ -28,6 +28,8 @@ services:
       - .env
     networks:
       - internal
+    ports:
+      - 55555:3306
 
   autoheal:
     deploy:
