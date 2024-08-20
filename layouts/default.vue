@@ -93,14 +93,16 @@
             <font-awesome-icon :icon="['fas', 'broom']" class="!mr-0" />
           </button>
         </div>
-        <div class="flex-1">
-          <p class="italic leading-4">
-            powered by
-            <font-awesome-icon :icon="['fas', 'leaf']" /><br />
+        <div class="flex-1 flex flex-col gap-y-2 [&>p]:italic [&>p]:leading-4">
+          <p>
+            powered by plants
+            <font-awesome-icon :icon="['fas', 'leaf']" />
+          </p>
+          <p>
             handcrafted by eden chazard
             <font-awesome-icon :icon="['fas', 'hammer']" />
           </p>
-          <div class="flex gap-x-2 justify-end">
+          <div class="flex gap-2 justify-end">
             <NuxtLink
               to="https://forums.dragcave.net/topic/189636-chazzas-dc-tools-garden-of-eden-lineage-builder-fart/"
             >
@@ -112,6 +114,11 @@
               >want more?</NuxtLink
             >
           </div>
+          <ClientOnly>
+            <NuxtLink v-if="$colorMode.value === 'mint'" to="/single-tear">
+              don't like the green?
+            </NuxtLink>
+          </ClientOnly>
         </div>
       </footer>
     </div>
