@@ -50,7 +50,7 @@
       >
         <legend class="text-2xl sr-only">Your scroll</legend>
         <div
-          class="grid gap-6"
+          class="grid gap-6 pr-2"
           :style="{
             gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
           }"

@@ -4,7 +4,16 @@
       <header
         class="px-2 lg:px-0 space-y-4 sm:space-y-0 pb-4 justify-between items-center"
       >
-        <div class="flex justify-end gap-2 pb-3 divide-x">
+        <div class="flex justify-end gap-3 pb-3">
+          <span v-if="authData?.user" class="truncate">
+            <span class="hidden sm:inline">Logged in as&nbsp;</span
+            ><NuxtLink
+              :to="`https://dragcave.net/user/${authData?.user.username}`"
+              target="_blank"
+            >
+              {{ authData?.user.username }}
+            </NuxtLink>
+          </span>
           <ClientOnly>
             <Toggle
               :model-value="$colorMode.preference === 'dark'"
@@ -17,7 +26,7 @@
           <NuxtLink
             v-if="authData?.user"
             to="/settings"
-            class="pl-2 text-white dark:text-stone-200 group"
+            class="shrink-0 pl-2 text-white dark:text-stone-200 group"
             ><font-awesome-icon
               :icon="['fas', 'cog']"
               class="mr-2 motion-safe:group-hover:animate-spin"
@@ -28,7 +37,12 @@
           <div class="text-center">
             <NuxtLink
               to="/"
-              class="text-3xl text-white dark:text-stone-200 tracking-wide font-thin decoration-1"
+              :style="{
+                backgroundImage: `url(https://dragcave.net/image/2OrD.gif)`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: '0.2rem',
+              }"
+              class="pl-9 text-3xl text-white dark:text-stone-200 tracking-wider font-thin decoration-transparent"
               >Garden of Eden</NuxtLink
             >
           </div>
@@ -37,18 +51,9 @@
           >
             <NuxtLink class="text-white dark:text-stone-200" to="/statistics"
               >Statistics</NuxtLink
-            ><span class="hidden sm:inline">&bull;</span>
+            >
             <template v-if="authData?.user">
-              <span>
-                Logged in as
-                <NuxtLink
-                  :to="`https://dragcave.net/user/${authData?.user.username}`"
-                  target="_blank"
-                >
-                  {{ authData?.user.username }}
-                </NuxtLink>
-              </span>
-              <span class="hidden sm:inline">&bull;</span>
+              <span>&bull;</span>
               <button
                 class="underline-offset-4 underline !px-0 !shadow-none"
                 type="button"
