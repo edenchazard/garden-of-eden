@@ -193,14 +193,16 @@ const {
         const garden = dragons.value.filter((dragon) => dragon.in_garden);
         const texts = [];
 
-        if (seedTray.length) {
-          texts.push(`${seedTray.length} dragons to the seed tray`);
-        }
-        if (garden.length) {
-          texts.push(`${garden.length} dragons to the garden`);
+        if (seedTray.length > 0) {
+          texts.push(
+            `${seedTray.length} ${pluralise('dragon', seedTray.length)} in the seed tray`
+          );
         }
 
-        toast.success('Added ' + texts.join(' and ') + '.');
+        texts.push(
+          `${garden.length > 0 ? garden.length : 'no'} ${pluralise('dragon', garden.length)} in the garden`
+        );
+        toast.success('Scroll updated! You have ' + texts.join(' and ') + '.');
         return;
       },
     }),

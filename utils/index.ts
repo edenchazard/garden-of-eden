@@ -32,3 +32,7 @@ export function filterSelectAll(settings: UserSettings) {
     return false;
   };
 }
+
+export function pluralise(word: string, count: number) {
+  return count === 1 ? word : `${word}s`;
+}
