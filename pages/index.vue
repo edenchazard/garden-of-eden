@@ -102,12 +102,16 @@
               class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
             >
               <div>
-                <b class="text-2xl font-bold block">{{ statistics.total }}</b>
+                <b class="text-2xl font-bold block">{{
+                  Intl.NumberFormat().format(statistics.total)
+                }}</b>
                 dragons
               </div>
               <span class="text-2xl opacity-70 italic">/</span>
               <div>
-                <b class="text-2xl font-bold block">{{ statistics.scrolls }}</b>
+                <b class="text-2xl font-bold block">{{
+                  Intl.NumberFormat().format(statistics.scrolls)
+                }}</b>
                 scrolls
               </div>
             </div>
@@ -139,12 +143,16 @@
               class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
             >
               <div>
-                <b class="text-2xl font-bold block">{{ statistics.total }}</b>
+                <b class="text-2xl font-bold block">{{
+                  Intl.NumberFormat().format(statistics.total)
+                }}</b>
                 dragons
               </div>
               <span class="text-2xl opacity-70 italic">/</span>
               <div>
-                <b class="text-2xl font-bold block">{{ statistics.scrolls }}</b>
+                <b class="text-2xl font-bold block">{{
+                  Intl.NumberFormat().format(statistics.scrolls)
+                }}</b>
                 scrolls
               </div>
             </div>
