@@ -57,7 +57,6 @@
               <button
                 class="underline-offset-4 underline !px-0 !shadow-none"
                 type="button"
-                title="Sign out"
                 @click="signOut()"
               >
                 <font-awesome-icon
@@ -69,7 +68,6 @@
               v-else
               class="underline-offset-4 underline !px-0 !shadow-none"
               type="button"
-              title="Sign in"
               @click="signIn('dragcave')"
             >
               <font-awesome-icon
