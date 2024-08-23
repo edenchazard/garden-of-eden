@@ -60,8 +60,15 @@
         <font-awesome-icon
           :icon="['fas', 'rotate']"
           :class="{
-            'animate-spin': hatcheryStatus === 'pending',
+            'animate-spin': loading,
           }"
+          @animationiteration="
+            () => {
+              if (hatcheryStatus === 'success') {
+                loading = false;
+              }
+            }
+          "
         />
         Reload
       </button>
@@ -113,6 +120,8 @@ const props = withDefaults(
 const frequency = defineModel<number>('frequency', { default: 30 });
 const perPage = defineModel<number>('perPage', { default: 100 });
 
+const loading = ref(false);
+
 const {
   data: hatchery,
   execute: fetchHatchery,
@@ -130,6 +139,9 @@ const {
     ...props.query,
   })),
   watch: [() => [frequency, perPage]],
+  onRequest() {
+    loading.value = true;
+  },
 });
 
 const {
