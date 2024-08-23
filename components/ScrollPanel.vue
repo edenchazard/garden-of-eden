@@ -71,7 +71,7 @@
           v-model="dragon.in_seed_tray"
           :label="`ER ${formatHoursLeft(dragon.hoursleft)}`"
           size="sm"
-          class="text-red-600"
+          class="text-orange-300 dark:text-red-500 font-semibold"
         />
         <span v-else>{{ formatHoursLeft(dragon.hoursleft) }}</span>
       </span>
