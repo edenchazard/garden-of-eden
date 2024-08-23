@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full max-w-screen-lg space-y-4">
-    <div class="flex flex-col rounded-md overflow-hidden">
+  <div class="w-full max-w-screen-lg space-y-4 py-4">
+    <div class="flex flex-col rounded-md">
       <header
         class="px-2 lg:px-0 space-y-4 sm:space-y-0 pb-4 justify-between items-center"
       >
@@ -85,7 +85,7 @@
         <slot />
       </main>
       <footer
-        class="py-4 px-2 flex lg:px-0 text-right text-xs [&_a]:tracking-wider [&_a]:decoration-dotted"
+        class="pt-4 px-2 flex lg:px-0 text-right text-xs [&_a]:tracking-wider [&_a]:decoration-dotted"
       >
         <div>
           <button

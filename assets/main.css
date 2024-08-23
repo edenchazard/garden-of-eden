@@ -11,7 +11,7 @@ body {
 }
 
 #__nuxt {
-  @apply flex-1 flex flex-col pt-4 items-center bg-green-800 dark:bg-neutral-950;
+  @apply flex-1 flex flex-col items-center bg-green-800 dark:bg-neutral-950;
 }
 
 button {
