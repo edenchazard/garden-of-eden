@@ -98,7 +98,9 @@
             <font-awesome-icon :icon="['fas', 'broom']" class="!mr-0" />
           </button>
         </div>
-        <div class="flex-1 flex flex-col gap-y-2 [&>p]:italic [&>p]:leading-4">
+        <div
+          class="flex-1 flex flex-col gap-y-2 [&>p]:italic [&>p]:leading-4 items-end"
+        >
           <p>
             powered by plants
             <font-awesome-icon :icon="['fas', 'leaf']" />
