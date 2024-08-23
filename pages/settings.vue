@@ -25,7 +25,8 @@
               />
               <span class="mt-1 text-xs text-center">(0 to 72)</span>
             </span>
-            hours old.
+            ({{ formatHoursLeft(168 - userSettings.hatchlingMinAge) }}) hours
+            old.
           </li>
           <li>
             Exclude eggs that aren't at least
@@ -39,7 +40,7 @@
               />
               <span class="mt-1 text-xs text-center">(0 to 72)</span>
             </span>
-            hours old.
+            ({{ formatHoursLeft(168 - userSettings.eggMinAge) }}) hours old.
           </li>
         </ul>
       </fieldset>
