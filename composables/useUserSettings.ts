@@ -6,14 +6,14 @@ export function useUserSettings(
 
   const settings = useState(() => ({
     ...userSettingsSchema.parse({}),
-    ...authData.value?.user.settings,
+    ...userSettingsSchema.parse(authData.value?.user?.settings ?? {}),
   }));
 
   const { execute, status } = useFetch('/api/user/settings', {
     method: 'PATCH',
     body: settings,
     immediate: false,
-    watch: saveOnChange ? [settings] : false,
+    watch: saveOnChange && authData.value?.user ? [settings] : false,
     onResponse({ response }) {
       if (!toastOnSave) {
         return;
