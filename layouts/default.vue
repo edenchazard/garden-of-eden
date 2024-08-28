@@ -52,6 +52,10 @@
             <NuxtLink class="text-white dark:text-stone-200" to="/statistics"
               >Statistics</NuxtLink
             >
+            <span>&bull;</span>
+            <NuxtLink class="text-white dark:text-stone-200" to="/share"
+              >Share</NuxtLink
+            >
             <template v-if="authData?.user">
               <span>&bull;</span>
               <button

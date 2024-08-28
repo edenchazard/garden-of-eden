@@ -46,8 +46,6 @@ export default defineNuxtConfig({
     clientId: process.env.CLIENT_ID ?? '',
     clientSecret: process.env.CLIENT_SECRET,
     nextAuthSecret: process.env.NEXT_SECRET,
-    baseUrl: process.env.BASE_URL,
-    origin: process.env.ORIGIN,
     db: {
       port: 3306,
       host: process.env.MYSQL_HOST,
@@ -55,7 +53,10 @@ export default defineNuxtConfig({
       database: process.env.MYSQL_DATABASE,
       password: process.env.MYSQL_PASSWORD,
     },
-    public: {},
+    public: {
+      baseUrl: process.env.BASE_URL,
+      origin: process.env.ORIGIN,
+    },
   },
   auth: {
     isEnabled: true,
