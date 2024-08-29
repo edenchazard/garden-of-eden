@@ -3,8 +3,12 @@ import type { RowDataPacket } from 'mysql2';
 import type { TokenSet } from 'next-auth';
 import pool from '~/server/pool';
 
-const { clientSecret, clientId, nextAuthSecret, baseUrl, origin } =
-  useRuntimeConfig();
+const {
+  clientSecret,
+  clientId,
+  nextAuthSecret,
+  public: { origin, baseUrl },
+} = useRuntimeConfig();
 
 export default NuxtAuthHandler({
   secret: nextAuthSecret,
