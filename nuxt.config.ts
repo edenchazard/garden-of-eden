@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     'nuxt-cron',
     '@nuxtjs/robots',
     '@nuxt/eslint',
+    '@nuxt/test-utils/module',
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
