@@ -88,6 +88,7 @@
       <HatcheryView
         v-model:frequency="userSettings.seedTrayFrequency"
         v-model:per-page="userSettings.seedTrayPerPage"
+        label="seed-tray"
         :query="{ area: 'seed_tray' }"
         cache-bust
       >
@@ -130,6 +131,7 @@
       <HatcheryView
         v-model:frequency="userSettings.gardenFrequency"
         v-model:per-page="userSettings.gardenPerPage"
+        label="garden"
         :query="{ area: 'garden' }"
       >
         <template #blurb="{ statistics }">

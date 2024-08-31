@@ -17,12 +17,18 @@
         </div>
         <div class="space-y-2">
           <div class="flex items-center gap-2">
-            Direct:
-            <input type="text" class="font-mono flex-1" :value="banner90x35" />
+            <label for="90x35-direct">Direct:</label>
+            <input
+              id="90x35-direct"
+              type="text"
+              class="font-mono flex-1"
+              :value="banner90x35"
+            />
           </div>
           <div class="flex items-center gap-2">
-            HTML:
+            <label for="90x35-html">HTML:</label>
             <input
+              id="90x35-html"
               type="text"
               class="font-mono flex-1"
               :value="`<a href=&quot;${path}&quot;><img src=&quot;${banner90x35}&quot; alt=&quot;Garden of Eden&quot; /></a>`"

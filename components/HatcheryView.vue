@@ -3,8 +3,12 @@
   <div
     class="items-center gap-y-2 gap-x-4 text-center p-2 rounded-md grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr] md:grid-cols-[auto_auto_auto_1fr_auto_auto] bg-black/30"
   >
-    <label for="showing">Showing</label>
-    <select id="showing" v-model.number="perPage" class="md:min-w-40">
+    <label :for="`${label}-showing`">Showing</label>
+    <select
+      :id="`${label}-showing`"
+      v-model.number="perPage"
+      class="md:min-w-40"
+    >
       <option value="10">10 dragons</option>
       <option value="25">25 dragons</option>
       <option value="50">50 dragons</option>
@@ -12,8 +16,12 @@
       <option value="150">150 dragons</option>
       <option value="200">200 dragons</option>
     </select>
-    <label for="every">every</label>
-    <select id="every" v-model.number="frequency" class="w-full md:max-w-40">
+    <label :for="`${label}-every`">every</label>
+    <select
+      :id="`${label}-every`"
+      v-model.number="frequency"
+      class="w-full md:max-w-40"
+    >
       <option value="15">15 seconds</option>
       <option value="30">30 seconds</option>
       <option value="60">1 minute</option>
@@ -111,6 +119,7 @@ const props = withDefaults(
   defineProps<{
     query: Record<string, string>;
     cacheBust?: boolean;
+    label: string;
   }>(),
   {
     cacheBust: false,
