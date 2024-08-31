@@ -66,7 +66,7 @@
       class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
     >
       <span class="!pl-0.5 inline-flex items-center">
-        <Toggle
+        <ToggleInput
           v-if="dragon.hoursleft <= 96"
           v-model="dragon.in_seed_tray"
           :label="`ER ${formatHoursLeft(dragon.hoursleft)}`"

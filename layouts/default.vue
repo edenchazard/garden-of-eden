@@ -15,7 +15,7 @@
             </NuxtLink>
           </span>
           <ClientOnly>
-            <Toggle
+            <ToggleInput
               :model-value="$colorMode.preference === 'dark'"
               :label="colorMode.preference === 'dark' ? 'Dark' : 'Mint'"
               @update:model-value="
