@@ -11,7 +11,9 @@ export function formatRatio(a: number, b: number) {
   return (
     Intl.NumberFormat(undefined, {
       maximumFractionDigits: 1,
-    }).format(isNaN(a / b) ? 0 : a / b) + `:${1}`
+    }).format(isNaN(a / b) ? 0 : a / b) +
+    ':' +
+    Math.min(b, 1)
   );
 }
 
