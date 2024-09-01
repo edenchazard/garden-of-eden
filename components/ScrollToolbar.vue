@@ -29,19 +29,14 @@
     </div>
 
     <button type="button" class="btn-secondary" @click="emit('reload')">
-      <font-awesome-icon
-        :icon="['fas', 'rotate']"
-        :class="{ 'animate-spin': fetchScrollStatus === 'pending' }"
-      />
+      <LoadingIcon v-if="fetchScrollStatus === 'pending'" class="mr-1 size-4" />
+
+      <font-awesome-icon v-else class="mr-1" :icon="['fas', 'rotate']" />
       Reload
     </button>
 
     <button type="submit" class="btn-primary" @click="emit('submit')">
-      <font-awesome-icon
-        v-if="saveScrollStatus === 'pending'"
-        :icon="['fas', 'spinner']"
-        class="ml-1 animate-spin size-4"
-      />
+      <LoadingIcon v-if="saveScrollStatus === 'pending'" class="ml-1 size-4" />
       <font-awesome-icon v-else :icon="['fas', 'dragon']" class="ml-1 size-4" />
       Submit
     </button>

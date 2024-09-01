@@ -16,6 +16,7 @@ import {
   faLeaf,
   faHammer,
   faCog,
+  faEgg,
 } from '@fortawesome/free-solid-svg-icons';
 
 // This is important, we are going to let Nuxt worry about the CSS
@@ -37,7 +38,8 @@ library.add(
   faHeart,
   faLeaf,
   faHammer,
-  faCog
+  faCog,
+  faEgg
 );
 
 export default defineNuxtPlugin((nuxtApp) => {

@@ -62,11 +62,7 @@
         </ul>
       </fieldset>
       <button type="submit" class="btn-primary self-end" :disabled="canSave">
-        <font-awesome-icon
-          v-if="saveSettingsStatus === 'pending'"
-          :icon="['fas', 'spinner']"
-          class="animate-spin"
-        />
+        <LoadingIcon v-if="saveSettingsStatus === 'pending'" class="mr-1" />
         {{ saveSettingsStatus === 'pending' ? 'Saving...' : 'Save' }}
       </button>
       <p v-if="invalid" class="self-end">

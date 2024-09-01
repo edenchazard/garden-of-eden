@@ -65,11 +65,9 @@
           }
         "
       >
-        <font-awesome-icon
-          :icon="['fas', 'rotate']"
-          :class="{
-            'animate-spin': loading,
-          }"
+        <LoadingIcon
+          v-if="loading"
+          class="mr-1 size-4"
           @animationiteration="
             () => {
               if (hatcheryStatus === 'success') {
@@ -78,6 +76,7 @@
             }
           "
         />
+        <font-awesome-icon v-else class="mr-1" :icon="['fas', 'rotate']" />
         Reload
       </button>
     </ClientOnly>
