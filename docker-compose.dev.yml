@@ -8,10 +8,11 @@ services:
       - .:/src
       - node_modules:/src/node_modules
     ports:
-      - '3000:3000'
+      - 3000:3000
 
   db:
     image: mariadb:10
+    tty: true
     volumes:
       - dbdata:/var/lib/mysql
     ports:
@@ -23,5 +24,3 @@ volumes:
 
 networks:
   internal:
-  dragcave:
-    external: false
