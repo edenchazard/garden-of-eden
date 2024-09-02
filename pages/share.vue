@@ -23,6 +23,7 @@
               type="text"
               class="font-mono flex-1"
               :value="banner90x35"
+              readonly
             />
           </div>
           <div class="flex items-center gap-2">
