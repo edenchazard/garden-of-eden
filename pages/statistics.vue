@@ -107,8 +107,33 @@ const { data: stats, execute: fetchStats } = useAsyncData(() =>
   $fetch('/api/statistics')
 );
 
+function chartColourPalette(palette: string) {
+  const defaultPalette = [
+    '#ffe100',
+    '#f29c4c',
+    '#f2a2c4',
+    '#f2c4c4',
+    '#690033',
+    '#007b80',
+  ];
+
+  return (
+    {
+      mint: defaultPalette,
+      dark: ['#690033', '#007b80', '#f2c94c', '#f29c4c', '#f2a2c4', '#f2c4c4'],
+    }[palette] ?? defaultPalette
+  );
+}
+
+watch(() => useColorMode().value, renderCharts);
+
 onNuxtReady(async () => {
   await fetchStats();
+  renderCharts();
+  statisticsLoaded.value = true;
+});
+
+function renderCharts() {
   const statistics = stats.value;
   if (statistics === null) return;
 
@@ -118,36 +143,38 @@ onNuxtReady(async () => {
     }).format(new Date(stat.recorded_on))
   );
 
+  const colours = chartColourPalette(useColorMode().value);
+
   dragons.value = {
     labels,
     datasets: [
       {
         label: 'Dragons',
-        backgroundColor: '#690033',
-        borderColor: '#690033',
+        backgroundColor: colours[0],
+        borderColor: colours[0],
         data: statistics.dragons.map((stat) => stat.value),
       },
     ],
   };
+
   scrolls.value = {
     labels,
     datasets: [
       {
         label: 'Scrolls',
-        backgroundColor: '#007b80',
-        borderColor: '#007b80',
+        backgroundColor: colours[1],
+        borderColor: colours[1],
         data: statistics.scrolls.map((stat) => stat.value),
       },
     ],
   };
-  statisticsLoaded.value = true;
-});
+}
 </script>
 
 <style scoped lang="postcss">
 .graph {
   & div {
-    @apply p-3 border dark:border-stone-700;
+    @apply p-3 border border-green-300 dark:border-stone-700 bg-black/25;
   }
 
   & figcaption {
