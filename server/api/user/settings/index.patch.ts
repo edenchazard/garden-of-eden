@@ -4,12 +4,10 @@ import { getToken } from '#auth';
 import userSettingsSchema from '~/utils/userSettingsSchema';
 
 export default defineEventHandler(async (event) => {
-  const [token, body] = await Promise.all([
+  const [token, settings] = await Promise.all([
     getToken({ event }),
-    readBody(event),
+    readValidatedBody(event, userSettingsSchema.parse),
   ]);
-
-  const settings = userSettingsSchema.parse(body);
 
   await pool.execute<RowDataPacket[]>(
     `UPDATE user_settings SET

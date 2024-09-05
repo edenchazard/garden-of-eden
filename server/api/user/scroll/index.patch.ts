@@ -4,22 +4,19 @@ import { getToken } from '#auth';
 import { z } from 'zod';
 
 export default defineEventHandler(async (event) => {
-  const [token, body] = await Promise.all([
+  const schema = z.array(
+    z.object({
+      id: z.string().length(5),
+      in_garden: z.boolean().default(false),
+      in_seed_tray: z.boolean().default(false),
+    })
+  );
+
+  const [token, dragons, con] = await Promise.all([
     getToken({ event }),
-    readBody(event),
+    readValidatedBody(event, schema.parse),
+    pool.getConnection(),
   ]);
-
-  const dragons = z
-    .array(
-      z.object({
-        id: z.string().length(5),
-        in_garden: z.boolean().default(false),
-        in_seed_tray: z.boolean().default(false),
-      })
-    )
-    .parse(body);
-
-  const con = await pool.getConnection();
 
   try {
     await con.beginTransaction();

@@ -18,30 +18,9 @@
             class="w-full"
             :options="{
               normalized: true,
-              responsive: true,
-              maintainAspectRatio: false,
-              color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-              scales: {
-                y: {
-                  ticks: {
-                    precision: 0,
-                    color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                  },
-                },
-                x: {
-                  ticks: {
-                    color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                  },
-                },
-              },
               plugins: {
                 title: {
-                  color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                  display: true,
                   text: 'Dragons in Garden',
-                  font: {
-                    size: 20,
-                  },
                 },
               },
             }"
@@ -57,30 +36,9 @@
             :data="scrolls"
             :options="{
               normalized: true,
-              responsive: true,
-              maintainAspectRatio: false,
-              color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-              scales: {
-                y: {
-                  ticks: {
-                    precision: 0,
-                    color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                  },
-                },
-                x: {
-                  ticks: {
-                    color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                  },
-                },
-              },
               plugins: {
                 title: {
-                  color: $colorMode.value === 'Mint' ? '#fff' : '#e7e5e4',
-                  display: true,
                   text: 'Scrolls With Dragons',
-                  font: {
-                    size: 20,
-                  },
                 },
               },
             }"
