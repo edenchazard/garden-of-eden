@@ -20,7 +20,8 @@ export default defineEventHandler(async (event) => {
     sort = ?,
     hatchlingMinAge = ?,
     eggMinAge = ?,
-    showScrollRatio = ?
+    showScrollRatio = ?,
+    autoSeedTray = ?
     WHERE user_id = ?`,
     [
       settings.gardenFrequency,
@@ -31,6 +32,7 @@ export default defineEventHandler(async (event) => {
       settings.hatchlingMinAge,
       settings.eggMinAge,
       settings.showScrollRatio,
+      settings.autoSeedTray,
       token?.userId,
     ]
   );
