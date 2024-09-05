@@ -66,7 +66,7 @@
               type="checkbox"
               :checked="userSettings.autoSeedTray"
             />
-            <label for="hide-scroll-views"
+            <label for="auto-er"
               >Automatically place dragons in the seed tray when 4 days or less
               and selected.</label
             >
