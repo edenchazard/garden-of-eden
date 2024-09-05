@@ -11,4 +11,5 @@ export default z.object({
   hatchlingMinAge: z.coerce.number().max(72).min(0).default(0),
   eggMinAge: z.coerce.number().max(72).min(0).default(0),
   showScrollRatio: z.coerce.boolean().default(true),
+  autoSeedTray: z.coerce.boolean().default(true),
 });

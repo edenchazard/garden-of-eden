@@ -268,6 +268,10 @@ function toggleAll(checked: boolean) {
     .filter(filterSelectAll(userSettings.value))
     .forEach((dragon) => {
       dragon.in_garden = checked;
+
+      if (userSettings.value.autoSeedTray && dragon.hoursleft <= 96) {
+        dragon.in_seed_tray = checked;
+      }
     });
 }
 </script>
