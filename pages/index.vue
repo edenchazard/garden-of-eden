@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-4">
+    {{ data.caretaking }}
     <div v-if="!authData?.user" class="flex flex-col gap-y-4 text-center">
       <p>
         The <b>Garden of Eden</b> is a highly secure garden where only those
@@ -37,7 +38,7 @@
         that reload button and try again.
       </p>
 
-      <p v-if="dragons.length" class="text-left ml-1 !mt-0 max-w-prose">
+      <p v-if="data.dragons.length" class="text-left ml-1 !mt-0 max-w-prose">
         Hidden dragons are not shown and will be removed regularly.
       </p>
 
@@ -56,9 +57,9 @@
           }"
         >
           <ScrollPanel
-            v-for="(dragon, i) in dragons"
+            v-for="(dragon, i) in data.dragons"
             :key="dragon.id"
-            v-model="dragons[i]"
+            v-model="data.dragons[i]"
             :settings="userSettings"
             :recently-added
             @click="
@@ -73,7 +74,7 @@
         <ScrollToolbar
           id="scroll-toolbar"
           v-model:sort="userSettings.sort"
-          :dragons
+          :dragons="data.dragons"
           :settings="userSettings"
           :fetch-scroll-status
           :save-scroll-status
@@ -170,12 +171,12 @@ const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
 const {
-  data: dragons,
+  data,
   execute: fetchScroll,
   status: fetchScrollStatus,
 } = await useFetch('/api/user/scroll', {
   immediate: !!authData.value?.user,
-  default: () => [],
+  default: () => ({ dragons: [], caretaking: [] }),
 });
 
 const {
@@ -186,7 +187,7 @@ const {
   () =>
     $fetch('/api/user/scroll', {
       method: 'PATCH',
-      body: dragons.value.map((dragon) => ({
+      body: data.value.dragons.map((dragon) => ({
         id: dragon.id,
         in_seed_tray: dragon.in_seed_tray,
         in_garden: dragon.in_garden,
@@ -199,8 +200,10 @@ const {
 
         setTimeout(() => (recentlyAdded.value = []), 1000);
 
-        const seedTray = dragons.value.filter((dragon) => dragon.in_seed_tray);
-        const garden = dragons.value.filter((dragon) => dragon.in_garden);
+        const seedTray = data.value.dragons.filter(
+          (dragon) => dragon.in_seed_tray
+        );
+        const garden = data.value.dragons.filter((dragon) => dragon.in_garden);
         const texts = [];
 
         if (seedTray.length > 0) {
@@ -226,10 +229,10 @@ const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes('pending')
 );
 watch(
-  () => [userSettings.value.sort, dragons],
+  () => [userSettings.value.sort, data.value.dragons],
   () => {
     if (userSettings.value.sort === 'Youngest First') {
-      dragons.value.sort((a, b) => {
+      data.value.dragons.sort((a, b) => {
         const valueA = a.hatch + '' + a.hoursleft;
         const valueB = b.hatch + '' + b.hoursleft;
         return valueA.localeCompare(valueB);
@@ -237,7 +240,7 @@ watch(
     }
 
     if (userSettings.value.sort === 'Oldest First') {
-      dragons.value.sort((a, b) => {
+      data.value.dragons.sort((a, b) => {
         const valueA = a.hatch + '' + a.hoursleft;
         const valueB = b.hatch + '' + b.hoursleft;
         return valueB.localeCompare(valueA);
@@ -251,9 +254,9 @@ watch(
 );
 
 async function refreshScroll() {
-  const currentState = [...dragons.value];
+  const currentState = [...data.value.dragons];
   await fetchScroll();
-  dragons.value.forEach((dragon) => {
+  data.value.dragons.forEach((dragon) => {
     const oldDragon = currentState.find((d) => d.id === dragon.id);
     if (oldDragon) dragon.in_garden = oldDragon.in_garden;
   });
@@ -264,7 +267,7 @@ function toggleAll(checked: boolean) {
     return;
   }
 
-  dragons.value
+  data.value.dragons
     .filter(filterSelectAll(userSettings.value))
     .forEach((dragon) => {
       dragon.in_garden = checked;

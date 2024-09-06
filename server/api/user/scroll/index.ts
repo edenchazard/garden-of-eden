@@ -1,6 +1,7 @@
 import { getToken } from '#auth';
 import type { RowDataPacket } from 'mysql2';
 import pool from '~/server/pool';
+import caretakerEvent from '../caretakers/index';
 
 export default defineEventHandler(async (event) => {
   const token = await getToken({ event });
@@ -49,17 +50,20 @@ export default defineEventHandler(async (event) => {
       [token?.userId]
     );
 
-    return alive.map<ScrollView>((dragon) => {
-      const hatcheryDragon = usersDragonsInHatchery.find(
-        (row) => row.code === dragon.id
-      );
+    return {
+      caretaking: await caretakerEvent(event),
+      dragons: alive.map<ScrollView>((dragon) => {
+        const hatcheryDragon = usersDragonsInHatchery.find(
+          (row) => row.code === dragon.id
+        );
 
-      return {
-        ...dragon,
-        in_garden: !!(hatcheryDragon?.in_garden ?? false),
-        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-      };
-    });
+        return {
+          ...dragon,
+          in_garden: !!(hatcheryDragon?.in_garden ?? false),
+          in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+        };
+      }),
+    };
   } catch (e) {
     await con.rollback();
     throw e;
