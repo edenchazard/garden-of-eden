@@ -167,13 +167,14 @@
 
 <script lang="ts" setup>
 const { data: authData, signIn } = useAuth();
+const { csrf } = useCsrf();
 const { userSettings } = useUserSettings(true);
 
 const {
   data: dragons,
   execute: fetchScroll,
   status: fetchScrollStatus,
-} = await useFetch('/api/user/scroll', {
+} = await useCsrfFetch('/api/user/scroll', {
   immediate: !!authData.value?.user,
   default: () => [],
 });
@@ -185,6 +186,9 @@ const {
 } = useAsyncData(
   () =>
     $fetch('/api/user/scroll', {
+      headers: {
+        'Csrf-token': csrf,
+      },
       method: 'PATCH',
       body: dragons.value.map((dragon) => ({
         id: dragon.id,

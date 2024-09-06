@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxtjs/robots',
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
+    'nuxt-security',
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
@@ -76,5 +77,18 @@ export default defineNuxtConfig({
   },
   robots: {
     disallow: ['/api'],
+  },
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        'img-src': false,
+      },
+    },
+    csrf: true,
+  },
+  routeRules: {
+    '/api/auth/**': {
+      csurf: false,
+    },
   },
 });
