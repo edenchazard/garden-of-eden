@@ -42,4 +42,9 @@ declare global {
     total_dragons,
     total_scrolls,
   }
+
+  interface DragCaveApiResponse<Data extends Record<string, unknown>> {
+    errors: Array<[number, string]>;
+    data: Data;
+  }
 }
