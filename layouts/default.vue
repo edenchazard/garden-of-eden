@@ -145,7 +145,7 @@ const colorMode = useColorMode();
 
 const { data: authData, signIn, signOut } = useAuth();
 
-const { execute: cleanUp } = useFetch('/api/hatchery', {
+const { execute: cleanUp } = useCsrfFetch('/api/hatchery', {
   method: 'DELETE',
   immediate: false,
   body: {},

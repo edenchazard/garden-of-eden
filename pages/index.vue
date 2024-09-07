@@ -168,6 +168,7 @@
 <script lang="ts" setup>
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
+const { csrf } = useCsrf();
 
 const {
   data: dragons,
@@ -185,6 +186,9 @@ const {
 } = useAsyncData(
   () =>
     $fetch('/api/user/scroll', {
+      headers: {
+        'Csrf-token': csrf,
+      },
       method: 'PATCH',
       body: dragons.value.map((dragon) => ({
         id: dragon.id,

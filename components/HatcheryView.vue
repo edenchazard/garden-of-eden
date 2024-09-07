@@ -134,7 +134,7 @@ const {
   data: hatchery,
   execute: fetchHatchery,
   status: hatcheryStatus,
-} = await useFetch('/api/hatchery', {
+} = await useCsrfFetch('/api/hatchery', {
   default: () => ({
     dragons: [],
     statistics: {

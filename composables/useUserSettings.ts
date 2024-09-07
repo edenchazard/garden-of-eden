@@ -9,7 +9,7 @@ export function useUserSettings(
     ...userSettingsSchema.parse(authData.value?.user?.settings ?? {}),
   }));
 
-  const { execute, status } = useFetch('/api/user/settings', {
+  const { execute, status } = useCsrfFetch('/api/user/settings', {
     method: 'PATCH',
     body: settings,
     immediate: false,
