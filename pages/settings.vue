@@ -14,7 +14,6 @@
         </p>
         <ul class="divide-y *:py-4">
           <li>
-            Exclude hatchlings that aren't at least
             <span class="inline-flex flex-col mx-2">
               <input
                 v-model.number="userSettings.hatchlingMinAge"
@@ -25,11 +24,10 @@
               />
               <span class="mt-1 text-xs text-center">(0 to 72)</span>
             </span>
-            ({{ formatHoursLeft(168 - userSettings.hatchlingMinAge) }}) hours
-            old.
+            Exclude hatchlings that aren't at least
+            {{ formatHoursLeft(168 - userSettings.hatchlingMinAge) }} old.
           </li>
           <li>
-            Exclude eggs that aren't at least
             <span class="inline-flex flex-col mx-2">
               <input
                 v-model.number="userSettings.eggMinAge"
@@ -40,12 +38,14 @@
               />
               <span class="mt-1 text-xs text-center">(0 to 72)</span>
             </span>
-            ({{ formatHoursLeft(168 - userSettings.eggMinAge) }}) hours old.
+            Exclude eggs that aren't at least
+            {{ formatHoursLeft(168 - userSettings.eggMinAge) }} old.
           </li>
           <li class="flex items-center gap-x-2">
             <input
               id="auto-er"
               v-model="userSettings.autoSeedTray"
+              class="shrink-0"
               type="checkbox"
               :checked="userSettings.autoSeedTray"
             />
@@ -64,6 +64,7 @@
             <input
               id="hide-scroll-ratio"
               v-model="userSettings.showScrollRatio"
+              class="shrink-0"
               type="checkbox"
               :checked="userSettings.showScrollRatio"
             />
