@@ -92,22 +92,21 @@ export default NuxtAuthHandler({
       }
 
       if (user) {
-        token.username = user.username;
         token.userId = parseInt(user.id);
       }
       return token;
     },
     async session({ session, token }) {
       const [[user]] = await pool.execute<RowDataPacket[]>(
-        `SELECT users.role, user_settings.*
+        `SELECT users.username, users.role, user_settings.*
         FROM users
         LEFT JOIN user_settings ON users.id = user_settings.user_id
         WHERE id = ?`,
         [token.userId]
       );
 
-      const { role, user_id, ...settings } = user;
-      session.user.username = token.username as string;
+      const { username, role, user_id, ...settings } = user;
+      session.user.username = username;
       session.user.role = role;
       session.user.settings = settings as UserSettings;
 
