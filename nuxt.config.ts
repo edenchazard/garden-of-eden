@@ -81,6 +81,7 @@ export default defineNuxtConfig({
   security: {
     headers: {
       crossOriginEmbedderPolicy: false,
+      referrerPolicy: false,
       contentSecurityPolicy: {
         'img-src': ["'self'", 'dragcave.net'],
       },
