@@ -42,6 +42,18 @@
             </span>
             ({{ formatHoursLeft(168 - userSettings.eggMinAge) }}) hours old.
           </li>
+          <li class="flex items-center gap-x-2">
+            <input
+              id="auto-er"
+              v-model="userSettings.autoSeedTray"
+              type="checkbox"
+              :checked="userSettings.autoSeedTray"
+            />
+            <label for="auto-er"
+              >Automatically place dragons in the seed tray when 4 days or less
+              and selected.</label
+            >
+          </li>
         </ul>
       </fieldset>
       <fieldset>
@@ -57,18 +69,6 @@
             />
             <label for="hide-scroll-ratio">
               Show views to unique views ratio.</label
-            >
-          </li>
-          <li class="flex items-center gap-x-2">
-            <input
-              id="auto-er"
-              v-model="userSettings.autoSeedTray"
-              type="checkbox"
-              :checked="userSettings.autoSeedTray"
-            />
-            <label for="auto-er"
-              >Automatically place dragons in the seed tray when 4 days or less
-              and selected.</label
             >
           </li>
         </ul>
