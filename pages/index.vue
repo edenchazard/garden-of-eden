@@ -167,14 +167,14 @@
 
 <script lang="ts" setup>
 const { data: authData, signIn } = useAuth();
-const { csrf } = useCsrf();
 const { userSettings } = useUserSettings(true);
+const { csrf } = useCsrf();
 
 const {
   data: dragons,
   execute: fetchScroll,
   status: fetchScrollStatus,
-} = await useCsrfFetch('/api/user/scroll', {
+} = await useFetch('/api/user/scroll', {
   immediate: !!authData.value?.user,
   default: () => [],
 });
