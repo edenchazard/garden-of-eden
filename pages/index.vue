@@ -32,14 +32,19 @@
     </div>
 
     <form v-else @submit.prevent="saveScroll()">
-      <p v-if="fetchScrollStatus === 'error'" class="text-center">
-        Aurrrr naurrr!!! There was an error trying to fetch your scroll. Whack
-        that reload button and try again.
-      </p>
-
-      <p v-if="dragons.length" class="text-left ml-1 !mt-0 max-w-prose">
-        Hidden dragons are not shown and will be removed regularly.
-      </p>
+      <div class="*:max-w-prose">
+        <p v-if="fetchScrollError">
+          Aurrrr naurrr!!! There was an error trying to fetch your scroll. Whack
+          that reload button and try again.
+        </p>
+        <template v-else>
+          <p v-if="!dragons.length">
+            It looks like you've got no dragons! Time to hit up that cave and go
+            get some!
+          </p>
+          <p>Hidden dragons are not shown and will be regularly removed.</p>
+        </template>
+      </div>
 
       <fieldset
         class="space-y-6 transition-opacity"
@@ -174,6 +179,7 @@ const {
   data: dragons,
   execute: fetchScroll,
   status: fetchScrollStatus,
+  error: fetchScrollError,
 } = await useFetch('/api/user/scroll', {
   immediate: !!authData.value?.user,
   default: () => [],

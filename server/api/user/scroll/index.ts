@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const token = await getToken({ event });
 
   const response = await $fetch<{
-    errors: unknown[];
+    errors: Array<[number, string]>;
     dragons: Record<string, DragonData>;
   }>(
     `https://dragcave.net/api/v2/user?username=${token?.username}&filter=GROWING`,
@@ -17,6 +17,12 @@ export default defineEventHandler(async (event) => {
       },
     }
   );
+
+  console.log(response);
+
+  if (response.errors.length && response.errors.find(([code]) => code === 4)) {
+    return [];
+  }
 
   const scroll = Object.values(response.dragons);
   const alive = scroll.filter((dragon) => dragon.hoursleft >= 0);
