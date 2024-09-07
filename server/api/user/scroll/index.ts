@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
     if (alive.length) {
       await con.beginTransaction();
       // if a dragon that was in the hatchery has been moved to this scroll,
-      // we should update its user id to reflect the change
+      // we should update its user id to reflect the change of ownership.
       await con.execute<RowDataPacket[]>(
         con.format(`UPDATE hatchery SET user_id = ? WHERE code IN (?)`, [
           token?.userId,
