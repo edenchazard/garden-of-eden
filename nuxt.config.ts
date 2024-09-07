@@ -87,6 +87,7 @@ export default defineNuxtConfig({
     csrf: true,
   },
   routeRules: {
+    // nuxt-auth has its own CSRF protection
     '/api/auth/**': {
       csurf: false,
     },
