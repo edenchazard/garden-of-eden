@@ -18,9 +18,7 @@ export default defineEventHandler(async (event) => {
     }
   );
 
-  console.log(response);
-
-  if (response.errors.length && response.errors.find(([code]) => code === 4)) {
+  if (response.errors.find(([code]) => code === 4)) {
     return [];
   }
 
