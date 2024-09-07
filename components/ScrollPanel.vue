@@ -67,7 +67,7 @@
     >
       <span class="!pl-0.5 inline-flex items-center">
         <ToggleInput
-          v-if="dragon.hoursleft <= 96"
+          v-if="dragon.hoursleft <= 96 || dragon.in_seed_tray"
           v-model="dragon.in_seed_tray"
           :label="`ER ${formatHoursLeft(dragon.hoursleft)}`"
           size="sm"
