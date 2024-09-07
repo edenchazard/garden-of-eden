@@ -79,6 +79,7 @@ export default defineNuxtConfig({
     disallow: ['/api'],
   },
   security: {
+    rateLimiter: false,
     headers: {
       crossOriginEmbedderPolicy: false,
       contentSecurityPolicy: {
