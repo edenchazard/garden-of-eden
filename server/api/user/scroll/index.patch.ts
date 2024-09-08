@@ -1,5 +1,4 @@
 import pool from '~/server/pool';
-import type { RowDataPacket } from 'mysql2';
 import { getToken } from '#auth';
 import { z } from 'zod';
 
@@ -32,10 +31,9 @@ export default defineEventHandler(async (event) => {
     );
 
     if (add.length > 0) {
-      await con.execute<RowDataPacket[]>(
+      await con.execute(
         con.format(
-          `
-      INSERT INTO hatchery (code, user_id, in_garden, in_seed_tray) VALUES ? ON DUPLICATE KEY UPDATE user_id = ?`,
+          `INSERT INTO hatchery (code, user_id, in_garden, in_seed_tray) VALUES ? ON DUPLICATE KEY UPDATE user_id = ?`,
           [
             add.map((dragon) => [
               dragon.id,

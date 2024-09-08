@@ -1,5 +1,5 @@
 import { getToken, getServerSession } from '#auth';
-import type { ResultSetHeader, RowDataPacket } from 'mysql2';
+import type { RowDataPacket } from 'mysql2';
 import type { JWT } from 'next-auth/jwt';
 import pool from '~/server/pool';
 
@@ -28,10 +28,10 @@ async function syncScrollName(token: JWT) {
     },
   });
 
-  pool.execute<ResultSetHeader[]>(
-    `UPDATE users SET username = ? WHERE id = ?`,
-    [updated.data.username, token.userId]
-  );
+  pool.execute(`UPDATE users SET username = ? WHERE id = ?`, [
+    updated.data.username,
+    token.userId,
+  ]);
 
   return updated.data;
 }
@@ -65,13 +65,13 @@ export default defineEventHandler(async (event) => {
       await con.beginTransaction();
       // if a dragon that was in the hatchery has been moved to this scroll,
       // we should update its user id to reflect the change of ownership.
-      await con.execute<RowDataPacket[]>(
+      await con.execute(
         con.format(`UPDATE hatchery SET user_id = ? WHERE code IN (?)`, [
           token?.userId,
           alive.map((dragon) => dragon.id),
         ])
       );
-      await con.execute<RowDataPacket[]>(
+      await con.execute(
         con.format(
           `DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (?)`,
           [token?.userId, alive.map((dragon) => dragon.id)]
