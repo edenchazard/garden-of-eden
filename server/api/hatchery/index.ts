@@ -34,14 +34,14 @@ function getDragons(limit: number, area: string | null) {
 }
 
 export default defineEventHandler(async (event) => {
-  const query = z
-    .object({
-      limit: z.coerce.number().min(10).default(100),
-      area: z
-        .union([z.literal('seed_tray'), z.literal('garden')])
-        .default('garden'),
-    })
-    .parse(getQuery(event));
+  const schema = z.object({
+    limit: z.coerce.number().min(10).default(100),
+    area: z
+      .union([z.literal('seed_tray'), z.literal('garden')])
+      .default('garden'),
+  });
+
+  const query = await getValidatedQuery(event, schema.parse);
 
   const [statistics, [dragons]] = await Promise.all([
     getCounts(event, query.area),

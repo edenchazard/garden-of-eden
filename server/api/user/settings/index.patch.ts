@@ -1,17 +1,14 @@
 import pool from '~/server/pool';
-import type { RowDataPacket } from 'mysql2';
 import { getToken } from '#auth';
 import userSettingsSchema from '~/utils/userSettingsSchema';
 
 export default defineEventHandler(async (event) => {
-  const [token, body] = await Promise.all([
+  const [token, settings] = await Promise.all([
     getToken({ event }),
-    readBody(event),
+    readValidatedBody(event, userSettingsSchema.parse),
   ]);
 
-  const settings = userSettingsSchema.parse(body);
-
-  await pool.execute<RowDataPacket[]>(
+  await pool.execute(
     `UPDATE user_settings SET
     gardenFrequency = ?,
     gardenPerPage = ?,

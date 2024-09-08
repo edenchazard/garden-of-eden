@@ -1,5 +1,5 @@
 import { defineCronHandler } from '#nuxt/cron';
-import pool from '../pool';
+import pool from '~/server/pool';
 import type { RowDataPacket } from 'mysql2';
 
 export default defineCronHandler('everyThirtyMinutes', async () => {
