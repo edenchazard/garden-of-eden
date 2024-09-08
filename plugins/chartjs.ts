@@ -28,7 +28,7 @@ export default defineNuxtPlugin(() => {
   Chart.defaults.plugins.title.display = true;
   Chart.defaults.scales.linear.ticks.precision = 0;
   Chart.defaults.datasets.line.tension = 0.25;
-  Chart.defaults.datasets.line.pointBorderWidth = 6;
+  Chart.defaults.datasets.line.pointBorderWidth = 4;
 });
 
 export * from 'chart.js';

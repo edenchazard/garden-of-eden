@@ -22,6 +22,9 @@
                 title: {
                   text: 'Dragons in Garden',
                 },
+                legend: {
+                  display: false,
+                },
               },
             }"
           />
@@ -38,7 +41,10 @@
               normalized: true,
               plugins: {
                 title: {
-                  text: 'Scrolls With Dragons',
+                  text: 'Scrolls with Dragons',
+                },
+                legend: {
+                  display: false,
                 },
               },
             }"
