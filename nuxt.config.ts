@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@nuxtjs/robots',
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
+    'nuxt-security',
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
@@ -76,5 +77,22 @@ export default defineNuxtConfig({
   },
   robots: {
     disallow: ['/api'],
+  },
+  security: {
+    rateLimiter: false,
+    headers: {
+      crossOriginEmbedderPolicy: false,
+      referrerPolicy: false,
+      contentSecurityPolicy: {
+        'img-src': ["'self'", 'dragcave.net'],
+      },
+    },
+    csrf: true,
+  },
+  routeRules: {
+    // nuxt-auth has its own CSRF protection
+    '/api/auth/**': {
+      csurf: false,
+    },
   },
 });
