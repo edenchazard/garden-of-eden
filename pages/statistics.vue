@@ -11,7 +11,7 @@
     </section>
 
     <section v-if="statisticsLoaded" class="space-y-8">
-      <figure class="graph">
+      <figure v-if="dragons" class="graph">
         <div class="h-[31rem]">
           <Line
             :data="dragons"
@@ -29,7 +29,7 @@
         <figcaption>Data taken in 30 minute intervals.</figcaption>
       </figure>
 
-      <figure class="graph">
+      <figure v-if="scrolls" class="graph">
         <div class="h-[31rem]">
           <Line
             class="w-full"
@@ -51,14 +51,15 @@
 </template>
 
 <script lang="ts" setup>
+import type { ChartData } from 'chart.js';
 import { Line } from 'vue-chartjs';
 
 useHead({
   title: 'Statistics',
 });
 
-const scrolls = ref();
-const dragons = ref();
+const dragons = ref<ChartData<'line'>>();
+const scrolls = ref<ChartData<'line'>>();
 const statisticsLoaded = ref(false);
 
 const { data: stats, execute: fetchStats } = useAsyncData(() =>
@@ -83,13 +84,13 @@ function chartColourPalette(palette: string) {
   );
 }
 
-watch(() => useColorMode().value, renderCharts);
-
 onNuxtReady(async () => {
   await fetchStats();
   renderCharts();
   statisticsLoaded.value = true;
 });
+
+watch(() => useColorMode().value, renderCharts);
 
 function renderCharts() {
   const statistics = stats.value;
