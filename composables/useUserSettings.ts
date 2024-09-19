@@ -9,9 +9,11 @@ export function useUserSettings(
     ...userSettingsSchema.parse(authData.value?.user?.settings ?? {}),
   }));
 
+  const newSettings = useState<Partial<UserSettings>>(() => ({}));
+
   const { execute, status } = useCsrfFetch('/api/user/settings', {
     method: 'PATCH',
-    body: settings,
+    body: newSettings,
     immediate: false,
     watch: saveOnChange && authData.value?.user ? [settings] : false,
     onResponse({ response }) {
@@ -27,9 +29,18 @@ export function useUserSettings(
     },
   });
 
+  async function saveSettings(toSet: UserSettings | null = null) {
+    newSettings.value = { ...settings.value, ...(toSet ?? {}) };
+    await execute();
+    if (status.value === 'success') {
+      Object.assign(settings.value, newSettings.value);
+      newSettings.value = {};
+    }
+  }
+
   return {
     userSettings: settings,
-    saveSettings: execute,
+    saveSettings,
     saveSettingsStatus: readonly(status),
   };
 }

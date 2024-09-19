@@ -12,4 +12,5 @@ export default z.object({
   eggMinAge: z.coerce.number().max(72).min(0).default(0),
   showScrollRatio: z.coerce.boolean().default(true),
   autoSeedTray: z.coerce.boolean().default(true),
+  siteName: z.union([z.literal('Eden'), z.literal('Elena')]).default('Eden'),
 });

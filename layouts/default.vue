@@ -43,7 +43,7 @@
                 backgroundPosition: '0.2rem',
               }"
               class="pl-9 text-3xl text-white dark:text-stone-200 tracking-wider font-thin decoration-transparent"
-              >Garden of Eden</NuxtLink
+              >Garden of {{ userSettings.siteName }}</NuxtLink
             >
           </div>
           <nav
@@ -137,13 +137,17 @@
 <script lang="ts" setup>
 useHead({
   titleTemplate(titleChunk) {
-    return titleChunk ? `${titleChunk} - Garden of Eden` : 'Garden of Eden';
+    return titleChunk
+      ? `${titleChunk} - Garden of ${userSettings.value.siteName}`
+      : `Garden of ${userSettings.value.siteName}`;
   },
 });
 
 const colorMode = useColorMode();
 
 const { data: authData, signIn, signOut } = useAuth();
+
+const { userSettings } = useUserSettings();
 
 const { execute: cleanUp } = useCsrfFetch('/api/hatchery', {
   method: 'DELETE',

@@ -8,7 +8,7 @@
       <p>
         Proudly put one of these in your signature and you may very well show
         someone else the Way of Enlighten<em class="italic">mint</em> as they,
-        too, become one with the Garden of Eden.
+        too, become one with the Garden of {{ userSettings.siteName }}.
       </p>
       <div class="grid gap-4 sm:grid-cols-[auto_1fr]">
         <div class="text-center text-sm justify-self-center italic">
@@ -56,6 +56,8 @@
 useHead({
   title: 'Share',
 });
+
+const { userSettings } = useUserSettings();
 
 const config = useRuntimeConfig();
 const path = config.public.origin + config.public.baseUrl;

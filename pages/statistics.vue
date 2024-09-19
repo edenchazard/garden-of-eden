@@ -3,9 +3,9 @@
     <h1>Statistics</h1>
     <section class="max-w-prose">
       <p>
-        The Garden of Eden takes plant growth very seriously. That's why
-        statistics are logged continuously throughout the day to ensure optimum
-        health of the plants.
+        The Garden of {{ userSettings.siteName }} takes plant growth very
+        seriously. That's why statistics are logged continuously throughout the
+        day to ensure optimum health of the plants.
       </p>
       <p class="text-xs text-right italic">All times shown local to you.</p>
     </section>
@@ -63,6 +63,8 @@ import { Line } from 'vue-chartjs';
 useHead({
   title: 'Statistics',
 });
+
+const { userSettings } = useUserSettings();
 
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();

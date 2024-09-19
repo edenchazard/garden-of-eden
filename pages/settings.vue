@@ -4,7 +4,7 @@
     <p>These settings will persist across your devices.</p>
     <form
       class="flex flex-col gap-y-4 [&_legend]:text-2xl [&_legend]:font-bold"
-      @submit.prevent="saveSettings()"
+      @submit.prevent="saveSettings(newSettings)"
     >
       <fieldset>
         <legend>Select all protections</legend>
@@ -16,7 +16,7 @@
           <li>
             <span class="inline-flex flex-col mx-2">
               <input
-                v-model.number="userSettings.hatchlingMinAge"
+                v-model.number="newSettings.hatchlingMinAge"
                 min="0"
                 max="72"
                 type="number"
@@ -25,12 +25,12 @@
               <span class="mt-1 text-xs text-center">(0 to 72)</span>
             </span>
             Exclude hatchlings that aren't at least
-            {{ formatHoursLeft(168 - userSettings.hatchlingMinAge) }} old.
+            {{ formatHoursLeft(168 - newSettings.hatchlingMinAge) }} old.
           </li>
           <li>
             <span class="inline-flex flex-col mx-2">
               <input
-                v-model.number="userSettings.eggMinAge"
+                v-model.number="newSettings.eggMinAge"
                 min="0"
                 max="72"
                 type="number"
@@ -39,15 +39,15 @@
               <span class="mt-1 text-xs text-center">(0 to 72)</span>
             </span>
             Exclude eggs that aren't at least
-            {{ formatHoursLeft(168 - userSettings.eggMinAge) }} old.
+            {{ formatHoursLeft(168 - newSettings.eggMinAge) }} old.
           </li>
           <li class="flex items-center gap-x-2">
             <input
               id="auto-er"
-              v-model="userSettings.autoSeedTray"
+              v-model="newSettings.autoSeedTray"
               class="shrink-0"
               type="checkbox"
-              :checked="userSettings.autoSeedTray"
+              :checked="newSettings.autoSeedTray"
             />
             <label for="auto-er"
               >Automatically place dragons in the seed tray when 4 days or less
@@ -63,13 +63,29 @@
           <li class="flex items-center gap-x-2">
             <input
               id="hide-scroll-ratio"
-              v-model="userSettings.showScrollRatio"
+              v-model="newSettings.showScrollRatio"
               class="shrink-0"
               type="checkbox"
-              :checked="userSettings.showScrollRatio"
+              :checked="newSettings.showScrollRatio"
             />
             <label for="hide-scroll-ratio">
               Show views to unique views ratio.</label
+            >
+          </li>
+        </ul>
+      </fieldset>
+      <fieldset>
+        <legend>Fun things 🎩</legend>
+        <p>Fun? In my garden? It's more likely than you think.</p>
+        <ul class="divide-y *:py-4">
+          <li class="flex items-center gap-x-2">
+            <select id="site-name" v-model="newSettings.siteName">
+              <option value="Eden">Garden of Eden</option>
+              <option value="Elena">Garden of Elena</option>
+            </select>
+            <label for="site-name">
+              Display the site name as the Garden of
+              {{ newSettings.siteName }}.</label
             >
           </li>
         </ul>
@@ -99,9 +115,11 @@ const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings(
   true
 );
 
+const newSettings = useState(() => ({ ...userSettings.value }));
+
 const invalid = computed(() => {
   try {
-    userSettingsSchema.parse(userSettings.value);
+    userSettingsSchema.parse(newSettings.value);
     return false;
   } catch {
     return true;
