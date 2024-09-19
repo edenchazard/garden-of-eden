@@ -2,9 +2,9 @@
   <div class="space-y-4">
     <div v-if="!authData?.user" class="flex flex-col gap-y-4 text-center">
       <p>
-        The <b>Garden of Eden</b> is a highly secure garden where only those
-        with a DragCave account can enter. You'll need to sign in to add your
-        <s>plants</s> dragons.
+        The <b>Garden of {{ userSettings.siteName }}</b> is a highly secure
+        garden where only those with a DragCave account can enter. You'll need
+        to sign in to add your <s>plants</s> dragons.
       </p>
       <button
         class="btn-primary py-4"
@@ -17,8 +17,8 @@
         * The above link will take you directly to
         <b class="font-normal">dragcave.net</b>.
         <em class="italic"
-          >The Garden of Eden only stores your user id and username, not your
-          password.</em
+          >The Garden of {{ userSettings.siteName }} only stores your user id
+          and username, not your password.</em
         >
       </p>
       <p>
