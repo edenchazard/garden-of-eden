@@ -1,7 +1,9 @@
 import type { RowDataPacket } from 'mysql2';
 import type { H3Event } from 'h3';
-import pool from '~/server/pool';
+import { db, pool } from '~/server/db';
 import { z } from 'zod';
+import { hatchery } from '~/database/schema';
+import { eq, sql } from 'drizzle-orm';
 
 const getCounts = defineCachedFunction(
   async (event: H3Event, area: string) => {
@@ -23,14 +25,14 @@ const getCounts = defineCachedFunction(
 );
 
 function getDragons(limit: number, area: string | null) {
-  return pool.execute<RowDataPacket[]>(
-    `
-  SELECT code FROM hatchery
-  WHERE in_${area} = 1
-  ORDER BY RAND()
-  LIMIT ?`,
-    [limit]
-  );
+  return db
+    .select({ code: hatchery.code })
+    .from(hatchery)
+    .where(
+      eq(area === 'garden' ? hatchery.in_garden : hatchery.in_seed_tray, true)
+    )
+    .orderBy(sql`RAND()`)
+    .limit(limit);
 }
 
 export default defineEventHandler(async (event) => {
@@ -43,13 +45,10 @@ export default defineEventHandler(async (event) => {
 
   const query = await getValidatedQuery(event, schema.parse);
 
-  const [statistics, [dragons]] = await Promise.all([
+  const [statistics, dragons] = await Promise.all([
     getCounts(event, query.area),
     getDragons(query.limit, query.area),
   ]);
 
-  return { statistics, dragons } as {
-    statistics: { total: number; scrolls: number };
-    dragons: HatcheryDragon[];
-  };
+  return { statistics, dragons };
 });

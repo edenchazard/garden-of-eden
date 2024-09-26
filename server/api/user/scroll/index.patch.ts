@@ -1,4 +1,4 @@
-import pool from '~/server/pool';
+import { pool } from '~/server/db';
 import { getToken } from '#auth';
 import { z } from 'zod';
 

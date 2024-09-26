@@ -1,6 +1,8 @@
-import pool from '~/server/pool';
+import { db } from '~/server/db';
 import { getToken } from '#auth';
 import userSettingsSchema from '~/utils/userSettingsSchema';
+import { userSettings } from '~/database/schema';
+import { eq } from 'drizzle-orm';
 
 export default defineEventHandler(async (event) => {
   const [token, settings] = await Promise.all([
@@ -8,33 +10,10 @@ export default defineEventHandler(async (event) => {
     readValidatedBody(event, userSettingsSchema.parse),
   ]);
 
-  await pool.execute(
-    `UPDATE user_settings SET
-    gardenFrequency = ?,
-    gardenPerPage = ?,
-    seedTrayFrequency = ?,
-    seedTrayPerPage = ?,
-    sort = ?,
-    hatchlingMinAge = ?,
-    eggMinAge = ?,
-    showScrollRatio = ?,
-    autoSeedTray = ?,
-    siteName = ?
-    WHERE user_id = ?`,
-    [
-      settings.gardenFrequency,
-      settings.gardenPerPage,
-      settings.seedTrayFrequency,
-      settings.seedTrayPerPage,
-      settings.sort,
-      settings.hatchlingMinAge,
-      settings.eggMinAge,
-      settings.showScrollRatio,
-      settings.autoSeedTray,
-      settings.siteName,
-      token?.userId,
-    ]
-  );
+  await db
+    .update(userSettings)
+    .set(settings)
+    .where(eq(userSettings.user_id, token?.userId));
 
   return sendNoContent(event);
 });

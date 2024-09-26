@@ -1,7 +1,8 @@
 import { getToken, getServerSession } from '#auth';
-import type { RowDataPacket } from 'mysql2';
+import { and, eq, inArray, notInArray } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import pool from '~/server/pool';
+import { hatchery, user } from '~/database/schema';
+import { db } from '~/server/db';
 
 async function fetchScroll(username: string, token: JWT) {
   return $fetch<
@@ -28,10 +29,9 @@ async function syncScrollName(token: JWT) {
     },
   });
 
-  pool.execute(`UPDATE users SET username = ? WHERE id = ?`, [
-    updated.data.username,
-    token.userId,
-  ]);
+  db.update(user)
+    .set({ username: updated.data.username })
+    .where(eq(user.id, token.userId));
 
   return updated.data;
 }
@@ -58,48 +58,50 @@ export default defineEventHandler(async (event) => {
   const scroll = Object.values(scrollResponse.dragons);
   const alive = scroll.filter((dragon) => dragon.hoursleft >= 0);
 
-  const con = await pool.getConnection();
-
-  try {
-    if (alive.length) {
-      await con.beginTransaction();
+  if (alive.length) {
+    await db.transaction(async (tx) => {
       // if a dragon that was in the hatchery has been moved to this scroll,
       // we should update its user id to reflect the change of ownership.
-      await con.execute(
-        con.format(`UPDATE hatchery SET user_id = ? WHERE code IN (?)`, [
-          token?.userId,
-          alive.map((dragon) => dragon.id),
-        ])
-      );
-      await con.execute(
-        con.format(
-          `DELETE FROM hatchery WHERE user_id = ? AND code NOT IN (?)`,
-          [token?.userId, alive.map((dragon) => dragon.id)]
+      await tx
+        .update(hatchery)
+        .set({ user_id: token?.userId })
+        .where(
+          inArray(
+            hatchery.code,
+            alive.map((dragon) => dragon.id)
+          )
+        );
+
+      await tx.delete(hatchery).where(
+        and(
+          eq(hatchery.user_id, token?.userId),
+          notInArray(
+            hatchery.code,
+            alive.map((dragon) => dragon.id)
+          )
         )
       );
-      await con.commit();
-    }
+    });
+  }
 
-    const [usersDragonsInHatchery] = await con.execute<RowDataPacket[]>(
-      `SELECT code, in_garden, in_seed_tray FROM hatchery WHERE user_id = ?`,
-      [token?.userId]
+  const usersDragonsInHatchery = await db
+    .select({
+      code: hatchery.code,
+      in_garden: hatchery.in_garden,
+      in_seed_tray: hatchery.in_seed_tray,
+    })
+    .from(hatchery)
+    .where(eq(hatchery.user_id, token?.userId));
+
+  return alive.map<ScrollView>((dragon) => {
+    const hatcheryDragon = usersDragonsInHatchery.find(
+      (row) => row.code === dragon.id
     );
 
-    return alive.map<ScrollView>((dragon) => {
-      const hatcheryDragon = usersDragonsInHatchery.find(
-        (row) => row.code === dragon.id
-      );
-
-      return {
-        ...dragon,
-        in_garden: !!(hatcheryDragon?.in_garden ?? false),
-        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-      };
-    });
-  } catch (e) {
-    await con.rollback();
-    throw e;
-  } finally {
-    con.release();
-  }
+    return {
+      ...dragon,
+      in_garden: !!(hatcheryDragon?.in_garden ?? false),
+      in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+    };
+  });
 });
