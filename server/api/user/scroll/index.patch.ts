@@ -2,13 +2,13 @@ import { db } from '~/server/db';
 import { getToken } from '#auth';
 import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
-import { hatchery } from '~/database/schema';
+import { hatcheryTable } from '~/database/schema';
 import { eq, inArray, or } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 
 export default defineEventHandler(async (event) => {
   const schema = z.array(
-    createInsertSchema(hatchery).pick({
+    createInsertSchema(hatcheryTable).pick({
       id: true,
       in_garden: true,
       in_seed_tray: true,
@@ -21,11 +21,11 @@ export default defineEventHandler(async (event) => {
   ]);
 
   return await db.transaction(async (tx) => {
-    await tx.delete(hatchery).where(
+    await tx.delete(hatcheryTable).where(
       or(
-        eq(hatchery.user_id, token.userId),
+        eq(hatcheryTable.user_id, token.userId),
         inArray(
-          hatchery.id,
+          hatcheryTable.id,
           dragons.map((dragon) => dragon.id)
         )
       )
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
 
     if (add.length > 0) {
       await tx
-        .insert(hatchery)
+        .insert(hatcheryTable)
         .ignore()
         .values(
           add.map((dragon) => ({

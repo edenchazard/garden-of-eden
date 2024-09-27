@@ -12,9 +12,8 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
 
-export const user = mysqlTable('users', {
+export const userTable = mysqlTable('users', {
   id: mediumint('id', { unsigned: true }).primaryKey().notNull(),
   username: varchar('username', {
     length: 32,
@@ -30,12 +29,12 @@ export const user = mysqlTable('users', {
     .notNull(),
 });
 
-export const userSettings = mysqlTable('user_settings', {
+export const userSettingsTable = mysqlTable('user_settings', {
   user_id: mediumint('user_id', {
     unsigned: true,
   })
     .primaryKey()
-    .references(() => user.id, {
+    .references(() => userTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
@@ -61,7 +60,7 @@ export const userSettings = mysqlTable('user_settings', {
     .notNull(),
 });
 
-export const hatchery = mysqlTable('hatchery', {
+export const hatcheryTable = mysqlTable('hatchery', {
   id: char('id', {
     length: 5,
   })
@@ -70,7 +69,7 @@ export const hatchery = mysqlTable('hatchery', {
   user_id: mediumint('user_id', {
     unsigned: true,
   })
-    .references(() => user.id, {
+    .references(() => userTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
@@ -78,7 +77,7 @@ export const hatchery = mysqlTable('hatchery', {
   in_garden: boolean('in_garden').notNull().default(false),
 });
 
-export const recordings = mysqlTable('recordings', {
+export const recordingsTable = mysqlTable('recordings', {
   recorded_on: datetime('recorded_on')
     .notNull()
     .default(sql`NOW()`),
@@ -90,7 +89,7 @@ export const recordings = mysqlTable('recordings', {
   extra: json('extra'),
 });
 
-export const userSettingsSchema = createSelectSchema(userSettings, {
+export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   gardenFrequency: (schema) => schema.gardenFrequency.default(30),
   gardenPerPage: (schema) => schema.gardenPerPage.min(10).default(100),
   seedTrayFrequency: (schema) => schema.seedTrayFrequency.default(30),

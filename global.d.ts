@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import { userSettings } from '~/database/schema';
+import { userSettings, userSettingsSchema } from '~/database/schema';
 export {};
 
 declare global {
@@ -33,7 +33,7 @@ declare global {
     username: string;
   };
 
-  type UserSettings = z.infer<typeof userSettings.$inferSelect>;
+  type UserSettings = z.infer<typeof userSettingsSchema>;
 
   type UserRole = 'owner' | 'user';
 

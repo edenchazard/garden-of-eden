@@ -1,7 +1,7 @@
 import { NuxtAuthHandler } from '#auth';
 import type { TokenSet } from 'next-auth';
 import { db } from '~/server/db';
-import { userSettings, user as userTable } from '~/database/schema';
+import { userSettingsTable, userTable } from '~/database/schema';
 import { eq } from 'drizzle-orm';
 
 const {
@@ -79,7 +79,7 @@ export default NuxtAuthHandler({
             username: user.username,
           });
 
-          await tx.insert(userSettings).ignore().values({
+          await tx.insert(userSettingsTable).ignore().values({
             user_id: userId,
           });
         });
@@ -97,7 +97,10 @@ export default NuxtAuthHandler({
         .select()
         .from(userTable)
         .where(eq(userTable.id, userId))
-        .innerJoin(userSettings, eq(userTable.id, userSettings.user_id));
+        .innerJoin(
+          userSettingsTable,
+          eq(userTable.id, userSettingsTable.user_id)
+        );
 
       const {
         users,

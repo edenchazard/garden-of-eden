@@ -2,7 +2,7 @@ import type { RowDataPacket } from 'mysql2';
 import type { H3Event } from 'h3';
 import { db, pool } from '~/server/db';
 import { z } from 'zod';
-import { hatchery } from '~/database/schema';
+import { hatcheryTable } from '~/database/schema';
 import { eq, sql } from 'drizzle-orm';
 
 type Area = 'garden' | 'seed_tray';
@@ -28,10 +28,15 @@ const getCounts = defineCachedFunction(
 
 function getDragons(limit: number, area: Area = 'garden') {
   return db
-    .select({ id: hatchery.id })
-    .from(hatchery)
+    .select({ id: hatcheryTable.id })
+    .from(hatcheryTable)
     .where(
-      eq(area === 'garden' ? hatchery.in_garden : hatchery.in_seed_tray, true)
+      eq(
+        area === 'garden'
+          ? hatcheryTable.in_garden
+          : hatcheryTable.in_seed_tray,
+        true
+      )
     )
     .orderBy(sql`RAND()`)
     .limit(limit);

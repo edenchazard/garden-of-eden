@@ -1,6 +1,6 @@
 import chunkArray from '~/utils/chunkArray';
 import { db } from '~/server/db';
-import { hatchery, recordings } from '~/database/schema';
+import { hatcheryTable, recordingsTable } from '~/database/schema';
 import { inArray } from 'drizzle-orm';
 
 export async function cleanUp() {
@@ -10,11 +10,11 @@ export async function cleanUp() {
 
   const hatcheryDragons = await db
     .select({
-      id: hatchery.id,
-      in_seed_tray: hatchery.in_seed_tray,
-      in_garden: hatchery.in_garden,
+      id: hatcheryTable.id,
+      in_seed_tray: hatcheryTable.in_seed_tray,
+      in_garden: hatcheryTable.in_garden,
     })
-    .from(hatchery);
+    .from(hatcheryTable);
 
   const removeFromSeedTray: string[] = [];
   const removeFromHatchery: string[] = [];
@@ -59,9 +59,9 @@ export async function cleanUp() {
   await Promise.allSettled(
     chunkArray(removeFromSeedTray, 200).map(async (chunk) =>
       db
-        .update(hatchery)
+        .update(hatcheryTable)
         .set({ in_seed_tray: false })
-        .where(inArray(hatchery.id, chunk))
+        .where(inArray(hatcheryTable.id, chunk))
     )
   );
 
@@ -70,15 +70,15 @@ export async function cleanUp() {
   await Promise.allSettled(
     chunkArray(removeFromHatchery, 200).map(async (chunk) => {
       const [{ affectedRows }] = await db
-        .delete(hatchery)
-        .where(inArray(hatchery.id, chunk));
+        .delete(hatcheryTable)
+        .where(inArray(hatcheryTable.id, chunk));
       successfullyRemoved += affectedRows;
     })
   );
 
   const end = new Date().getTime();
 
-  await db.insert(recordings).values({
+  await db.insert(recordingsTable).values({
     value: successfullyRemoved,
     record_type: 'removed',
     extra: { duration: end - start },

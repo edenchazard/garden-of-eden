@@ -1,10 +1,10 @@
 import { defineCronHandler } from '#nuxt/cron';
 import { db } from '~/server/db';
 import { sql } from 'drizzle-orm';
-import { recordings } from '~/database/schema';
+import { recordingsTable } from '~/database/schema';
 
 export default defineCronHandler('everyThirtyMinutes', async () => {
-  await db.insert(recordings).values([
+  await db.insert(recordingsTable).values([
     {
       value: sql`(SELECT COUNT(*) FROM hatchery)`,
       record_type: 'total_dragons',

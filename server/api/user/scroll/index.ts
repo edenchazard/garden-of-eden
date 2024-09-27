@@ -1,7 +1,7 @@
 import { getToken, getServerSession } from '#auth';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import { hatchery, user } from '~/database/schema';
+import { hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 
 async function fetchScroll(username: string, token: JWT) {
@@ -29,9 +29,9 @@ async function syncScrollName(token: JWT) {
     },
   });
 
-  db.update(user)
+  db.update(userTable)
     .set({ username: updated.data.username })
-    .where(eq(user.id, token.userId));
+    .where(eq(userTable.id, token.userId));
 
   return updated.data;
 }
@@ -63,20 +63,20 @@ export default defineEventHandler(async (event) => {
       // if a dragon that was in the hatchery has been moved to this scroll,
       // we should update its user id to reflect the change of ownership.
       await tx
-        .update(hatchery)
-        .set({ user_id: token?.userId })
+        .update(hatcheryTable)
+        .set({ user_id: token.userId })
         .where(
           inArray(
-            hatchery.id,
+            hatcheryTable.id,
             alive.map((dragon) => dragon.id)
           )
         );
 
-      await tx.delete(hatchery).where(
+      await tx.delete(hatcheryTable).where(
         and(
-          eq(hatchery.user_id, token?.userId),
+          eq(hatcheryTable.user_id, token.userId),
           notInArray(
-            hatchery.id,
+            hatcheryTable.id,
             alive.map((dragon) => dragon.id)
           )
         )
@@ -86,12 +86,12 @@ export default defineEventHandler(async (event) => {
 
   const usersDragonsInHatchery = await db
     .select({
-      id: hatchery.id,
-      in_garden: hatchery.in_garden,
-      in_seed_tray: hatchery.in_seed_tray,
+      id: hatcheryTable.id,
+      in_garden: hatcheryTable.in_garden,
+      in_seed_tray: hatcheryTable.in_seed_tray,
     })
-    .from(hatchery)
-    .where(eq(hatchery.user_id, token.userId));
+    .from(hatcheryTable)
+    .where(eq(hatcheryTable.user_id, token.userId));
 
   return alive.map<ScrollView>((dragon) => {
     const hatcheryDragon = usersDragonsInHatchery.find(
