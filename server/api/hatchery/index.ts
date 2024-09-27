@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { hatchery } from '~/database/schema';
 import { eq, sql } from 'drizzle-orm';
 
+type Area = 'garden' | 'seed_tray';
+
 const getCounts = defineCachedFunction(
   async (event: H3Event, area: string) => {
     const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
@@ -24,9 +26,9 @@ const getCounts = defineCachedFunction(
   }
 );
 
-function getDragons(limit: number, area: string | null) {
+function getDragons(limit: number, area: Area = 'garden') {
   return db
-    .select({ code: hatchery.code })
+    .select({ id: hatchery.id })
     .from(hatchery)
     .where(
       eq(area === 'garden' ? hatchery.in_garden : hatchery.in_seed_tray, true)

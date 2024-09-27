@@ -10,7 +10,7 @@ export async function cleanUp() {
 
   const hatcheryDragons = await db
     .select({
-      code: hatchery.code,
+      id: hatchery.id,
       in_seed_tray: hatchery.in_seed_tray,
       in_garden: hatchery.in_garden,
     })
@@ -33,15 +33,13 @@ export async function cleanUp() {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          ids: chunk.map((dragon) => dragon.code).join(','),
+          ids: chunk.map((dragon) => dragon.id).join(','),
         }),
       });
 
       for (const code in apiResponse.dragons) {
         const dragon = apiResponse.dragons[code];
-        const hatcheryStatus = hatcheryDragons.find(
-          (d) => d.code === dragon.id
-        );
+        const hatcheryStatus = hatcheryDragons.find((d) => d.id === dragon.id);
 
         if (hatcheryStatus?.in_seed_tray && dragon.hoursleft > 96) {
           hatcheryStatus.in_seed_tray = false;
@@ -63,7 +61,7 @@ export async function cleanUp() {
       db
         .update(hatchery)
         .set({ in_seed_tray: false })
-        .where(inArray(hatchery.code, chunk))
+        .where(inArray(hatchery.id, chunk))
     )
   );
 
@@ -73,7 +71,7 @@ export async function cleanUp() {
     chunkArray(removeFromHatchery, 200).map(async (chunk) => {
       const [{ affectedRows }] = await db
         .delete(hatchery)
-        .where(inArray(hatchery.code, chunk));
+        .where(inArray(hatchery.id, chunk));
       successfullyRemoved += affectedRows;
     })
   );

@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
         .set({ user_id: token?.userId })
         .where(
           inArray(
-            hatchery.code,
+            hatchery.id,
             alive.map((dragon) => dragon.id)
           )
         );
@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
         and(
           eq(hatchery.user_id, token?.userId),
           notInArray(
-            hatchery.code,
+            hatchery.id,
             alive.map((dragon) => dragon.id)
           )
         )
@@ -86,16 +86,16 @@ export default defineEventHandler(async (event) => {
 
   const usersDragonsInHatchery = await db
     .select({
-      code: hatchery.code,
+      id: hatchery.id,
       in_garden: hatchery.in_garden,
       in_seed_tray: hatchery.in_seed_tray,
     })
     .from(hatchery)
-    .where(eq(hatchery.user_id, token?.userId));
+    .where(eq(hatchery.user_id, token.userId));
 
   return alive.map<ScrollView>((dragon) => {
     const hatcheryDragon = usersDragonsInHatchery.find(
-      (row) => row.code === dragon.id
+      (row) => row.id === dragon.id
     );
 
     return {

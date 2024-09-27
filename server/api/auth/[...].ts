@@ -69,10 +69,9 @@ export default NuxtAuthHandler({
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      const userId = parseInt(user.id);
-
       if (account) {
         token.sessionToken = account.access_token;
+        const userId = parseInt(account.providerAccountId);
 
         await db.transaction(async (tx) => {
           await tx.insert(userTable).ignore().values({
@@ -87,25 +86,27 @@ export default NuxtAuthHandler({
       }
 
       if (user) {
-        token.userId = userId;
+        token.userId = parseInt(user.id);
       }
 
       return token;
     },
     async session({ session, token }) {
-      const userId = parseInt(token.userId);
-
-      const user = await db
+      const userId = token.userId;
+      const [user] = await db
         .select()
         .from(userTable)
         .where(eq(userTable.id, userId))
-        .leftJoin(userSettings, eq(userTable.id, userSettings.user_id));
+        .innerJoin(userSettings, eq(userTable.id, userSettings.user_id));
 
-      const { username, role, user_id, ...settings } = user;
+      const {
+        users,
+        user_settings: { user_id, ...settings },
+      } = user;
 
-      session.user.username = username;
-      session.user.role = role;
-      session.user.settings = settings as UserSettings;
+      session.user.username = users.username;
+      session.user.role = users.role;
+      session.user.settings = settings;
 
       return session;
     },

@@ -102,6 +102,8 @@
 </template>
 
 <script lang="ts" setup>
+import { userSettingsSchema } from '~/database/schema';
+
 definePageMeta({
   middleware: 'auth',
 });

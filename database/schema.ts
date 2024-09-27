@@ -11,6 +11,8 @@ import {
   tinyint,
   varchar,
 } from 'drizzle-orm/mysql-core';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 export const user = mysqlTable('users', {
   id: mediumint('id', { unsigned: true }).primaryKey().notNull(),
@@ -51,10 +53,16 @@ export const userSettings = mysqlTable('user_settings', {
   eggMinAge: tinyint('eggMinAge').notNull().default(0),
   showScrollRatio: boolean('showScrollRatio').notNull().default(false),
   autoSeedTray: boolean('autoSeedTray').notNull().default(true),
+  siteName: varchar('siteName', {
+    length: 5,
+    enum: ['Eden', 'Elena'],
+  })
+    .default('Eden')
+    .notNull(),
 });
 
 export const hatchery = mysqlTable('hatchery', {
-  code: char('code', {
+  id: char('id', {
     length: 5,
   })
     .primaryKey()
@@ -81,3 +89,16 @@ export const recordings = mysqlTable('recordings', {
   }).notNull(),
   extra: json('extra'),
 });
+
+export const userSettingsSchema = createSelectSchema(userSettings, {
+  gardenFrequency: (schema) => schema.gardenFrequency.default(30),
+  gardenPerPage: (schema) => schema.gardenPerPage.min(10).default(100),
+  seedTrayFrequency: (schema) => schema.seedTrayFrequency.default(30),
+  seedTrayPerPage: (schema) => schema.seedTrayPerPage.min(10).default(100),
+  sort: (schema) => schema.sort.default('Youngest First'),
+  hatchlingMinAge: (schema) => schema.hatchlingMinAge.max(72).min(0).default(0),
+  eggMinAge: (schema) => schema.eggMinAge.max(72).min(0).default(0),
+  showScrollRatio: (schema) => schema.showScrollRatio.default(true),
+  autoSeedTray: (schema) => schema.autoSeedTray.default(true),
+  siteName: (schema) => schema.siteName.default('Eden'),
+}).omit({ user_id: true });

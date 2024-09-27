@@ -1,11 +1,12 @@
+import { userSettingsSchema } from '~/database/schema';
+
 export function useUserSettings(
   saveOnChange: boolean = false,
   toastOnSave: boolean = false
 ) {
   const { data: authData } = useAuth();
 
-  const settings = useState(() => ({
-    ...userSettingsSchema.parse({}),
+  const userSettings = useState(() => ({
     ...userSettingsSchema.parse(authData.value?.user?.settings ?? {}),
   }));
 
@@ -15,7 +16,7 @@ export function useUserSettings(
     method: 'PATCH',
     body: newSettings,
     immediate: false,
-    watch: saveOnChange && authData.value?.user ? [settings] : false,
+    watch: false,
     onResponse({ response }) {
       if (!toastOnSave) {
         return;
@@ -29,17 +30,29 @@ export function useUserSettings(
     },
   });
 
+  watch(
+    userSettings,
+    () => {
+      if (saveOnChange && authData.value?.user) {
+        saveSettings();
+      }
+    },
+    {
+      deep: true,
+    }
+  );
+
   async function saveSettings(toSet: UserSettings | null = null) {
-    newSettings.value = { ...settings.value, ...(toSet ?? {}) };
+    newSettings.value = { ...userSettings.value, ...(toSet ?? {}) };
     await execute();
     if (status.value === 'success') {
-      Object.assign(settings.value, newSettings.value);
+      Object.assign(userSettings.value, newSettings.value);
       newSettings.value = {};
     }
   }
 
   return {
-    userSettings: settings,
+    userSettings,
     saveSettings,
     saveSettingsStatus: readonly(status),
   };

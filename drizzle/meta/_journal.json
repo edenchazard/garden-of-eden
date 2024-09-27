@@ -8,6 +8,20 @@
       "when": 1727383329623,
       "tag": "0000_fearless_hellcat",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1727464789501,
+      "tag": "0001_ancient_sinister_six",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1727465163984,
+      "tag": "0002_ambitious_swordsman",
+      "breakpoints": true
     }
   ]
 }
