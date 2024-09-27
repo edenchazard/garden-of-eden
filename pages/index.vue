@@ -191,7 +191,7 @@ const {
   status: saveScrollStatus,
 } = useAsyncData(
   () =>
-    $fetch('/api/user/scroll', {
+    $fetch<string[]>('/api/user/scroll', {
       headers: {
         'Csrf-token': csrf,
       },
