@@ -43,12 +43,12 @@
             get some!
           </p>
           <p>Hidden dragons are not shown and will be regularly removed.</p>
+          <p>
+            Your dragons have had
+            <b class="font-bold">{{ scroll.details.clicks_today }}</b> clicks in
+            the last 24 hours from users in the garden.
+          </p>
         </template>
-        <p>
-          Your dragons have had
-          <b class="font-bold">{{ scroll.details.clicks_today }}</b> clicks in
-          the last 24 hours from users in the garden.
-        </p>
       </div>
 
       <fieldset
