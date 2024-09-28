@@ -10,7 +10,27 @@
       <p class="text-xs text-right italic">All times shown local to you.</p>
     </section>
 
+    <section v-if="data?.user && personalStats">
+      <h2>Personal statistics</h2>
+      <ul class="list-disc list-inside space-y-2">
+        <li>
+          {{ personalStats.clicked_24 }} unique dragons clicked in the last 24
+          hours.<sup
+            ><a href="#personal-1" class="!decoration-transparent ml-2"
+              >[1]</a
+            ></sup
+          >
+        </li>
+      </ul>
+      <ol class="list-decimal list-inside text-sm mt-2">
+        <li id="personal-1">
+          Dragons clicked over 24 hours ago will not count towards this total.
+        </li>
+      </ol>
+    </section>
+
     <section v-if="statisticsLoaded" class="space-y-8">
+      <h2>Garden statistics</h2>
       <figure v-if="dragons" class="graph">
         <div class="h-[31rem]">
           <Line
@@ -65,12 +85,20 @@ useHead({
 });
 
 const { userSettings } = useUserSettings();
+const { data: personalStats } = await useFetch('/api/user/statistics', {
+  watch: false,
+  headers: computed(() => ({
+    'Csrf-token': useCsrf().csrf,
+  })),
+});
+
 const { data: stats, execute: fetchStats } = useFetch('/api/statistics', {
   watch: false,
   headers: computed(() => ({
     'Csrf-token': useCsrf().csrf,
   })),
 });
+const { data } = useAuth();
 
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();
