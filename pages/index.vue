@@ -46,8 +46,8 @@
         </template>
         <p>
           Your dragons have had
-          <b class="font-bold">{{ scroll.details.clicks_today }}</b> clicks
-          today.
+          <b class="font-bold">{{ scroll.details.clicks_today }}</b> clicks in
+          the last 24 hours from users in the garden.
         </p>
       </div>
 

@@ -1,5 +1,5 @@
 import { getToken, getServerSession } from '#auth';
-import { and, between, eq, gt, inArray, notInArray, sql } from 'drizzle-orm';
+import { and, eq, gt, inArray, notInArray, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+  startOfToday.setDate(startOfToday.getDate() - 1);
 
   const [[clicksToday], usersDragonsInHatchery] = await Promise.all([
     db
