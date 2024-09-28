@@ -1,0 +1,1 @@
+ALTER TABLE `user_settings` ADD `siteName` varchar(5) DEFAULT 'Eden' NOT NULL;

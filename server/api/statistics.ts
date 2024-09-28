@@ -1,21 +1,21 @@
-import type { RowDataPacket } from 'mysql2';
-import pool from '~/server/pool';
+import { desc, eq } from 'drizzle-orm';
+import { recordingsTable } from '~/database/schema';
+import { db } from '~/server/db';
 
 export default defineCachedEventHandler(
   async () => {
-    const [[scrolls], [dragons]] = await Promise.all([
-      pool.execute<RowDataPacket[]>(
-        `SELECT recorded_on, value FROM recordings
-        WHERE record_type = 'total_scrolls'
-        ORDER BY recorded_on DESC
-        LIMIT 48`
-      ),
-      pool.execute<RowDataPacket[]>(
-        `SELECT recorded_on, value FROM recordings
-      WHERE record_type = 'total_dragons'
-      ORDER BY recorded_on DESC
-      LIMIT 48`
-      ),
+    const builder = db
+      .select({
+        recorded_on: recordingsTable.recorded_on,
+        value: recordingsTable.value,
+      })
+      .from(recordingsTable)
+      .orderBy(recordingsTable.recorded_on, desc(recordingsTable.recorded_on))
+      .limit(48);
+
+    const [scrolls, dragons] = await Promise.all([
+      builder.where(eq(recordingsTable.record_type, 'total_scrolls')),
+      builder.where(eq(recordingsTable.record_type, 'total_dragons')),
     ]);
 
     // since we got them in descending order (latest 48),
@@ -26,9 +26,6 @@ export default defineCachedEventHandler(
     return {
       scrolls,
       dragons,
-    } as {
-      scrolls: { recorded_on: string; value: number }[];
-      dragons: { recorded_on: string; value: number }[];
     };
   },
   {

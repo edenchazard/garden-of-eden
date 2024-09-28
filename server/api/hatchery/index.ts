@@ -1,36 +1,50 @@
-import type { RowDataPacket } from 'mysql2';
-import type { H3Event } from 'h3';
-import pool from '~/server/pool';
+import { db } from '~/server/db';
 import { z } from 'zod';
+import { hatcheryTable } from '~/database/schema';
+import { eq, sql } from 'drizzle-orm';
+
+type Area = 'garden' | 'seed_tray';
 
 const getCounts = defineCachedFunction(
-  async (event: H3Event, area: string) => {
-    const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
-      `
-    SELECT
-    COUNT(*) AS total, 
-    COUNT(DISTINCT(user_id)) AS scrolls
-    FROM hatchery
-    WHERE in_${area} = 1`
-    );
-
+  async (_, area: string) => {
+    const [{ total, scrolls }] = await db
+      .select({
+        total: sql<number>`COUNT(*)`.as('total'),
+        scrolls: sql<number>`COUNT(DISTINCT(${hatcheryTable.user_id}))`.as(
+          'scrolls'
+        ),
+      })
+      .from(hatcheryTable)
+      .where(
+        eq(
+          area === 'garden'
+            ? hatcheryTable.in_garden
+            : hatcheryTable.in_seed_tray,
+          true
+        )
+      );
     return { total, scrolls };
   },
   {
     maxAge: 60,
-    getKey: (event: H3Event, area: string) => area + '-counts',
+    getKey: (_, area: string) => area + '-counts',
   }
 );
 
-function getDragons(limit: number, area: string | null) {
-  return pool.execute<RowDataPacket[]>(
-    `
-  SELECT code FROM hatchery
-  WHERE in_${area} = 1
-  ORDER BY RAND()
-  LIMIT ?`,
-    [limit]
-  );
+function getDragons(limit: number, area: Area = 'garden') {
+  return db
+    .select({ id: hatcheryTable.id })
+    .from(hatcheryTable)
+    .where(
+      eq(
+        area === 'garden'
+          ? hatcheryTable.in_garden
+          : hatcheryTable.in_seed_tray,
+        true
+      )
+    )
+    .orderBy(sql`RAND()`)
+    .limit(limit);
 }
 
 export default defineEventHandler(async (event) => {
@@ -43,13 +57,10 @@ export default defineEventHandler(async (event) => {
 
   const query = await getValidatedQuery(event, schema.parse);
 
-  const [statistics, [dragons]] = await Promise.all([
+  const [statistics, dragons] = await Promise.all([
     getCounts(event, query.area),
     getDragons(query.limit, query.area),
   ]);
 
-  return { statistics, dragons } as {
-    statistics: { total: number; scrolls: number };
-    dragons: HatcheryDragon[];
-  };
+  return { statistics, dragons };
 });

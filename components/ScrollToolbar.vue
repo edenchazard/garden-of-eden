@@ -45,6 +45,7 @@
 
 <script lang="ts" setup>
 import type { PropType } from 'vue';
+import { filterSelectAll } from '#imports';
 
 const emit = defineEmits(['reload', 'toggle-all', 'submit']);
 

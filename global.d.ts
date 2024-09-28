@@ -1,5 +1,4 @@
-import type { z } from 'zod';
-
+import type { userSettingsTable, userTable } from '~/database/schema';
 export {};
 
 declare global {
@@ -33,9 +32,8 @@ declare global {
     username: string;
   };
 
-  type UserSettings = z.infer<typeof userSettingsSchema>;
-
-  type UserRole = 'owner' | 'user';
+  type UserSettings = Omit<typeof userSettingsTable.$inferSelect, 'user_id'>;
+  type UserRole = typeof userTable.$inferSelect.role;
 
   enum RecordType {
     removed,

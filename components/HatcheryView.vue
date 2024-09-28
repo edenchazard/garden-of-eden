@@ -91,18 +91,18 @@
   >
     <a
       v-for="dragon in hatchery.dragons"
-      :key="dragon.code"
+      :key="dragon.id"
       class="size-full flex items-center justify-center"
-      :href="`https://dragcave.net/view/${dragon.code}`"
+      :href="`https://dragcave.net/view/${dragon.id}`"
       target="_blank"
     >
       <ClientOnly>
         <img
-          :alt="dragon.code"
+          :alt="dragon.id"
           :src="
             cacheBust
-              ? `https://dragcave.net/image/${dragon.code}.gif?cb=${Date.now()}`
-              : `https://dragcave.net/image/${dragon.code}.gif`
+              ? `https://dragcave.net/image/${dragon.id}.gif?cb=${Date.now()}`
+              : `https://dragcave.net/image/${dragon.id}.gif`
           "
         />
       </ClientOnly>

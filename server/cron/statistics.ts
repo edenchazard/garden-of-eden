@@ -1,19 +1,17 @@
 import { defineCronHandler } from '#nuxt/cron';
-import pool from '~/server/pool';
-import type { RowDataPacket } from 'mysql2';
+import { db } from '~/server/db';
+import { sql } from 'drizzle-orm';
+import { hatcheryTable, recordingsTable } from '~/database/schema';
 
 export default defineCronHandler('everyThirtyMinutes', async () => {
-  const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
-    `SELECT
-      COUNT(*) AS total, 
-      COUNT(DISTINCT(user_id)) AS scrolls
-      FROM hatchery`
-  );
-
-  pool.execute(
-    pool.format(`INSERT INTO recordings (value, record_type) VALUES (?), (?)`, [
-      [total, 'total_dragons'],
-      [scrolls, 'total_scrolls'],
-    ])
-  );
+  await db.insert(recordingsTable).values([
+    {
+      value: sql`(SELECT COUNT(*) FROM ${hatcheryTable})`,
+      record_type: 'total_dragons',
+    },
+    {
+      value: sql`(SELECT COUNT(DISTINCT(${hatcheryTable.user_id})) FROM ${hatcheryTable})`,
+      record_type: 'total_scrolls',
+    },
+  ]);
 });

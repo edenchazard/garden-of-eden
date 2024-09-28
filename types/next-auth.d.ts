@@ -5,7 +5,7 @@ declare module 'next-auth/jwt' {
   interface JWT {
     username?: string;
     sessionToken?: string;
-    userId?: number;
+    userId: number;
   }
 }
 

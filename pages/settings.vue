@@ -102,6 +102,9 @@
 </template>
 
 <script lang="ts" setup>
+import { userSettingsSchema } from '~/database/schema';
+import { formatHoursLeft } from '#imports';
+
 definePageMeta({
   middleware: 'auth',
 });

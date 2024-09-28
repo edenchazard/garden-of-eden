@@ -1,7 +1,8 @@
 import { NuxtAuthHandler } from '#auth';
-import type { RowDataPacket } from 'mysql2';
 import type { TokenSet } from 'next-auth';
-import pool from '~/server/pool';
+import { db } from '~/server/db';
+import { userSettingsTable, userTable } from '~/database/schema';
+import { eq } from 'drizzle-orm';
 
 const {
   clientSecret,
@@ -70,45 +71,45 @@ export default NuxtAuthHandler({
     async jwt({ token, user, account }) {
       if (account) {
         token.sessionToken = account.access_token;
-        const con = await pool.getConnection();
+        const userId = parseInt(account.providerAccountId);
 
-        try {
-          await con.beginTransaction();
-          await con.execute(
-            `INSERT IGNORE INTO users (id, username) VALUES (?, ?)`,
-            [user.id, user.username]
-          );
-          await con.execute(
-            `INSERT IGNORE INTO user_settings (user_id) VALUES (?)`,
-            [user.id]
-          );
-          await con.commit();
-        } catch (e) {
-          await con.rollback();
-          throw e;
-        } finally {
-          con.release();
-        }
+        await db.transaction(async (tx) => {
+          await tx.insert(userTable).ignore().values({
+            id: userId,
+            username: user.username,
+          });
+
+          await tx.insert(userSettingsTable).ignore().values({
+            user_id: userId,
+          });
+        });
       }
 
       if (user) {
         token.userId = parseInt(user.id);
       }
+
       return token;
     },
     async session({ session, token }) {
-      const [[user]] = await pool.execute<RowDataPacket[]>(
-        `SELECT users.username, users.role, user_settings.*
-        FROM users
-        LEFT JOIN user_settings ON users.id = user_settings.user_id
-        WHERE id = ?`,
-        [token.userId]
-      );
+      const userId = token.userId;
+      const [user] = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.id, userId))
+        .innerJoin(
+          userSettingsTable,
+          eq(userTable.id, userSettingsTable.user_id)
+        );
 
-      const { username, role, user_id, ...settings } = user;
-      session.user.username = username;
-      session.user.role = role;
-      session.user.settings = settings as UserSettings;
+      const {
+        users,
+        user_settings: { user_id, ...settings },
+      } = user;
+
+      session.user.username = users.username;
+      session.user.role = users.role;
+      session.user.settings = settings;
 
       return session;
     },

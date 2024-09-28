@@ -95,4 +95,11 @@ export default defineNuxtConfig({
       csurf: false,
     },
   },
+  nitro: {
+    esbuild: {
+      options: {
+        target: 'esnext',
+      },
+    },
+  },
 });
