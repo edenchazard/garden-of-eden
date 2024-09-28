@@ -173,7 +173,6 @@
 <script lang="ts" setup>
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
-const { csrf } = useCsrf();
 
 const {
   data: dragons,
@@ -193,9 +192,6 @@ const {
   immediate: false,
   watch: false,
   default: () => [],
-  headers: {
-    'Csrf-token': csrf,
-  },
   method: 'PATCH',
   body: dragons.value.map((dragon) => ({
     id: dragon.id,
