@@ -4,6 +4,7 @@ import {
   boolean,
   char,
   datetime,
+  index,
   json,
   mediumint,
   mysqlTable,
@@ -60,34 +61,55 @@ export const userSettingsTable = mysqlTable('user_settings', {
     .notNull(),
 });
 
-export const hatcheryTable = mysqlTable('hatchery', {
-  id: char('id', {
-    length: 5,
-  })
-    .primaryKey()
-    .notNull(),
-  user_id: mediumint('user_id', {
-    unsigned: true,
-  })
-    .references(() => userTable.id, {
-      onDelete: 'cascade',
+export const hatcheryTable = mysqlTable(
+  'hatchery',
+  {
+    id: char('id', {
+      length: 5,
     })
-    .notNull(),
-  in_seed_tray: boolean('in_seed_tray').notNull().default(false),
-  in_garden: boolean('in_garden').notNull().default(false),
-});
+      .primaryKey()
+      .notNull(),
+    user_id: mediumint('user_id', {
+      unsigned: true,
+    })
+      .references(() => userTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    in_seed_tray: boolean('in_seed_tray').notNull().default(false),
+    in_garden: boolean('in_garden').notNull().default(false),
+  },
+  (table) => {
+    return {
+      in_seed_trayIdx: index('in_seed_tray_idx').on(
+        table.in_seed_tray,
+        table.user_id
+      ),
+      in_gardenIdx: index('in_garden_idx').on(table.in_garden, table.user_id),
+    };
+  }
+);
 
-export const recordingsTable = mysqlTable('recordings', {
-  recorded_on: datetime('recorded_on')
-    .notNull()
-    .default(sql`NOW()`),
-  value: bigint('value', { mode: 'number', unsigned: true }).notNull(),
-  record_type: varchar('record_type', {
-    length: 24,
-    enum: ['removed', 'total_dragons', 'total_scrolls'],
-  }).notNull(),
-  extra: json('extra'),
-});
+export const recordingsTable = mysqlTable(
+  'recordings',
+  {
+    recorded_on: datetime('recorded_on')
+      .notNull()
+      .default(sql`NOW()`),
+    value: bigint('value', { mode: 'number', unsigned: true }).notNull(),
+    record_type: varchar('record_type', {
+      length: 24,
+      enum: ['removed', 'total_dragons', 'total_scrolls'],
+    }).notNull(),
+    extra: json('extra'),
+  },
+  (table) => {
+    return {
+      recorded_onIdx: index('recorded_on_idx').on(table.recorded_on),
+      record_typeIdx: index('record_type_idx').on(table.record_type),
+    };
+  }
+);
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   gardenFrequency: (schema) => schema.gardenFrequency.default(30),
