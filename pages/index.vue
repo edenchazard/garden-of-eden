@@ -184,14 +184,19 @@ const {
   execute: fetchScroll,
   status: fetchScrollStatus,
   error: fetchScrollError,
-} = await useFetch('/api/user/scroll', {
+} = await useFetch<{
+  details: { clicks_today: number };
+  dragons: ScrollView[];
+}>('/api/user/scroll', {
   headers: computed(() => ({
     'Csrf-token': useCsrf().csrf,
   })),
   immediate: !!authData.value?.user,
   default() {
     return {
-      details: {},
+      details: {
+        clicks_today: 0,
+      },
       dragons: [],
     };
   },
