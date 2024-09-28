@@ -65,14 +65,13 @@ useHead({
 });
 
 const { userSettings } = useUserSettings();
+const { data: stats, execute: fetchStats } = useFetch('/api/statistics', {
+  watch: false,
+});
 
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();
 const statisticsLoaded = ref(false);
-
-const { data: stats, execute: fetchStats } = useAsyncData(() =>
-  $fetch('/api/statistics')
-);
 
 function chartColourPalette(palette: string) {
   const defaultPalette = [

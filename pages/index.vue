@@ -189,52 +189,49 @@ const {
   data: recentlyAdded,
   execute: saveScroll,
   status: saveScrollStatus,
-} = useAsyncData(
-  () =>
-    $fetch<string[]>('/api/user/scroll', {
-      headers: {
-        'Csrf-token': csrf,
-      },
-      method: 'PATCH',
-      body: dragons.value.map((dragon) => ({
-        id: dragon.id,
-        in_seed_tray: dragon.in_seed_tray,
-        in_garden: dragon.in_garden,
-      })),
-      onResponse({ response }) {
-        if (!response.ok) {
-          toast.error('Failed to save your scroll. Please try again.');
-          return;
-        }
+} = useFetch('/api/user/scroll', {
+  immediate: false,
+  watch: false,
+  default: () => [],
+  headers: {
+    'Csrf-token': csrf,
+  },
+  method: 'PATCH',
+  body: dragons.value.map((dragon) => ({
+    id: dragon.id,
+    in_seed_tray: dragon.in_seed_tray,
+    in_garden: dragon.in_garden,
+  })),
+  onResponse({ response }) {
+    if (!response.ok) {
+      toast.error('Failed to save your scroll. Please try again.');
+      return;
+    }
 
-        setTimeout(() => (recentlyAdded.value = []), 1000);
+    setTimeout(() => (recentlyAdded.value = []), 1000);
 
-        const seedTray = dragons.value.filter((dragon) => dragon.in_seed_tray);
-        const garden = dragons.value.filter((dragon) => dragon.in_garden);
-        const texts = [];
+    const seedTray = dragons.value.filter((dragon) => dragon.in_seed_tray);
+    const garden = dragons.value.filter((dragon) => dragon.in_garden);
+    const texts = [];
 
-        if (seedTray.length > 0) {
-          texts.push(
-            `${seedTray.length} ${pluralise('dragon', seedTray.length)} in the seed tray`
-          );
-        }
+    if (seedTray.length > 0) {
+      texts.push(
+        `${seedTray.length} ${pluralise('dragon', seedTray.length)} in the seed tray`
+      );
+    }
 
-        texts.push(
-          `${garden.length > 0 ? garden.length : 'no'} ${pluralise('dragon', garden.length)} in the garden`
-        );
-        toast.success('Scroll updated! You have ' + texts.join(' and ') + '.');
-        return;
-      },
-    }),
-  {
-    immediate: false,
-    default: () => [],
-  }
-);
+    texts.push(
+      `${garden.length > 0 ? garden.length : 'no'} ${pluralise('dragon', garden.length)} in the garden`
+    );
+    toast.success('Scroll updated! You have ' + texts.join(' and ') + '.');
+    return;
+  },
+});
 
 const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes('pending')
 );
+
 watch(
   () => [userSettings.value.sort, dragons],
   () => {
