@@ -120,11 +120,7 @@ export const clicksTable = mysqlTable(
   {
     hatchery_id: char('hatchery_id', {
       length: 5,
-    })
-      .references(() => hatcheryTable.id, {
-        onDelete: 'cascade',
-      })
-      .notNull(),
+    }).notNull(),
     user_id: mediumint('user_id', {
       unsigned: true,
     })

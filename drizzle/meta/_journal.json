@@ -36,6 +36,13 @@
       "when": 1727553972550,
       "tag": "0008_wakeful_jack_power",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1727557434497,
+      "tag": "0009_chunky_lilandra",
+      "breakpoints": true
     }
   ]
 }
