@@ -1,7 +1,7 @@
 import { db } from '~/server/db';
 import { z } from 'zod';
 import { clicksTable, hatcheryTable } from '~/database/schema';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 type Area = 'garden' | 'seed_tray';
 
@@ -43,7 +43,13 @@ function getDragons(limit: number, area: Area = 'garden') {
         true
       )
     )
-    .leftJoin(clicksTable, eq(hatcheryTable.id, clicksTable.hatchery_id))
+    .leftJoin(
+      clicksTable,
+      and(
+        eq(hatcheryTable.id, clicksTable.hatchery_id),
+        eq(hatcheryTable.user_id, clicksTable.user_id)
+      )
+    )
     .orderBy(sql`RAND()`)
     .limit(limit);
 }
