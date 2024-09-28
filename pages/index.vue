@@ -141,6 +141,7 @@
       <HatcheryView
         v-model:frequency="userSettings.gardenFrequency"
         v-model:per-page="userSettings.gardenPerPage"
+        :highlight-clicked-dragons="userSettings.highlightClickedDragons"
         label="garden"
         :query="{ area: 'garden' }"
       >

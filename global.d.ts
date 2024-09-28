@@ -1,4 +1,8 @@
-import type { userSettingsTable, userTable } from '~/database/schema';
+import type {
+  clicksTable,
+  userSettingsTable,
+  userTable,
+} from '~/database/schema';
 export {};
 
 declare global {
@@ -27,9 +31,7 @@ declare global {
 
   type HatcheryDragon = {
     id: string;
-    in_garden: boolean;
-    in_seed_tray: boolean;
-    username: string;
+    clicked_on: typeof clicksTable.$inferSelect.clicked_on | null;
   };
 
   type UserSettings = Omit<typeof userSettingsTable.$inferSelect, 'user_id'>;

@@ -94,11 +94,11 @@
       :key="dragon.id"
       class="size-full flex items-center justify-center"
       :class="{
-        'bg-yellow-200/20': dragon.clicked_on,
+        'bg-yellow-200/20': dragon.clicked_on && highlightClickedDragons,
       }"
       :href="`https://dragcave.net/view/${dragon.id}`"
       target="_blank"
-      @click="trackClick(dragon.id)"
+      @click="trackClick(dragon)"
     >
       <ClientOnly>
         <img
@@ -117,16 +117,17 @@
 
 <script lang="ts" setup>
 import { useIntervalFn } from '@vueuse/core';
-import type { clicksTable } from '~/database/schema';
 
 const props = withDefaults(
   defineProps<{
     query: Record<string, string>;
     cacheBust?: boolean;
     label: string;
+    highlightClickedDragons?: boolean;
   }>(),
   {
     cacheBust: false,
+    highlightClickedDragons: false,
   }
 );
 
@@ -166,11 +167,7 @@ const {
   computed(() => frequency.value * 1000)
 );
 
-function trackClick(
-  dragon: HatcheryDragon & {
-    clicked_on: typeof clicksTable.$inferSelect.clicked_on;
-  }
-) {
+function trackClick(dragon: HatcheryDragon) {
   if (dragon.clicked_on) {
     return;
   }

@@ -5,6 +5,7 @@ import type { JWT } from 'next-auth/jwt';
 import { createSelectSchema } from 'drizzle-zod';
 
 export default defineEventHandler(async (event) => {
+  console.log(await readBody(event));
   const schema = createSelectSchema(hatcheryTable).pick({
     id: true,
   });

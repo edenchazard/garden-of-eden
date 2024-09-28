@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "ec9aea00-68dc-4986-89de-7f8578464165",
+  "id": "1ba8fa46-3c28-442b-b06e-c6da661fd322",
   "prevId": "65e731ac-67f1-4c80-ab72-92e0787af8b2",
   "tables": {
     "clicks": {
@@ -289,6 +289,14 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'Eden'"
+        },
+        "highlightClickedDragons": {
+          "name": "highlightClickedDragons",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
         }
       },
       "indexes": {},

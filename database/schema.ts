@@ -60,6 +60,9 @@ export const userSettingsTable = mysqlTable('user_settings', {
   })
     .default('Eden')
     .notNull(),
+  highlightClickedDragons: boolean('highlightClickedDragons')
+    .notNull()
+    .default(true),
 });
 
 export const hatcheryTable = mysqlTable(
@@ -154,4 +157,6 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   showScrollRatio: (schema) => schema.showScrollRatio.default(true),
   autoSeedTray: (schema) => schema.autoSeedTray.default(true),
   siteName: (schema) => schema.siteName.default('Eden'),
+  highlightClickedDragons: (schema) =>
+    schema.highlightClickedDragons.default(true),
 }).omit({ user_id: true });

@@ -75,6 +75,24 @@
         </ul>
       </fieldset>
       <fieldset>
+        <legend>Hatchery</legend>
+        <p>Customise the hatchery.</p>
+        <ul class="divide-y *:py-4">
+          <li class="flex items-center gap-x-2">
+            <input
+              id="highlight-clicked"
+              v-model="newSettings.highlightClickedDragons"
+              class="shrink-0"
+              type="checkbox"
+              :checked="newSettings.highlightClickedDragons"
+            />
+            <label for="highlight-clicked">
+              Highlight dragons you've clicked.</label
+            >
+          </li>
+        </ul>
+      </fieldset>
+      <fieldset>
         <legend>Fun things 🎩</legend>
         <p>Fun? In my garden? It's more likely than you think.</p>
         <ul class="divide-y *:py-4">
