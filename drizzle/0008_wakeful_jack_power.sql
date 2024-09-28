@@ -1,5 +1,5 @@
 CREATE TABLE `clicks` (
-	`hatchery_id` char(5) NOT NULL,
+	`hatchery_id` char(5) NOT NULL COLLATE utf8mb3_bin,
 	`user_id` mediumint unsigned NOT NULL,
 	`clicked_on` datetime NOT NULL DEFAULT NOW(),
 	CONSTRAINT `hatchery_id_user_id_idx` UNIQUE(`hatchery_id`,`user_id`)
