@@ -2,6 +2,8 @@ import { db } from '~/server/db';
 import { z } from 'zod';
 import { clicksTable, hatcheryTable } from '~/database/schema';
 import { and, eq, sql } from 'drizzle-orm';
+import type { H3Event } from 'h3';
+import { getToken } from '#auth';
 
 type Area = 'garden' | 'seed_tray';
 
@@ -31,23 +33,37 @@ const getCounts = defineCachedFunction(
   }
 );
 
-function getDragons(limit: number, area: Area = 'garden') {
-  return db
-    .select({ id: hatcheryTable.id, clicked_on: clicksTable.clicked_on })
-    .from(hatcheryTable)
+async function getDragons(
+  event: H3Event,
+  limit: number,
+  area: Area = 'garden'
+) {
+  const token = await getToken({ event });
+
+  let query;
+
+  if (token?.userId) {
+    query = db
+      .select({ id: hatcheryTable.id, clicked_on: clicksTable.clicked_on })
+      .from(hatcheryTable)
+      .leftJoin(
+        clicksTable,
+        and(
+          eq(hatcheryTable.id, clicksTable.hatchery_id),
+          eq(clicksTable.user_id, token.userId)
+        )
+      );
+  } else {
+    query = db.select({ id: hatcheryTable.id }).from(hatcheryTable);
+  }
+
+  return query
     .where(
       eq(
         area === 'garden'
           ? hatcheryTable.in_garden
           : hatcheryTable.in_seed_tray,
         true
-      )
-    )
-    .leftJoin(
-      clicksTable,
-      and(
-        eq(hatcheryTable.id, clicksTable.hatchery_id),
-        eq(hatcheryTable.user_id, clicksTable.user_id)
       )
     )
     .orderBy(sql`RAND()`)
@@ -66,7 +82,7 @@ export default defineEventHandler(async (event) => {
 
   const [statistics, dragons] = await Promise.all([
     getCounts(event, query.area),
-    getDragons(query.limit, query.area),
+    getDragons(event, query.limit, query.area),
   ]);
 
   return { statistics, dragons };
