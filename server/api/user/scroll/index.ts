@@ -93,11 +93,11 @@ export default defineEventHandler(async (event) => {
       .from(clicksTable)
       .where(
         and(
-          gt(clicksTable.clicked_on, startOfToday),
           inArray(
             clicksTable.hatchery_id,
             alive.map((dragon) => dragon.id)
-          )
+          ),
+          gt(clicksTable.clicked_on, startOfToday)
         )
       ),
     db
