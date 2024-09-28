@@ -98,6 +98,7 @@
       <HatcheryView
         v-model:frequency="userSettings.seedTrayFrequency"
         v-model:per-page="userSettings.seedTrayPerPage"
+        :highlight-clicked-dragons="userSettings.highlightClickedDragons"
         label="seed-tray"
         :query="{ area: 'seed_tray' }"
         cache-bust
