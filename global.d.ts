@@ -26,7 +26,7 @@ declare global {
   };
 
   type HatcheryDragon = {
-    code: string;
+    id: string;
     in_garden: boolean;
     in_seed_tray: boolean;
     username: string;

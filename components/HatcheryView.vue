@@ -93,8 +93,12 @@
       v-for="dragon in hatchery.dragons"
       :key="dragon.id"
       class="size-full flex items-center justify-center"
+      :class="{
+        'bg-yellow-200/20': dragon.clicked_on,
+      }"
       :href="`https://dragcave.net/view/${dragon.id}`"
       target="_blank"
+      @click="trackClick(dragon.id)"
     >
       <ClientOnly>
         <img
@@ -113,6 +117,7 @@
 
 <script lang="ts" setup>
 import { useIntervalFn } from '@vueuse/core';
+import type { clicksTable } from '~/database/schema';
 
 const props = withDefaults(
   defineProps<{
@@ -160,4 +165,24 @@ const {
   fetchHatchery,
   computed(() => frequency.value * 1000)
 );
+
+function trackClick(
+  dragon: HatcheryDragon & {
+    clicked_on: typeof clicksTable.$inferSelect.clicked_on;
+  }
+) {
+  if (dragon.clicked_on) {
+    return;
+  }
+
+  $fetch('/api/user/click', {
+    method: 'POST',
+    body: {
+      id: dragon.id,
+    },
+    headers: {
+      'Csrf-token': useCsrf().csrf,
+    },
+  });
+}
 </script>

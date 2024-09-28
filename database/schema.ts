@@ -10,6 +10,7 @@ import {
   mysqlTable,
   smallint,
   tinyint,
+  unique,
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
@@ -107,6 +108,37 @@ export const recordingsTable = mysqlTable(
     return {
       recorded_onIdx: index('recorded_on_idx').on(table.recorded_on),
       record_typeIdx: index('record_type_idx').on(table.record_type),
+    };
+  }
+);
+
+export const clicksTable = mysqlTable(
+  'clicks',
+  {
+    hatchery_id: char('hatchery_id', {
+      length: 5,
+    })
+      .references(() => hatcheryTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    user_id: mediumint('user_id', {
+      unsigned: true,
+    })
+      .references(() => userTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    clicked_on: datetime('clicked_on')
+      .notNull()
+      .default(sql`NOW()`),
+  },
+  (table) => {
+    return {
+      hatchery_id_user_idIdx: unique('hatchery_id_user_id_idx').on(
+        table.hatchery_id,
+        table.user_id
+      ),
     };
   }
 );

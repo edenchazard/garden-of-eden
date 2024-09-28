@@ -38,12 +38,17 @@
           that reload button and try again.
         </p>
         <template v-else>
-          <p v-if="!dragons.length">
+          <p v-if="!scroll.dragons.length">
             It looks like you've got no dragons! Time to hit up that cave and go
             get some!
           </p>
           <p>Hidden dragons are not shown and will be regularly removed.</p>
         </template>
+        <p>
+          Your dragons have had
+          <b class="font-bold">{{ scroll.details.clicks_today }}</b> clicks
+          today.
+        </p>
       </div>
 
       <fieldset
@@ -61,9 +66,9 @@
           }"
         >
           <ScrollPanel
-            v-for="(dragon, i) in dragons"
+            v-for="(dragon, i) in scroll.dragons"
             :key="dragon.id"
-            v-model="dragons[i]"
+            v-model="scroll.dragons[i]"
             :settings="userSettings"
             :recently-added
             @click="
@@ -78,7 +83,7 @@
         <ScrollToolbar
           id="scroll-toolbar"
           v-model:sort="userSettings.sort"
-          :dragons
+          :dragons="scroll.dragons"
           :settings="userSettings"
           :fetch-scroll-status
           :save-scroll-status
@@ -175,7 +180,7 @@ const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
 const {
-  data: dragons,
+  data: scroll,
   execute: fetchScroll,
   status: fetchScrollStatus,
   error: fetchScrollError,
@@ -184,7 +189,12 @@ const {
     'Csrf-token': useCsrf().csrf,
   })),
   immediate: !!authData.value?.user,
-  default: () => [],
+  default() {
+    return {
+      details: {},
+      dragons: [],
+    };
+  },
 });
 
 const {
@@ -197,7 +207,7 @@ const {
   default: () => [],
   method: 'PATCH',
   body: computed(() =>
-    dragons.value.map((dragon) => ({
+    scroll.value.dragons.map((dragon) => ({
       id: dragon.id,
       in_seed_tray: dragon.in_seed_tray,
       in_garden: dragon.in_garden,
@@ -211,8 +221,10 @@ const {
 
     setTimeout(() => (recentlyAdded.value = []), 1000);
 
-    const seedTray = dragons.value.filter((dragon) => dragon.in_seed_tray);
-    const garden = dragons.value.filter((dragon) => dragon.in_garden);
+    const seedTray = scroll.value.dragons.filter(
+      (dragon) => dragon.in_seed_tray
+    );
+    const garden = scroll.value.dragons.filter((dragon) => dragon.in_garden);
     const texts = [];
 
     if (seedTray.length > 0) {
@@ -234,10 +246,10 @@ const isProcessing = computed(() =>
 );
 
 watch(
-  () => [userSettings.value.sort, dragons],
+  () => [userSettings.value.sort, scroll],
   () => {
     if (userSettings.value.sort === 'Youngest First') {
-      dragons.value.sort((a, b) => {
+      scroll.value.dragons.sort((a, b) => {
         const valueA = a.hatch + '' + a.hoursleft;
         const valueB = b.hatch + '' + b.hoursleft;
         return valueA.localeCompare(valueB);
@@ -245,7 +257,7 @@ watch(
     }
 
     if (userSettings.value.sort === 'Oldest First') {
-      dragons.value.sort((a, b) => {
+      scroll.value.dragons.sort((a, b) => {
         const valueA = a.hatch + '' + a.hoursleft;
         const valueB = b.hatch + '' + b.hoursleft;
         return valueB.localeCompare(valueA);
@@ -259,9 +271,9 @@ watch(
 );
 
 async function refreshScroll() {
-  const currentState = [...dragons.value];
+  const currentState = [...scroll.value.dragons];
   await fetchScroll();
-  dragons.value.forEach((dragon) => {
+  scroll.value.dragons.forEach((dragon) => {
     const oldDragon = currentState.find((d) => d.id === dragon.id);
     if (oldDragon) dragon.in_garden = oldDragon.in_garden;
   });
@@ -272,7 +284,7 @@ function toggleAll(checked: boolean) {
     return;
   }
 
-  dragons.value
+  scroll.value.dragons
     .filter(filterSelectAll(userSettings.value))
     .forEach((dragon) => {
       dragon.in_garden = checked;
