@@ -24,7 +24,8 @@
       </ul>
       <ol class="list-decimal list-inside text-sm mt-2">
         <li id="personal-1">
-          Dragons clicked over 24 hours ago will not count towards this total.
+          Dragons clicked more than 24 hours ago will not count towards this
+          total.
         </li>
       </ol>
     </section>
