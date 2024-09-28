@@ -67,6 +67,9 @@ useHead({
 const { userSettings } = useUserSettings();
 const { data: stats, execute: fetchStats } = useFetch('/api/statistics', {
   watch: false,
+  headers: computed(() => ({
+    'Csrf-token': useCsrf().csrf,
+  })),
 });
 
 const dragons = ref<ChartData<'line'>>();

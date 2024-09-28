@@ -106,6 +106,8 @@
 </template>
 
 <script lang="ts" setup>
+import { formatHoursLeft, formatNumber, formatRatio } from '#imports';
+
 defineProps<{
   recentlyAdded: string[];
   settings: UserSettings;

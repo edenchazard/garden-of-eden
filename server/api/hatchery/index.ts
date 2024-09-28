@@ -1,6 +1,5 @@
-import type { RowDataPacket } from 'mysql2';
 import type { H3Event } from 'h3';
-import { db, pool } from '~/server/db';
+import { db } from '~/server/db';
 import { z } from 'zod';
 import { hatcheryTable } from '~/database/schema';
 import { eq, sql } from 'drizzle-orm';
@@ -9,15 +8,22 @@ type Area = 'garden' | 'seed_tray';
 
 const getCounts = defineCachedFunction(
   async (event: H3Event, area: string) => {
-    const [[{ total, scrolls }]] = await pool.execute<RowDataPacket[]>(
-      `
-    SELECT
-    COUNT(*) AS total, 
-    COUNT(DISTINCT(user_id)) AS scrolls
-    FROM hatchery
-    WHERE in_${area} = 1`
-    );
-
+    const [{ total, scrolls }] = await db
+      .select({
+        total: sql<number>`COUNT(*)`.as('total'),
+        scrolls: sql<number>`COUNT(DISTINCT(${hatcheryTable.user_id}))`.as(
+          'scrolls'
+        ),
+      })
+      .from(hatcheryTable)
+      .where(
+        eq(
+          area === 'garden'
+            ? hatcheryTable.in_garden
+            : hatcheryTable.in_seed_tray,
+          true
+        )
+      );
     return { total, scrolls };
   },
   {

@@ -180,6 +180,9 @@ const {
   status: fetchScrollStatus,
   error: fetchScrollError,
 } = await useFetch('/api/user/scroll', {
+  headers: computed(() => ({
+    'Csrf-token': useCsrf().csrf,
+  })),
   immediate: !!authData.value?.user,
   default: () => [],
 });
@@ -188,16 +191,18 @@ const {
   data: recentlyAdded,
   execute: saveScroll,
   status: saveScrollStatus,
-} = useFetch('/api/user/scroll', {
+} = useCsrfFetch('/api/user/scroll', {
   immediate: false,
   watch: false,
   default: () => [],
   method: 'PATCH',
-  body: dragons.value.map((dragon) => ({
-    id: dragon.id,
-    in_seed_tray: dragon.in_seed_tray,
-    in_garden: dragon.in_garden,
-  })),
+  body: computed(() =>
+    dragons.value.map((dragon) => ({
+      id: dragon.id,
+      in_seed_tray: dragon.in_seed_tray,
+      in_garden: dragon.in_garden,
+    }))
+  ),
   onResponse({ response }) {
     if (!response.ok) {
       toast.error('Failed to save your scroll. Please try again.');
