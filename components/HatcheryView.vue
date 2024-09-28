@@ -82,7 +82,6 @@
     </ClientOnly>
   </div>
   <div
-    v-memo="hatchery.dragons"
     class="grid justify-center gap-1 mx-auto"
     :style="{
       gridTemplateColumns: `repeat(auto-fit, 45px)`,
@@ -93,8 +92,13 @@
       v-for="dragon in hatchery.dragons"
       :key="dragon.id"
       class="size-full flex items-center justify-center"
+      :class="{
+        'bg-orange-100/30 dark:bg-sky-200/15 transition-colors':
+          dragon.clicked_on && highlightClickedDragons,
+      }"
       :href="`https://dragcave.net/view/${dragon.id}`"
       target="_blank"
+      @click="trackClick(dragon)"
     >
       <ClientOnly>
         <img
@@ -119,9 +123,11 @@ const props = withDefaults(
     query: Record<string, string>;
     cacheBust?: boolean;
     label: string;
+    highlightClickedDragons?: boolean;
   }>(),
   {
     cacheBust: false,
+    highlightClickedDragons: false,
   }
 );
 
@@ -160,4 +166,22 @@ const {
   fetchHatchery,
   computed(() => frequency.value * 1000)
 );
+
+async function trackClick(dragon: HatcheryDragon) {
+  if (dragon.clicked_on) {
+    return;
+  }
+
+  await $fetch('/api/user/click', {
+    method: 'POST',
+    body: {
+      id: dragon.id,
+    },
+    headers: {
+      'Csrf-token': useCsrf().csrf,
+    },
+  });
+
+  dragon.clicked_on = new Date();
+}
 </script>

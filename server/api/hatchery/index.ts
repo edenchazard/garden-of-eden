@@ -1,6 +1,6 @@
 import { db } from '~/server/db';
 import { z } from 'zod';
-import { hatcheryTable } from '~/database/schema';
+import { clicksTable, hatcheryTable } from '~/database/schema';
 import { eq, sql } from 'drizzle-orm';
 
 type Area = 'garden' | 'seed_tray';
@@ -33,7 +33,7 @@ const getCounts = defineCachedFunction(
 
 function getDragons(limit: number, area: Area = 'garden') {
   return db
-    .select({ id: hatcheryTable.id })
+    .select({ id: hatcheryTable.id, clicked_on: clicksTable.clicked_on })
     .from(hatcheryTable)
     .where(
       eq(
@@ -43,6 +43,7 @@ function getDragons(limit: number, area: Area = 'garden') {
         true
       )
     )
+    .leftJoin(clicksTable, eq(hatcheryTable.id, clicksTable.hatchery_id))
     .orderBy(sql`RAND()`)
     .limit(limit);
 }

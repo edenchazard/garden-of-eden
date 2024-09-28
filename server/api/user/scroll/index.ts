@@ -1,7 +1,7 @@
 import { getToken, getServerSession } from '#auth';
-import { and, eq, inArray, notInArray } from 'drizzle-orm';
+import { and, eq, gt, inArray, notInArray, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import { hatcheryTable, userTable } from '~/database/schema';
+import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 
 async function fetchScroll(username: string, token: JWT) {
@@ -56,7 +56,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const scroll = Object.values(scrollResponse.dragons);
-  const alive = scroll.filter((dragon) => dragon.hoursleft >= 0);
+  const alive = scroll
+    .filter((dragon) => dragon.hoursleft >= 0)
+    .map((dragon) => dragon.id);
 
   if (alive.length) {
     await db.transaction(async (tx) => {
@@ -65,43 +67,54 @@ export default defineEventHandler(async (event) => {
       await tx
         .update(hatcheryTable)
         .set({ user_id: token.userId })
+        .where(inArray(hatcheryTable.id, alive));
+
+      await tx
+        .delete(hatcheryTable)
         .where(
-          inArray(
-            hatcheryTable.id,
-            alive.map((dragon) => dragon.id)
+          and(
+            eq(hatcheryTable.user_id, token.userId),
+            notInArray(hatcheryTable.id, alive)
           )
         );
-
-      await tx.delete(hatcheryTable).where(
-        and(
-          eq(hatcheryTable.user_id, token.userId),
-          notInArray(
-            hatcheryTable.id,
-            alive.map((dragon) => dragon.id)
-          )
-        )
-      );
     });
   }
 
-  const usersDragonsInHatchery = await db
-    .select({
-      id: hatcheryTable.id,
-      in_garden: hatcheryTable.in_garden,
-      in_seed_tray: hatcheryTable.in_seed_tray,
-    })
-    .from(hatcheryTable)
-    .where(eq(hatcheryTable.user_id, token.userId));
+  const startOfToday = new Date();
+  startOfToday.setDate(startOfToday.getDate() - 1);
 
-  return alive.map<ScrollView>((dragon) => {
-    const hatcheryDragon = usersDragonsInHatchery.find(
-      (row) => row.id === dragon.id
-    );
+  const [[clicksToday], usersDragonsInHatchery] = await Promise.all([
+    db
+      .select({ clicks_today: sql<number>`COUNT(*)`.as('clicks_today') })
+      .from(clicksTable)
+      .where(
+        and(
+          inArray(clicksTable.hatchery_id, alive),
+          gt(clicksTable.clicked_on, startOfToday)
+        )
+      ),
+    db
+      .select({
+        id: hatcheryTable.id,
+        in_garden: hatcheryTable.in_garden,
+        in_seed_tray: hatcheryTable.in_seed_tray,
+      })
+      .from(hatcheryTable)
+      .where(eq(hatcheryTable.user_id, token.userId)),
+  ]);
 
-    return {
-      ...dragon,
-      in_garden: !!(hatcheryDragon?.in_garden ?? false),
-      in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-    };
-  });
+  return {
+    details: clicksToday,
+    dragons: alive.map<ScrollView>((id) => {
+      const hatcheryDragon = usersDragonsInHatchery.find(
+        (row) => row.id === id
+      );
+
+      return {
+        ...scrollResponse.dragons[id],
+        in_garden: !!(hatcheryDragon?.in_garden ?? false),
+        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+      };
+    }),
+  };
 });

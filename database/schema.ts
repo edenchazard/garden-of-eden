@@ -10,6 +10,7 @@ import {
   mysqlTable,
   smallint,
   tinyint,
+  unique,
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
@@ -59,6 +60,9 @@ export const userSettingsTable = mysqlTable('user_settings', {
   })
     .default('Eden')
     .notNull(),
+  highlightClickedDragons: boolean('highlightClickedDragons')
+    .notNull()
+    .default(true),
 });
 
 export const hatcheryTable = mysqlTable(
@@ -111,6 +115,37 @@ export const recordingsTable = mysqlTable(
   }
 );
 
+export const clicksTable = mysqlTable(
+  'clicks',
+  {
+    hatchery_id: char('hatchery_id', {
+      length: 5,
+    })
+      .references(() => hatcheryTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    user_id: mediumint('user_id', {
+      unsigned: true,
+    })
+      .references(() => userTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    clicked_on: datetime('clicked_on')
+      .notNull()
+      .default(sql`NOW()`),
+  },
+  (table) => {
+    return {
+      hatchery_id_user_idIdx: unique('hatchery_id_user_id_idx').on(
+        table.hatchery_id,
+        table.user_id
+      ),
+    };
+  }
+);
+
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   gardenFrequency: (schema) => schema.gardenFrequency.default(30),
   gardenPerPage: (schema) => schema.gardenPerPage.min(10).default(100),
@@ -122,4 +157,6 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   showScrollRatio: (schema) => schema.showScrollRatio.default(true),
   autoSeedTray: (schema) => schema.autoSeedTray.default(true),
   siteName: (schema) => schema.siteName.default('Eden'),
+  highlightClickedDragons: (schema) =>
+    schema.highlightClickedDragons.default(true),
 }).omit({ user_id: true });
