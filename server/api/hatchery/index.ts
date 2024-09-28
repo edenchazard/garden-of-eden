@@ -1,4 +1,3 @@
-import type { H3Event } from 'h3';
 import { db } from '~/server/db';
 import { z } from 'zod';
 import { hatcheryTable } from '~/database/schema';
@@ -7,7 +6,7 @@ import { eq, sql } from 'drizzle-orm';
 type Area = 'garden' | 'seed_tray';
 
 const getCounts = defineCachedFunction(
-  async (event: H3Event, area: string) => {
+  async (_, area: string) => {
     const [{ total, scrolls }] = await db
       .select({
         total: sql<number>`COUNT(*)`.as('total'),
@@ -28,7 +27,7 @@ const getCounts = defineCachedFunction(
   },
   {
     maxAge: 60,
-    getKey: (event: H3Event, area: string) => area + '-counts',
+    getKey: (_, area: string) => area + '-counts',
   }
 );
 

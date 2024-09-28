@@ -12,18 +12,21 @@ export function useUserSettings(
 
   const newSettings = useState<Partial<UserSettings>>(() => ({}));
 
-  const { execute, status } = useCsrfFetch('/api/user/settings', {
+  const { execute, status } = useFetch('/api/user/settings', {
     method: 'PATCH',
     body: newSettings,
     immediate: false,
     watch: false,
+    headers: computed(() => ({
+      'Csrf-token': useCsrf().csrf,
+    })),
     onResponse({ response }) {
       if (!toastOnSave) {
         return;
       }
 
       if (response.ok) {
-        toast.success('Settings saved successfully');
+        toast.success('Settings saved successfully. :)');
       } else {
         toast.error('Failed to save settings. :( Please try again.');
       }
