@@ -56,7 +56,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const scroll = Object.values(scrollResponse.dragons);
-  const alive = scroll.filter((dragon) => dragon.hoursleft >= 0);
+  const alive = scroll
+    .filter((dragon) => dragon.hoursleft >= 0)
+    .map((dragon) => dragon.id);
 
   if (alive.length) {
     await db.transaction(async (tx) => {
@@ -65,22 +67,16 @@ export default defineEventHandler(async (event) => {
       await tx
         .update(hatcheryTable)
         .set({ user_id: token.userId })
+        .where(inArray(hatcheryTable.id, alive));
+
+      await tx
+        .delete(hatcheryTable)
         .where(
-          inArray(
-            hatcheryTable.id,
-            alive.map((dragon) => dragon.id)
+          and(
+            eq(hatcheryTable.user_id, token.userId),
+            notInArray(hatcheryTable.id, alive)
           )
         );
-
-      await tx.delete(hatcheryTable).where(
-        and(
-          eq(hatcheryTable.user_id, token.userId),
-          notInArray(
-            hatcheryTable.id,
-            alive.map((dragon) => dragon.id)
-          )
-        )
-      );
     });
   }
 
@@ -93,10 +89,7 @@ export default defineEventHandler(async (event) => {
       .from(clicksTable)
       .where(
         and(
-          inArray(
-            clicksTable.hatchery_id,
-            alive.map((dragon) => dragon.id)
-          ),
+          inArray(clicksTable.hatchery_id, alive),
           gt(clicksTable.clicked_on, startOfToday)
         )
       ),
@@ -113,13 +106,13 @@ export default defineEventHandler(async (event) => {
   return {
     details: clicksToday,
     dragons:
-      alive.map<ScrollView>((dragon) => {
+      alive.map<ScrollView>((id) => {
         const hatcheryDragon = usersDragonsInHatchery.find(
-          (row) => row.id === dragon.id
+          (row) => row.id === id
         );
 
         return {
-          ...dragon,
+          ...scrollResponse.dragons[id],
           in_garden: !!(hatcheryDragon?.in_garden ?? false),
           in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
         };
