@@ -10,7 +10,7 @@ export default defineCachedEventHandler(
         value: recordingsTable.value,
       })
       .from(recordingsTable)
-      .orderBy(recordingsTable.recorded_on, desc(recordingsTable.recorded_on))
+      .orderBy(desc(recordingsTable.recorded_on))
       .limit(48);
 
     const [scrolls, dragons] = await Promise.all([
