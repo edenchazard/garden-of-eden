@@ -14,10 +14,12 @@ export default defineEventHandler(async (event) => {
     getValidatedRouterParams(event, schema.parse),
   ]);
 
-  await db.insert(clicksTable).ignore().values({
-    hatchery_id: params.id,
-    user_id: token.userId,
-  });
+  if (token) {
+    await db.insert(clicksTable).ignore().values({
+      hatchery_id: params.id,
+      user_id: token.userId,
+    });
+  }
 
   return sendRedirect(event, `https://dragcave.net/view/${params.id}`);
 });
