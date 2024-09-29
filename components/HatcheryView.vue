@@ -96,9 +96,10 @@
         'bg-orange-100/30 dark:bg-sky-200/15 transition-colors':
           dragon.clicked_on && highlightClickedDragons,
       }"
-      :href="`https://dragcave.net/view/${dragon.id}`"
+      :href="`${path}/view/${dragon.id}`"
       target="_blank"
-      @click="trackClick(dragon)"
+      @onclick="trackClick(dragon)"
+      @mouseup="trackMouseClick(dragon, $event)"
     >
       <ClientOnly>
         <img
@@ -136,6 +137,9 @@ const perPage = defineModel<number>('perPage', { default: 100 });
 
 const loading = ref(false);
 
+const config = useRuntimeConfig();
+const path = config.public.origin + config.public.baseUrl;
+
 const {
   data: hatchery,
   execute: fetchHatchery,
@@ -167,21 +171,17 @@ const {
   computed(() => frequency.value * 1000)
 );
 
-async function trackClick(dragon: HatcheryDragon) {
+function trackClick(dragon: HatcheryDragon) {
   if (dragon.clicked_on) {
     return;
   }
 
-  await $fetch('/api/user/click', {
-    method: 'POST',
-    body: {
-      id: dragon.id,
-    },
-    headers: {
-      'Csrf-token': useCsrf().csrf,
-    },
-  });
-
   dragon.clicked_on = new Date();
+}
+
+function trackMouseClick(dragon: HatcheryDragon, event: MouseEvent) {
+  if ([0, 1].includes(event.button)) {
+    trackClick(dragon);
+  }
 }
 </script>
