@@ -20,6 +20,15 @@
               >[1]</a
             ></sup
           >
+          <p class="pl-6 italic block text-sm">
+            <template v-if="personalStats.not_clicked === 0">
+              (Nice job! You've clicked all the dragons in the garden for now.)
+            </template>
+            <template v-else>
+              (There are still {{ personalStats.not_clicked }} dragons in the
+              garden that you haven't clicked at all!)
+            </template>
+          </p>
         </li>
       </ul>
       <ol class="list-decimal list-inside text-sm mt-2">
