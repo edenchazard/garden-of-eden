@@ -136,8 +136,8 @@ const frequency = defineModel<number>('frequency', { default: 30 });
 const perPage = defineModel<number>('perPage', { default: 100 });
 
 const loading = ref(false);
-
 const config = useRuntimeConfig();
+const { data: authData } = useAuth();
 const path = config.public.origin + config.public.baseUrl;
 
 const {
@@ -172,7 +172,7 @@ const {
 );
 
 function trackClick(dragon: HatcheryDragon) {
-  if (dragon.clicked_on) {
+  if (dragon.clicked_on || !authData?.value?.user) {
     return;
   }
 
