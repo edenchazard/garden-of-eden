@@ -48,7 +48,7 @@ export async function cleanUp() {
 
         if (
           dragon.hoursleft < 0 ||
-          (hatcheryStatus?.in_seed_tray && !hatcheryStatus?.in_garden)
+          (!hatcheryStatus?.in_seed_tray && !hatcheryStatus?.in_garden)
         ) {
           removeFromHatchery.push(code);
         }
