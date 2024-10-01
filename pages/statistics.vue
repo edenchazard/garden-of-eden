@@ -39,55 +39,110 @@
       </ol>
     </section>
 
-    <section v-if="statisticsLoaded" class="space-y-8">
-      <h2>Garden statistics</h2>
-      <figure v-if="dragons" class="graph">
-        <div class="h-[31rem]">
-          <Line
-            :data="dragons"
-            class="w-full"
-            :options="{
-              normalized: true,
-              plugins: {
-                title: {
-                  text: 'Dragons in Garden',
-                },
-                legend: {
-                  display: false,
-                },
-              },
-            }"
-          />
-        </div>
-        <figcaption>Data taken in 30 minute intervals.</figcaption>
-      </figure>
+    <div v-if="statisticsLoaded" class="space-y-8">
+      <section>
+        <h2>Clicks</h2>
+        <p>
+          Since
+          {{
+            Intl.DateTimeFormat(undefined, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+            }).format(new Date('2024-09-28 20:55:00Z'))
+          }}, there have been a total of {{ clicksTotal }} clicks given by
+          generous gardeners.
+        </p>
 
-      <figure v-if="scrolls" class="graph">
-        <div class="h-[31rem]">
-          <Line
-            class="w-full"
-            :data="scrolls"
-            :options="{
-              normalized: true,
-              plugins: {
-                title: {
-                  text: 'Scrolls with Dragons',
-                },
-                legend: {
-                  display: false,
-                },
-              },
-            }"
-          />
+        <h3 class="mt-4">This week's top clickers</h3>
+        <p class="max-w-prose">
+          To get on the leaderboard , you must click at least 50 dragons during
+          the week. Be the envy of your fellow gardeners by making it to the
+          top!
+        </p>
+        <div class="max-w-sm mt-2">
+          <table class="w-full">
+            <thead>
+              <tr class="*:px-4 text-center divide-x border-b-2 *:py-2">
+                <th class="!px-2">Rank</th>
+                <th>Username</th>
+                <th>Clicks given</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white">
+              <tr
+                v-for="(user, $index) in clicksLeaderboard"
+                :key="$index"
+                class="*:px-4 *:py-1 divide-x"
+              >
+                <td>{{ $index + 1 }}</td>
+                <td v-if="user.username">{{ user.username }}</td>
+                <td v-else class="italic">(anonymous)</td>
+                <td>{{ user.clicks_given }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text-xs italic text-right">
+            (Resets in
+            {{
+              DateTime.now().startOf('week').plus({ weeks: 1 }).toRelative({
+                style: 'long',
+              })
+            }})
+          </p>
         </div>
-        <figcaption>Data taken in 30 minute intervals.</figcaption>
-      </figure>
-    </section>
+      </section>
+
+      <section>
+        <h2>Hatchery</h2>
+        <figure v-if="dragons" class="graph">
+          <div class="h-[31rem]">
+            <Line
+              :data="dragons"
+              class="w-full"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Dragons in Garden',
+                  },
+                  legend: {
+                    display: false,
+                  },
+                },
+              }"
+            />
+          </div>
+          <figcaption>Data taken in 30 minute intervals.</figcaption>
+        </figure>
+
+        <figure v-if="scrolls" class="graph">
+          <div class="h-[31rem]">
+            <Line
+              class="w-full"
+              :data="scrolls"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Scrolls with Dragons',
+                  },
+                  legend: {
+                    display: false,
+                  },
+                },
+              }"
+            />
+          </div>
+          <figcaption>Data taken in 30 minute intervals.</figcaption>
+        </figure>
+      </section>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { ChartData } from 'chart.js';
+import { DateTime } from 'luxon';
 import { Line } from 'vue-chartjs';
 
 useHead({
@@ -112,7 +167,11 @@ const { data } = useAuth();
 
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();
+const clicksLeaderboard = ref<
+  { username: string | null; clicks_given: number }[]
+>([]);
 const statisticsLoaded = ref(false);
+const clicksTotal = ref(0);
 
 function chartColourPalette(palette: string) {
   const defaultPalette = [
@@ -175,6 +234,9 @@ function renderCharts() {
       },
     ],
   };
+
+  clicksLeaderboard.value = statistics.clicksLeaderboard;
+  clicksTotal.value = statistics.clicksTotal;
 }
 </script>
 

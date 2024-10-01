@@ -43,6 +43,13 @@
       "when": 1727557434497,
       "tag": "0009_chunky_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1727817421343,
+      "tag": "0010_foamy_true_believers",
+      "breakpoints": true
     }
   ]
 }

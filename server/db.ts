@@ -8,4 +8,4 @@ export const pool = mysql.createPool({
   multipleStatements: true,
 });
 
-export const db = drizzle(pool, { schema, mode: 'default' });
+export const db = drizzle(pool, { schema, mode: 'default', logger: true });

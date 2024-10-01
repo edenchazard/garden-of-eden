@@ -108,6 +108,23 @@
           </li>
         </ul>
       </fieldset>
+
+      <fieldset>
+        <legend>Privacy</legend>
+        <p>Choose what data you want shared with others.</p>
+        <ul class="divide-y *:py-4">
+          <li class="flex items-center gap-x-2">
+            <input
+              id="anon-stats"
+              v-model="newSettings.anonymiseStatistics"
+              class="shrink-0"
+              type="checkbox"
+              :checked="newSettings.anonymiseStatistics"
+            />
+            <label for="anon-stats">Anonymise your statistics.</label>
+          </li>
+        </ul>
+      </fieldset>
       <button type="submit" class="btn-primary self-end" :disabled="canSave">
         <LoadingIcon v-if="saveSettingsStatus === 'pending'" class="mr-1" />
         {{ saveSettingsStatus === 'pending' ? 'Saving...' : 'Save' }}

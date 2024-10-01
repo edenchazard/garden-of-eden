@@ -63,6 +63,7 @@ export const userSettingsTable = mysqlTable('user_settings', {
   highlightClickedDragons: boolean('highlightClickedDragons')
     .notNull()
     .default(true),
+  anonymiseStatistics: boolean('anonymiseStatistics').notNull().default(false),
 });
 
 export const hatcheryTable = mysqlTable(
@@ -128,7 +129,7 @@ export const clicksTable = mysqlTable(
         onDelete: 'cascade',
       })
       .notNull(),
-    clicked_on: datetime('clicked_on')
+    clicked_on: datetime('clicked_on', { mode: 'date' })
       .notNull()
       .default(sql`NOW()`),
   },
@@ -138,6 +139,7 @@ export const clicksTable = mysqlTable(
         table.hatchery_id,
         table.user_id
       ),
+      clicked_onIdx: index('clicked_on_idx').on(table.clicked_on),
     };
   }
 );
@@ -155,4 +157,5 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   siteName: (schema) => schema.siteName.default('Eden'),
   highlightClickedDragons: (schema) =>
     schema.highlightClickedDragons.default(true),
+  anonymiseStatistics: (schema) => schema.anonymiseStatistics.default(false),
 }).omit({ user_id: true });
