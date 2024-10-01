@@ -44,7 +44,8 @@ export default defineCachedEventHandler(
           gte(clicksTable.clicked_on, DateTime.now().startOf('week').toJSDate())
         )
         .groupBy(userTable.id)
-        .orderBy(desc(sql`clicks_given`)),
+        .orderBy(desc(sql`clicks_given`))
+        .limit(10),
       db
         .select({ clicks_total: sql<number>`COUNT(*)`.as('clicks_total') })
         .from(clicksTable),
