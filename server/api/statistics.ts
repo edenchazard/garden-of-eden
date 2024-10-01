@@ -36,7 +36,10 @@ export default defineCachedEventHandler(
         })
         .from(clicksTable)
         .innerJoin(userTable, eq(userTable.id, clicksTable.user_id))
-        .innerJoin(userSettingsTable, eq(userTable.id, clicksTable.user_id))
+        .innerJoin(
+          userSettingsTable,
+          eq(userSettingsTable.user_id, clicksTable.user_id)
+        )
         .where(
           gte(clicksTable.clicked_on, DateTime.now().startOf('week').toJSDate())
         )
