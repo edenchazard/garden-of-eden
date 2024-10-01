@@ -28,6 +28,7 @@
     "chart.js": "^4.4.3",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
+    "luxon": "^3.5.0",
     "mariadb": "^3.3.1",
     "mysql2": "^3.11.0",
     "next-auth": "^4.21.1",
