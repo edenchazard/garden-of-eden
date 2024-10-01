@@ -55,9 +55,7 @@
 
         <h3 class="mt-4">This week's top clickers</h3>
         <p class="max-w-prose">
-          To get on the leaderboard , you must click at least 50 dragons during
-          the week. Be the envy of your fellow gardeners by making it to the
-          top!
+          Be the envy of your fellow gardeners by making it to the top!
         </p>
         <div class="max-w-sm mt-2">
           <table class="w-full">
