@@ -144,6 +144,37 @@ export const clicksTable = mysqlTable(
   }
 );
 
+export const clicksLeaderboardTable = mysqlTable(
+  'clicks_leaderboard',
+  {
+    user_id: mediumint('user_id', {
+      unsigned: true,
+    })
+      .references(() => userTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    leaderboard: varchar('leaderboard', {
+      enum: ['weekly', 'all time'],
+      length: 10,
+    }).notNull(),
+    start: datetime('start').notNull(),
+    rank: mediumint('rank', { unsigned: true }).notNull(),
+    clicks_given: bigint('clicks_given', { mode: 'number', unsigned: true })
+      .notNull()
+      .default(0),
+  },
+  (table) => {
+    return {
+      clicks_givenIdx: index('clicks_given_idx').on(table.clicks_given),
+      leaderboard_user_idIdx: unique('leaderboard_user_id_idx').on(
+        table.leaderboard,
+        table.user_id
+      ),
+    };
+  }
+);
+
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   gardenFrequency: (schema) => schema.gardenFrequency.default(30),
   gardenPerPage: (schema) => schema.gardenPerPage.min(10).default(100),
