@@ -86,7 +86,7 @@
             </tbody>
           </table>
           <div class="text-xs italic text-right">
-            <p>Refreshes in 5 minute intervals</p>
+            <p>Refreshes in 5 minute intervals.</p>
             <p>
               <ClientOnly>
                 (Resets in

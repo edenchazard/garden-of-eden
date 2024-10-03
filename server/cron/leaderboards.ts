@@ -4,7 +4,7 @@ import { clicksLeaderboardTable, clicksTable } from '~/database/schema';
 import { and, eq, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 
-export default defineCronHandler('everyMinute', async () => {
+export default defineCronHandler('everyFiveMinutes', async () => {
   const weekStart = DateTime.now().startOf('week');
 
   await db.transaction(async (tx) => {
