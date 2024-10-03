@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
             DateTime.now().startOf('week').toJSDate()
           ),
           or(
-            eq(clicksLeaderboardTable.user_id, token.userId),
+            eq(clicksLeaderboardTable.user_id, token?.userId),
             lte(clicksLeaderboardTable.rank, 10)
           )
         )
