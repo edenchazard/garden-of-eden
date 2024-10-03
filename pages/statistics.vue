@@ -39,21 +39,22 @@
       </ol>
     </section>
 
-    <div v-if="statisticsLoaded" class="space-y-8">
+    <div class="space-y-8">
       <section>
         <h2>Clicks</h2>
         <p>
           Since
-          {{
+          <ClientOnly>{{
             Intl.DateTimeFormat(undefined, {
               dateStyle: 'medium',
               timeStyle: 'short',
             }).format(new Date('2024-09-28 20:55:00Z'))
-          }}, there have been a total of {{ clicksTotal }} clicks given by
-          generous gardeners.
+          }}</ClientOnly
+          >, {{ Intl.NumberFormat().format(stats.clicksTotalAllTime) }} clicks
+          have been given by generous gardeners.
         </p>
 
-        <h3 class="mt-4">This week's top clickers</h3>
+        <h3 class="mt-4 font-bold">This week's top clickers</h3>
         <p class="max-w-prose">
           Be the envy of your fellow gardeners by making it to the top!
         </p>
@@ -68,25 +69,35 @@
             </thead>
             <tbody class="divide-y divide-white">
               <tr
-                v-for="(user, $index) in clicksLeaderboard"
-                :key="$index"
+                v-for="user in stats?.clicksLeaderboard"
+                :key="user.rank"
                 class="*:px-4 *:py-1 divide-x"
+                :class="{
+                  'bg-green-900 dark:bg-stone-700':
+                    user.username === data?.user?.username,
+                  '!border-t-2 font-bold': user.rank > 10,
+                }"
               >
-                <td>{{ $index + 1 }}</td>
+                <td class="text-right">#{{ user.rank }}</td>
                 <td v-if="user.username">{{ user.username }}</td>
                 <td v-else class="italic">(anonymous)</td>
-                <td>{{ user.clicks_given }}</td>
+                <td>{{ Intl.NumberFormat().format(user.clicks_given) }}</td>
               </tr>
             </tbody>
           </table>
-          <p class="text-xs italic text-right">
-            (Resets in
-            {{
-              DateTime.now().startOf('week').plus({ weeks: 1 }).toRelative({
-                style: 'long',
-              })
-            }})
-          </p>
+          <div class="text-xs italic text-right">
+            <p>Refreshes in 5 minute intervals</p>
+            <p>
+              <ClientOnly>
+                (Resets in
+                {{
+                  DateTime.now().startOf('week').plus({ weeks: 1 }).toRelative({
+                    style: 'long',
+                  })
+                }})
+              </ClientOnly>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -155,21 +166,25 @@ const { data: personalStats } = await useFetch('/api/user/statistics', {
   })),
 });
 
-const { data: stats, execute: fetchStats } = useFetch('/api/statistics', {
+const { data: stats } = await useFetch('/api/statistics', {
   watch: false,
   headers: computed(() => ({
     'Csrf-token': useCsrf().csrf,
   })),
+  default: () => ({
+    clicksTotalAllTime: 0,
+    clicksLeaderboard: [],
+    dragons: [],
+    scrolls: [],
+  }),
 });
+
 const { data } = useAuth();
 
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();
-const clicksLeaderboard = ref<
-  { username: string | null; clicks_given: number }[]
->([]);
-const statisticsLoaded = ref(false);
-const clicksTotal = ref(0);
+
+onNuxtReady(() => renderCharts());
 
 function chartColourPalette(palette: string) {
   const defaultPalette = [
@@ -188,12 +203,6 @@ function chartColourPalette(palette: string) {
     }[palette] ?? defaultPalette
   );
 }
-
-onNuxtReady(async () => {
-  await fetchStats();
-  renderCharts();
-  statisticsLoaded.value = true;
-});
 
 watch(() => useColorMode().value, renderCharts);
 
@@ -232,9 +241,6 @@ function renderCharts() {
       },
     ],
   };
-
-  clicksLeaderboard.value = statistics.clicksLeaderboard;
-  clicksTotal.value = statistics.clicksTotal;
 }
 </script>
 
