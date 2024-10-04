@@ -89,7 +89,7 @@
             <p>Refreshes in 5 minute intervals.</p>
             <p>
               <ClientOnly>
-                (Resets in
+                (Resets
                 {{
                   DateTime.now().startOf('week').plus({ weeks: 1 }).toRelative({
                     style: 'long',
