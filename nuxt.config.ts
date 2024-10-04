@@ -76,7 +76,7 @@ export default defineNuxtConfig({
     jobsDir: 'cron',
   },
   robots: {
-    disallow: ['/api'],
+    disallow: ['/api', '/view'],
   },
   security: {
     rateLimiter: false,

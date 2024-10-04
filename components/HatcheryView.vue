@@ -98,6 +98,7 @@
       }"
       :href="`${path}/view/${dragon.id}`"
       target="_blank"
+      rel="nofollow"
       @onclick="trackClick(dragon)"
       @mouseup="trackMouseClick(dragon, $event)"
     >
