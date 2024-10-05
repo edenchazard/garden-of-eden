@@ -71,4 +71,10 @@ export default defineCronHandler('everyFiveMinutes', async () => {
         ORDER BY clicks_given DESC
       ) AS leaderboard`);
   });
+
+  // Clear totals.
+  await Promise.all([
+    useStorage('cache').removeItem('statistics:clickTotals:allTime.json'),
+    useStorage('cache').removeItem('statistics:clickTotals:thisWeek.json'),
+  ]);
 });

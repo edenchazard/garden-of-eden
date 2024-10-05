@@ -24,8 +24,10 @@ const clicksTotalAllTimeCached = defineCachedFunction(
     return data;
   },
   {
-    maxAge: 30,
-    getKey: () => 'clicksTotalAllTime',
+    maxAge: 60 * 10,
+    group: 'statistics',
+    name: 'clickTotals',
+    getKey: () => 'allTime',
   }
 );
 
@@ -51,8 +53,10 @@ const clicksTotalThisWeekCached = defineCachedFunction(
     return data;
   },
   {
-    maxAge: 30,
-    getKey: () => 'clicksTotalThisWeek',
+    maxAge: 60 * 10,
+    group: 'statistics',
+    name: 'clickTotals',
+    getKey: () => 'thisWeek',
   }
 );
 
@@ -73,7 +77,12 @@ const totalScrollsCached = defineCachedFunction(
     );
     return data;
   },
-  { maxAge: 30, getKey: () => 'totalScrolls' }
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'scrolls',
+  }
 );
 
 const totalDragonsCached = defineCachedFunction(
@@ -84,7 +93,12 @@ const totalDragonsCached = defineCachedFunction(
 
     return data;
   },
-  { maxAge: 30, getKey: () => 'totalDragons' }
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'dragons',
+  }
 );
 
 export default defineEventHandler(async (event) => {

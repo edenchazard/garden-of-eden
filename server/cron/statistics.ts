@@ -14,4 +14,10 @@ export default defineCronHandler('everyThirtyMinutes', async () => {
       record_type: 'total_scrolls',
     },
   ]);
+
+  // Clear totals.
+  await Promise.all([
+    useStorage('cache').removeItem('statistics:hatcheryTotals:dragons.json'),
+    useStorage('cache').removeItem('statistics:hatcheryTotals:scrolls.json'),
+  ]);
 });
