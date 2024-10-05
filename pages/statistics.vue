@@ -25,7 +25,7 @@
               (Nice job! You've clicked all the dragons in the garden for now.)
             </template>
             <template v-else>
-              (There are still {{ personalStats.not_clicked }} dragons in the
+              (There's still {{ personalStats.not_clicked }} dragons in the
               garden that you haven't clicked at all!)
             </template>
           </p>
@@ -41,61 +41,76 @@
 
     <div class="space-y-8">
       <section>
-        <h2>Clicks</h2>
-        <p>
-          Since
-          <ClientOnly>{{
-            Intl.DateTimeFormat(undefined, {
-              dateStyle: 'medium',
-              timeStyle: 'short',
-            }).format(new Date('2024-09-28 20:55:00Z'))
-          }}</ClientOnly
-          >, {{ Intl.NumberFormat().format(stats.clicksTotalAllTime) }} clicks
-          have been given by generous gardeners.
-        </p>
-
-        <h3 class="mt-4 font-bold">This week's top clickers</h3>
-        <p class="max-w-prose">
-          Be the envy of your fellow gardeners by making it to the top!
-        </p>
-        <div class="max-w-sm mt-2">
-          <table class="w-full">
-            <thead>
-              <tr class="*:px-4 text-center divide-x border-b-2 *:py-2">
-                <th class="!px-2">Rank</th>
-                <th>Username</th>
-                <th>Clicks given</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-white">
-              <tr
-                v-for="user in stats?.clicksLeaderboard"
-                :key="user.rank"
-                class="*:px-4 *:py-1 divide-x"
-                :class="{
-                  'bg-green-900 dark:bg-stone-700':
-                    user.username === data?.user?.username,
-                  '!border-t-2 font-bold': user.rank > 10,
-                }"
-              >
-                <td class="text-right">#{{ user.rank }}</td>
-                <td v-if="user.username">{{ user.username }}</td>
-                <td v-else class="italic">(anonymous)</td>
-                <td>{{ Intl.NumberFormat().format(user.clicks_given) }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="text-xs italic text-right">
-            <p>Refreshes in 5 minute intervals.</p>
-            <p>
+        <div class="max-w-prose">
+          <h2>Clicks</h2>
+          <p>
+            It's thanks to generous gardeners such as yourself that plants grow
+            so well.
+          </p>
+          <p class="text-sm">
+            (You can configure the visibility of your name
+            <RouterLink to="/settings">in your settings</RouterLink>.)
+          </p>
+          <p class="italic text-sm">Refreshes in 5 minute intervals.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-y-4 gap-x-8 justify-between">
+          <div>
+            <h3 class="mt-4 font-bold">This week's top clickers</h3>
+            <p class="max-w-prose">
+              Be the envy of your fellow gardeners by making it to the top!
+            </p>
+          </div>
+          <div class="col-start-1 md:row-start-2">
+            <Leaderboard
+              :leaderboard="stats.clicksThisWeekLeaderboard"
+              :total="stats.clicksTotalThisWeek"
+            />
+            <div class="text-xs italic text-right">
+              <p>
+                <ClientOnly>
+                  Tracking since
+                  {{
+                    DateTime.now().startOf('week').toLocaleString({
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })
+                  }}
+                  &mdash; Resets
+                  {{
+                    DateTime.now()
+                      .startOf('week')
+                      .plus({ weeks: 1 })
+                      .toRelative({
+                        style: 'long',
+                      })
+                  }}
+                </ClientOnly>
+              </p>
+            </div>
+          </div>
+          <div class="max-w-sm">
+            <h3 class="mt-4 font-bold">All-time top clickers</h3>
+            <p class="max-w-prose">
+              The leaderboard for the most gardencore of gardeners. A spot on
+              the prestigious &quot;all-time&quot; will make you known as a
+              <abbr title="Gardener of all time">GOAT</abbr> 🐐.
+            </p>
+          </div>
+          <div class="md:col-start-2 md:row-start-2">
+            <Leaderboard
+              :leaderboard="stats.clicksAllTimeLeaderboard"
+              :total="stats.clicksTotalAllTime"
+            />
+            <p class="text-xs italic text-right">
               <ClientOnly>
-                (Resets
+                Tracking since
                 {{
-                  DateTime.now().startOf('week').plus({ weeks: 1 }).toRelative({
-                    style: 'long',
-                  })
-                }})
-              </ClientOnly>
+                  Intl.DateTimeFormat(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  }).format(new Date('2024-09-28 20:55:00Z'))
+                }}</ClientOnly
+              >
             </p>
           </div>
         </div>
@@ -173,7 +188,9 @@ const { data: stats } = await useFetch('/api/statistics', {
   })),
   default: () => ({
     clicksTotalAllTime: 0,
-    clicksLeaderboard: [],
+    clicksTotalThisWeek: 0,
+    clicksThisWeekLeaderboard: [],
+    clicksAllTimeLeaderboard: [],
     dragons: [],
     scrolls: [],
   }),

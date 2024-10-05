@@ -4,7 +4,6 @@ import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
 import {
   clicksLeaderboardTable,
-  clicksTable,
   recordingsTable,
   userSettingsTable,
   userTable,
@@ -15,14 +14,45 @@ const clicksTotalAllTimeCached = defineCachedFunction(
   async () => {
     const data = await db
       .select({
-        clicks_total: sql<number>`COUNT(*)`.as('clicks_total'),
+        clicks_total:
+          sql<string>`SUM(${clicksLeaderboardTable.clicks_given})`.as(
+            'clicks_total'
+          ),
       })
-      .from(clicksTable);
+      .from(clicksLeaderboardTable)
+      .where(eq(clicksLeaderboardTable.leaderboard, 'all time'));
     return data;
   },
   {
     maxAge: 30,
     getKey: () => 'clicksTotalAllTime',
+  }
+);
+
+const clicksTotalThisWeekCached = defineCachedFunction(
+  async () => {
+    const data = await db
+      .select({
+        clicks_this_week:
+          sql<string>`SUM(${clicksLeaderboardTable.clicks_given})`.as(
+            'clicks_this_week'
+          ),
+      })
+      .from(clicksLeaderboardTable)
+      .where(
+        and(
+          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
+          eq(
+            clicksLeaderboardTable.start,
+            DateTime.now().startOf('week').toJSDate()
+          )
+        )
+      );
+    return data;
+  },
+  {
+    maxAge: 30,
+    getKey: () => 'clicksTotalThisWeek',
   }
 );
 
@@ -63,8 +93,10 @@ export default defineEventHandler(async (event) => {
   const [
     scrolls,
     dragons,
-    clicksLeaderboard,
+    clicksThisWeekLeaderboard,
+    clicksAllTimeLeaderboard,
     [{ clicks_total: clicksTotalAllTime }],
+    [{ clicks_this_week: clicksTotalThisWeek }],
   ] = await Promise.all([
     totalScrollsCached(),
     totalDragonsCached(),
@@ -96,7 +128,32 @@ export default defineEventHandler(async (event) => {
       )
       .orderBy(clicksLeaderboardTable.rank)
       .limit(11),
+    db
+      .select({
+        anonymiseStatistics: userSettingsTable.anonymiseStatistics,
+        rank: clicksLeaderboardTable.rank,
+        username: userTable.username,
+        clicks_given: clicksLeaderboardTable.clicks_given,
+      })
+      .from(clicksLeaderboardTable)
+      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
+      .innerJoin(
+        userSettingsTable,
+        eq(userSettingsTable.user_id, clicksLeaderboardTable.user_id)
+      )
+      .where(
+        and(
+          eq(clicksLeaderboardTable.leaderboard, 'all time'),
+          or(
+            eq(clicksLeaderboardTable.user_id, token?.userId),
+            lte(clicksLeaderboardTable.rank, 10)
+          )
+        )
+      )
+      .orderBy(clicksLeaderboardTable.rank)
+      .limit(11),
     clicksTotalAllTimeCached(),
+    clicksTotalThisWeekCached(),
   ]);
 
   // since we got them in descending order (latest 48),
@@ -107,11 +164,17 @@ export default defineEventHandler(async (event) => {
   return {
     scrolls,
     dragons,
-    clicksLeaderboard: clicksLeaderboard.map((row) => ({
+    clicksThisWeekLeaderboard: clicksThisWeekLeaderboard.map((row) => ({
       rank: row.rank,
       username: row.anonymiseStatistics ? null : row.username,
       clicks_given: row.clicks_given,
     })),
-    clicksTotalAllTime,
+    clicksAllTimeLeaderboard: clicksAllTimeLeaderboard.map((row) => ({
+      rank: row.rank,
+      username: row.anonymiseStatistics ? null : row.username,
+      clicks_given: row.clicks_given,
+    })),
+    clicksTotalAllTime: parseInt(clicksTotalAllTime),
+    clicksTotalThisWeek: parseInt(clicksTotalThisWeek),
   };
 });
