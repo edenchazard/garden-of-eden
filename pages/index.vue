@@ -48,6 +48,22 @@
             <b class="font-bold">{{ scroll.details.clicks_today }}</b> clicks in
             the last 24 hours from other gardeners.
           </p>
+          <div class="text-sm">
+            <p v-if="eggClosestToHatching?.hoursleft <= 96">
+              Next egg can hatch now.
+            </p>
+            <p v-else-if="eggClosestToHatching">
+              Next egg could hatch in
+              {{ eggClosestToHatching.hoursleft - 96 }} hours.
+            </p>
+            <p v-if="hatchlingClosestToGrowing?.hoursleft <= 96">
+              Next hatchling could grow now.
+            </p>
+            <p v-else-if="hatchlingClosestToGrowing">
+              Next hatchling could grow in
+              {{ hatchlingClosestToGrowing.hoursleft - 96 }} hours.
+            </p>
+          </div>
         </template>
       </div>
 
@@ -250,6 +266,30 @@ const {
 
 const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes('pending')
+);
+
+const eggClosestToHatching = computed(() =>
+  scroll.value.dragons
+    .filter((dragon) => dragon.hatch === '0')
+    .reduce(
+      (minDragon, currentDragon) =>
+        currentDragon.hoursleft < minDragon.hoursleft
+          ? currentDragon
+          : minDragon,
+      scroll.value.dragons[0]
+    )
+);
+
+const hatchlingClosestToGrowing = computed(() =>
+  scroll.value.dragons
+    .filter((dragon) => dragon.hatch !== '0')
+    .reduce(
+      (minDragon, currentDragon) =>
+        currentDragon.hoursleft < minDragon.hoursleft
+          ? currentDragon
+          : minDragon,
+      scroll.value.dragons[0]
+    )
 );
 
 watch(
