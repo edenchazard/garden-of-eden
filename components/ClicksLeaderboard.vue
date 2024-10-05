@@ -25,7 +25,7 @@
       </tr>
     </tbody>
     <tfoot class="font-bold">
-      <tr class="*:px-4 divide-x border-t-4 border-white">
+      <tr class="*:px-4 divide-x border-t-4">
         <td colspan="2">Total</td>
         <td>
           {{ Intl.NumberFormat().format(total) }}

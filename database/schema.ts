@@ -167,8 +167,9 @@ export const clicksLeaderboardTable = mysqlTable(
   (table) => {
     return {
       clicks_givenIdx: index('clicks_given_idx').on(table.clicks_given),
-      leaderboard_user_idIdx: unique('leaderboard_user_id_idx').on(
+      leaderboard_start_user_idIdx: unique('leaderboard_start_user_idIdx').on(
         table.leaderboard,
+        table.start,
         table.user_id
       ),
     };

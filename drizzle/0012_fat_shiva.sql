@@ -1,0 +1,2 @@
+ALTER TABLE `clicks_leaderboard` DROP INDEX `leaderboard_user_id_idx`;--> statement-breakpoint
+ALTER TABLE `clicks_leaderboard` ADD CONSTRAINT `leaderboard_start_user_idIdx` UNIQUE(`leaderboard`,`start`,`user_id`);

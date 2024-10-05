@@ -61,7 +61,7 @@
             </p>
           </div>
           <div class="col-start-1 md:row-start-2">
-            <Leaderboard
+            <ClicksLeaderboard
               :leaderboard="stats.clicksThisWeekLeaderboard"
               :total="stats.clicksTotalThisWeek"
             />
@@ -97,7 +97,7 @@
             </p>
           </div>
           <div class="md:col-start-2 md:row-start-2">
-            <Leaderboard
+            <ClicksLeaderboard
               :leaderboard="stats.clicksAllTimeLeaderboard"
               :total="stats.clicksTotalAllTime"
             />
