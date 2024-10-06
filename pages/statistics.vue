@@ -70,20 +70,26 @@
                 <ClientOnly>
                   Tracking since
                   {{
-                    DateTime.now().startOf('week').toLocaleString({
+                    DateTime.fromISO(stats.weekStart).toLocaleString({
                       dateStyle: 'medium',
                       timeStyle: 'short',
                     })
                   }}
-                  &mdash; Resets
-                  {{
-                    DateTime.now()
-                      .startOf('week')
-                      .plus({ weeks: 1 })
-                      .toRelative({
+                  &mdash;
+                  <span
+                    :title="
+                      DateTime?.fromISO(stats.weekEnd).toLocaleString({
+                        dateStyle: 'medium',
+                        timeStyle: 'medium',
+                      }) ?? undefined
+                    "
+                    >Resets
+                    {{
+                      DateTime.fromISO(stats.weekEnd).toRelative({
                         style: 'long',
                       })
-                  }}
+                    }}</span
+                  >
                 </ClientOnly>
               </p>
             </div>
@@ -193,6 +199,8 @@ const { data: stats } = await useFetch('/api/statistics', {
     clicksAllTimeLeaderboard: [],
     dragons: [],
     scrolls: [],
+    weekEnd: DateTime.now().toISO(),
+    weekStart: DateTime.now().toISO(),
   }),
 });
 

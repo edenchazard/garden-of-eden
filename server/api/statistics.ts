@@ -103,6 +103,8 @@ const totalDragonsCached = defineCachedFunction(
 
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
+  const weekStart = DateTime.now().startOf('week');
+  const weekEnd = weekStart.endOf('week');
 
   const [
     scrolls,
@@ -130,10 +132,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-          gte(
-            clicksLeaderboardTable.start,
-            DateTime.now().startOf('week').toJSDate()
-          ),
+          gte(clicksLeaderboardTable.start, weekStart.toJSDate()),
           or(
             eq(clicksLeaderboardTable.user_id, token?.userId),
             lte(clicksLeaderboardTable.rank, 10)
@@ -190,5 +189,7 @@ export default defineEventHandler(async (event) => {
     })),
     clicksTotalAllTime: parseInt(clicksTotalAllTime),
     clicksTotalThisWeek: parseInt(clicksTotalThisWeek),
+    weekStart: weekStart.toISO(),
+    weekEnd: weekEnd.toISO(),
   };
 });
