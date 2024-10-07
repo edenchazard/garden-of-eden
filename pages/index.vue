@@ -282,7 +282,7 @@ const eggClosestToHatching = computed(() =>
 
 const hatchlingClosestToGrowing = computed(() =>
   scroll.value.dragons
-    .filter((dragon) => dragon.hatch !== '0')
+    .filter((dragon) => dragon.hatch !== '0' && dragon.grow === '0')
     .reduce(
       (minDragon, currentDragon) =>
         currentDragon.hoursleft < minDragon.hoursleft
