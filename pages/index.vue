@@ -43,10 +43,12 @@
             get some!
           </p>
           <p>Hidden dragons are not shown and will be regularly removed.</p>
-          <p>
-            Your dragons have had
-            <b class="font-bold">{{ scroll.details.clicks_today }}</b> clicks in
-            the last 24 hours from other gardeners.
+          <p class="text-sm">
+            Your dragons have received
+            <b class="font-bold">{{
+              Intl.NumberFormat().format(scroll.details.clicks_today)
+            }}</b>
+            clicks in the last 24 hours from other gardeners.
           </p>
           <div class="text-sm">
             <p v-if="eggClosestToHatching?.hoursleft <= 96">
@@ -54,14 +56,16 @@
             </p>
             <p v-else-if="eggClosestToHatching">
               Next egg could hatch in
-              {{ eggClosestToHatching.hoursleft - 96 }} hours.
+              {{ eggClosestToHatching.hoursleft - 96 }}
+              {{ pluralise('hour', eggClosestToHatching.hoursleft - 96) }}.
             </p>
             <p v-if="hatchlingClosestToGrowing?.hoursleft <= 96">
               Next hatchling could grow now.
             </p>
             <p v-else-if="hatchlingClosestToGrowing">
               Next hatchling could grow in
-              {{ hatchlingClosestToGrowing.hoursleft - 96 }} hours.
+              {{ hatchlingClosestToGrowing.hoursleft - 96 }}
+              {{ pluralise('hour', hatchlingClosestToGrowing.hoursleft - 96) }}.
             </p>
           </div>
         </template>
@@ -194,6 +198,7 @@
 </template>
 
 <script lang="ts" setup>
+import { pluralise } from '#imports';
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 

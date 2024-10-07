@@ -14,8 +14,8 @@
       <h2>Personal statistics</h2>
       <ul class="list-disc list-inside space-y-2">
         <li>
-          {{ personalStats.clicked_24 }} unique dragons clicked in the last 24
-          hours.<sup
+          {{ Intl.NumberFormat().format(personalStats.clicked_24) }} unique
+          dragons clicked in the last 24 hours.<sup
             ><a href="#personal-1" class="!decoration-transparent ml-2"
               >[1]</a
             ></sup
@@ -25,8 +25,10 @@
               (Nice job! You've clicked all the dragons in the garden for now.)
             </template>
             <template v-else>
-              (There's still {{ personalStats.not_clicked }} dragons in the
-              garden that you haven't clicked at all!)
+              (There's still
+              {{ Intl.NumberFormat().format(personalStats.not_clicked) }}
+              {{ pluralise('dragon', personalStats.not_clicked) }} in the garden
+              that you haven't clicked!)
             </template>
           </p>
         </li>
@@ -174,6 +176,7 @@
 import type { ChartData } from 'chart.js';
 import { DateTime } from 'luxon';
 import { Line } from 'vue-chartjs';
+import { pluralise } from '#imports';
 
 useHead({
   title: 'Statistics',
