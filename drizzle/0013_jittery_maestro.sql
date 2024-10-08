@@ -1,0 +1,1 @@
+CREATE INDEX `user_id_clicked_on_idx` ON `clicks` (`user_id`,`clicked_on`);

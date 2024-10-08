@@ -139,6 +139,10 @@ export const clicksTable = mysqlTable(
         table.hatchery_id,
         table.user_id
       ),
+      user_id_clicked_onIdx: index('user_id_clicked_on_idx').on(
+        table.user_id,
+        table.clicked_on
+      ),
       clicked_onIdx: index('clicked_on_idx').on(table.clicked_on),
     };
   }
