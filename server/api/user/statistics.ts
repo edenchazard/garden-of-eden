@@ -1,4 +1,4 @@
-import { and, eq, gt, notInArray, sql } from 'drizzle-orm';
+import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable } from '~/database/schema';
 import { db } from '~/server/db';
@@ -24,15 +24,14 @@ export default defineEventHandler(async (event) => {
       db
         .select({ not_clicked: sql<number>`COUNT(*)`.as('not_clicked') })
         .from(hatcheryTable)
-        .where(
-          notInArray(
-            hatcheryTable.id,
-            db
-              .select({ hatchery_id: clicksTable.hatchery_id })
-              .from(clicksTable)
-              .where(eq(clicksTable.user_id, token.userId))
+        .leftJoin(
+          clicksTable,
+          and(
+            eq(hatcheryTable.id, clicksTable.hatchery_id),
+            eq(clicksTable.user_id, token.userId)
           )
-        ),
+        )
+        .where(isNull(clicksTable.user_id)),
     ])
   )
     .flat()
