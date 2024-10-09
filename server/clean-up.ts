@@ -18,6 +18,16 @@ export async function cleanUp() {
 
   const removeFromSeedTray: string[] = [];
   const removeFromHatchery: string[] = [];
+  let hatchlings = 0;
+  let eggs = 0;
+  let adults = 0;
+  let dead = 0;
+  let male = 0;
+  let female = 0;
+  let ungendered = 0;
+  let caveborn = 0;
+  let lineaged = 0;
+
   const chunkedDragons = chunkArray(hatcheryDragons, 400);
 
   await Promise.allSettled(
@@ -52,6 +62,36 @@ export async function cleanUp() {
         ) {
           removeFromHatchery.push(code);
         }
+
+        if (dragon.grow !== '0') {
+          adults++;
+        } else if (dragon.death === '0' && dragon.hatch !== '0') {
+          hatchlings++;
+        } else if (dragon.death === '0') {
+          eggs++;
+        } else if (dragon.death !== '0') {
+          dead++;
+        }
+
+        // not hidden, frozen, adult or dead.
+        if (dragon.hoursleft > -1) {
+          if (dragon.parent_f || dragon.parent_m) {
+            lineaged++;
+          } else {
+            caveborn++;
+          }
+
+          // filter to only record hatchlings
+          if (dragon.grow === '0' && dragon.hatch !== '0') {
+            if (dragon.gender === 'Female') {
+              female++;
+            } else if (dragon.gender === 'Male') {
+              male++;
+            } else {
+              ungendered++;
+            }
+          }
+        }
       }
     })
   );
@@ -78,9 +118,47 @@ export async function cleanUp() {
 
   const end = new Date().getTime();
 
-  await db.insert(recordingsTable).values({
-    value: successfullyRemoved,
-    record_type: 'removed',
-    extra: { duration: end - start },
-  });
+  await db.insert(recordingsTable).values([
+    {
+      value: successfullyRemoved,
+      record_type: 'removed',
+      extra: { duration: end - start },
+    },
+    {
+      value: hatchlings,
+      record_type: 'hatchlings',
+    },
+    {
+      value: eggs,
+      record_type: 'eggs',
+    },
+    {
+      value: adults,
+      record_type: 'adults',
+    },
+    {
+      value: dead,
+      record_type: 'dead',
+    },
+    {
+      value: female,
+      record_type: 'hatchlings_female',
+    },
+    {
+      value: male,
+      record_type: 'hatchlings_male',
+    },
+    {
+      value: ungendered,
+      record_type: 'hatchlings_ungendered',
+    },
+    {
+      value: caveborn,
+      record_type: 'caveborn',
+    },
+    {
+      value: lineaged,
+      record_type: 'lineaged',
+    },
+  ]);
 }
