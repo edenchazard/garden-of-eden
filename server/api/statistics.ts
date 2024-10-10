@@ -118,9 +118,13 @@ export default defineEventHandler(async (event) => {
     totalDragonsCached(),
     db
       .select({
-        anonymiseStatistics: userSettingsTable.anonymiseStatistics,
         rank: clicksLeaderboardTable.rank,
-        username: userTable.username,
+        username: sql<string>`
+          CASE
+            WHEN (${clicksLeaderboardTable.user_id} = ${token.userId} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+            WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
+            ELSE ${userTable.username}
+          END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
       })
       .from(clicksLeaderboardTable)
@@ -143,9 +147,13 @@ export default defineEventHandler(async (event) => {
       .limit(11),
     db
       .select({
-        anonymiseStatistics: userSettingsTable.anonymiseStatistics,
         rank: clicksLeaderboardTable.rank,
-        username: userTable.username,
+        username: sql<string>`
+          CASE
+            WHEN (${clicksLeaderboardTable.user_id} = ${token.userId} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+            WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
+            ELSE ${userTable.username}
+          END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
       })
       .from(clicksLeaderboardTable)
@@ -177,16 +185,8 @@ export default defineEventHandler(async (event) => {
   return {
     scrolls,
     dragons,
-    clicksThisWeekLeaderboard: clicksThisWeekLeaderboard.map((row) => ({
-      rank: row.rank,
-      username: row.anonymiseStatistics ? null : row.username,
-      clicks_given: row.clicks_given,
-    })),
-    clicksAllTimeLeaderboard: clicksAllTimeLeaderboard.map((row) => ({
-      rank: row.rank,
-      username: row.anonymiseStatistics ? null : row.username,
-      clicks_given: row.clicks_given,
-    })),
+    clicksThisWeekLeaderboard,
+    clicksAllTimeLeaderboard,
     clicksTotalAllTime: parseInt(clicksTotalAllTime),
     clicksTotalThisWeek: parseInt(clicksTotalThisWeek),
     weekStart: weekStart.toISO(),
