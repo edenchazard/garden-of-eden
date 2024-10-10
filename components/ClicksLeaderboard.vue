@@ -14,13 +14,15 @@
         class="*:px-4 *:py-1 divide-x"
         :class="{
           'bg-green-900 dark:bg-stone-700':
-            user.username === data?.user?.username,
-          '!border-t-2 font-bold': user.rank > 10,
+            user.username === data?.user?.username || user.username === '-1',
+          '!border-t-2': user.rank > 10,
         }"
       >
         <td class="text-right">#{{ user.rank }}</td>
-        <td v-if="user.username">{{ user.username }}</td>
-        <td v-else class="italic">(anonymous)</td>
+        <td v-if="['-1', '-2'].includes(user.username)" class="italic">
+          (anonymous)
+        </td>
+        <td v-else>{{ user.username }}</td>
         <td>{{ Intl.NumberFormat().format(user.clicks_given) }}</td>
       </tr>
     </tbody>
@@ -40,7 +42,7 @@ withDefaults(
   defineProps<{
     leaderboard: Array<{
       rank: number;
-      username: string | null;
+      username: string;
       clicks_given: number;
     }>;
     total: number;
