@@ -4,7 +4,7 @@
       <tr class="*:px-4 text-center divide-x border-b-2 *:py-2">
         <th class="!px-2">Rank</th>
         <th>Username</th>
-        <th>Clicks given</th>
+        <th>Clicks</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-white">
