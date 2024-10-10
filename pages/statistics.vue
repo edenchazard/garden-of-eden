@@ -51,7 +51,8 @@
           </p>
           <p class="text-sm">
             (You can configure the visibility of your name
-            <RouterLink to="/settings">in your settings</RouterLink>.)
+            <RouterLink to="/settings#anon-stats">in your settings</RouterLink
+            >.)
           </p>
           <p class="italic text-sm">Refreshes in 5 minute intervals.</p>
         </div>
