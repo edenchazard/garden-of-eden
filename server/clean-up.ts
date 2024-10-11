@@ -27,7 +27,7 @@ export async function cleanUp() {
         dragons: Record<string, DragonData>;
       }>(`https://dragcave.net/api/v2/dragons`, {
         method: 'POST',
-        timeout: 10000,
+        timeout: 20000,
         headers: {
           Authorization: `Bearer ${clientSecret}`,
           'Content-Type': 'application/x-www-form-urlencoded',
