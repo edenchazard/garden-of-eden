@@ -89,6 +89,20 @@ export default NuxtAuthHandler({
         token.userId = parseInt(user.id);
       }
 
+      // only update last activity if it's been more than 5 minutes
+      const now = new Date();
+      if (
+        token.userId &&
+        (token.lastActivityTimestamp ?? 0) < now.getTime() - 1000 * 60 * 5
+      ) {
+        token.lastActivityTimestamp = now.getTime();
+
+        await db
+          .update(userTable)
+          .set({ last_activity: now })
+          .where(eq(userTable.id, token.userId));
+      }
+
       return token;
     },
     async session({ session, token }) {

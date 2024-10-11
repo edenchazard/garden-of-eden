@@ -6,6 +6,7 @@ declare module 'next-auth/jwt' {
     username?: string;
     sessionToken?: string;
     userId: number;
+    lastActivityTimestamp?: number;
   }
 }
 

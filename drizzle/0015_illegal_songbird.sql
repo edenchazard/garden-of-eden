@@ -1,0 +1,1 @@
+CREATE INDEX `last_activity_idx` ON `users` (`last_activity`);

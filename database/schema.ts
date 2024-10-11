@@ -15,21 +15,30 @@ import {
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
 
-export const userTable = mysqlTable('users', {
-  id: mediumint('id', { unsigned: true }).primaryKey().notNull(),
-  username: varchar('username', {
-    length: 32,
-  }).notNull(),
-  role: varchar('role', {
-    length: 10,
-    enum: ['user', 'owner'],
-  })
-    .default('user')
-    .notNull(),
-  registered_on: datetime('registered_on')
-    .default(sql`NOW()`)
-    .notNull(),
-});
+export const userTable = mysqlTable(
+  'users',
+  {
+    id: mediumint('id', { unsigned: true }).primaryKey().notNull(),
+    username: varchar('username', {
+      length: 32,
+    }).notNull(),
+    role: varchar('role', {
+      length: 10,
+      enum: ['user', 'owner'],
+    })
+      .default('user')
+      .notNull(),
+    registered_on: datetime('registered_on')
+      .default(sql`NOW()`)
+      .notNull(),
+    last_activity: datetime('last_activity'),
+  },
+  (table) => {
+    return {
+      last_activityId: index('last_activity_idx').on(table.last_activity),
+    };
+  }
+);
 
 export const userSettingsTable = mysqlTable('user_settings', {
   user_id: mediumint('user_id', {
@@ -117,6 +126,7 @@ export const recordingsTable = mysqlTable(
         'hatchlings_ungendered',
         'caveborn',
         'lineaged',
+        'user_count',
       ],
     }).notNull(),
     extra: json('extra'),
