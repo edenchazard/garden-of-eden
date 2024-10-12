@@ -168,6 +168,30 @@
           </div>
           <figcaption>Data taken in 30 minute intervals.</figcaption>
         </figure>
+
+        <figure v-if="userActivity" class="graph max-w-lg">
+          <div class="h-[20rem]">
+            <Line
+              class="w-full"
+              :data="userActivity"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Gardener Activity',
+                  },
+                  legend: {
+                    display: false,
+                  },
+                },
+              }"
+            />
+          </div>
+          <figcaption>
+            A user is considered active if they've visited the garden within 15
+            minutes of recording.
+          </figcaption>
+        </figure>
       </section>
     </div>
   </div>
@@ -205,6 +229,7 @@ const { data: stats } = await useFetch('/api/statistics', {
     scrolls: [],
     weekEnd: DateTime.now().toISO(),
     weekStart: DateTime.now().toISO(),
+    userActivity: [],
   }),
 });
 
@@ -212,6 +237,7 @@ const { data } = useAuth();
 
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();
+const userActivity = ref<ChartData<'line'>>();
 
 onNuxtReady(() => renderCharts());
 
@@ -239,16 +265,15 @@ function renderCharts() {
   const statistics = stats.value;
   if (statistics === null) return;
 
-  const labels = statistics.dragons.map((stat) =>
+  const mapTimes = (stat) =>
     Intl.DateTimeFormat(undefined, {
       timeStyle: 'short',
-    }).format(new Date(stat.recorded_on))
-  );
+    }).format(new Date(stat.recorded_on));
 
   const colours = chartColourPalette(useColorMode().value);
 
   dragons.value = {
-    labels,
+    labels: statistics.dragons.map(mapTimes),
     datasets: [
       {
         label: 'Dragons',
@@ -260,13 +285,25 @@ function renderCharts() {
   };
 
   scrolls.value = {
-    labels,
+    labels: statistics.scrolls.map(mapTimes),
     datasets: [
       {
         label: 'Scrolls',
         backgroundColor: colours[1],
         borderColor: colours[1],
         data: statistics.scrolls.map((stat) => stat.value),
+      },
+    ],
+  };
+
+  userActivity.value = {
+    labels: statistics.userActivity.map(mapTimes),
+    datasets: [
+      {
+        label: 'User Activity',
+        backgroundColor: colours[2],
+        borderColor: colours[2],
+        data: statistics.userActivity.map((stat) => stat.value),
       },
     ],
   };
