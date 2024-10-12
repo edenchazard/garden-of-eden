@@ -126,6 +126,7 @@ export default defineEventHandler(async (event) => {
             ELSE ${userTable.username}
           END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
+        flair: userSettingsTable.flair,
       })
       .from(clicksLeaderboardTable)
       .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
@@ -155,6 +156,7 @@ export default defineEventHandler(async (event) => {
             ELSE ${userTable.username}
           END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
+        flair: userSettingsTable.flair,
       })
       .from(clicksLeaderboardTable)
       .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))

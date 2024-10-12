@@ -73,6 +73,10 @@ export const userSettingsTable = mysqlTable('user_settings', {
     .notNull()
     .default(true),
   anonymiseStatistics: boolean('anonymiseStatistics').notNull().default(false),
+  flair: varchar('flair', {
+    length: 24,
+    enum: ['hyacinth'],
+  }),
 });
 
 export const hatcheryTable = mysqlTable(
