@@ -157,14 +157,27 @@
                 normalized: true,
                 plugins: {
                   title: {
-                    text: 'Hatchlings and Eggs',
+                    text: 'Soil Composition',
                   },
                   filler: {
                     propagate: true,
                   },
                 },
                 scales: {
-                  y: { stacked: true },
+                  y: {
+                    stacked: true,
+                    grid: {
+                      color: 'rgba(0,0,0,0.1)',
+                      z: 1,
+                      lineWidth: 2,
+                    },
+                  },
+                  x: {
+                    grid: {
+                      color: 'rgba(0,0,0,0.1)',
+                      z: 1,
+                    },
+                  },
                 },
               }"
             />
@@ -303,25 +316,33 @@ onNuxtReady(() => renderCharts());
 
 function chartColourPalette(palette: string) {
   const defaultPalette = [
-    '#ffe100',
-    '#f29c4c',
-    '#f2a2c4',
-    '#f2c4c4',
-    '#690033',
-    '#007b80',
+    [255, 225, 0],
+    [242, 156, 76],
+    [242, 162, 196],
+    [242, 196, 196],
+    [105, 0, 51],
+    [0, 123, 128],
   ];
 
-  return (
-    {
-      mint: defaultPalette,
-      dark: ['#690033', '#007b80', '#f2c94c', '#f29c4c', '#f2a2c4', '#f2c4c4'],
-    }[palette] ?? defaultPalette
-  );
+  return ({
+    mint: defaultPalette,
+    dark: [
+      [105, 0, 51],
+      [0, 123, 128],
+      [242, 201, 76],
+      [242, 156, 76],
+      [242, 162, 196],
+      [242, 196, 196],
+    ],
+  }[palette] ?? defaultPalette) as [number, number, number][];
 }
 
 watch(() => useColorMode().value, renderCharts);
 
 function renderCharts() {
+  const rgba = (colour: [number, number, number], a: number = 1) =>
+    `rgba(${colour.join(',')},${a})`;
+
   const statistics = stats.value;
   if (statistics === null) return;
 
@@ -337,8 +358,8 @@ function renderCharts() {
     datasets: [
       {
         label: 'Dragons',
-        backgroundColor: colours[0],
-        borderColor: colours[0],
+        backgroundColor: rgba(colours[0]),
+        borderColor: rgba(colours[0]),
         data: statistics.dragons.map((stat) => stat.value),
       },
     ],
@@ -371,26 +392,27 @@ function renderCharts() {
   dragons2.value = {
     labels: statistics.hatchlings.map(mapTimes),
     datasets: [
-      /* 
-      {
-        label: 'Adults',
-        backgroundColor: colours[0],
-        borderColor: colours[0],
-        data: statistics.adults.map((stat) => stat.value),
-      }, */
       {
         label: 'Hatchlings',
-        backgroundColor: colours[1],
-        borderColor: colours[1],
+        backgroundColor: rgba(colours[1], 0.75),
+        borderColor: rgba(colours[1]),
         data: statistics.hatchlings.map((stat) => stat.value),
         pointRadius: 0,
         fill: 'origin',
       },
       {
         label: 'Eggs',
-        backgroundColor: colours[2],
-        borderColor: colours[2],
+        backgroundColor: rgba(colours[2], 0.75),
+        borderColor: rgba(colours[2]),
         data: statistics.eggs.map((stat) => stat.value),
+        pointRadius: 0,
+        fill: 'origin',
+      },
+      {
+        label: 'Adults',
+        backgroundColor: rgba(colours[4], 0.75),
+        borderColor: rgba(colours[4]),
+        data: statistics.adults.map((stat) => stat.value),
         pointRadius: 0,
         fill: 'origin',
       },
