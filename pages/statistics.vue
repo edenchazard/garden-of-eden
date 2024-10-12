@@ -295,12 +295,7 @@ const { data: stats } = await useFetch('/api/statistics', {
     weekEnd: DateTime.now().toISO(),
     weekStart: DateTime.now().toISO(),
     userActivity: [],
-    adults: [],
-    hatchlings: [],
-    eggs: [],
-    hatchlingsUngendered: [],
-    hatchlingsMale: [],
-    hatchlingsFemale: [],
+    cleanUp: [],
   }),
 });
 
@@ -370,8 +365,7 @@ function renderCharts() {
     datasets: [
       {
         label: 'Scrolls',
-        backgroundColor: colours[1],
-        borderColor: colours[1],
+        borderColor: rgba(colours[1]),
         data: statistics.scrolls.map((stat) => stat.value),
       },
     ],
@@ -382,21 +376,20 @@ function renderCharts() {
     datasets: [
       {
         label: 'User Activity',
-        backgroundColor: colours[2],
-        borderColor: colours[2],
+        borderColor: rgba(colours[2]),
         data: statistics.userActivity.map((stat) => stat.value),
       },
     ],
   };
 
   dragons2.value = {
-    labels: statistics.hatchlings.map(mapTimes),
+    labels: statistics.cleanUp.map(mapTimes),
     datasets: [
       {
         label: 'Hatchlings',
         backgroundColor: rgba(colours[1], 0.75),
         borderColor: rgba(colours[1]),
-        data: statistics.hatchlings.map((stat) => stat.value),
+        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlings),
         pointRadius: 0,
         fill: 'origin',
       },
@@ -404,15 +397,15 @@ function renderCharts() {
         label: 'Eggs',
         backgroundColor: rgba(colours[2], 0.75),
         borderColor: rgba(colours[2]),
-        data: statistics.eggs.map((stat) => stat.value),
+        data: statistics.cleanUp.map((stat) => stat.extra?.eggs),
         pointRadius: 0,
         fill: 'origin',
       },
       {
-        label: 'Adults',
+        label: 'Other',
         backgroundColor: rgba(colours[4], 0.75),
         borderColor: rgba(colours[4]),
-        data: statistics.adults.map((stat) => stat.value),
+        data: statistics.cleanUp.map((stat) => stat.value),
         pointRadius: 0,
         fill: 'origin',
       },
@@ -420,27 +413,29 @@ function renderCharts() {
   };
 
   hatchlingGenderRatio.value = {
-    labels: statistics.hatchlingsMale.map(mapTimes),
+    labels: statistics.cleanUp.map(mapTimes),
     datasets: [
       {
         label: 'Ungendered',
-        backgroundColor: colours[3],
-        borderColor: colours[3],
-        data: statistics.hatchlingsUngendered.map((stat) => stat.value),
+        backgroundColor: rgba(colours[1], 0.75),
+        borderColor: rgba(colours[1]),
+        data: statistics.cleanUp.map(
+          (stat) => stat.extra?.hatchlingsUngendered
+        ),
         pointRadius: 0,
       },
       {
         label: 'Male',
-        backgroundColor: colours[1],
-        borderColor: colours[1],
-        data: statistics.hatchlingsMale.map((stat) => stat.value),
+        backgroundColor: rgba(colours[2], 0.75),
+        borderColor: rgba(colours[2]),
+        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlingsMale),
         pointRadius: 0,
       },
       {
         label: 'Female',
-        backgroundColor: colours[2],
-        borderColor: colours[2],
-        data: statistics.hatchlingsFemale.map((stat) => stat.value),
+        backgroundColor: rgba(colours[3], 0.75),
+        borderColor: rgba(colours[3]),
+        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlingsFemale),
         pointRadius: 0,
       },
     ],

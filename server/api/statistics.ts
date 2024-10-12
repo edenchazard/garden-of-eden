@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, lte, or, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, lte, or, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
@@ -65,6 +65,7 @@ const recordingsTableQueryBuilder = () =>
     .select({
       recorded_on: recordingsTable.recorded_on,
       value: recordingsTable.value,
+      extra: recordingsTable.extra,
     })
     .from(recordingsTable)
     .orderBy(asc(recordingsTable.recorded_on));
@@ -88,6 +89,25 @@ const totalScrollsCached = defineCachedFunction(
   }
 );
 
+const cleanUpCached = defineCachedFunction(
+  async () =>
+    recordingsTableQueryBuilder().where(
+      and(
+        gte(
+          recordingsTable.recorded_on,
+          DateTime.now().minus({ hours: 24 }).toJSDate()
+        ),
+        eq(recordingsTable.record_type, 'clean_up')
+      )
+    ),
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'cleanUp',
+  }
+);
+
 const totalDragonsCached = defineCachedFunction(
   async () =>
     recordingsTableQueryBuilder().where(
@@ -104,120 +124,6 @@ const totalDragonsCached = defineCachedFunction(
     group: 'statistics',
     name: 'hatcheryTotals',
     getKey: () => 'dragons',
-  }
-);
-
-const adultsCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
-        ),
-        eq(recordingsTable.record_type, 'adults')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'adults',
-  }
-);
-
-const hatchlingsCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
-        ),
-        eq(recordingsTable.record_type, 'hatchlings')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'hatchlings',
-  }
-);
-
-const eggsCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
-        ),
-        eq(recordingsTable.record_type, 'eggs')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'eggs',
-  }
-);
-
-const hatchlingsUngenderedCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
-        ),
-        eq(recordingsTable.record_type, 'hatchlings_ungendered')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'hatchlingsUngendered',
-  }
-);
-
-const hatchlingsFemaleCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
-        ),
-        eq(recordingsTable.record_type, 'hatchlings_female')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'hatchlingsFemale',
-  }
-);
-
-const hatchlingsMaleCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
-        ),
-        eq(recordingsTable.record_type, 'hatchlings_male')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'hatchlingsMale',
   }
 );
 
@@ -252,6 +158,7 @@ export default defineEventHandler(async (event) => {
   const weekEnd = weekStart.endOf('week');
 
   const [
+    cleanUp,
     scrolls,
     dragons,
     clicksThisWeekLeaderboard,
@@ -259,13 +166,8 @@ export default defineEventHandler(async (event) => {
     [{ clicks_total: clicksTotalAllTime }],
     [{ clicks_this_week: clicksTotalThisWeek }],
     userActivity,
-    adults,
-    hatchlings,
-    eggs,
-    hatchlingsUngendered,
-    hatchlingsFemale,
-    hatchlingsMale,
   ] = await Promise.all([
+    cleanUpCached(),
     totalScrollsCached(),
     totalDragonsCached(),
     db
@@ -328,15 +230,13 @@ export default defineEventHandler(async (event) => {
     clicksTotalAllTimeCached(),
     clicksTotalThisWeekCached(),
     userActivityCached(),
-    adultsCached(),
-    hatchlingsCached(),
-    eggsCached(),
-    hatchlingsUngenderedCached(),
-    hatchlingsFemaleCached(),
-    hatchlingsMaleCached(),
   ]);
 
   return {
+    cleanUp: cleanUp.map((record) => ({
+      ...record,
+      extra: JSON.parse(record.extra),
+    })),
     scrolls,
     dragons,
     clicksThisWeekLeaderboard,
@@ -346,11 +246,5 @@ export default defineEventHandler(async (event) => {
     weekStart: weekStart.toISO(),
     weekEnd: weekEnd.toISO(),
     userActivity,
-    adults,
-    hatchlings,
-    eggs,
-    hatchlingsUngendered,
-    hatchlingsFemale,
-    hatchlingsMale,
   };
 });
