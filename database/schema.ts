@@ -127,6 +127,7 @@ export const recordingsTable = mysqlTable(
         'caveborn',
         'lineaged',
         'user_count',
+        'clean_up',
       ],
     }).notNull(),
     extra: json('extra'),
