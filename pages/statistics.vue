@@ -125,7 +125,7 @@
         </div>
       </section>
 
-      <section>
+      <section class="[&_figure]:mt-4">
         <h2>Hatchery</h2>
         <figure v-if="dragons" class="graph">
           <div class="h-[31rem]">
@@ -146,6 +146,58 @@
             />
           </div>
           <figcaption>Data taken in 30 minute intervals.</figcaption>
+        </figure>
+
+        <figure v-if="dragons" class="graph">
+          <div class="h-[40rem]">
+            <Line
+              :data="dragons2"
+              class="w-full"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Hatchlings and Eggs',
+                  },
+                  filler: {
+                    propagate: true,
+                  },
+                },
+                scales: {
+                  y: { stacked: true },
+                },
+              }"
+            />
+          </div>
+          <figcaption>
+            Data taken from Dragon Cave API. Abnormal data points indicate an
+            API failure.
+          </figcaption>
+        </figure>
+
+        <figure v-if="dragons" class="graph">
+          <div class="h-[40rem]">
+            <Line
+              :data="hatchlingGenderRatio"
+              class="w-full"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Hatchling Gender',
+                  },
+                },
+                scales: {
+                  y: {},
+                },
+              }"
+            />
+          </div>
+          <figcaption>
+            Data taken from Dragon Cave API. Abnormal data points indicate an
+            API failure. Does not account for dragons that cannot have a gender.
+            Excludes eggs.
+          </figcaption>
         </figure>
 
         <figure v-if="scrolls" class="graph">
@@ -230,6 +282,12 @@ const { data: stats } = await useFetch('/api/statistics', {
     weekEnd: DateTime.now().toISO(),
     weekStart: DateTime.now().toISO(),
     userActivity: [],
+    adults: [],
+    hatchlings: [],
+    eggs: [],
+    hatchlingsUngendered: [],
+    hatchlingsMale: [],
+    hatchlingsFemale: [],
   }),
 });
 
@@ -238,6 +296,8 @@ const { data } = useAuth();
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();
 const userActivity = ref<ChartData<'line'>>();
+const dragons2 = ref<ChartData<'line'>>();
+const hatchlingGenderRatio = ref<ChartData<'line'>>();
 
 onNuxtReady(() => renderCharts());
 
@@ -304,6 +364,62 @@ function renderCharts() {
         backgroundColor: colours[2],
         borderColor: colours[2],
         data: statistics.userActivity.map((stat) => stat.value),
+      },
+    ],
+  };
+
+  dragons2.value = {
+    labels: statistics.hatchlings.map(mapTimes),
+    datasets: [
+      /* 
+      {
+        label: 'Adults',
+        backgroundColor: colours[0],
+        borderColor: colours[0],
+        data: statistics.adults.map((stat) => stat.value),
+      }, */
+      {
+        label: 'Hatchlings',
+        backgroundColor: colours[1],
+        borderColor: colours[1],
+        data: statistics.hatchlings.map((stat) => stat.value),
+        pointRadius: 0,
+        fill: 'origin',
+      },
+      {
+        label: 'Eggs',
+        backgroundColor: colours[2],
+        borderColor: colours[2],
+        data: statistics.eggs.map((stat) => stat.value),
+        pointRadius: 0,
+        fill: 'origin',
+      },
+    ],
+  };
+
+  hatchlingGenderRatio.value = {
+    labels: statistics.hatchlingsMale.map(mapTimes),
+    datasets: [
+      {
+        label: 'Ungendered',
+        backgroundColor: colours[3],
+        borderColor: colours[3],
+        data: statistics.hatchlingsUngendered.map((stat) => stat.value),
+        pointRadius: 0,
+      },
+      {
+        label: 'Male',
+        backgroundColor: colours[1],
+        borderColor: colours[1],
+        data: statistics.hatchlingsMale.map((stat) => stat.value),
+        pointRadius: 0,
+      },
+      {
+        label: 'Female',
+        backgroundColor: colours[2],
+        borderColor: colours[2],
+        data: statistics.hatchlingsFemale.map((stat) => stat.value),
+        pointRadius: 0,
       },
     ],
   };
