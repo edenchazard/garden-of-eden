@@ -149,7 +149,7 @@
         </figure>
 
         <figure v-if="scrolls" class="graph">
-          <div class="h-[31rem]">
+          <div class="h-[20rem]">
             <Line
               class="w-full"
               :data="scrolls"
