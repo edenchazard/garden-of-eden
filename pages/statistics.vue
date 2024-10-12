@@ -186,7 +186,7 @@
         </figure>
 
         <figure v-if="dragons" class="graph">
-          <div class="h-[40rem]">
+          <div class="h-[30rem]">
             <Line
               :data="hatchlingGenderRatio"
               class="w-full"
@@ -387,15 +387,18 @@ function renderCharts() {
         backgroundColor: rgba(colours[4], 0.75),
         borderColor: rgba(colours[4]),
         data: statistics.cleanUp.map((stat) => stat.value),
-        pointRadius: 0,
+        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
+        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
         fill: 'origin',
+        hidden: true,
       },
       {
         label: 'Eggs',
         backgroundColor: rgba(colours[1], 0.75),
         borderColor: rgba(colours[1]),
         data: statistics.cleanUp.map((stat) => stat.extra?.eggs),
-        pointRadius: 0,
+        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
+        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
         fill: 'origin',
       },
       {
@@ -403,7 +406,8 @@ function renderCharts() {
         backgroundColor: rgba(colours[2], 0.75),
         borderColor: rgba(colours[2]),
         data: statistics.cleanUp.map((stat) => stat.extra?.hatchlings),
-        pointRadius: 0,
+        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
+        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
         fill: 'origin',
       },
     ],
@@ -420,6 +424,7 @@ function renderCharts() {
           (stat) => stat.extra?.hatchlingsUngendered
         ),
         pointRadius: 0,
+        hidden: true,
       },
       {
         label: 'Male',
