@@ -36,6 +36,7 @@ declare global {
 
   type UserSettings = Omit<typeof userSettingsTable.$inferSelect, 'user_id'>;
   type UserRole = typeof userTable.$inferSelect.role;
+  type UserFlair = typeof userSettingsTable.$inferSelect.flair;
 
   enum RecordType {
     removed,

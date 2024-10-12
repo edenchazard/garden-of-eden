@@ -16,6 +16,7 @@ declare module 'next-auth' {
       username: string;
       role: UserRole;
       settings: UserSettings;
+      flair: UserFlair;
     };
   }
 

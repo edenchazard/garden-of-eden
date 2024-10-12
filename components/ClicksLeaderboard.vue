@@ -23,7 +23,17 @@
         <td v-if="['-1', '-2'].includes(user.username)" class="italic">
           (anonymous)
         </td>
-        <td v-else>{{ user.username }}</td>
+        <td v-else>
+          <span class="inline-flex items-center">
+            {{ user.username
+            }}<img
+              v-if="user.flair"
+              class="inline ml-1"
+              :src="userFlair(user.flair)"
+              :alt="user.flair"
+            />
+          </span>
+        </td>
         <td>{{ Intl.NumberFormat().format(user.clicks_given) }}</td>
       </tr>
       <tr v-if="leaderboard.length === 10">
@@ -42,12 +52,15 @@
 </template>
 
 <script setup lang="ts">
+import userFlair from '~/utils/userFlair';
+
 withDefaults(
   defineProps<{
     leaderboard: Array<{
       rank: number;
       username: string;
       clicks_given: number;
+      flair: UserFlair;
     }>;
     total: number;
   }>(),
