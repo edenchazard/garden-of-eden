@@ -159,13 +159,10 @@
                   title: {
                     text: 'Soil Composition',
                   },
-                  filler: {
-                    propagate: true,
-                  },
+                  filler: {},
                 },
                 scales: {
                   y: {
-                    stacked: true,
                     grid: {
                       color: 'rgba(0,0,0,0.1)',
                       z: 1,
@@ -386,26 +383,26 @@ function renderCharts() {
     labels: statistics.cleanUp.map(mapTimes),
     datasets: [
       {
-        label: 'Hatchlings',
-        backgroundColor: rgba(colours[1], 0.75),
-        borderColor: rgba(colours[1]),
-        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlings),
+        label: 'Other',
+        backgroundColor: rgba(colours[4], 0.75),
+        borderColor: rgba(colours[4]),
+        data: statistics.cleanUp.map((stat) => stat.value),
         pointRadius: 0,
         fill: 'origin',
       },
       {
         label: 'Eggs',
-        backgroundColor: rgba(colours[2], 0.75),
-        borderColor: rgba(colours[2]),
+        backgroundColor: rgba(colours[1], 0.75),
+        borderColor: rgba(colours[1]),
         data: statistics.cleanUp.map((stat) => stat.extra?.eggs),
         pointRadius: 0,
         fill: 'origin',
       },
       {
-        label: 'Other',
-        backgroundColor: rgba(colours[4], 0.75),
-        borderColor: rgba(colours[4]),
-        data: statistics.cleanUp.map((stat) => stat.value),
+        label: 'Hatchlings',
+        backgroundColor: rgba(colours[2], 0.75),
+        borderColor: rgba(colours[2]),
+        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlings),
         pointRadius: 0,
         fill: 'origin',
       },
