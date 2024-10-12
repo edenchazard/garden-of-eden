@@ -2,6 +2,7 @@ import chunkArray from '~/utils/chunkArray';
 import { db } from '~/server/db';
 import { hatcheryTable, recordingsTable } from '~/database/schema';
 import { inArray } from 'drizzle-orm';
+import { DateTime } from 'luxon';
 
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
@@ -30,7 +31,7 @@ export async function cleanUp() {
 
   const chunkedDragons = chunkArray(hatcheryDragons, 400);
 
-  await Promise.allSettled(
+  const promises = await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
       const apiResponse = await $fetch<{
         errors: unknown[];
@@ -118,47 +119,28 @@ export async function cleanUp() {
 
   const end = new Date().getTime();
 
+  const failures = promises.filter((p) => p.status === 'rejected').length;
+
   await db.insert(recordingsTable).values([
     {
+      recorded_on: DateTime.now().startOf('minute').toJSDate(),
       value: successfullyRemoved,
-      record_type: 'removed',
-      extra: { duration: end - start },
-    },
-    {
-      value: hatchlings,
-      record_type: 'hatchlings',
-    },
-    {
-      value: eggs,
-      record_type: 'eggs',
-    },
-    {
-      value: adults,
-      record_type: 'adults',
-    },
-    {
-      value: dead,
-      record_type: 'dead',
-    },
-    {
-      value: female,
-      record_type: 'hatchlings_female',
-    },
-    {
-      value: male,
-      record_type: 'hatchlings_male',
-    },
-    {
-      value: ungendered,
-      record_type: 'hatchlings_ungendered',
-    },
-    {
-      value: caveborn,
-      record_type: 'caveborn',
-    },
-    {
-      value: lineaged,
-      record_type: 'lineaged',
+      record_type: 'clean_up',
+      extra: {
+        chunks: promises.length,
+        success: promises.length - failures,
+        failures,
+        duration: end - start,
+        eggs,
+        hatchlings,
+        adults,
+        dead,
+        hatchlingsMale: male,
+        hatchlingsFemale: female,
+        hatchlingsUngendered: ungendered,
+        caveborn,
+        lineaged,
+      },
     },
   ]);
 }
