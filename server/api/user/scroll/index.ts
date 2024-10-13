@@ -44,18 +44,13 @@ export default defineEventHandler(async (event) => {
 
   let scrollResponse = await fetchScroll(session?.user.username ?? '', token);
 
-  if (scrollResponse.errors.find(([code]) => code === 4)) {
-    // probably a disabled account
-    return [];
-  }
-
   if (scrollResponse.errors.find(([code]) => code === 3)) {
     // it's likely they've changed their username.
     const updated = await syncScrollName(token);
     scrollResponse = await fetchScroll(updated.username, token);
   }
 
-  const scroll = Object.values(scrollResponse.dragons);
+  const scroll = Object.values(scrollResponse?.dragons ?? {});
   const alive = scroll
     .filter((dragon) => dragon.hoursleft >= 0)
     .map((dragon) => dragon.id);
@@ -83,28 +78,31 @@ export default defineEventHandler(async (event) => {
   const startOfToday = new Date();
   startOfToday.setDate(startOfToday.getDate() - 1);
 
-  const [[clicksToday], usersDragonsInHatchery] = await Promise.all([
-    db
-      .select({ clicks_today: sql<number>`COUNT(*)`.as('clicks_today') })
-      .from(clicksTable)
-      .where(
-        and(
-          inArray(clicksTable.hatchery_id, alive),
-          gt(clicksTable.clicked_on, startOfToday)
-        )
-      ),
-    db
-      .select({
-        id: hatcheryTable.id,
-        in_garden: hatcheryTable.in_garden,
-        in_seed_tray: hatcheryTable.in_seed_tray,
-      })
-      .from(hatcheryTable)
-      .where(eq(hatcheryTable.user_id, token.userId)),
-  ]);
+  const [[{ clicks_today: clicksToday }], usersDragonsInHatchery] =
+    await Promise.all([
+      db
+        .select({ clicks_today: sql<number>`COUNT(*)`.as('clicks_today') })
+        .from(clicksTable)
+        .where(
+          and(
+            inArray(clicksTable.hatchery_id, alive),
+            gt(clicksTable.clicked_on, startOfToday)
+          )
+        ),
+      db
+        .select({
+          id: hatcheryTable.id,
+          in_garden: hatcheryTable.in_garden,
+          in_seed_tray: hatcheryTable.in_seed_tray,
+        })
+        .from(hatcheryTable)
+        .where(eq(hatcheryTable.user_id, token.userId)),
+    ]);
 
   return {
-    details: clicksToday,
+    details: {
+      clicksToday,
+    },
     dragons: alive.map<ScrollView>((id) => {
       const hatcheryDragon = usersDragonsInHatchery.find(
         (row) => row.id === id
