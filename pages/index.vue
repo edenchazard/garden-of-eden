@@ -46,7 +46,7 @@
           <p class="text-sm">
             Your dragons have received
             <b class="font-bold">{{
-              Intl.NumberFormat().format(scroll.details.clicks_today)
+              Intl.NumberFormat().format(scroll.details.clicksToday)
             }}</b>
             clicks in the last 24 hours from other gardeners.
           </p>
@@ -208,7 +208,7 @@ const {
   status: fetchScrollStatus,
   error: fetchScrollError,
 } = await useFetch<{
-  details: { clicks_today: number };
+  details: { clicksToday: number };
   dragons: ScrollView[];
 }>('/api/user/scroll', {
   headers: computed(() => ({
@@ -218,7 +218,7 @@ const {
   default() {
     return {
       details: {
-        clicks_today: 0,
+        clicksToday: 0,
       },
       dragons: [],
     };
