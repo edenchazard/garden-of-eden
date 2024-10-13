@@ -121,7 +121,7 @@ export default defineEventHandler(async (event) => {
         rank: clicksLeaderboardTable.rank,
         username: sql<string>`
           CASE
-            WHEN (${clicksLeaderboardTable.user_id} = ${token.userId} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+            WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
             WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
             ELSE ${userTable.username}
           END`.as('username'),
@@ -151,7 +151,7 @@ export default defineEventHandler(async (event) => {
         rank: clicksLeaderboardTable.rank,
         username: sql<string>`
           CASE
-            WHEN (${clicksLeaderboardTable.user_id} = ${token.userId} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+            WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
             WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
             ELSE ${userTable.username}
           END`.as('username'),
