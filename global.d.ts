@@ -34,8 +34,13 @@ declare global {
     clicked_on: typeof clicksTable.$inferSelect.clicked_on | null;
   };
 
-  type UserSettings = Omit<typeof userSettingsTable.$inferSelect, 'user_id'>;
+  type UserSettings = Omit<
+    typeof userSettingsTable.$inferSelect,
+    'user_id',
+    'flair'
+  >;
   type UserRole = typeof userTable.$inferSelect.role;
+  type UserFlair = typeof userSettingsTable.$inferSelect.flair;
 
   enum RecordType {
     removed,

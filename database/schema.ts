@@ -74,6 +74,10 @@ export const userSettingsTable = mysqlTable('user_settings', {
     .notNull()
     .default(true),
   anonymiseStatistics: boolean('anonymiseStatistics').notNull().default(false),
+  flair: varchar('flair', {
+    length: 24,
+    enum: ['hyacinth'],
+  }),
 });
 
 export const hatcheryTable = mysqlTable(
@@ -233,4 +237,5 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   highlightClickedDragons: (schema) =>
     schema.highlightClickedDragons.default(true),
   anonymiseStatistics: (schema) => schema.anonymiseStatistics.default(false),
-}).omit({ user_id: true });
+  flair: (schema) => schema.flair.nullable(),
+}).omit({ user_id: true, flair: true });

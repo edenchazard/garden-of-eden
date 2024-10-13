@@ -11,8 +11,13 @@
               :to="`https://dragcave.net/user/${authData?.user.username}`"
               target="_blank"
             >
-              {{ authData?.user.username }}
-            </NuxtLink>
+              {{ authData.user.username }} </NuxtLink
+            ><img
+              v-if="authData.user.settings?.flair"
+              class="inline ml-1"
+              :src="userFlair(authData.user.settings.flair)"
+              :alt="authData.user.settings.flair"
+            />
           </span>
           <ClientOnly>
             <ToggleInput
@@ -135,6 +140,8 @@
 </template>
 
 <script lang="ts" setup>
+import userFlair from '~/utils/userFlair';
+
 useHead({
   titleTemplate(titleChunk) {
     return titleChunk

@@ -175,11 +175,12 @@ export default defineEventHandler(async (event) => {
         rank: clicksLeaderboardTable.rank,
         username: sql<string>`
           CASE
-            WHEN (${clicksLeaderboardTable.user_id} = ${token.userId} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+            WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
             WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
             ELSE ${userTable.username}
           END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
+        flair: userSettingsTable.flair,
       })
       .from(clicksLeaderboardTable)
       .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
@@ -204,11 +205,12 @@ export default defineEventHandler(async (event) => {
         rank: clicksLeaderboardTable.rank,
         username: sql<string>`
           CASE
-            WHEN (${clicksLeaderboardTable.user_id} = ${token.userId} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+            WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
             WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
             ELSE ${userTable.username}
           END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
+        flair: userSettingsTable.flair,
       })
       .from(clicksLeaderboardTable)
       .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
