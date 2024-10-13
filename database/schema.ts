@@ -222,4 +222,5 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   highlightClickedDragons: (schema) =>
     schema.highlightClickedDragons.default(true),
   anonymiseStatistics: (schema) => schema.anonymiseStatistics.default(false),
-}).omit({ user_id: true });
+  flair: (schema) => schema.flair.nullable(),
+}).omit({ user_id: true, flair: true });
