@@ -51,21 +51,27 @@
             clicks in the last 24 hours from other gardeners.
           </p>
           <div class="text-sm">
-            <p v-if="eggClosestToHatching?.hoursleft <= 96">
-              Next egg can hatch now.
+            <p v-if="eggClosestToHatching">
+              <template v-if="eggClosestToHatching.hoursleft <= 96">
+                Next egg can hatch now.
+              </template>
+              <template v-else>
+                Next egg could hatch in
+                {{ eggClosestToHatching.hoursleft - 96 }}
+                {{ pluralise('hour', eggClosestToHatching.hoursleft - 96) }}.
+              </template>
             </p>
-            <p v-else-if="eggClosestToHatching">
-              Next egg could hatch in
-              {{ eggClosestToHatching.hoursleft - 96 }}
-              {{ pluralise('hour', eggClosestToHatching.hoursleft - 96) }}.
-            </p>
-            <p v-if="hatchlingClosestToGrowing?.hoursleft <= 96">
-              Next hatchling could grow now.
-            </p>
-            <p v-else-if="hatchlingClosestToGrowing">
-              Next hatchling could grow in
-              {{ hatchlingClosestToGrowing.hoursleft - 96 }}
-              {{ pluralise('hour', hatchlingClosestToGrowing.hoursleft - 96) }}.
+            <p v-if="hatchlingClosestToGrowing">
+              <template v-if="hatchlingClosestToGrowing.hoursleft <= 96">
+                Next hatchling could grow now.
+              </template>
+              <template v-else>
+                Next hatchling could grow in
+                {{ hatchlingClosestToGrowing.hoursleft - 96 }}
+                {{
+                  pluralise('hour', hatchlingClosestToGrowing.hoursleft - 96)
+                }}.
+              </template>
             </p>
           </div>
         </template>
@@ -273,29 +279,37 @@ const isProcessing = computed(() =>
   [fetchScrollStatus.value, saveScrollStatus.value].includes('pending')
 );
 
-const eggClosestToHatching = computed(() =>
-  scroll.value.dragons
-    .filter((dragon) => dragon.hatch === '0')
-    .reduce(
-      (minDragon, currentDragon) =>
-        currentDragon.hoursleft < minDragon.hoursleft
-          ? currentDragon
-          : minDragon,
-      scroll.value.dragons[0]
-    )
-);
+const eggClosestToHatching = computed(() => {
+  const eggs = scroll.value.dragons.filter((dragon) => dragon.hatch === '0');
 
-const hatchlingClosestToGrowing = computed(() =>
-  scroll.value.dragons
-    .filter((dragon) => dragon.hatch !== '0' && dragon.grow === '0')
-    .reduce(
+  if (eggs.length > 0) {
+    return eggs.reduce(
       (minDragon, currentDragon) =>
         currentDragon.hoursleft < minDragon.hoursleft
           ? currentDragon
           : minDragon,
-      scroll.value.dragons[0]
-    )
-);
+      eggs[0]
+    );
+  }
+  return null;
+});
+
+const hatchlingClosestToGrowing = computed(() => {
+  const hatchlings = scroll.value.dragons.filter(
+    (dragon) => dragon.hatch !== '0' && dragon.grow === '0'
+  );
+
+  if (hatchlings.length > 0) {
+    return hatchlings.reduce(
+      (minDragon, currentDragon) =>
+        currentDragon.hoursleft < minDragon.hoursleft
+          ? currentDragon
+          : minDragon,
+      hatchlings[0]
+    );
+  }
+  return null;
+});
 
 watch(
   () => [userSettings.value.sort, scroll],
