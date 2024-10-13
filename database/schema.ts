@@ -75,7 +75,16 @@ export const userSettingsTable = mysqlTable('user_settings', {
   anonymiseStatistics: boolean('anonymiseStatistics').notNull().default(false),
   flair: varchar('flair', {
     length: 24,
-    enum: ['hyacinth'],
+    enum: [
+      'blackrose',
+      'broccoli',
+      'dragongrass',
+      'hibiscus',
+      'hyacinth',
+      'lily',
+      'rafflesia',
+      'sunflower',
+    ],
   }),
 });
 
