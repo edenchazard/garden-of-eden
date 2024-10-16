@@ -86,6 +86,8 @@ export const userSettingsTable = mysqlTable('user_settings', {
       'sunflower',
       'saxifrage',
       'anthurium',
+      'bird-of-paradise',
+      'dandelion',
     ],
   }),
 });
