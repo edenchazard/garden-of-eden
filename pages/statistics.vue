@@ -125,7 +125,7 @@
         </div>
       </section>
 
-      <section>
+      <section class="[&_figure]:mt-4">
         <h2>Hatchery</h2>
         <figure v-if="dragons" class="graph">
           <div class="h-[31rem]">
@@ -148,8 +148,70 @@
           <figcaption>Data taken in 30 minute intervals.</figcaption>
         </figure>
 
+        <figure v-if="dragons" class="graph">
+          <div class="h-[40rem]">
+            <Line
+              :data="dragons2"
+              class="w-full"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Soil Composition',
+                  },
+                  filler: {},
+                },
+                scales: {
+                  y: {
+                    grid: {
+                      color: 'rgba(0,0,0,0.1)',
+                      z: 1,
+                      lineWidth: 2,
+                    },
+                  },
+                  x: {
+                    grid: {
+                      color: 'rgba(0,0,0,0.1)',
+                      z: 1,
+                    },
+                  },
+                },
+              }"
+            />
+          </div>
+          <figcaption>
+            Data taken from Dragon Cave API. Abnormal data points indicate an
+            API failure.
+          </figcaption>
+        </figure>
+
+        <figure v-if="dragons" class="graph">
+          <div class="h-[30rem]">
+            <Line
+              :data="hatchlingGenderRatio"
+              class="w-full"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Hatchling Gender',
+                  },
+                },
+                scales: {
+                  y: {},
+                },
+              }"
+            />
+          </div>
+          <figcaption>
+            Data taken from Dragon Cave API. Abnormal data points indicate an
+            API failure. Does not account for dragons that cannot have a gender.
+            Excludes eggs.
+          </figcaption>
+        </figure>
+
         <figure v-if="scrolls" class="graph">
-          <div class="h-[31rem]">
+          <div class="h-[20rem]">
             <Line
               class="w-full"
               :data="scrolls"
@@ -167,6 +229,30 @@
             />
           </div>
           <figcaption>Data taken in 30 minute intervals.</figcaption>
+        </figure>
+
+        <figure v-if="userActivity" class="graph max-w-lg">
+          <div class="h-[20rem]">
+            <Line
+              class="w-full"
+              :data="userActivity"
+              :options="{
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Gardener Activity',
+                  },
+                  legend: {
+                    display: false,
+                  },
+                },
+              }"
+            />
+          </div>
+          <figcaption>
+            A user is considered active if they've visited the garden within 15
+            minutes of recording.
+          </figcaption>
         </figure>
       </section>
     </div>
@@ -205,6 +291,8 @@ const { data: stats } = await useFetch('/api/statistics', {
     scrolls: [],
     weekEnd: DateTime.now().toISO(),
     weekStart: DateTime.now().toISO(),
+    userActivity: [],
+    cleanUp: [],
   }),
 });
 
@@ -212,61 +300,145 @@ const { data } = useAuth();
 
 const dragons = ref<ChartData<'line'>>();
 const scrolls = ref<ChartData<'line'>>();
+const userActivity = ref<ChartData<'line'>>();
+const dragons2 = ref<ChartData<'line'>>();
+const hatchlingGenderRatio = ref<ChartData<'line'>>();
 
 onNuxtReady(() => renderCharts());
 
 function chartColourPalette(palette: string) {
   const defaultPalette = [
-    '#ffe100',
-    '#f29c4c',
-    '#f2a2c4',
-    '#f2c4c4',
-    '#690033',
-    '#007b80',
+    [255, 225, 0],
+    [242, 156, 76],
+    [242, 162, 196],
+    [242, 196, 196],
+    [105, 0, 51],
+    [0, 123, 128],
   ];
 
-  return (
-    {
-      mint: defaultPalette,
-      dark: ['#690033', '#007b80', '#f2c94c', '#f29c4c', '#f2a2c4', '#f2c4c4'],
-    }[palette] ?? defaultPalette
-  );
+  return ({
+    mint: defaultPalette,
+    dark: [
+      [105, 0, 51],
+      [0, 123, 128],
+      [242, 201, 76],
+      [242, 156, 76],
+      [242, 162, 196],
+      [242, 196, 196],
+    ],
+  }[palette] ?? defaultPalette) as [number, number, number][];
 }
 
 watch(() => useColorMode().value, renderCharts);
 
 function renderCharts() {
+  const rgba = (colour: [number, number, number], a: number = 1) =>
+    `rgba(${colour.join(',')},${a})`;
+
   const statistics = stats.value;
   if (statistics === null) return;
 
-  const labels = statistics.dragons.map((stat) =>
+  const mapTimes = (stat) =>
     Intl.DateTimeFormat(undefined, {
       timeStyle: 'short',
-    }).format(new Date(stat.recorded_on))
-  );
+    }).format(new Date(stat.recorded_on));
 
   const colours = chartColourPalette(useColorMode().value);
 
   dragons.value = {
-    labels,
+    labels: statistics.dragons.map(mapTimes),
     datasets: [
       {
         label: 'Dragons',
-        backgroundColor: colours[0],
-        borderColor: colours[0],
+        backgroundColor: rgba(colours[0]),
+        borderColor: rgba(colours[0]),
         data: statistics.dragons.map((stat) => stat.value),
       },
     ],
   };
 
   scrolls.value = {
-    labels,
+    labels: statistics.scrolls.map(mapTimes),
     datasets: [
       {
         label: 'Scrolls',
-        backgroundColor: colours[1],
-        borderColor: colours[1],
+        borderColor: rgba(colours[1]),
         data: statistics.scrolls.map((stat) => stat.value),
+      },
+    ],
+  };
+
+  userActivity.value = {
+    labels: statistics.userActivity.map(mapTimes),
+    datasets: [
+      {
+        label: 'User Activity',
+        borderColor: rgba(colours[2]),
+        data: statistics.userActivity.map((stat) => stat.value),
+      },
+    ],
+  };
+
+  dragons2.value = {
+    labels: statistics.cleanUp.map(mapTimes),
+    datasets: [
+      {
+        label: 'Other',
+        backgroundColor: rgba(colours[4], 0.75),
+        borderColor: rgba(colours[4]),
+        data: statistics.cleanUp.map((stat) => stat.value),
+        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
+        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
+        fill: 'origin',
+        hidden: true,
+      },
+      {
+        label: 'Eggs',
+        backgroundColor: rgba(colours[1], 0.75),
+        borderColor: rgba(colours[1]),
+        data: statistics.cleanUp.map((stat) => stat.extra?.eggs),
+        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
+        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
+        fill: 'origin',
+      },
+      {
+        label: 'Hatchlings',
+        backgroundColor: rgba(colours[2], 0.75),
+        borderColor: rgba(colours[2]),
+        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlings),
+        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
+        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
+        fill: 'origin',
+      },
+    ],
+  };
+
+  hatchlingGenderRatio.value = {
+    labels: statistics.cleanUp.map(mapTimes),
+    datasets: [
+      {
+        label: 'Ungendered',
+        backgroundColor: rgba(colours[1], 0.75),
+        borderColor: rgba(colours[1]),
+        data: statistics.cleanUp.map(
+          (stat) => stat.extra?.hatchlingsUngendered
+        ),
+        pointRadius: 0,
+        hidden: true,
+      },
+      {
+        label: 'Male',
+        backgroundColor: rgba(colours[2], 0.75),
+        borderColor: rgba(colours[2]),
+        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlingsMale),
+        pointRadius: 0,
+      },
+      {
+        label: 'Female',
+        backgroundColor: rgba(colours[3], 0.75),
+        borderColor: rgba(colours[3]),
+        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlingsFemale),
+        pointRadius: 0,
       },
     ],
   };
