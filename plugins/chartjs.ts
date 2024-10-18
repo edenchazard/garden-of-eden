@@ -9,6 +9,7 @@ import {
   LineController,
   LineElement,
   PointElement,
+  Filler,
 } from 'chart.js';
 
 export default defineNuxtPlugin(() => {
@@ -21,7 +22,8 @@ export default defineNuxtPlugin(() => {
     PointElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    Filler
   );
 
   Chart.defaults.maintainAspectRatio = false;

@@ -14,6 +14,7 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
+import { number } from 'zod';
 
 export const userTable = mysqlTable(
   'users',
@@ -149,7 +150,21 @@ export const recordingsTable = mysqlTable(
         'clean_up',
       ],
     }).notNull(),
-    extra: json('extra'),
+    extra: json('extra').$type<{
+      chunks: number;
+      success: number;
+      failures: number;
+      duration: number;
+      eggs: number;
+      hatchlings: number;
+      adults: number;
+      dead: number;
+      hatchlingsUngendered: number;
+      hatchlingsMale: number;
+      hatchlingsFemale: number;
+      caveborn: number;
+      lineaged: number;
+    }>(),
   },
   (table) => {
     return {

@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, or, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, lte, or, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
@@ -65,18 +65,22 @@ const recordingsTableQueryBuilder = () =>
     .select({
       recorded_on: recordingsTable.recorded_on,
       value: recordingsTable.value,
+      extra: recordingsTable.extra,
     })
     .from(recordingsTable)
-    .orderBy(desc(recordingsTable.recorded_on))
-    .limit(48);
+    .orderBy(asc(recordingsTable.recorded_on));
 
 const totalScrollsCached = defineCachedFunction(
-  async () => {
-    const data = await recordingsTableQueryBuilder().where(
-      eq(recordingsTable.record_type, 'total_scrolls')
-    );
-    return data;
-  },
+  async () =>
+    recordingsTableQueryBuilder().where(
+      and(
+        gte(
+          recordingsTable.recorded_on,
+          DateTime.now().minus({ hours: 24 }).toJSDate()
+        ),
+        eq(recordingsTable.record_type, 'total_scrolls')
+      )
+    ),
   {
     maxAge: 60 * 60,
     group: 'statistics',
@@ -85,19 +89,66 @@ const totalScrollsCached = defineCachedFunction(
   }
 );
 
-const totalDragonsCached = defineCachedFunction(
-  async () => {
-    const data = await recordingsTableQueryBuilder().where(
-      eq(recordingsTable.record_type, 'total_dragons')
-    );
+const cleanUpCached = defineCachedFunction(
+  async () =>
+    recordingsTableQueryBuilder().where(
+      and(
+        gte(
+          recordingsTable.recorded_on,
+          DateTime.now().minus({ hours: 24 }).toJSDate()
+        ),
+        eq(recordingsTable.record_type, 'clean_up')
+      )
+    ),
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'cleanUp',
+  }
+);
 
-    return data;
-  },
+const totalDragonsCached = defineCachedFunction(
+  async () =>
+    recordingsTableQueryBuilder().where(
+      and(
+        gte(
+          recordingsTable.recorded_on,
+          DateTime.now().minus({ hours: 24 }).toJSDate()
+        ),
+        eq(recordingsTable.record_type, 'total_dragons')
+      )
+    ),
   {
     maxAge: 60 * 60,
     group: 'statistics',
     name: 'hatcheryTotals',
     getKey: () => 'dragons',
+  }
+);
+
+const userActivityCached = defineCachedFunction(
+  async () =>
+    db
+      .select({
+        recorded_on: recordingsTable.recorded_on,
+        value: recordingsTable.value,
+      })
+      .from(recordingsTable)
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toJSDate()
+          ),
+          eq(recordingsTable.record_type, 'user_count')
+        )
+      )
+      .orderBy(asc(recordingsTable.recorded_on)),
+  {
+    maxAge: 60 * 15,
+    group: 'statistics',
+    name: 'userActivity',
   }
 );
 
@@ -107,13 +158,16 @@ export default defineEventHandler(async (event) => {
   const weekEnd = weekStart.endOf('week');
 
   const [
+    cleanUp,
     scrolls,
     dragons,
     clicksThisWeekLeaderboard,
     clicksAllTimeLeaderboard,
     [{ clicks_total: clicksTotalAllTime }],
     [{ clicks_this_week: clicksTotalThisWeek }],
+    userActivity,
   ] = await Promise.all([
+    cleanUpCached(),
     totalScrollsCached(),
     totalDragonsCached(),
     db
@@ -177,14 +231,14 @@ export default defineEventHandler(async (event) => {
       .limit(11),
     clicksTotalAllTimeCached(),
     clicksTotalThisWeekCached(),
+    userActivityCached(),
   ]);
 
-  // since we got them in descending order (latest 48),
-  // we then have to reverse them for proper left-to-right display
-  scrolls.reverse();
-  dragons.reverse();
-
   return {
+    cleanUp: cleanUp.map((record) => ({
+      ...record,
+      extra: JSON.parse(record.extra),
+    })),
     scrolls,
     dragons,
     clicksThisWeekLeaderboard,
@@ -193,5 +247,6 @@ export default defineEventHandler(async (event) => {
     clicksTotalThisWeek: parseInt(clicksTotalThisWeek),
     weekStart: weekStart.toISO(),
     weekEnd: weekEnd.toISO(),
+    userActivity,
   };
 });
