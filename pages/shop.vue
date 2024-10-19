@@ -2,7 +2,7 @@
   <div class="space-y-4 *:space-y-4">
     <section>
       <h1>Matthias Shop</h1>
-      <div class="max-w-prose space-y-4">
+      <div class="max-w-prose space-y-4 relative overflow-hidden">
         <p>
           As you stroll through the garden, you notice a small, hidden path. You
           follow it and find yourself at a vast clearing with a small building
@@ -15,6 +15,11 @@
           Inside, a small mint dragon tumbles from the shelves and lands in
           front of you, propped up against the counter.
         </p>
+        <img
+          :src="matthias"
+          alt="Matthias the mint dragon"
+          class="matthias opacity-0"
+        />
         <q
           >My name is Matthias, I'm a humble businessmint. Now then, let's get
           right to business.</q
@@ -183,10 +188,36 @@ async function purchase(item: Item) {
     },
   });
 }
+
+const config = useRuntimeConfig();
+const path = config.public.origin + config.public.baseUrl;
+const matthias = `${path}/npc/matthias.gif`;
 </script>
 
 <style scoped>
 q {
   @apply border-l-4 block pl-4;
+}
+
+.matthias {
+  animation: animate-roll 2s ease-in-out forwards 1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matthias {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@keyframes animate-roll {
+  0% {
+    opacity: 1;
+    transform: translateX(-100%) rotate(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(100%) rotate(1080deg);
+  }
 }
 </style>
