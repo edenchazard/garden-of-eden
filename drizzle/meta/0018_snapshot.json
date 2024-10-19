@@ -1,6 +1,6 @@
 {
-  "id": "d8826c77-6933-4be7-b280-9a9260183c88",
-  "prevId": "173bc1dd-6259-4acb-b163-fd1d429e092e",
+  "id": "7006ef46-7a9d-4350-bdab-9b713c6cc9ba",
+  "prevId": "6f192d2e-2ffc-4d96-b0d7-145407c50ef9",
   "version": "5",
   "dialect": "mysql",
   "tables": {
@@ -231,9 +231,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "tinyint unsigned",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": true
         },
         "name": {
@@ -271,17 +271,38 @@
           "notNull": false,
           "autoincrement": false
         },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "cost": {
           "name": "cost",
           "type": "smallint",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "artist": {
+          "name": "artist",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "items_id": {
+          "name": "items_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "purchases": {
@@ -289,16 +310,16 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "bigint unsigned",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": true
         },
         "item_id": {
           "name": "item_id",
-          "type": "smallint unsigned",
+          "type": "tinyint unsigned",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "user_id": {
@@ -346,7 +367,14 @@
           "onDelete": "cascade"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "purchases_id": {
+          "name": "purchases_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "recordings": {
@@ -414,7 +442,7 @@
         },
         "flair_id": {
           "name": "flair_id",
-          "type": "bigint unsigned",
+          "type": "tinyint unsigned",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -601,6 +629,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "money": {
+          "name": "money",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         }
       },
       "indexes": {

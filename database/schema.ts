@@ -33,6 +33,7 @@ export const userTable = mysqlTable(
       .default(sql`NOW()`)
       .notNull(),
     last_activity: datetime('last_activity'),
+    money: smallint('money').notNull().default(0),
   },
   (table) => {
     return {
@@ -235,11 +236,22 @@ export const itemsTable = mysqlTable('items', {
   availableTo: datetime('available_to', {
     mode: 'date',
   }),
+  description: varchar('description', {
+    length: 255,
+  }).notNull(),
   cost: smallint('cost'),
+  artist: varchar('artist', {
+    length: 64,
+  }),
 });
 
 export const purchasesTable = mysqlTable('purchases', {
-  id: serial('id'),
+  id: bigint('id', {
+    unsigned: true,
+    mode: 'number',
+  })
+    .autoincrement()
+    .primaryKey(),
   item_id: tinyint('item_id', {
     unsigned: true,
   })
