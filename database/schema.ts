@@ -8,7 +8,6 @@ import {
   json,
   mediumint,
   mysqlTable,
-  serial,
   smallint,
   tinyint,
   unique,
@@ -231,10 +230,10 @@ export const itemsTable = mysqlTable('items', {
     enum: ['flair'],
   }).notNull(),
   availableFrom: datetime('available_from', {
-    mode: 'date',
+    mode: 'string',
   }),
   availableTo: datetime('available_to', {
-    mode: 'date',
+    mode: 'string',
   }),
   description: varchar('description', {
     length: 255,
@@ -266,7 +265,9 @@ export const purchasesTable = mysqlTable('purchases', {
       onDelete: 'cascade',
     })
     .notNull(),
-  purchased_on: datetime('purchased_on', { mode: 'date' }).default(sql`NOW()`),
+  purchased_on: datetime('purchased_on', { mode: 'date' })
+    .default(sql`NOW()`)
+    .notNull(),
 });
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {

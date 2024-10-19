@@ -29,8 +29,8 @@
             }}<img
               v-if="user.flair"
               class="inline ml-1"
-              :src="userFlair(user.flair)"
-              :alt="user.flair"
+              :src="userFlair(user.flair.url)"
+              :alt="user.flair.name"
             />
           </span>
         </td>
@@ -60,7 +60,7 @@ withDefaults(
       rank: number;
       username: string;
       clicks_given: number;
-      flair: UserFlair;
+      flair: Pick<Item, 'url' | 'name'> | null;
     }>;
     total: number;
   }>(),
