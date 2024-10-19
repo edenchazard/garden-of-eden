@@ -10,7 +10,7 @@
   >
     <div class="flex flex-col items-center gap-y-2 row-span-2">
       <span class="size-6 flex items-center justify-center">
-        <img :src="userFlair(item.url)" alt="" />
+        <img :src="userFlair(item.url)" alt="" loading="lazy" />
       </span>
       <b class="text-base font-semibold">{{ item.name }}</b>
       <button
