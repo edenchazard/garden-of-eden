@@ -1,12 +1,12 @@
 <template>
   <div class="space-y-4 *:space-y-4">
     <section>
-      <h1>Matthias Shop</h1>
+      <h1>Matthias' Shop</h1>
       <div class="max-w-prose space-y-4 relative overflow-hidden">
         <p>
           As you stroll through the garden, you notice a small, hidden path. You
-          follow it and find yourself at a vast clearing with a small building
-          in the middle.
+          follow it and find yourself at a small building surrounded by a vast
+          clearing.
         </p>
         <q>Pssst!</q>
         <p>A voice calls to you from inside.</p>
@@ -19,11 +19,18 @@
           :src="matthias"
           alt="Matthias the mint dragon"
           class="matthias opacity-0"
+          height="34"
         />
-        <q
-          >My name is Matthias, I'm a humble businessmint. Now then, let's get
-          right to business.</q
-        >
+        <q>My name is Matthias, I'm a humble businessmint. Pardon the mess.</q>
+        <p>
+          The mighty Matthias of the business world looks you up and down
+          <i class="italic">(as best as he can anyway, he's not very tall)</i>,
+          and his piercing gaze is confirmation that he's assessing how best to
+          get the most of your Dragon Dollars.
+        </p>
+        <p>The brief and unnerving silence concludes...</p>
+        <q>Now then, let's get right to business.</q>
+        <p>You never even asked, and yet he's going to tell you anyway.</p>
         (<NuxtLink class="text-sm italic" to="#policy"
           >Terms and Conditions apply, please see Matthias' purchase
           policy.</NuxtLink
@@ -154,7 +161,7 @@ definePageMeta({
 });
 
 useHead({
-  title: 'Shop',
+  title: "Matthias' Shop",
 });
 
 const { data: authData, getSession } = useAuth();
