@@ -3,6 +3,7 @@ import type { TokenSet } from 'next-auth';
 import { db } from '~/server/db';
 import { userSettingsTable, userTable } from '~/database/schema';
 import { eq } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
 
 const {
   clientSecret,
@@ -73,10 +74,14 @@ export default NuxtAuthHandler({
         token.sessionToken = account.access_token;
         const userId = parseInt(account.providerAccountId);
 
+        const salt = await bcrypt.genSalt(10);
+        const hashedToken = await bcrypt.hash(account.access_token, salt);
+
         await db.transaction(async (tx) => {
           await tx.insert(userTable).ignore().values({
             id: userId,
             username: user.username,
+            access_token: hashedToken
           });
 
           await tx.insert(userSettingsTable).ignore().values({
