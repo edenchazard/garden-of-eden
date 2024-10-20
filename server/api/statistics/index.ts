@@ -10,7 +10,6 @@ import {
   userTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
-import weekly from './weekly';
 
 const clicksTotalAllTimeCached = defineCachedFunction(
   async () => {
@@ -141,14 +140,12 @@ export default defineEventHandler(async (event) => {
   const [
     scrolls,
     dragons,
-    clicksThisWeekLeaderboard,
     clicksAllTimeLeaderboard,
     [{ clicks_total: clicksTotalAllTime }],
     weeklies,
   ] = await Promise.all([
     totalScrollsCached(),
     totalDragonsCached(),
-    weekly(event),
     db
       .select({
         rank: clicksLeaderboardTable.rank,
@@ -194,7 +191,6 @@ export default defineEventHandler(async (event) => {
   return {
     scrolls,
     dragons,
-    clicksThisWeekLeaderboard,
     clicksAllTimeLeaderboard,
     clicksTotalAllTime: parseInt(clicksTotalAllTime),
     weekStart: weekStart.toISO(),
