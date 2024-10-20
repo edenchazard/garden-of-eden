@@ -11,8 +11,8 @@
       class="divide-y divide-white [&_td]:px-4 [&_td]:py-1 [&_tr]:divide-x"
     >
       <tr
-        v-for="user in leaderboard"
-        :key="user.rank"
+        v-for="(user, $index) in leaderboard"
+        :key="$index"
         :class="{
           'bg-green-900 dark:bg-stone-700':
             user.username === data?.user?.username || user.username === '-1',
@@ -56,6 +56,7 @@ import userFlair from '~/utils/userFlair';
 
 withDefaults(
   defineProps<{
+    start?: string;
     leaderboard: Array<{
       rank: number;
       username: string;
@@ -65,6 +66,7 @@ withDefaults(
     total: number;
   }>(),
   {
+    start: 'all-time',
     leaderboard: () => [],
     total: 0,
   }
