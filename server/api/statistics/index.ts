@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, gte, lte, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, lte, or, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
@@ -29,35 +29,6 @@ const clicksTotalAllTimeCached = defineCachedFunction(
     group: 'statistics',
     name: 'clickTotals',
     getKey: () => 'allTime',
-  }
-);
-
-const clicksTotalThisWeekCached = defineCachedFunction(
-  async () => {
-    const data = await db
-      .select({
-        clicks_this_week:
-          sql<string>`SUM(${clicksLeaderboardTable.clicks_given})`.as(
-            'clicks_this_week'
-          ),
-      })
-      .from(clicksLeaderboardTable)
-      .where(
-        and(
-          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-          eq(
-            clicksLeaderboardTable.start,
-            DateTime.now().startOf('week').toJSDate()
-          )
-        )
-      );
-    return data;
-  },
-  {
-    maxAge: 60 * 10,
-    group: 'statistics',
-    name: 'clickTotals',
-    getKey: () => 'thisWeek',
   }
 );
 
@@ -134,8 +105,6 @@ const weekliesCached = defineCachedFunction(
 
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
-  const weekStart = DateTime.now().startOf('week');
-  const weekEnd = weekStart.endOf('week');
 
   const [
     scrolls,
@@ -193,8 +162,6 @@ export default defineEventHandler(async (event) => {
     dragons,
     clicksAllTimeLeaderboard,
     clicksTotalAllTime: parseInt(clicksTotalAllTime),
-    weekStart: weekStart.toISO(),
-    weekEnd: weekEnd.toISO(),
     weeklies,
   };
 });
