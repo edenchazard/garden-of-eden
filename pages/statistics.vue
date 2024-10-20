@@ -63,17 +63,28 @@
               Be the envy of your fellow gardeners by making it to the top!
             </p>
           </div>
+
           <div class="col-start-1 md:row-start-2">
             <ClicksLeaderboard
-              :leaderboard="stats.clicksThisWeekLeaderboard"
-              :total="stats.clicksTotalThisWeek"
+              :start="weeklyLeaderboard.weekStart"
+              :end="weeklyLeaderboard.weekEnd"
+              :leaderboard="weeklyLeaderboard.results"
+              :total="weeklyLeaderboard.clicksGiven"
             />
             <div class="text-xs italic text-right">
               <p>
-                <ClientOnly>
+                <ClientOnly
+                  v-if="
+                    DateTime.fromISO(weeklyLeaderboard.weekEnd)
+                      .diffNow()
+                      .as('milliseconds') > 0
+                  "
+                >
                   Tracking since
                   {{
-                    DateTime.fromISO(stats.weekStart).toLocaleString({
+                    DateTime.fromISO(
+                      weeklyLeaderboard.weekStart
+                    ).toLocaleString({
                       dateStyle: 'medium',
                       timeStyle: 'short',
                     })
@@ -81,20 +92,76 @@
                   &mdash;
                   <span
                     :title="
-                      DateTime?.fromISO(stats.weekEnd).toLocaleString({
+                      DateTime.fromISO(
+                        weeklyLeaderboard.weekEnd
+                      ).toLocaleString({
                         dateStyle: 'medium',
                         timeStyle: 'medium',
                       }) ?? undefined
                     "
                     >Resets
                     {{
-                      DateTime.fromISO(stats.weekEnd).toRelative({
+                      DateTime.fromISO(weeklyLeaderboard?.weekEnd).toRelative({
                         style: 'long',
                       })
                     }}</span
                   >
                 </ClientOnly>
+                <ClientOnly v-else
+                  >Results for
+                  {{
+                    DateTime.fromISO(
+                      weeklyLeaderboard.weekStart
+                    ).toLocaleString({
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })
+                  }}
+                  &mdash;
+                  {{
+                    DateTime.fromISO(weeklyLeaderboard.weekEnd).toLocaleString({
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })
+                  }}
+                </ClientOnly>
               </p>
+            </div>
+
+            <div
+              class="flex flex-col sm:flex-row justify-between sm:items-center mt-4 gap-x-4 gap-y-2"
+            >
+              <p>
+                <label for="week-selector" class="text-sm"
+                  >See a previous week</label
+                >
+              </p>
+              <select id="week-selector" v-model="selectedWeek" class="flex-1">
+                <ClientOnly placeholder-tag="option">
+                  <option
+                    v-for="weekly in stats.weeklies"
+                    :key="weekly.start"
+                    :value="weekly.start"
+                  >
+                    Wk {{ weekly.week }}:
+                    {{
+                      Intl.DateTimeFormat(undefined, {
+                        dateStyle: 'medium',
+                      }).format(new Date(weekly.start))
+                    }}
+                    &mdash;
+                    {{
+                      Intl.DateTimeFormat(undefined, {
+                        dateStyle: 'medium',
+                      }).format(
+                        DateTime.fromISO(weekly.start)
+                          .plus({ weeks: 1 })
+                          .toJSDate()
+                      )
+                    }}
+                  </option>
+                </ClientOnly>
+              </select>
             </div>
           </div>
           <div class="max-w-sm">
@@ -183,7 +250,12 @@ useHead({
   title: 'Statistics',
 });
 
+const dragons = ref<ChartData<'line'>>();
+const scrolls = ref<ChartData<'line'>>();
+const selectedWeek = ref<string | null>();
+
 const { userSettings } = useUserSettings();
+
 const { data: personalStats } = await useFetch('/api/user/statistics', {
   watch: false,
   headers: computed(() => ({
@@ -198,20 +270,30 @@ const { data: stats } = await useFetch('/api/statistics', {
   })),
   default: () => ({
     clicksTotalAllTime: 0,
-    clicksTotalThisWeek: 0,
-    clicksThisWeekLeaderboard: [],
     clicksAllTimeLeaderboard: [],
     dragons: [],
     scrolls: [],
-    weekEnd: DateTime.now().toISO(),
-    weekStart: DateTime.now().toISO(),
+    weeklies: [],
+  }),
+});
+
+const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
+  query: {
+    start: computed(() => selectedWeek.value),
+  },
+  watch: [selectedWeek],
+  headers: computed(() => ({
+    'Csrf-token': useCsrf().csrf,
+  })),
+  default: () => ({
+    weekStart: '',
+    weekEnd: '',
+    results: [],
+    clicksGiven: 0,
   }),
 });
 
 const { data } = useAuth();
-
-const dragons = ref<ChartData<'line'>>();
-const scrolls = ref<ChartData<'line'>>();
 
 onNuxtReady(() => renderCharts());
 

@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, gte, lte, or, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
@@ -10,6 +10,7 @@ import {
   userTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
+import weekly from './weekly';
 
 const clicksTotalAllTimeCached = defineCachedFunction(
   async () => {
@@ -102,6 +103,36 @@ const totalDragonsCached = defineCachedFunction(
   }
 );
 
+const weekliesCached = defineCachedFunction(
+  async () => {
+    const data = await db
+      .selectDistinct({
+        start: clicksLeaderboardTable.start,
+      })
+      .from(clicksLeaderboardTable)
+      .where(
+        and(
+          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
+          gt(
+            clicksLeaderboardTable.start,
+            DateTime.fromSQL('2024-09-28 20:55:00Z').toJSDate()
+          )
+        )
+      )
+      .orderBy(desc(clicksLeaderboardTable.start));
+    return data.map((row, index) => ({
+      ...row,
+      week: data.length - index,
+    }));
+  },
+  {
+    maxAge: 1,
+    group: 'statistics',
+    name: 'leaderboards',
+    getKey: () => 'weeklies',
+  }
+);
+
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
   const weekStart = DateTime.now().startOf('week');
@@ -113,44 +144,11 @@ export default defineEventHandler(async (event) => {
     clicksThisWeekLeaderboard,
     clicksAllTimeLeaderboard,
     [{ clicks_total: clicksTotalAllTime }],
-    [{ clicks_this_week: clicksTotalThisWeek }],
+    weeklies,
   ] = await Promise.all([
     totalScrollsCached(),
     totalDragonsCached(),
-    db
-      .select({
-        rank: clicksLeaderboardTable.rank,
-        username: sql<string>`
-          CASE
-            WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
-            WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
-            ELSE ${userTable.username}
-          END`.as('username'),
-        clicks_given: clicksLeaderboardTable.clicks_given,
-        flair: {
-          url: itemsTable.url,
-          name: itemsTable.name,
-        },
-      })
-      .from(clicksLeaderboardTable)
-      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
-      .innerJoin(
-        userSettingsTable,
-        eq(userSettingsTable.user_id, clicksLeaderboardTable.user_id)
-      )
-      .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
-      .where(
-        and(
-          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-          gte(clicksLeaderboardTable.start, weekStart.toJSDate()),
-          or(
-            eq(clicksLeaderboardTable.user_id, token?.userId),
-            lte(clicksLeaderboardTable.rank, 10)
-          )
-        )
-      )
-      .orderBy(clicksLeaderboardTable.rank)
-      .limit(11),
+    weekly(event),
     db
       .select({
         rank: clicksLeaderboardTable.rank,
@@ -185,7 +183,7 @@ export default defineEventHandler(async (event) => {
       .orderBy(clicksLeaderboardTable.rank)
       .limit(11),
     clicksTotalAllTimeCached(),
-    clicksTotalThisWeekCached(),
+    weekliesCached(),
   ]);
 
   // since we got them in descending order (latest 48),
@@ -199,8 +197,8 @@ export default defineEventHandler(async (event) => {
     clicksThisWeekLeaderboard,
     clicksAllTimeLeaderboard,
     clicksTotalAllTime: parseInt(clicksTotalAllTime),
-    clicksTotalThisWeek: parseInt(clicksTotalThisWeek),
     weekStart: weekStart.toISO(),
     weekEnd: weekEnd.toISO(),
+    weeklies,
   };
 });
