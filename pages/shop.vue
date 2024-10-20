@@ -165,7 +165,7 @@ useHead({
 });
 
 const { data: authData, getSession } = useAuth();
-
+await getSession();
 const { data } = await useFetch('/api/shop', {
   immediate: true,
   default: () => ({
