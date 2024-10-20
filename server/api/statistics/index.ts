@@ -4,6 +4,7 @@ import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
 import {
   clicksLeaderboardTable,
+  itemsTable,
   recordingsTable,
   userSettingsTable,
   userTable,
@@ -124,7 +125,10 @@ export default defineEventHandler(async (event) => {
             ELSE ${userTable.username}
           END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
-        flair: userSettingsTable.flair,
+        flair: {
+          url: itemsTable.url,
+          name: itemsTable.name,
+        },
       })
       .from(clicksLeaderboardTable)
       .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
@@ -132,6 +136,7 @@ export default defineEventHandler(async (event) => {
         userSettingsTable,
         eq(userSettingsTable.user_id, clicksLeaderboardTable.user_id)
       )
+      .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
       .where(
         and(
           eq(clicksLeaderboardTable.leaderboard, 'all time'),

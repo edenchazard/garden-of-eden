@@ -1,0 +1,23 @@
+-- Custom SQL migration file, put you code below! --
+INSERT INTO items (name, url, category, cost, available_from, available_to, artist, description) VALUES
+('Anthurium', '/anthurium.png', 'flair', 150, NULL, NULL, "04uni", "The \"flower\" on an Anthurium is actually a spathe. The name comes from Greek origins, meaning \"flower tail.\""),
+('Blackrose', '/blackrose.png', 'flair', 300, NULL, NULL, "Arcy", "Black roses don't exist... so just how did Matthias obtain them?"),
+('Broccoli', '/broccoli.png', 'flair', NULL, NULL, NULL, "Arcy", "Use it as decoration, or as part of a tasty meal."),
+('Dragongrass', '/dragongrass.png', 'flair', 175, NULL, NULL, "Arcy", "A favourite among dragons."),
+('Hibiscus', '/hibiscus.png', 'flair', 50, NULL, NULL, "Arcy", "For tea lovers, Hibiscus has a great lemon-y taste. For nerds, it's used as a pH indicator."),
+('Hyacinth', '/hyacinth.png', 'flair', 50, NULL, NULL, "Arcy", "Blue Hyacinth flowers signify sincerity. Sincerity for avid dragon clicking."),
+('Lily', '/lily.png', 'flair', 75, NULL, NULL, "Arcy", "A favourite among bouquet arrangements, but probably not something to keep near your Chaliuba Dragon."),
+('Rafflesia', '/rafflesia.png', 'flair', NULL, NULL, NULL, "Arcy", ""),
+('Saxifrage', '/saxifrage.png', 'flair', 50, NULL, NULL, "Mu-Cephei", "There's over 400 species of Saxifrage, imagine if they were all available in the garden?"),
+('Sunflower', '/sunflower.png', 'flair', 75, NULL, NULL, "Arcy", "A huge sunflower containing hundreds of seeds. Useful even after it wilts."),
+('Dandelion', '/dandelion.png', 'flair', 50, NULL, NULL, "04uni", "Wish upon a st&mdash; dandelion."),
+('Sakura', '/sakura.png', 'flair', 50, NULL, NULL, "04uni", "Due to Garden Magic&trade;, this Sakura is available at all times of the year."),
+('Black Calla Lily', '/black-calla-lily.png', 'flair', 400, NULL, NULL, "04uni", "<span class=\"italic\">Calla, calla, calla, calla calla chameleon... You click and go... &#9835;</span>"),
+('Witch Hazel', '/witch-hazel.png', 'flair', 75, '2024-10-01 00:00:00', '2024-11-07 00:00:00', "04uni", "Witch Hazel was once used to divine water and gold. Perhaps cave dragons would be interested."),
+('Bird of Paradise', '/bird-of-paradise.png', 'flair', 125, NULL, NULL, "04uni", "Is it a bird? Is it a plane? No, it's a flower."),
+('Pumpkin', '/pumpkin.png', 'flar', 75, '2024-10-01 00:00:00', '2024-11-07 00:00:00', "Arcy", "Orange pumpkins contain carotene, even though they obviously aren't carrots."),
+('Pumpkin (white)', '/pumpkin-white.png', 'flair', 75, '2024-10-01 00:00:00', '2024-11-07 00:00:00', "Arcy", "The weight of this pumpkin might drag your leaderboard score down."),
+('Glowshroom', '/glowshroom.png', 'flar', 100, '2024-10-01 00:00:00', '2024-11-07 00:00:00', "Arcy", "Unsafe for consumption as determined by the Food Standards Agency."),
+('Reimu Myrtle', '/reimu-myrtle.png', 'flair', 500, NULL, NULL, "04uni", "<q class=\"italic\">Aah! The cat turned into a cat!</q>"),
+('Gracidea', '/gracidea.png', 'flair', 500, NULL, NULL, "04uni", "A flower commonly used to express gratitude."),
+('Forget-me-not', '/forget-me-not.png', 'flair', 125, NULL, NULL, "inghelene", "There was something to remember but you can't recall.");
