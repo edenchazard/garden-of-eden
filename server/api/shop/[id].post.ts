@@ -65,9 +65,12 @@ export default defineEventHandler(async (event) => {
       user_id: token.userId,
     });
 
-    await tx.update(userTable).set({
-      money: user.money - (item?.cost ?? 0),
-    });
+    await tx
+      .update(userTable)
+      .set({
+        money: user.money - (item?.cost ?? 0),
+      })
+      .where(eq(userTable.id, token.userId));
 
     await tx
       .update(userSettingsTable)
