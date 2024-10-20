@@ -75,6 +75,8 @@ export default defineCronHandler('everyFiveMinutes', async () => {
   // Clear totals.
   await Promise.all([
     useStorage('cache').removeItem('statistics:clickTotals:allTime.json'),
-    useStorage('cache').removeItem('statistics:clickTotals:thisWeek.json'),
+    useStorage('cache').removeItem(
+      `statistics:clickTotals:week-${weekStart.toISO()}.json`
+    ),
   ]);
 });
