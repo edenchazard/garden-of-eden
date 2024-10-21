@@ -189,7 +189,7 @@ async function purchase(item: Item) {
         return;
       }
 
-      await Promise.all([refreshNuxtData(), getSession()]);
+      await getSession();
       toast.success('Flair updated!');
       return;
     },
