@@ -146,5 +146,7 @@ export default defineEventHandler(async (event) => {
     console.error(e)
   }
 
+  // uwu...
+
   setResponseStatus(404);
 });
