@@ -1,7 +1,6 @@
 import { loadImage, createCanvas } from 'canvas';
 import type { Image } from 'canvas';
 import { z } from 'zod';
-import { createCanvas } from 'canvas';
 import GIFEncoder from 'gifencoder';
 
 async function getDragonStrip(dragonIds: string[]): Promise<{
@@ -49,29 +48,33 @@ async function getDragonStrip(dragonIds: string[]): Promise<{
 }
 
 async function getDragons(scrollName: string): Promise<string[]> {
-  const dragons = await $fetch<
+  const { dragons } = await $fetch<
     DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
       dragons: Record<string, DragonData>;
     }
-  >('https://dragcave.net/api/v2/user?username=' + scrollName, {
+  >('https://dragcave.net/api/v2/user?username=' + scrollName.split('.')[0], {
     headers: {
-      Authorization: `Bearer ${process.env.DC_API_KEY}`,
+      Authorization: `Bearer ${process.env.CLIENT_SECRET}`,
     },
   });
 
-  return Object.values(dragons).filter((dragon) => {
-    return dragon.hoursleft > 0;
+  // console.log(Object.keys(dragons));
+
+  return Object.keys(dragons).filter((key) => {
+    return dragons[key].hoursleft > 0;
   });
 }
 
 export default defineEventHandler(async (event) => {
   const schema = z.object({
-    username: z.string().min(4).max(30),
+    ['username.gif']: z.string().min(4).max(34).endsWith('gif'),
   });
+
+  console.log(event.context.params);
 
   const params = await getValidatedRouterParams(event, schema.parse);
 
-  const dragonIds = await getDragons(params.username);
+  const dragonIds = await getDragons(params['username.gif']);
   const { dragonStrip, width, height } = await getDragonStrip(dragonIds);
 
   const BANNERWIDTH = 150;
