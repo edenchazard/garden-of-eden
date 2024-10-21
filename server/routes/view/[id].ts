@@ -16,23 +16,21 @@ export default defineEventHandler(async (event) => {
   ]);
 
   if (token) {
-    await db.transaction(async (tx) => {
-      const [clickRecord] = await tx.insert(clicksTable).ignore().values({
-        hatchery_id: params.id,
-        user_id: token.userId,
-      });
-
-      if (clickRecord.affectedRows === 0) {
-        return;
-      }
-
-      await tx
-        .update(userTable)
-        .set({
-          money: sql`${userTable.money} + 1`,
-        })
-        .where(and(eq(userTable.id, token.userId), lt(userTable.money, 500)));
+    const [clickRecord] = await db.insert(clicksTable).ignore().values({
+      hatchery_id: params.id,
+      user_id: token.userId,
     });
+
+    if (clickRecord.affectedRows === 0) {
+      return;
+    }
+
+    await db
+      .update(userTable)
+      .set({
+        money: sql`${userTable.money} + 1`,
+      })
+      .where(and(eq(userTable.id, token.userId), lt(userTable.money, 500)));
   }
 
   return sendRedirect(event, `https://dragcave.net/view/${params.id}`);
