@@ -3,20 +3,22 @@ import type { Image } from 'canvas';
 import { z } from 'zod';
 import GIFEncoder from 'gifencoder';
 import { promises as fs, createWriteStream, createReadStream } from 'fs';
-import path from 'path';
 
 async function saveBanner(filePath: string, buffer: ArrayBuffer) {
   return new Promise((resolve, reject) => {
     const stream = createWriteStream(filePath);
     stream.write(buffer);
-    stream.on('finish', () => {
-      stream.close();
-      resolve(void 0);
-    }).on('error', (e) => {
-      console.error(e);
-      reject(void 0);
-    })
-  })
+    stream
+      .on('finish', () => {
+        stream.close();
+        stream.end();
+        resolve(void 0);
+      })
+      .on('error', (e) => {
+        console.error(e);
+        reject(void 0);
+      });
+  });
 }
 
 async function generateBanner(scrollname: string) {
@@ -122,31 +124,50 @@ async function getDragons(scrollName: string): Promise<string[]> {
   });
 }
 
+async function exists(f: string) {
+  try {
+    await fs.stat(f);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const schema = z.object({
     ['username.gif']: z.string().min(4).max(34).endsWith('gif'),
   });
 
   const params = await getValidatedRouterParams(event, schema.parse);
-  const scrollname = params['username.gif'].split('.')[0]; 
+  const scrollname = params['username.gif'].split('.')[0];
   // ig we should eventually fix stuff such that we don't have to keep '.gif' in the params.
-  console.log(import.meta.dirname);
-
-  // fs.writeFile('/src/file.txt', 'owo');
 
   const filepath = `/src/public/caches/banners/${scrollname}.gif`;
+  let shouldGenerate = false;
+
   try {
-    const { mtime, isFile } = await fs.stat(filepath);
-    if (!isFile() || mtime.getTime() < Date.now() - 1000 * 60 * 60) {
+    await fs.mkdir('/src/public/caches/banners', { recursive: true });
+
+    if (await exists(filepath)) {
+      const { mtime } = await fs.stat(filepath);
+
+      if (mtime.getTime() < Date.now() - 1000 * 60 * 60) {
+        shouldGenerate = true;
+      }
+    } else {
+      shouldGenerate = true;
+    }
+
+    if (shouldGenerate) {
       await saveBanner(filepath, await generateBanner(scrollname));
     }
+
     setHeader(event, 'Content-Type', 'image/gif');
-    return sendStream(event, createReadStream(filepath))
-  } catch(e) {
-    console.error(e)
+
+    return sendStream(event, createReadStream(filepath, { autoClose: true }));
+  } catch (e) {
+    console.error(e);
   }
 
-  // uwu...
-
-  setResponseStatus(404);
+  setResponseStatus(event, 404);
 });
