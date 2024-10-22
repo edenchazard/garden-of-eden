@@ -4,21 +4,23 @@ import { z } from 'zod';
 import GIFEncoder from 'gifencoder';
 import { promises as fs, createWriteStream, createReadStream } from 'fs';
 
+const queue = new Set<string>();
+
 async function saveBanner(filePath: string, buffer: ArrayBuffer) {
-  return new Promise((resolve, reject) => {
-    const stream = createWriteStream(filePath);
-    stream.write(buffer);
-    stream
-      .on('finish', () => {
-        stream.close();
-        stream.end();
-        resolve(void 0);
-      })
-      .on('error', (e) => {
-        console.error(e);
-        reject(void 0);
-      });
-  });
+  await Promise.all([
+    fs.mkdir('/tmp/caches/banners', { recursive: true }),
+    fs.mkdir('/caches/banners', { recursive: true }),
+  ]);
+
+  // first, write to temporary
+  const stream = createWriteStream(`/tmp${filePath}`);
+  stream.write(buffer);
+
+  stream.close();
+
+  // then, move to actual location
+  await fs.rename(`/tmp${filePath}`, filePath);
+  queue.delete(filePath);
 }
 
 async function generateBanner(scrollname: string) {
@@ -117,16 +119,14 @@ async function getDragons(scrollName: string): Promise<string[]> {
     },
   });
 
-  // console.log(Object.keys(dragons));
-
   return Object.keys(dragons).filter((key) => {
     return dragons[key].hoursleft > 0;
   });
 }
 
-async function exists(f: string) {
+async function exists(file: string) {
   try {
-    await fs.stat(f);
+    await fs.stat(file);
     return true;
   } catch {
     return false;
@@ -143,34 +143,37 @@ export default defineEventHandler(async (event) => {
   });
 
   const params = await getValidatedRouterParams(event, schema.parse);
+  const filePath = `/caches/banners/${params.username}.gif`;
+  const cacheLength = 1000 * 60 * 60;
+  let regenerate = true;
 
-  const filePath = `/src/public/caches/banners/${params.username}.gif`;
+  try {
+    if (await exists(filePath)) {
+      console.log('Banner exists');
+      const { mtime } = await fs.stat(filePath);
 
-  let shouldGenerate = false;
+      if (mtime.getTime() > Date.now() - cacheLength) {
+        regenerate = false;
+      }
 
-  //try {
-  await fs.mkdir('/src/public/caches/banners', { recursive: true });
+      setHeaders(event, {
+        'Content-Type': 'image/gif',
+        'Cache-Control': `public, max-age=${cacheLength / 1000}`,
+      });
 
-  if (await exists(filePath)) {
-    const { mtime } = await fs.stat(filePath);
-
-    if (mtime.getTime() < Date.now() - 1000 * 60 * 60) {
-      shouldGenerate = true;
+      return sendStream(event, createReadStream(filePath, { autoClose: true }));
+    } else {
+      setResponseStatus(event, 404);
     }
-  } else {
-    shouldGenerate = true;
-  }
-
-  if (shouldGenerate) {
-    await saveBanner(filePath, await generateBanner(params.username));
-  }
-
-  setHeader(event, 'Content-Type', 'image/gif');
-
-  return sendStream(event, createReadStream(filePath, { autoClose: true }));
-  /* } catch (e) {
+  } catch (e) {
     console.error(e);
-  } */
+  } finally {
+    if (regenerate && !queue.has(filePath)) {
+      console.log('Processing banner for', params.username, queue);
 
+      queue.add(filePath);
+      saveBanner(filePath, await generateBanner(params.username));
+    }
+  }
   setResponseStatus(event, 404);
 });
