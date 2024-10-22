@@ -20,11 +20,11 @@
         }"
       >
         <td class="text-right">#{{ user.rank }}</td>
-        <td v-if="['-1', '-2'].includes(user.username)" class="italic">
-          (anonymous)
-        </td>
-        <td v-else>
-          <span class="inline-flex items-center">
+        <td>
+          <span v-if="['-1', '-2'].includes(user.username)" class="italic">
+            (anonymous)
+          </span>
+          <span v-else class="inline-flex items-center">
             {{ user.username
             }}<img
               v-if="user.flair"
