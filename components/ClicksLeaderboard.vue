@@ -20,19 +20,18 @@
         }"
       >
         <td class="text-right">#{{ user.rank }}</td>
-        <td v-if="['-1', '-2'].includes(user.username)" class="italic">
-          (anonymous)
-        </td>
-        <td v-else>
+        <td>
           <span class="inline-flex items-center">
-            {{ user.username
-            }}<img
+            <span v-if="['-1', '-2'].includes(user.username)" class="italic">
+              (anonymous)
+            </span>
+            <template v-else> {{ user.username }} </template
+            ><img
               v-if="user.flair"
               class="inline ml-1"
               :src="userFlair(user.flair.url)"
               :alt="user.flair.name"
-            />
-          </span>
+          /></span>
         </td>
         <td>{{ Intl.NumberFormat().format(user.clicks_given) }}</td>
       </tr>
