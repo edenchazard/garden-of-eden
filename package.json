@@ -25,6 +25,7 @@
     "@nuxtjs/robots": "^4.0.2",
     "@sidebase/nuxt-auth": "^0.8.1",
     "@vueuse/core": "^10.11.0",
+    "bullmq": "^5.21.2",
     "chart.js": "^4.4.3",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",

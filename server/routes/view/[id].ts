@@ -4,6 +4,33 @@ import { hatcheryTable, clicksTable, userTable } from '~/database/schema';
 import type { JWT } from 'next-auth/jwt';
 import { createSelectSchema } from 'drizzle-zod';
 import { and, eq, lt, sql } from 'drizzle-orm';
+import { Queue, Worker } from 'bullmq';
+
+const moneyQueue = new Queue('moneyQueue', {
+  connection: {
+    host: process.env.REDIS_HOST,
+    port: Number(process.env.REDIS_PORT),
+  },
+});
+
+new Worker(
+  'moneyQueue',
+  async (job) => {
+    const { userId } = job.data;
+    await db
+      .update(userTable)
+      .set({
+        money: sql`${userTable.money} + 1`,
+      })
+      .where(and(eq(userTable.id, userId), lt(userTable.money, 500)));
+  },
+  {
+    connection: {
+      host: process.env.REDIS_HOST,
+      port: Number(process.env.REDIS_PORT),
+    },
+  }
+);
 
 export default defineEventHandler(async (event) => {
   const schema = createSelectSchema(hatcheryTable).pick({
@@ -26,12 +53,7 @@ export default defineEventHandler(async (event) => {
         return;
       }
 
-      await tx
-        .update(userTable)
-        .set({
-          money: sql`${userTable.money} + 1`,
-        })
-        .where(and(eq(userTable.id, token.userId), lt(userTable.money, 500)));
+      await moneyQueue.add('updateMoney', { userId: token.userId });
     });
   }
 

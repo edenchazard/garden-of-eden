@@ -9,6 +9,10 @@ services:
       - node_modules:/src/node_modules
     ports:
       - 3000:3000
+    env_file:
+      - .env
+    networks:
+      - internal
 
   db:
     image: mariadb:10
@@ -19,6 +23,15 @@ services:
       - .env
     ports:
       - 3306:3306
+    networks:
+      - internal
+
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    networks:
+      - internal
 
 volumes:
   dbdata:
