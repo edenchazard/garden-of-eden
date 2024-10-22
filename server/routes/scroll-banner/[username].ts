@@ -135,39 +135,42 @@ async function exists(f: string) {
 
 export default defineEventHandler(async (event) => {
   const schema = z.object({
-    ['username.gif']: z.string().min(4).max(34).endsWith('gif'),
+    username: z
+      .string()
+      .min(4)
+      .max(36)
+      .transform((v) => v.substring(0, v.indexOf('.'))),
   });
 
   const params = await getValidatedRouterParams(event, schema.parse);
-  const scrollname = params['username.gif'].split('.')[0];
-  // ig we should eventually fix stuff such that we don't have to keep '.gif' in the params.
 
-  const filepath = `/src/public/caches/banners/${scrollname}.gif`;
+  const filePath = `/src/public/caches/banners/${params.username}.gif`;
+
   let shouldGenerate = false;
 
-  try {
-    await fs.mkdir('/src/public/caches/banners', { recursive: true });
+  //try {
+  await fs.mkdir('/src/public/caches/banners', { recursive: true });
 
-    if (await exists(filepath)) {
-      const { mtime } = await fs.stat(filepath);
+  if (await exists(filePath)) {
+    const { mtime } = await fs.stat(filePath);
 
-      if (mtime.getTime() < Date.now() - 1000 * 60 * 60) {
-        shouldGenerate = true;
-      }
-    } else {
+    if (mtime.getTime() < Date.now() - 1000 * 60 * 60) {
       shouldGenerate = true;
     }
-
-    if (shouldGenerate) {
-      await saveBanner(filepath, await generateBanner(scrollname));
-    }
-
-    setHeader(event, 'Content-Type', 'image/gif');
-
-    return sendStream(event, createReadStream(filepath, { autoClose: true }));
-  } catch (e) {
-    console.error(e);
+  } else {
+    shouldGenerate = true;
   }
+
+  if (shouldGenerate) {
+    await saveBanner(filePath, await generateBanner(params.username));
+  }
+
+  setHeader(event, 'Content-Type', 'image/gif');
+
+  return sendStream(event, createReadStream(filePath, { autoClose: true }));
+  /* } catch (e) {
+    console.error(e);
+  } */
 
   setResponseStatus(event, 404);
 });
