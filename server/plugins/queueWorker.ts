@@ -24,6 +24,5 @@ export default defineNitroPlugin(() => {
     }
   );
 
-  // You can log or handle worker events here if needed
-  console.log('BullMQ worker started');
+  console.log('Money worker started');
 });
