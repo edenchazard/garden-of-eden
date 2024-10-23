@@ -31,6 +31,13 @@ services:
     ports:
       - 55555:3306
 
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    networks:
+      - internal
+
   autoheal:
     deploy:
       replicas: 1
