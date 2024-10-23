@@ -55,6 +55,10 @@ export default defineNuxtConfig({
       database: process.env.MYSQL_DATABASE,
       password: process.env.MYSQL_PASSWORD,
     },
+    redis: {
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT,
+    },
     public: {
       baseUrl: process.env.BASE_URL,
       origin: process.env.ORIGIN,

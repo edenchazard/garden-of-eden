@@ -1,14 +1,26 @@
-// server/plugins/queueWorker.ts
 import { Worker } from 'bullmq';
 import { db } from '~/server/db';
-import { userTable } from '~/database/schema';
+import { clicksTable, userTable } from '~/database/schema';
 import { and, eq, lt, sql } from 'drizzle-orm';
+
+const {
+  redis: { host, port },
+} = useRuntimeConfig();
 
 export default defineNitroPlugin(() => {
   new Worker(
-    'moneyQueue',
+    'clickRecordQueue',
     async (job) => {
-      const { userId } = job.data;
+      const { userId, hatcheryId } = job.data;
+      const [clickRecord] = await db.insert(clicksTable).ignore().values({
+        hatchery_id: hatcheryId,
+        user_id: userId,
+      });
+
+      if (clickRecord.affectedRows === 0) {
+        return;
+      }
+
       await db
         .update(userTable)
         .set({
@@ -18,11 +30,11 @@ export default defineNitroPlugin(() => {
     },
     {
       connection: {
-        host: process.env.REDIS_HOST,
-        port: Number(process.env.REDIS_PORT),
+        host,
+        port: Number(port),
       },
     }
   );
 
-  console.log('Money worker started');
+  console.info('Click record worker started');
 });
