@@ -2,7 +2,7 @@ import { Worker } from 'bullmq';
 import { db } from '~/server/db';
 import { clicksTable, userTable } from '~/database/schema';
 import { and, eq, lt, sql } from 'drizzle-orm';
-import { SHARE_ENV, Worker as workerThreads } from 'worker_threads';
+import { Worker as workerThreads } from 'worker_threads';
 import { promises as fs } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 
@@ -48,7 +48,6 @@ export default defineNitroPlugin(async () => {
     '/src/server/queue/shareScrollWorker.js',
     {
       workerData: { username: null, filePath: null },
-      env: SHARE_ENV,
     }
   );
 

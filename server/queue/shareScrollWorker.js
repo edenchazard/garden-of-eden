@@ -20,11 +20,11 @@ parentPort.on('message', async function (message) {
   const { username, filePath, token } = message;
 
   try {
-    const banner = await generateBanner(username, token);
-    await saveBanner(filePath, banner);
+    await generateBannerToTemporary(username, filePath, token);
+    await moveBannerFromTemporary(filePath);
     parentPort.postMessage({ type: 'success', username });
   } catch (e) {
-    parentPort.postMessage({ type: 'error', username });
+    parentPort.postMessage({ type: 'error', username, error: e });
   } finally {
     parentPort.postMessage({ type: 'jobFinished', username });
   }
@@ -32,36 +32,30 @@ parentPort.on('message', async function (message) {
 
 /**
  * @param {string} filePath
- * @param {ArrayBuffer} buffer
  */
-async function saveBanner(filePath, buffer) {
-  // first, write to temporary file
-  const stream = createWriteStream(`${filePath}.tmp`);
-
-  stream.write(buffer, async () => {
-    // remove old file, if it exists.
-    if (await exists(filePath)) {
-      await fs.unlink(filePath);
-    }
-
-    await fs.rename(`${filePath}.tmp`, filePath);
-  });
+async function moveBannerFromTemporary(filePath) {
+  // remove old file, if it exists.
+  if (await exists(filePath)) {
+    await fs.unlink(filePath);
+  }
+  await fs.rename(`${filePath}.tmp`, filePath);
 }
 
 /**
- *
- * @param {string} scrollname
+ * @param {string} scrollName
+ * @param {string} filePath
  * @param {string} token
  * @returns
  */
-async function generateBanner(scrollname, token) {
-  const dragonIds = await getDragonIds(scrollname, token);
+async function generateBannerToTemporary(scrollName, filePath, token) {
+  const dragonIds = await getDragonIds(scrollName, token);
   const { dragonStrip, width, height } = await getDragonStrip(dragonIds);
 
   const BANNERWIDTH = 150;
   const BANNERHEIGHT = 50;
 
   const encoder = new GIFEncoder(BANNERWIDTH, BANNERHEIGHT);
+  encoder.createReadStream().pipe(createWriteStream(filePath + '.tmp'));
   encoder.start();
   encoder.setRepeat(0);
   encoder.setDelay(100);
@@ -89,7 +83,6 @@ async function generateBanner(scrollname, token) {
   }
 
   encoder.finish();
-  return encoder.out.getData();
 }
 
 /**
@@ -156,10 +149,11 @@ async function getDragonIds(username, token) {
       },
     }
   );
-
   const { dragons } = await response.json();
 
-  return Object.keys(dragons).filter((key) => {
-    return dragons[key].hoursleft > 0;
-  });
+  return Object.values(dragons)
+    .filter((dragon) => {
+      return dragon.hoursleft > 0;
+    })
+    .map((dragon) => dragon.id);
 }
