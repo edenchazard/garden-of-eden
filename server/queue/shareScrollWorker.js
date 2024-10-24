@@ -152,8 +152,6 @@ async function getDragonIds(username, token) {
   const { dragons } = await response.json();
 
   return Object.values(dragons)
-    .filter((dragon) => {
-      return dragon.hoursleft > 0;
-    })
+    .filter((dragon) => dragon.hoursleft > 0)
     .map((dragon) => dragon.id);
 }
