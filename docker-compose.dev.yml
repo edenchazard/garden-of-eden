@@ -7,6 +7,7 @@ services:
     volumes:
       - .:/src
       - node_modules:/src/node_modules
+      - caches:/cache
     ports:
       - 3000:3000
     env_file:
@@ -36,6 +37,8 @@ services:
 volumes:
   dbdata:
   node_modules:
+  caches:
+  tmp:
 
 networks:
   internal:

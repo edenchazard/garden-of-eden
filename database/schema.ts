@@ -22,6 +22,9 @@ export const userTable = mysqlTable(
     username: varchar('username', {
       length: 32,
     }).notNull(),
+    access_token: varchar('access_token', {
+      length: 32
+    }),
     role: varchar('role', {
       length: 10,
       enum: ['user', 'owner'],

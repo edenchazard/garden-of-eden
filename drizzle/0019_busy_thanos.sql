@@ -1,1 +1,0 @@
-ALTER TABLE `purchases` MODIFY COLUMN `purchased_on` datetime NOT NULL DEFAULT NOW();
