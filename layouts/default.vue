@@ -180,7 +180,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useSSRContext } from 'vue';
 import userFlair from '~/utils/userFlair';
 
 useHead({
@@ -190,8 +189,6 @@ useHead({
       : `Garden of ${userSettings.value.siteName}`;
   },
 });
-
-const colorMode = useColorMode();
 
 const { data: authData, signIn, signOut } = useAuth();
 
