@@ -1,10 +1,10 @@
 <template>
-  <div class="w-full max-w-screen-lg space-y-4 py-4">
+  <div class="w-full max-w-screen-lg space-y-4 pt-2.5 pb-4">
     <div class="flex flex-col rounded-md">
       <header
-        class="px-2 lg:px-0 space-y-4 sm:space-y-0 pb-4 justify-between items-center"
+        class="px-2 lg:px-0 space-y-2 sm:space-y-0 pb-2 justify-between items-center"
       >
-        <div class="flex justify-end gap-3 pb-3">
+        <div class="flex justify-end gap-3 h-9 items-center">
           <span v-if="authData?.user" class="truncate">
             <span class="hidden sm:inline">Logged in as&nbsp;</span
             ><NuxtLink
@@ -21,12 +21,20 @@
           </span>
           <ClientOnly>
             <ToggleInput
-              :model-value="$colorMode.preference === 'dark'"
-              :label="colorMode.preference === 'dark' ? 'Dark' : 'Mint'"
+              class="inline-block w-[5.1rem]"
+              :model-value="$colorMode.preference === 'mint'"
+              :label="$colorMode.preference === 'mint' ? 'Mint' : 'Dark'"
               @update:model-value="
-                $colorMode.preference = $event ? 'dark' : 'mint'
+                $colorMode.preference = $event ? 'mint' : 'dark'
               "
             />
+            <template #fallback>
+              <ToggleInput
+                :model-value="false"
+                label=""
+                class="inline-block w-[5.1rem]"
+              />
+            </template>
           </ClientOnly>
           <NuxtLink
             v-if="authData?.user"
@@ -38,7 +46,7 @@
             />Settings</NuxtLink
           >
         </div>
-        <div class="flex gap-y-4 flex-col sm:flex-row justify-between">
+        <div class="flex gap-y-2 flex-col sm:flex-row justify-between">
           <div class="text-center">
             <NuxtLink
               to="/"
@@ -163,6 +171,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useSSRContext } from 'vue';
 import userFlair from '~/utils/userFlair';
 
 useHead({
