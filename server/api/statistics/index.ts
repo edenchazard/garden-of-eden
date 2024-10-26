@@ -11,6 +11,52 @@ import {
 } from '~/database/schema';
 import { db } from '~/server/db';
 
+const totalScrollsCached = defineCachedFunction(
+  async () =>
+    db
+      .select()
+      .from(recordingsTable)
+      .orderBy(asc(recordingsTable.recorded_on))
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'total_scrolls')
+        )
+      ),
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'scrolls',
+  }
+);
+
+const totalDragonsCached = defineCachedFunction(
+  async () =>
+    db
+      .select()
+      .from(recordingsTable)
+      .orderBy(asc(recordingsTable.recorded_on))
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'total_dragons')
+        )
+      ),
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'dragons',
+  }
+);
+
 const clicksTotalAllTimeCached = defineCachedFunction(
   async () => {
     const data = await db
@@ -29,47 +75,6 @@ const clicksTotalAllTimeCached = defineCachedFunction(
     group: 'statistics',
     name: 'clickTotals',
     getKey: () => 'allTime',
-  }
-);
-
-const recordingsTableQueryBuilder = () =>
-  db.select().from(recordingsTable).orderBy(asc(recordingsTable.recorded_on));
-
-const totalScrollsCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toSQL()
-        ),
-        eq(recordingsTable.record_type, 'total_scrolls')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'scrolls',
-  }
-);
-
-const totalDragonsCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toSQL()
-        ),
-        eq(recordingsTable.record_type, 'total_dragons')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'dragons',
   }
 );
 
@@ -96,9 +101,9 @@ const weekliesCached = defineCachedFunction(
     }));
   },
   {
-    maxAge: 60,
+    maxAge: 60 * 60 * 24 * 7,
     group: 'statistics',
-    name: 'leaderboards',
+    name: 'clickTotals',
     getKey: () => 'weeklies',
   }
 );
@@ -122,22 +127,27 @@ const userActivityCached = defineCachedFunction(
     maxAge: 60 * 15,
     group: 'statistics',
     name: 'userActivity',
+    getKey: () => 'activity',
   }
 );
 
 const cleanUpCached = defineCachedFunction(
   async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toSQL()
-        ),
-        eq(recordingsTable.record_type, 'clean_up')
+    db
+      .select()
+      .from(recordingsTable)
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'clean_up')
+        )
       )
-    ),
+      .orderBy(asc(recordingsTable.recorded_on)),
   {
-    maxAge: 60 * 1,
+    maxAge: 60 * 10,
     group: 'statistics',
     name: 'hatcheryTotals',
     getKey: () => 'cleanUp',

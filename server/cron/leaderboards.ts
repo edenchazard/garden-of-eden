@@ -11,12 +11,14 @@ export default defineCronHandler('everyFiveMinutes', async () => {
 
   let weekStart = currentWeekStart;
   let weekEnd = currentWeekStart.plus({ weeks: 1 });
+  let newWeek = false;
 
   // Check if we're in the first five minutes of a new week
   if (now.diff(currentWeekStart, 'minutes').minutes < 5) {
     // We're at the start of a new week, so amend the final standings for the previous week
     weekStart = previousWeekStart;
     weekEnd = currentWeekStart;
+    newWeek = true;
   }
 
   await db.transaction(async (tx) => {
@@ -90,10 +92,18 @@ export default defineCronHandler('everyFiveMinutes', async () => {
   });
 
   // Clear cached totals
-  await Promise.all([
+  const promises = [
     useStorage('cache').removeItem('statistics:clickTotals:allTime.json'),
     useStorage('cache').removeItem(
       `statistics:clickTotals:week-${weekStart.toISO()}.json`
     ),
-  ]);
+  ];
+
+  if (newWeek) {
+    promises.push(
+      useStorage('cache').removeItem(`statistics:clickTotals:weeklies.json`)
+    );
+  }
+
+  await Promise.all(promises);
 });
