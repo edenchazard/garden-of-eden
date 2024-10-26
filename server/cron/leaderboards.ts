@@ -9,18 +9,14 @@ export default defineCronHandler('everyFiveMinutes', async () => {
   const currentWeekStart = now.startOf('week');
   const previousWeekStart = currentWeekStart.minus({ weeks: 1 });
 
-  let weekStart;
-  let weekEnd;
+  let weekStart = currentWeekStart;
+  let weekEnd = currentWeekStart.plus({ weeks: 1 });
 
   // Check if we're in the first five minutes of a new week
   if (now.diff(currentWeekStart, 'minutes').minutes < 5) {
     // We're at the start of a new week, so calculate for the previous week
     weekStart = previousWeekStart;
     weekEnd = currentWeekStart;
-  } else {
-    // We're in the middle of a week
-    weekStart = currentWeekStart;
-    weekEnd = currentWeekStart.plus({ weeks: 1 });
   }
 
   await db.transaction(async (tx) => {
