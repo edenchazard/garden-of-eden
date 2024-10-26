@@ -75,7 +75,7 @@ export default NuxtAuthHandler({
         const userId = parseInt(account.providerAccountId);
 
         const salt = await bcrypt.genSalt(10);
-        const hashedToken = await bcrypt.hash(account.access_token, salt);
+        const hashedToken = await bcrypt.hash(account.access_token ?? '', salt);
 
         await db.transaction(async (tx) => {
           await tx.insert(userTable).ignore().values({

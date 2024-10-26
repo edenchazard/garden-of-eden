@@ -45,8 +45,9 @@ export default defineNitroPlugin(async () => {
   await fs.mkdir('/cache/scroll', { recursive: true });
 
   const shareScrollWorker = new workerThreads(
-    '/src/server/queue/shareScrollWorker.js',
+    '/src/server/queue/shareScrollWorker.ts',
     {
+      execArgv: ['-r', 'tsx'],
       workerData: { username: null, filePath: null },
     }
   );

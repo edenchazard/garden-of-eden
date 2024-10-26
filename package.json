@@ -27,11 +27,11 @@
     "@vueuse/core": "^10.11.0",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.21.2",
-    "canvas": "^2.11.2",
     "chart.js": "^4.4.3",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
-    "gifencoder": "^2.0.1",
+    "gifwrap": "^0.10.1",
+    "jimp": "^1.6.0",
     "luxon": "^3.5.0",
     "mariadb": "^3.3.1",
     "mysql2": "^3.11.0",
@@ -46,6 +46,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^0.5.0",
     "@nuxt/test-utils": "^3.14.1",
+    "@types/bcryptjs": "^2.4.6",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.19",
     "drizzle-kit": "^0.24.2",
@@ -54,7 +55,7 @@
     "postcss": "^8.4.39",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.4",
-    "tsx": "^4.16.2",
+    "tsx": "^4.19.1",
     "vitest": "^2.0.5",
     "vue-tsc": "^2.1.4"
   }
