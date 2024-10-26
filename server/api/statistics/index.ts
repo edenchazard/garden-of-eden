@@ -1,9 +1,10 @@
-import { and, asc, eq, gte, lte, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, lte, or, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
 import {
   clicksLeaderboardTable,
+  itemsTable,
   recordingsTable,
   userSettingsTable,
   userTable,
@@ -28,35 +29,6 @@ const clicksTotalAllTimeCached = defineCachedFunction(
     group: 'statistics',
     name: 'clickTotals',
     getKey: () => 'allTime',
-  }
-);
-
-const clicksTotalThisWeekCached = defineCachedFunction(
-  async () => {
-    const data = await db
-      .select({
-        clicks_this_week:
-          sql<string>`SUM(${clicksLeaderboardTable.clicks_given})`.as(
-            'clicks_this_week'
-          ),
-      })
-      .from(clicksLeaderboardTable)
-      .where(
-        and(
-          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-          eq(
-            clicksLeaderboardTable.start,
-            DateTime.now().startOf('week').toJSDate()
-          )
-        )
-      );
-    return data;
-  },
-  {
-    maxAge: 60 * 10,
-    group: 'statistics',
-    name: 'clickTotals',
-    getKey: () => 'thisWeek',
   }
 );
 
@@ -89,25 +61,6 @@ const totalScrollsCached = defineCachedFunction(
   }
 );
 
-const cleanUpCached = defineCachedFunction(
-  async () =>
-    recordingsTableQueryBuilder().where(
-      and(
-        gte(
-          recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
-        ),
-        eq(recordingsTable.record_type, 'clean_up')
-      )
-    ),
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'cleanUp',
-  }
-);
-
 const totalDragonsCached = defineCachedFunction(
   async () =>
     recordingsTableQueryBuilder().where(
@@ -124,6 +77,36 @@ const totalDragonsCached = defineCachedFunction(
     group: 'statistics',
     name: 'hatcheryTotals',
     getKey: () => 'dragons',
+  }
+);
+
+const weekliesCached = defineCachedFunction(
+  async () => {
+    const data = await db
+      .selectDistinct({
+        start: clicksLeaderboardTable.start,
+      })
+      .from(clicksLeaderboardTable)
+      .where(
+        and(
+          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
+          gt(
+            clicksLeaderboardTable.start,
+            DateTime.fromSQL('2024-09-28 20:55:00Z').toJSDate()
+          )
+        )
+      )
+      .orderBy(desc(clicksLeaderboardTable.start));
+    return data.map((row, index) => ({
+      ...row,
+      week: data.length - index,
+    }));
+  },
+  {
+    maxAge: 1,
+    group: 'statistics',
+    name: 'leaderboards',
+    getKey: () => 'weeklies',
   }
 );
 
@@ -152,19 +135,35 @@ const userActivityCached = defineCachedFunction(
   }
 );
 
+const cleanUpCached = defineCachedFunction(
+  async () =>
+    recordingsTableQueryBuilder().where(
+      and(
+        gte(
+          recordingsTable.recorded_on,
+          DateTime.now().minus({ hours: 24 }).toJSDate()
+        ),
+        eq(recordingsTable.record_type, 'clean_up')
+      )
+    ),
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'cleanUp',
+  }
+);
+
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
-  const weekStart = DateTime.now().startOf('week');
-  const weekEnd = weekStart.endOf('week');
 
   const [
     cleanUp,
     scrolls,
     dragons,
-    clicksThisWeekLeaderboard,
     clicksAllTimeLeaderboard,
     [{ clicks_total: clicksTotalAllTime }],
-    [{ clicks_this_week: clicksTotalThisWeek }],
+    weeklies,
     userActivity,
   ] = await Promise.all([
     cleanUpCached(),
@@ -180,7 +179,10 @@ export default defineEventHandler(async (event) => {
             ELSE ${userTable.username}
           END`.as('username'),
         clicks_given: clicksLeaderboardTable.clicks_given,
-        flair: userSettingsTable.flair,
+        flair: {
+          url: itemsTable.url,
+          name: itemsTable.name,
+        },
       })
       .from(clicksLeaderboardTable)
       .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
@@ -188,36 +190,7 @@ export default defineEventHandler(async (event) => {
         userSettingsTable,
         eq(userSettingsTable.user_id, clicksLeaderboardTable.user_id)
       )
-      .where(
-        and(
-          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-          gte(clicksLeaderboardTable.start, weekStart.toJSDate()),
-          or(
-            eq(clicksLeaderboardTable.user_id, token?.userId),
-            lte(clicksLeaderboardTable.rank, 10)
-          )
-        )
-      )
-      .orderBy(clicksLeaderboardTable.rank)
-      .limit(11),
-    db
-      .select({
-        rank: clicksLeaderboardTable.rank,
-        username: sql<string>`
-          CASE
-            WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
-            WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
-            ELSE ${userTable.username}
-          END`.as('username'),
-        clicks_given: clicksLeaderboardTable.clicks_given,
-        flair: userSettingsTable.flair,
-      })
-      .from(clicksLeaderboardTable)
-      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
-      .innerJoin(
-        userSettingsTable,
-        eq(userSettingsTable.user_id, clicksLeaderboardTable.user_id)
-      )
+      .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
       .where(
         and(
           eq(clicksLeaderboardTable.leaderboard, 'all time'),
@@ -230,9 +203,13 @@ export default defineEventHandler(async (event) => {
       .orderBy(clicksLeaderboardTable.rank)
       .limit(11),
     clicksTotalAllTimeCached(),
-    clicksTotalThisWeekCached(),
+    weekliesCached(),
     userActivityCached(),
   ]);
+  // since we got them in descending order (latest 48),
+  // we then have to reverse them for proper left-to-right display
+  scrolls.reverse();
+  dragons.reverse();
 
   return {
     cleanUp: cleanUp.map((record) => ({
@@ -241,12 +218,9 @@ export default defineEventHandler(async (event) => {
     })),
     scrolls,
     dragons,
-    clicksThisWeekLeaderboard,
     clicksAllTimeLeaderboard,
     clicksTotalAllTime: parseInt(clicksTotalAllTime),
-    clicksTotalThisWeek: parseInt(clicksTotalThisWeek),
-    weekStart: weekStart.toISO(),
-    weekEnd: weekEnd.toISO(),
+    weeklies,
     userActivity,
   };
 });

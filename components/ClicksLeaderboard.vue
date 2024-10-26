@@ -11,8 +11,8 @@
       class="divide-y divide-white [&_td]:px-4 [&_td]:py-1 [&_tr]:divide-x"
     >
       <tr
-        v-for="user in leaderboard"
-        :key="user.rank"
+        v-for="(user, $index) in leaderboard"
+        :key="$index"
         :class="{
           'bg-green-900 dark:bg-stone-700':
             user.username === data?.user?.username || user.username === '-1',
@@ -20,19 +20,18 @@
         }"
       >
         <td class="text-right">#{{ user.rank }}</td>
-        <td v-if="['-1', '-2'].includes(user.username)" class="italic">
-          (anonymous)
-        </td>
-        <td v-else>
+        <td>
           <span class="inline-flex items-center">
-            {{ user.username
-            }}<img
+            <span v-if="['-1', '-2'].includes(user.username)" class="italic">
+              (anonymous)
+            </span>
+            <template v-else> {{ user.username }} </template
+            ><img
               v-if="user.flair"
               class="inline ml-1"
-              :src="userFlair(user.flair)"
-              :alt="user.flair"
-            />
-          </span>
+              :src="userFlair(user.flair.url)"
+              :alt="user.flair.name"
+          /></span>
         </td>
         <td>{{ Intl.NumberFormat().format(user.clicks_given) }}</td>
       </tr>
@@ -56,15 +55,17 @@ import userFlair from '~/utils/userFlair';
 
 withDefaults(
   defineProps<{
+    start?: string;
     leaderboard: Array<{
       rank: number;
       username: string;
       clicks_given: number;
-      flair: UserFlair;
+      flair: Pick<Item, 'url' | 'name'> | null;
     }>;
     total: number;
   }>(),
   {
+    start: 'all-time',
     leaderboard: () => [],
     total: 0,
   }

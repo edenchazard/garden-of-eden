@@ -13,10 +13,10 @@
             >
               {{ authData.user.username }} </NuxtLink
             ><img
-              v-if="authData.user.settings?.flair"
+              v-if="authData.user.flair"
               class="inline ml-1"
-              :src="userFlair(authData.user.settings.flair)"
-              :alt="authData.user.settings.flair"
+              :src="userFlair(authData.user.flair.url)"
+              :alt="authData.user.flair.name"
             />
           </span>
           <ClientOnly>
@@ -52,17 +52,40 @@
             >
           </div>
           <nav
-            class="flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
+            class="justify-items-center min-[360px]:flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
+            :class="{
+              'grid grid-cols-2': authData?.user,
+              flex: !authData?.user,
+            }"
           >
             <NuxtLink class="text-white dark:text-stone-200" to="/statistics"
               >Statistics</NuxtLink
             >
-            <span>&bull;</span>
+            <span
+              :class="{
+                'hidden min-[360px]:inline': authData?.user,
+              }"
+              >&bull;</span
+            >
             <NuxtLink class="text-white dark:text-stone-200" to="/share"
               >Share</NuxtLink
             >
+            <span
+              :class="{
+                'hidden min-[360px]:inline': authData?.user,
+              }"
+              >&bull;</span
+            >
             <template v-if="authData?.user">
-              <span>&bull;</span>
+              <NuxtLink class="text-white dark:text-stone-200" to="/shop"
+                >Shop</NuxtLink
+              >
+              <span
+                :class="{
+                  'hidden min-[360px]:inline': authData?.user,
+                }"
+                >&bull;</span
+              >
               <button
                 class="underline-offset-4 underline !px-0 !shadow-none"
                 type="button"

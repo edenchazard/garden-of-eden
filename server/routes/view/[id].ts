@@ -1,8 +1,8 @@
-import { db } from '~/server/db';
 import { getToken } from '#auth';
-import { hatcheryTable, clicksTable } from '~/database/schema';
+import { hatcheryTable } from '~/database/schema';
 import type { JWT } from 'next-auth/jwt';
 import { createSelectSchema } from 'drizzle-zod';
+import { clickRecordQueue } from '~/server/queue';
 
 export default defineEventHandler(async (event) => {
   const schema = createSelectSchema(hatcheryTable).pick({
@@ -15,9 +15,9 @@ export default defineEventHandler(async (event) => {
   ]);
 
   if (token) {
-    await db.insert(clicksTable).ignore().values({
-      hatchery_id: params.id,
-      user_id: token.userId,
+    await clickRecordQueue.add('clickRecordQueue', {
+      hatcheryId: params.id,
+      userId: token.userId,
     });
   }
 

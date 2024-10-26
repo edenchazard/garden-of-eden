@@ -1,5 +1,6 @@
 import 'next-auth';
 import 'next-auth/jwt';
+import type { userTable } from '~/database/schema';
 
 declare module 'next-auth/jwt' {
   interface JWT {
@@ -16,7 +17,8 @@ declare module 'next-auth' {
       username: string;
       role: UserRole;
       settings: UserSettings;
-      flair: UserFlair;
+      money: typeof userTable.$inferSelect.money;
+      flair: Pick<Item, 'id' | 'name' | 'url'> | null;
     };
   }
 

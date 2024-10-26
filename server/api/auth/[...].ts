@@ -1,8 +1,8 @@
 import { NuxtAuthHandler } from '#auth';
 import type { TokenSet } from 'next-auth';
 import { db } from '~/server/db';
-import { userSettingsTable, userTable } from '~/database/schema';
-import { eq } from 'drizzle-orm';
+import { itemsTable, userSettingsTable, userTable } from '~/database/schema';
+import { eq, getTableColumns } from 'drizzle-orm';
 
 const {
   clientSecret,
@@ -108,23 +108,33 @@ export default NuxtAuthHandler({
     async session({ session, token }) {
       const userId = token.userId;
       const [user] = await db
-        .select()
+        .select({
+          users: getTableColumns(userTable),
+          user_settings: getTableColumns(userSettingsTable),
+          items: {
+            id: itemsTable.id,
+            name: itemsTable.name,
+            url: itemsTable.url,
+          },
+        })
         .from(userTable)
         .where(eq(userTable.id, userId))
         .innerJoin(
           userSettingsTable,
           eq(userTable.id, userSettingsTable.user_id)
-        );
+        )
+        .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id));
 
       const {
         users,
         user_settings: { user_id, ...settings },
+        items: flair,
       } = user;
-
       session.user.username = users.username;
+      session.user.money = users.money;
       session.user.role = users.role;
       session.user.settings = settings;
-
+      session.user.flair = flair ?? null;
       return session;
     },
     redirect() {

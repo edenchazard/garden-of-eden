@@ -33,6 +33,7 @@ export const userTable = mysqlTable(
       .default(sql`NOW()`)
       .notNull(),
     last_activity: datetime('last_activity'),
+    money: smallint('money').notNull().default(0),
   },
   (table) => {
     return {
@@ -50,6 +51,11 @@ export const userSettingsTable = mysqlTable('user_settings', {
       onDelete: 'cascade',
     })
     .notNull(),
+  flair_id: tinyint('flair_id', {
+    unsigned: true,
+  }).references(() => itemsTable.id, {
+    onDelete: 'set null',
+  }),
   gardenFrequency: smallint('gardenFrequency').notNull().default(30),
   gardenPerPage: smallint('gardenPerPage').notNull().default(50),
   seedTrayFrequency: smallint('seedTrayFrequency').notNull().default(30),
@@ -74,10 +80,6 @@ export const userSettingsTable = mysqlTable('user_settings', {
     .notNull()
     .default(true),
   anonymiseStatistics: boolean('anonymiseStatistics').notNull().default(false),
-  flair: varchar('flair', {
-    length: 24,
-    enum: ['hyacinth'],
-  }),
 });
 
 export const hatcheryTable = mysqlTable(
@@ -223,6 +225,63 @@ export const clicksLeaderboardTable = mysqlTable(
   }
 );
 
+export const itemsTable = mysqlTable('items', {
+  id: tinyint('id', {
+    unsigned: true,
+  })
+    .autoincrement()
+    .primaryKey(),
+  name: varchar('name', {
+    length: 24,
+  }).notNull(),
+  url: varchar('url', {
+    length: 24,
+  }),
+  category: varchar('category', {
+    length: 24,
+    enum: ['flair'],
+  }).notNull(),
+  availableFrom: datetime('available_from', {
+    mode: 'string',
+  }),
+  availableTo: datetime('available_to', {
+    mode: 'string',
+  }),
+  description: varchar('description', {
+    length: 255,
+  }).notNull(),
+  cost: smallint('cost'),
+  artist: varchar('artist', {
+    length: 64,
+  }),
+});
+
+export const purchasesTable = mysqlTable('purchases', {
+  id: bigint('id', {
+    unsigned: true,
+    mode: 'number',
+  })
+    .autoincrement()
+    .primaryKey(),
+  item_id: tinyint('item_id', {
+    unsigned: true,
+  })
+    .references(() => itemsTable.id, {
+      onDelete: 'restrict',
+    })
+    .notNull(),
+  user_id: mediumint('user_id', {
+    unsigned: true,
+  })
+    .references(() => userTable.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  purchased_on: datetime('purchased_on', { mode: 'date' })
+    .default(sql`NOW()`)
+    .notNull(),
+});
+
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   gardenFrequency: (schema) => schema.gardenFrequency.default(30),
   gardenPerPage: (schema) => schema.gardenPerPage.min(10).default(100),
@@ -237,5 +296,5 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   highlightClickedDragons: (schema) =>
     schema.highlightClickedDragons.default(true),
   anonymiseStatistics: (schema) => schema.anonymiseStatistics.default(false),
-  flair: (schema) => schema.flair.nullable(),
-}).omit({ user_id: true, flair: true });
+  flair_id: (schema) => schema.flair_id.nullable().default(null),
+}).omit({ user_id: true, flair_id: true });
