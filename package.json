@@ -15,7 +15,9 @@
     "test:unit": "vitest",
     "ts:check": "nuxi typecheck",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "dev:docker": "docker-compose -f docker-compose.dev.yml up",
+    "dev:docker:cleanup": "docker-compose down --rmi all --remove-orphans"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",

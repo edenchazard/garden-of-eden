@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.dev
-    command: npm run dev
+    command: sh -c "rm -f /tmp/nitro/*.sock && npm run dev"
     volumes:
       - .:/src
       - node_modules:/src/node_modules

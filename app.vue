@@ -16,7 +16,7 @@ watch(
       theme: cur.value === 'dark' ? 'dark' : 'light',
     });
 
-    const colour = cur.value === 'mint' ? '#fff' : '#e7e5e4';
+    const colour = cur.value === 'light' ? '#fff' : '#e7e5e4';
 
     Chart.defaults.plugins.title.font = {
       size: 16,

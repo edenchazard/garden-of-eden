@@ -1,44 +1,61 @@
 <template>
-  <div class="w-full max-w-screen-lg space-y-4 py-4">
+  <div class="w-full max-w-screen-lg space-y-4 pt-2.5 pb-4">
     <div class="flex flex-col rounded-md">
       <header
-        class="px-2 lg:px-0 space-y-4 sm:space-y-0 pb-4 justify-between items-center"
+        class="px-2 lg:px-0 space-y-2 sm:space-y-0 pb-2 justify-between items-center"
       >
-        <div class="flex justify-end gap-3 pb-3">
-          <span v-if="authData?.user" class="truncate">
-            <span class="hidden sm:inline">Logged in as&nbsp;</span
+        <div
+          class="flex flex-col min-[500px]:flex-row gap-x-3 gap-y-3 min-h-9 min-[500px]:items-center justify-end"
+        >
+          <span
+            v-if="authData?.user"
+            class="flex items-center justify-end gap-x-1"
+          >
+            <span>Logged in as&nbsp;</span
             ><NuxtLink
               :to="`https://dragcave.net/user/${authData?.user.username}`"
               target="_blank"
+              class="truncate whitespace-nowrap"
+              >{{ authData?.user.username }}</NuxtLink
             >
-              {{ authData.user.username }} </NuxtLink
-            ><img
-              v-if="authData.user.flair"
-              class="inline ml-1"
-              :src="userFlair(authData.user.flair.url)"
-              :alt="authData.user.flair.name"
-            />
+            <span v-if="authData.user.flair" class="ml-1 w-[19px]">
+              <img
+                class="shrink-0"
+                :src="userFlair(authData.user.flair.url)"
+                :alt="authData.user.flair.name"
+              />
+            </span>
           </span>
-          <ClientOnly>
-            <ToggleInput
-              :model-value="$colorMode.preference === 'dark'"
-              :label="colorMode.preference === 'dark' ? 'Dark' : 'Mint'"
-              @update:model-value="
-                $colorMode.preference = $event ? 'dark' : 'mint'
-              "
-            />
-          </ClientOnly>
-          <NuxtLink
-            v-if="authData?.user"
-            to="/settings"
-            class="shrink-0 pl-2 text-white dark:text-stone-200 group"
-            ><font-awesome-icon
-              :icon="['fas', 'cog']"
-              class="mr-2 motion-safe:group-hover:animate-spin"
-            />Settings</NuxtLink
-          >
+          <div class="flex items-center justify-end gap-x-[inherit]">
+            <ClientOnly>
+              <ToggleInput
+                class="inline-block w-[5.1rem]"
+                :model-value="$colorMode.preference === 'dark'"
+                :label="$colorMode.preference === 'dark' ? 'Dark' : 'Mint'"
+                @update:model-value="
+                  $colorMode.preference = $event ? 'dark' : 'mint'
+                "
+              />
+              <template #fallback>
+                <ToggleInput
+                  :model-value="false"
+                  label=""
+                  class="inline-block w-[5.1rem]"
+                />
+              </template>
+            </ClientOnly>
+            <NuxtLink
+              v-if="authData?.user"
+              to="/settings"
+              class="shrink-0 pl-2 text-white dark:text-stone-200 group"
+              ><font-awesome-icon
+                :icon="['fas', 'cog']"
+                class="mr-2 motion-safe:group-hover:animate-spin"
+              />Settings</NuxtLink
+            >
+          </div>
         </div>
-        <div class="flex gap-y-4 flex-col sm:flex-row justify-between">
+        <div class="flex gap-y-1 flex-col sm:flex-row justify-between">
           <div class="text-center">
             <NuxtLink
               to="/"
@@ -172,8 +189,6 @@ useHead({
       : `Garden of ${userSettings.value.siteName}`;
   },
 });
-
-const colorMode = useColorMode();
 
 const { data: authData, signIn, signOut } = useAuth();
 
