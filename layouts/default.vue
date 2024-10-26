@@ -30,10 +30,10 @@
             <ClientOnly>
               <ToggleInput
                 class="inline-block w-[5.1rem]"
-                :model-value="$colorMode.preference === 'mint'"
-                :label="$colorMode.preference === 'mint' ? 'Mint' : 'Dark'"
+                :model-value="$colorMode.preference === 'dark'"
+                :label="$colorMode.preference === 'dark' ? 'Dark' : 'Mint'"
                 @update:model-value="
-                  $colorMode.preference = $event ? 'mint' : 'dark'
+                  $colorMode.preference = $event ? 'dark' : 'mint'
                 "
               />
               <template #fallback>
