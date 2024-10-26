@@ -33,14 +33,7 @@ const clicksTotalAllTimeCached = defineCachedFunction(
 );
 
 const recordingsTableQueryBuilder = () =>
-  db
-    .select({
-      recorded_on: recordingsTable.recorded_on,
-      value: recordingsTable.value,
-      extra: recordingsTable.extra,
-    })
-    .from(recordingsTable)
-    .orderBy(asc(recordingsTable.recorded_on));
+  db.select().from(recordingsTable).orderBy(asc(recordingsTable.recorded_on));
 
 const totalScrollsCached = defineCachedFunction(
   async () =>
@@ -48,7 +41,7 @@ const totalScrollsCached = defineCachedFunction(
       and(
         gte(
           recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
+          DateTime.now().minus({ hours: 24 }).toSQL()
         ),
         eq(recordingsTable.record_type, 'total_scrolls')
       )
@@ -67,7 +60,7 @@ const totalDragonsCached = defineCachedFunction(
       and(
         gte(
           recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
+          DateTime.now().minus({ hours: 24 }).toSQL()
         ),
         eq(recordingsTable.record_type, 'total_dragons')
       )
@@ -103,7 +96,7 @@ const weekliesCached = defineCachedFunction(
     }));
   },
   {
-    maxAge: 1,
+    maxAge: 60,
     group: 'statistics',
     name: 'leaderboards',
     getKey: () => 'weeklies',
@@ -113,16 +106,13 @@ const weekliesCached = defineCachedFunction(
 const userActivityCached = defineCachedFunction(
   async () =>
     db
-      .select({
-        recorded_on: recordingsTable.recorded_on,
-        value: recordingsTable.value,
-      })
+      .select()
       .from(recordingsTable)
       .where(
         and(
           gte(
             recordingsTable.recorded_on,
-            DateTime.now().minus({ hours: 24 }).toJSDate()
+            DateTime.now().minus({ hours: 24 }).toSQL()
           ),
           eq(recordingsTable.record_type, 'user_count')
         )
@@ -141,13 +131,13 @@ const cleanUpCached = defineCachedFunction(
       and(
         gte(
           recordingsTable.recorded_on,
-          DateTime.now().minus({ hours: 24 }).toJSDate()
+          DateTime.now().minus({ hours: 24 }).toSQL()
         ),
         eq(recordingsTable.record_type, 'clean_up')
       )
     ),
   {
-    maxAge: 60 * 60,
+    maxAge: 60 * 1,
     group: 'statistics',
     name: 'hatcheryTotals',
     getKey: () => 'cleanUp',
@@ -206,16 +196,9 @@ export default defineEventHandler(async (event) => {
     weekliesCached(),
     userActivityCached(),
   ]);
-  // since we got them in descending order (latest 48),
-  // we then have to reverse them for proper left-to-right display
-  scrolls.reverse();
-  dragons.reverse();
 
   return {
-    cleanUp: cleanUp.map((record) => ({
-      ...record,
-      extra: JSON.parse(record.extra),
-    })),
+    cleanUp,
     scrolls,
     dragons,
     clicksAllTimeLeaderboard,

@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 
 export default defineCronHandler('everyFiveMinutes', async () => {
   const weekStart = DateTime.now().startOf('week');
+
   await db.transaction(async (tx) => {
     await tx
       .delete(clicksLeaderboardTable)

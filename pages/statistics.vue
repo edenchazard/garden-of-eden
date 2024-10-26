@@ -199,47 +199,66 @@
             <Line
               :data="dragons"
               class="w-full"
+              :plugins
               :options="{
+                ...defaultChartOptions,
+                scales: {
+                  scrollAxis: {
+                    type: 'linear',
+                    position: 'right',
+                    grid: {
+                      ...defaultChartOptions.scales?.y?.grid,
+                      color: rgbAlpha(colourPalette[1], 0.4),
+                      z: 0,
+                    },
+                    ticks: {
+                      color: dragons.datasets[1].borderColor as string,
+                    },
+                  },
+                  y: {
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                      color: dragons.datasets[0].borderColor as string,
+                    },
+                    grid: {
+                      ...defaultChartOptions.scales?.y?.grid,
+                      color: rgbAlpha(colourPalette[0], 0.4),
+                      z: 0,
+                    },
+                  },
+                  x: defaultChartOptions.scales?.x,
+                },
                 normalized: true,
                 plugins: {
                   title: {
-                    text: 'Dragons in Garden',
-                  },
-                  legend: {
-                    display: false,
+                    text: 'Hatchery statistics',
                   },
                 },
               }"
             />
           </div>
-          <figcaption>Data taken in 30 minute intervals.</figcaption>
+          <figcaption><p>Data taken in 30 minute intervals.</p></figcaption>
         </figure>
 
-        <figure v-if="dragons" class="graph">
+        <figure v-if="soilComposition" class="graph">
           <div class="h-[40rem]">
             <Line
               :data="soilComposition"
               class="w-full"
+              :plugins
               :options="{
+                ...defaultChartOptions,
                 normalized: true,
                 plugins: {
                   title: {
                     text: 'Soil Composition',
                   },
-                  filler: {},
-                },
-                scales: {
-                  y: {
-                    grid: {
-                      color: 'rgba(0,0,0,0.1)',
-                      z: 1,
-                      lineWidth: 2,
-                    },
-                  },
-                  x: {
-                    grid: {
-                      color: 'rgba(0,0,0,0.1)',
-                      z: 1,
+                  legend: {
+                    labels: {
+                      filter: function (item, chart) {
+                        return !['Dead', 'Adult'].includes(item.text);
+                      },
                     },
                   },
                 },
@@ -247,63 +266,47 @@
             />
           </div>
           <figcaption>
-            Data taken from Dragon Cave API. Abnormal data points indicate an
-            API failure.
+            <p>
+              Data taken from Dragon Cave API. Missing data points indicate an
+              API failure.
+            </p>
           </figcaption>
         </figure>
 
-        <figure v-if="dragons" class="graph">
+        <figure v-if="hatchlingGenderRatio" class="graph">
           <div class="h-[30rem]">
             <Line
               :data="hatchlingGenderRatio"
               class="w-full"
               :options="{
+                ...defaultChartOptions,
                 normalized: true,
                 plugins: {
                   title: {
                     text: 'Hatchling Gender',
                   },
                 },
-                scales: {
-                  y: {},
-                },
               }"
+              :plugins
             />
           </div>
           <figcaption>
-            Data taken from Dragon Cave API. Abnormal data points indicate an
-            API failure. Does not account for dragons that cannot have a gender.
-            Excludes eggs.
+            <p>
+              Data taken from Dragon Cave API. Missing data points indicate an
+              API failure. Does not account for dragons that cannot have a
+              gender. Excludes eggs.
+            </p>
           </figcaption>
         </figure>
 
-        <figure v-if="scrolls" class="graph">
-          <div class="h-[20rem]">
-            <Line
-              class="w-full"
-              :data="scrolls"
-              :options="{
-                normalized: true,
-                plugins: {
-                  title: {
-                    text: 'Scrolls with Dragons',
-                  },
-                  legend: {
-                    display: false,
-                  },
-                },
-              }"
-            />
-          </div>
-          <figcaption>Data taken in 30 minute intervals.</figcaption>
-        </figure>
-
-        <figure v-if="userActivity" class="graph max-w-lg">
+        <figure v-if="userActivity" class="graph">
           <div class="h-[20rem]">
             <Line
               class="w-full"
               :data="userActivity"
+              :plugins
               :options="{
+                ...defaultChartOptions,
                 normalized: true,
                 plugins: {
                   title: {
@@ -317,8 +320,10 @@
             />
           </div>
           <figcaption>
-            A user is considered active if they've visited the garden within 15
-            minutes of recording.
+            <p>
+              A user is considered active if they've visited the garden within
+              15 minutes of recording.
+            </p>
           </figcaption>
         </figure>
       </section>
@@ -327,17 +332,24 @@
 </template>
 
 <script lang="ts" setup>
-import type { ChartData } from 'chart.js';
+import type {
+  ChartData,
+  ChartDataset,
+  ChartOptions,
+  Plugin,
+  ScriptableContext,
+} from 'chart.js';
 import { DateTime } from 'luxon';
 import { Line } from 'vue-chartjs';
 import { pluralise } from '#imports';
+import type { recordingsTable } from '~/database/schema';
+import 'chartjs-adapter-luxon';
 
 useHead({
   title: 'Statistics',
 });
 
 const dragons = ref<ChartData<'line'>>();
-const scrolls = ref<ChartData<'line'>>();
 const selectedWeek = ref<string | null>();
 const userActivity = ref<ChartData<'line'>>();
 const soilComposition = ref<ChartData<'line'>>();
@@ -384,67 +396,159 @@ const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
   }),
 });
 
+const defaultChartOptions: ChartOptions<'line'> = {
+  interaction: {
+    intersect: false,
+    mode: 'index',
+  },
+  scales: {
+    y: {
+      grid: {
+        color: rgbAlpha([255, 255, 255], 0.1),
+        z: 1,
+        lineWidth: 1,
+      },
+    },
+    x: {
+      type: 'time',
+      time: {
+        unit: 'hour',
+        displayFormats: {
+          hour: 'T',
+        },
+        tooltipFormat: 'f',
+      },
+      grid: {
+        color: rgbAlpha([255, 255, 255], 0.1),
+        z: 1,
+        lineWidth: 1,
+      },
+    },
+  },
+};
+
+const plugins: Plugin<'line', Record<string, string>>[] = [
+  {
+    id: 'Hover Line',
+    afterDraw: (chart) => {
+      const ctx = chart.ctx;
+      const yAxis = chart.scales.y;
+      // @ts-expect-error it really does exist
+      if (chart.tooltip?._active.length && yAxis?.top && yAxis?.bottom) {
+        // @ts-expect-error it really does exist x2
+        const x = chart.tooltip._active[0].element.x;
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([5, 5]);
+        ctx.moveTo(x, yAxis.top);
+        ctx.lineTo(x, yAxis.bottom);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(255, 0, 255, 0.5)';
+        ctx.stroke();
+        ctx.restore();
+      }
+    },
+  },
+];
+
+function createPoints(squished = true) {
+  const points: Partial<ChartDataset<'line'>> = {
+    pointBackgroundColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointRadius: 6,
+    pointHoverRadius: 12,
+    pointHoverBorderWidth: 6,
+    pointHitRadius: 0,
+  };
+
+  if (squished) {
+    points.pointRadius = (context) => distancePointRadius(context);
+    points.pointHoverRadius = (context) => distancePointRadius(context, 12);
+    points.pointHoverBorderWidth = (context) => distancePointRadius(context, 6);
+  }
+
+  return points;
+}
+
 const { data } = useAuth();
 
 onNuxtReady(() => renderCharts());
 
-function chartColourPalette(palette: string) {
-  const defaultPalette = [
-    [255, 225, 0],
-    [242, 156, 76],
-    [242, 162, 196],
-    [242, 196, 196],
-    [105, 0, 51],
-    [0, 123, 128],
-  ];
+function filterFailures(
+  extra: (typeof recordingsTable.$inferSelect)['extra'],
+  key: keyof (typeof recordingsTable.$inferSelect)['extra']
+) {
+  if (!extra || (extra.failures ?? 1) > 0) {
+    return null;
+  }
+  return extra[key] ?? null;
+}
 
-  return ({
-    mint: defaultPalette,
-    dark: [
-      [105, 0, 51],
-      [0, 123, 128],
-      [242, 201, 76],
-      [242, 156, 76],
-      [242, 162, 196],
-      [242, 196, 196],
-    ],
-  }[palette] ?? defaultPalette) as [number, number, number][];
+function distancePointRadius(
+  context: ScriptableContext<'line'>,
+  radius: number = 6
+) {
+  return DateTime.fromMillis(context.parsed.x).minute === 0 ? radius : 0;
+}
+
+function rgbAlpha(colour: [number, number, number], a: number = 1) {
+  return `rgba(${colour.join(',')},${a})`;
 }
 
 watch(() => useColorMode().value, renderCharts);
 
-function renderCharts() {
-  const rgba = (colour: [number, number, number], a: number = 1) =>
-    `rgba(${colour.join(',')},${a})`;
+const colourPalette = computed(() => {
+  function chartColourPalette(palette: string) {
+    const defaultPalette = [
+      [255, 225, 0],
+      [242, 156, 76],
+      [242, 162, 196],
+      [242, 196, 196],
+      [105, 0, 51],
+      [0, 123, 128],
+    ];
 
+    return ({
+      mint: defaultPalette,
+      dark: [
+        [105, 0, 51],
+        [0, 123, 128],
+        [242, 201, 76],
+        [242, 156, 76],
+        [242, 162, 196],
+        [242, 196, 196],
+      ],
+    }[palette] ?? defaultPalette) as [number, number, number][];
+  }
+
+  return chartColourPalette(useColorMode().value);
+});
+
+function renderCharts() {
   const statistics = stats.value;
+
   if (statistics === null) return;
 
-  const mapTimes = (stat) =>
-    Intl.DateTimeFormat(undefined, {
-      timeStyle: 'short',
-    }).format(new Date(stat.recorded_on));
-
-  const colours = chartColourPalette(useColorMode().value);
+  const mapTimes = (stat: typeof recordingsTable.$inferSelect) =>
+    DateTime.fromSQL(stat.recorded_on).toJSDate();
 
   dragons.value = {
     labels: statistics.dragons.map(mapTimes),
     datasets: [
       {
-        label: 'Dragons',
-        backgroundColor: rgba(colours[0]),
-        borderColor: rgba(colours[0]),
+        ...createPoints(),
+        yAxisID: 'y',
+        label: 'Dragons in garden',
+        backgroundColor: rgbAlpha(colourPalette.value[0]),
+        borderColor: rgbAlpha(colourPalette.value[0]),
         data: statistics.dragons.map((stat) => stat.value),
       },
-    ],
-  };
-
-  scrolls.value = {
-    labels: statistics.scrolls.map(mapTimes),
-    datasets: [
       {
-        label: 'Scrolls',
-        borderColor: rgba(colours[1]),
+        ...createPoints(),
+        yAxisID: 'scrollAxis',
+        label: 'Scrolls with dragons',
+        backgroundColor: rgbAlpha(colourPalette.value[1]),
+        borderColor: rgbAlpha(colourPalette.value[1]),
         data: statistics.scrolls.map((stat) => stat.value),
       },
     ],
@@ -454,42 +558,74 @@ function renderCharts() {
     labels: statistics.userActivity.map(mapTimes),
     datasets: [
       {
+        ...createPoints(),
         label: 'User Activity',
-        borderColor: rgba(colours[2]),
+        borderColor: rgbAlpha(colourPalette.value[2]),
         data: statistics.userActivity.map((stat) => stat.value),
       },
     ],
   };
-  console.log(statistics.cleanUp);
+
   soilComposition.value = {
     labels: statistics.cleanUp.map(mapTimes),
     datasets: [
       {
+        ...createPoints(),
         label: 'Other',
-        backgroundColor: rgba(colours[4], 0.75),
-        borderColor: rgba(colours[4]),
+        backgroundColor: rgbAlpha(colourPalette.value[4], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[4]),
         data: statistics.cleanUp.map((stat) => stat.value),
-        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
-        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
         fill: 'origin',
         hidden: true,
       },
       {
+        ...createPoints(),
         label: 'Eggs',
-        backgroundColor: rgba(colours[1], 0.75),
-        borderColor: rgba(colours[1]),
-        data: statistics.cleanUp.map((stat) => stat.extra?.eggs ?? 0),
-        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
-        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
+        backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[1]),
+        data: statistics.cleanUp.map((stat) =>
+          filterFailures(JSON.parse(stat.extra as string), 'eggs')
+        ),
         fill: 'origin',
       },
       {
+        ...createPoints(),
         label: 'Hatchlings',
-        backgroundColor: rgba(colours[2], 0.75),
-        borderColor: rgba(colours[2]),
-        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlings ?? 0),
-        pointRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 3),
-        pointHoverRadius: (context) => (context.dataIndex % 2 === 0 ? 0 : 5),
+        backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[2]),
+        data: statistics.cleanUp.map((stat) =>
+          filterFailures(JSON.parse(stat.extra as string), 'hatchlings')
+        ),
+        fill: 'origin',
+      },
+      {
+        pointHitRadius: 0,
+        pointBorderWidth: 0,
+        pointRadius: 0,
+        borderWidth: 0,
+        pointHoverBorderWidth: 0,
+        pointHoverRadius: 0,
+        label: 'Dead',
+        backgroundColor: rgbAlpha(colourPalette.value[3], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[3]),
+        data: statistics.cleanUp.map((stat) =>
+          filterFailures(JSON.parse(stat.extra as string), 'dead')
+        ),
+        fill: 'origin',
+      },
+      {
+        pointHitRadius: 0,
+        pointBorderWidth: 0,
+        pointRadius: 0,
+        borderWidth: 0,
+        pointHoverBorderWidth: 0,
+        pointHoverRadius: 0,
+        label: 'Adult',
+        backgroundColor: rgbAlpha(colourPalette.value[4], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[4]),
+        data: statistics.cleanUp.map((stat) =>
+          filterFailures(JSON.parse(stat.extra as string), 'adults')
+        ),
         fill: 'origin',
       },
     ],
@@ -499,28 +635,34 @@ function renderCharts() {
     labels: statistics.cleanUp.map(mapTimes),
     datasets: [
       {
+        ...createPoints(),
         label: 'Ungendered',
-        backgroundColor: rgba(colours[1], 0.75),
-        borderColor: rgba(colours[1]),
-        data: statistics.cleanUp.map(
-          (stat) => stat.extra?.hatchlingsUngendered
+        backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[1]),
+        data: statistics.cleanUp.map((stat) =>
+          filterFailures(
+            JSON.parse(stat.extra as string),
+            'hatchlingsUngendered'
+          )
         ),
-        pointRadius: 0,
-        hidden: true,
       },
       {
+        ...createPoints(),
         label: 'Male',
-        backgroundColor: rgba(colours[2], 0.75),
-        borderColor: rgba(colours[2]),
-        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlingsMale),
-        pointRadius: 0,
+        backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[2]),
+        data: statistics.cleanUp.map((stat) =>
+          filterFailures(JSON.parse(stat.extra as string), 'hatchlingsMale')
+        ),
       },
       {
+        ...createPoints(),
         label: 'Female',
-        backgroundColor: rgba(colours[3], 0.75),
-        borderColor: rgba(colours[3]),
-        data: statistics.cleanUp.map((stat) => stat.extra?.hatchlingsFemale),
-        pointRadius: 0,
+        backgroundColor: rgbAlpha(colourPalette.value[3], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[3]),
+        data: statistics.cleanUp.map((stat) =>
+          filterFailures(JSON.parse(stat.extra as string), 'hatchlingsFemale')
+        ),
       },
     ],
   };
@@ -534,7 +676,11 @@ function renderCharts() {
   }
 
   & figcaption {
-    @apply text-xs text-right italic mt-2;
+    @apply text-xs italic mt-2 flex justify-end;
+  }
+
+  & p {
+    @apply max-w-prose text-right;
   }
 }
 </style>
