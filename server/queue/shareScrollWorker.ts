@@ -1,6 +1,6 @@
-import { parentPort } from 'worker_threads';
 import { Jimp } from 'jimp';
 import { Gif, GifFrame } from 'gifwrap';
+import { expose } from 'threads/worker';
 import { promises as fs } from 'fs';
 
 async function exists(file: string) {
@@ -12,23 +12,46 @@ async function exists(file: string) {
   }
 }
 
-parentPort?.on('message', async function (message) {
-  if (message.type !== 'banner') {
-    return;
-  }
+// parentPort?.on('message', async function (message) {
+//   if (message.type !== 'banner') {
+//     return;
+//   }
 
-  const { username, filePath, token } = message;
+//   const { username, filePath, token } = message;
 
-  try {
-    await generateBannerToTemporary(username, filePath, token);
-    await moveBannerFromTemporary(filePath);
-    parentPort?.postMessage({ type: 'success', username });
-  } catch (e) {
-    parentPort?.postMessage({ type: 'error', username, error: e });
-  } finally {
-    parentPort?.postMessage({ type: 'jobFinished', username });
-  }
-});
+//   try {
+//     await generateBannerToTemporary(username, filePath, token);
+//     await moveBannerFromTemporary(filePath);
+//     parentPort?.postMessage({ type: 'success', username });
+//   } catch (e) {
+//     parentPort?.postMessage({ type: 'error', username, error: e });
+//   } finally {
+//     parentPort?.postMessage({ type: 'jobFinished', username });
+//   }
+// });
+
+const shareScrollWorker = {
+  processBanner: async function (
+    username: string,
+    filePath: string,
+    token: string
+  ): Promise<{ type: string; username: string; error?: unknown }> {
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ test');
+    try {
+      await generateBannerToTemporary(username, filePath, token);
+      await moveBannerFromTemporary(filePath);
+      return { type: 'success', username };
+    } catch (error) {
+      console.log(error);
+      return { type: 'error', username, error };
+    }
+  },
+};
+
+export type ShareScrollWorker = typeof shareScrollWorker;
+
+// Expose the function to the main thread
+expose(shareScrollWorker);
 
 async function moveBannerFromTemporary(filePath: string) {
   // remove old file, if it exists.
@@ -105,6 +128,7 @@ async function getDragonStrip(dragonIds: string[]) {
 }
 
 async function getDragonIds(username: string, token: string) {
+  console.log('GetDragonIds');
   const response = await fetch(
     `https://dragcave.net/api/v2/user?username=${username}&filter=GROWING`,
     {
@@ -116,6 +140,8 @@ async function getDragonIds(username: string, token: string) {
   const { dragons } = (await response.json()) as {
     dragons: { id: string; hoursleft: number }[];
   };
+
+  console.log(dragons);
 
   return Object.values(dragons)
     .filter((dragon) => dragon.hoursleft > 0)
