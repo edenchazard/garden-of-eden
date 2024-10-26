@@ -113,7 +113,7 @@ export const hatcheryTable = mysqlTable(
 export const recordingsTable = mysqlTable(
   'recordings',
   {
-    recorded_on: datetime('recorded_on')
+    recorded_on: datetime('recorded_on', { mode: 'string' })
       .notNull()
       .default(sql`NOW()`),
     value: bigint('value', { mode: 'number', unsigned: true }).notNull(),
@@ -136,7 +136,24 @@ export const recordingsTable = mysqlTable(
         'clean_up',
       ],
     }).notNull(),
-    extra: json('extra'),
+    extra: json('extra')
+      .$type<{
+        chunks?: number;
+        success?: number;
+        failures?: number;
+        duration?: number;
+        eggs?: number;
+        hatchlings?: number;
+        adults?: number;
+        dead?: number;
+        hatchlingsUngendered?: number;
+        hatchlingsMale?: number;
+        hatchlingsFemale?: number;
+        caveborn?: number;
+        lineaged?: number;
+      }>()
+      .notNull()
+      .default({}),
   },
   (table) => {
     return {

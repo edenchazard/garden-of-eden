@@ -123,7 +123,9 @@ export async function cleanUp() {
 
   await db.insert(recordingsTable).values([
     {
-      recorded_on: DateTime.now().startOf('minute').toJSDate(),
+      recorded_on: DateTime.now()
+        .startOf('minute')
+        .toSQL({ includeOffset: false }),
       value: successfullyRemoved,
       record_type: 'clean_up',
       extra: {
@@ -143,4 +145,8 @@ export async function cleanUp() {
       },
     },
   ]);
+
+  await useStorage('cache').removeItem(
+    'statistics:hatcheryTotals:cleanUp.json'
+  );
 }
