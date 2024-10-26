@@ -14,7 +14,7 @@ export default defineCronHandler('everyFiveMinutes', async () => {
 
   // Check if we're in the first five minutes of a new week
   if (now.diff(currentWeekStart, 'minutes').minutes < 5) {
-    // We're at the start of a new week, so calculate for the previous week
+    // We're at the start of a new week, so amend the final standings for the previous week
     weekStart = previousWeekStart;
     weekEnd = currentWeekStart;
   } else {
