@@ -123,7 +123,9 @@ export async function cleanUp() {
 
   await db.insert(recordingsTable).values([
     {
-      recorded_on: DateTime.now().startOf('minute').toSQL(),
+      recorded_on: DateTime.now()
+        .startOf('minute')
+        .toSQL({ includeOffset: false }),
       value: successfullyRemoved,
       record_type: 'clean_up',
       extra: {

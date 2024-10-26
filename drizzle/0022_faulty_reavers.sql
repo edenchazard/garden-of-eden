@@ -1,0 +1,1 @@
+ALTER TABLE `recordings` MODIFY COLUMN `extra` json NOT NULL DEFAULT ('{}');
