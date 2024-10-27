@@ -302,6 +302,32 @@
           </figcaption>
         </figure>
 
+        <figure v-if="cbVsLineaged" class="graph">
+          <div class="h-[30rem]">
+            <Line
+              :key="`cb-vs-lineaged-${redrawTrigger}`"
+              :data="cbVsLineaged"
+              class="w-full"
+              :options="{
+                ...defaultChartOptions,
+                normalized: true,
+                plugins: {
+                  title: {
+                    text: 'Caveborn vs lineaged',
+                  },
+                },
+              }"
+              :plugins
+            />
+          </div>
+          <figcaption>
+            <p>
+              Data taken from Dragon Cave API. Missing data points indicate an
+              API failure.
+            </p>
+          </figcaption>
+        </figure>
+
         <figure v-if="userActivity" class="graph">
           <div class="h-[20rem]">
             <Line
@@ -360,6 +386,7 @@ const selectedWeek = ref<string | null>();
 const userActivity = ref<ChartData<'line'>>();
 const soilComposition = ref<ChartData<'line'>>();
 const hatchlingGenderRatio = ref<ChartData<'line'>>();
+const cbVsLineaged = ref<ChartData<'line'>>();
 
 const { userSettings } = useUserSettings();
 
@@ -655,6 +682,26 @@ function renderCharts() {
         data: cleanUpTransform.map(
           (stat) => stat.extra.hatchlingsFemale ?? null
         ),
+      },
+    ],
+  };
+
+  cbVsLineaged.value = {
+    labels: statistics.cleanUp.map(mapTimes),
+    datasets: [
+      {
+        ...createPoints(),
+        label: 'Caveborn',
+        backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[1]),
+        data: cleanUpTransform.map((stat) => stat.extra.caveborn ?? null),
+      },
+      {
+        ...createPoints(),
+        label: 'Lineaged',
+        backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[2]),
+        data: cleanUpTransform.map((stat) => stat.extra.lineaged ?? null),
       },
     ],
   };
