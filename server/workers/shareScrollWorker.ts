@@ -22,15 +22,9 @@ async function fileExists(filePath: string) {
 parentPort?.on('message', async function (message) {
   if (message.type !== 'banner') return;
   const { username, filePath, token } = message;
-  const startTime = Date.now();
   try {
     await generateBannerToTemporary(username, filePath, token);
     await moveBannerFromTemporary(filePath);
-
-    const duration = Date.now() - startTime;
-    const minutes = Math.floor(duration / 60000);
-    const seconds = ((duration % 60000) / 1000).toFixed(2);
-    console.log(`Duration: ${minutes} minutes and ${seconds} seconds`);
 
     parentPort?.postMessage({ type: 'success', username });
   } catch (e) {
