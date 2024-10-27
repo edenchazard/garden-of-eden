@@ -194,6 +194,10 @@
 
       <section class="[&_figure]:mt-4">
         <h2>Hatchery</h2>
+        <p class="max-w-prose">
+          Visibility of individual datasets can be toggled by clicking the
+          legends. Missing data points indicate an API failure.
+        </p>
         <figure v-if="dragons" class="graph">
           <div class="h-[31rem]">
             <Line
@@ -254,7 +258,7 @@
                 normalized: true,
                 plugins: {
                   title: {
-                    text: 'Soil Composition',
+                    text: 'Soil composition',
                   },
                   legend: {
                     labels: {
@@ -269,8 +273,8 @@
           </div>
           <figcaption>
             <p>
-              Data taken from Dragon Cave API. Missing data points indicate an
-              API failure.
+              Data taken from Dragon Cave API every 5 minutes. "Other" includes
+              frozen, hidden, dead or adult.
             </p>
           </figcaption>
         </figure>
@@ -286,7 +290,7 @@
                 normalized: true,
                 plugins: {
                   title: {
-                    text: 'Hatchling Gender',
+                    text: 'Hatchling gender',
                   },
                 },
               }"
@@ -295,9 +299,9 @@
           </div>
           <figcaption>
             <p>
-              Data taken from Dragon Cave API. Missing data points indicate an
-              API failure. Does not account for dragons that cannot have a
-              gender. Excludes eggs.
+              Data taken from Dragon Cave API every 5 minutes. Ungendered
+              includes S1 hatchlings, Paper Dragons, Cheese Dragons, Pastel
+              Dragons and Dinos. Excludes eggs.
             </p>
           </figcaption>
         </figure>
@@ -321,10 +325,7 @@
             />
           </div>
           <figcaption>
-            <p>
-              Data taken from Dragon Cave API. Missing data points indicate an
-              API failure.
-            </p>
+            <p>Data taken from Dragon Cave API every 5 minutes.</p>
           </figcaption>
         </figure>
 
@@ -340,7 +341,7 @@
                 normalized: true,
                 plugins: {
                   title: {
-                    text: 'Gardener Activity',
+                    text: 'Gardener activity',
                   },
                   legend: {
                     display: false,
@@ -351,8 +352,8 @@
           </div>
           <figcaption>
             <p>
-              A user is considered active if they've visited the garden within
-              15 minutes of recording.
+              Data taken every 15 minutes. A user is considered active if
+              they've made any activity within 15 minutes of recording.
             </p>
           </figcaption>
         </figure>
