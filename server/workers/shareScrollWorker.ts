@@ -135,7 +135,7 @@ async function getDragonStrip(dragonIds: string[]) {
       );
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      return sharp(buffer, { animated: true });
+      return sharp(buffer);
     })
   );
 

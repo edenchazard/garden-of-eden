@@ -23,3 +23,5 @@ logs
 .env.*
 !.env.example
 
+# Worker js files
+/server/workers/*.js
