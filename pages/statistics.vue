@@ -340,9 +340,7 @@ import type {
   ChartData,
   ChartDataset,
   ChartOptions,
-  ChartType,
   Plugin,
-  Point,
   ScriptableContext,
 } from 'chart.js';
 import { DateTime } from 'luxon';
