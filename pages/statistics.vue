@@ -530,7 +530,7 @@ function renderCharts() {
   if (statistics === null) return;
 
   const mapTimes = (stat: typeof recordingsTable.$inferSelect) =>
-    DateTime.fromSQL(stat.recorded_on).toJSDate();
+    DateTime.fromSQL(stat.recorded_on + 'Z').toJSDate();
 
   dragons.value = {
     labels: statistics.dragons.map(mapTimes),
