@@ -2,7 +2,6 @@ import sharp from 'sharp';
 import GIF from 'sharp-gif2';
 import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
-import 'ts-node/register';
 import path from 'path';
 
 const BANNER_WIDTH = 150;
