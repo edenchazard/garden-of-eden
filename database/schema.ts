@@ -23,7 +23,7 @@ export const userTable = mysqlTable(
       length: 32,
     }).notNull(),
     access_token: varchar('access_token', {
-      length: 32
+      length: 32,
     }),
     role: varchar('role', {
       length: 10,

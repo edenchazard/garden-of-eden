@@ -1,2 +1,2 @@
 paths-ignore:
-  - ".env.example"
+  - '.env.example'
