@@ -396,6 +396,39 @@ const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
   }),
 });
 
+const { data } = useAuth();
+
+const colourPalette = computed(() => {
+  function chartColourPalette(palette: string) {
+    const defaultPalette = [
+      [255, 225, 0],
+      [242, 156, 76],
+      [242, 162, 196],
+      [242, 196, 196],
+      [105, 0, 51],
+      [0, 123, 128],
+    ];
+
+    return ({
+      mint: defaultPalette,
+      dark: [
+        [105, 0, 51],
+        [0, 123, 128],
+        [242, 201, 76],
+        [242, 156, 76],
+        [242, 162, 196],
+        [242, 196, 196],
+      ],
+    }[palette] ?? defaultPalette) as [number, number, number][];
+  }
+
+  return chartColourPalette(useColorMode().value);
+});
+
+watch(() => useColorMode().value, renderCharts);
+
+onNuxtReady(() => renderCharts());
+
 const defaultChartOptions: ChartOptions<'line'> = {
   interaction: {
     intersect: false,
@@ -450,79 +483,6 @@ const plugins: Plugin<'line', Record<string, string>>[] = [
     },
   },
 ];
-
-function createPoints(squished = true) {
-  const points: Partial<ChartDataset<'line'>> = {
-    pointBackgroundColor: '#fff',
-    pointHoverBackgroundColor: '#fff',
-    pointRadius: 6,
-    pointHoverRadius: 12,
-    pointHoverBorderWidth: 6,
-    pointHitRadius: 0,
-  };
-
-  if (squished) {
-    points.pointRadius = (context) => distancePointRadius(context);
-    points.pointHoverRadius = (context) => distancePointRadius(context, 12);
-    points.pointHoverBorderWidth = (context) => distancePointRadius(context, 6);
-  }
-
-  return points;
-}
-
-const { data } = useAuth();
-
-onNuxtReady(() => renderCharts());
-
-function filterFailures(
-  extra: (typeof recordingsTable.$inferSelect)['extra'],
-  key: keyof (typeof recordingsTable.$inferSelect)['extra']
-) {
-  if (!extra || (extra.failures ?? 1) > 0) {
-    return null;
-  }
-  return extra[key] ?? null;
-}
-
-function distancePointRadius(
-  context: ScriptableContext<'line'>,
-  radius: number = 6
-) {
-  return DateTime.fromMillis(context.parsed.x).minute === 0 ? radius : 0;
-}
-
-function rgbAlpha(colour: [number, number, number], a: number = 1) {
-  return `rgba(${colour.join(',')},${a})`;
-}
-
-watch(() => useColorMode().value, renderCharts);
-
-const colourPalette = computed(() => {
-  function chartColourPalette(palette: string) {
-    const defaultPalette = [
-      [255, 225, 0],
-      [242, 156, 76],
-      [242, 162, 196],
-      [242, 196, 196],
-      [105, 0, 51],
-      [0, 123, 128],
-    ];
-
-    return ({
-      mint: defaultPalette,
-      dark: [
-        [105, 0, 51],
-        [0, 123, 128],
-        [242, 201, 76],
-        [242, 156, 76],
-        [242, 162, 196],
-        [242, 196, 196],
-      ],
-    }[palette] ?? defaultPalette) as [number, number, number][];
-  }
-
-  return chartColourPalette(useColorMode().value);
-});
 
 function renderCharts() {
   const statistics = stats.value;
@@ -666,6 +626,46 @@ function renderCharts() {
       },
     ],
   };
+}
+
+function createPoints(squished = true) {
+  const points: Partial<ChartDataset<'line'>> = {
+    pointBackgroundColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointRadius: 6,
+    pointHoverRadius: 12,
+    pointHoverBorderWidth: 6,
+    pointHitRadius: 0,
+  };
+
+  if (squished) {
+    points.pointRadius = (context) => distancePointRadius(context);
+    points.pointHoverRadius = (context) => distancePointRadius(context, 12);
+    points.pointHoverBorderWidth = (context) => distancePointRadius(context, 6);
+  }
+
+  return points;
+}
+
+function filterFailures(
+  extra: (typeof recordingsTable.$inferSelect)['extra'],
+  key: keyof (typeof recordingsTable.$inferSelect)['extra']
+) {
+  if (!extra || (extra.failures ?? 1) > 0) {
+    return null;
+  }
+  return extra[key] ?? null;
+}
+
+function distancePointRadius(
+  context: ScriptableContext<'line'>,
+  radius: number = 6
+) {
+  return DateTime.fromMillis(context.parsed.x).minute === 0 ? radius : 0;
+}
+
+function rgbAlpha(colour: [number, number, number], a: number = 1) {
+  return `rgba(${colour.join(',')},${a})`;
 }
 </script>
 
