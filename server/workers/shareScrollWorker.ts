@@ -37,6 +37,7 @@ async function moveBannerFromTemporary(filePath: string) {
   if (await exists(filePath)) await fs.unlink(filePath);
   await fs.rename(`${filePath}.tmp`, filePath);
 }
+
 async function generateBannerToTemporary(
   scrollName: string,
   filePath: string,
@@ -75,13 +76,13 @@ async function generateBannerToTemporary(
           width: BANNERWIDTH,
           height: BANNERHEIGHT,
           channels: 4,
-          background: '#ffffff',
+          background: { r: 0, g: 0, b: 0, alpha: 0 },
         },
       });
 
       const composites: sharp.OverlayOptions[] = [
         {
-          input: await visibleDragonStrip.png().toBuffer(),
+          input: await visibleDragonStrip.toBuffer(),
           top: BANNERHEIGHT - Math.min(height, BANNERHEIGHT),
           left: 0,
         },
@@ -99,7 +100,7 @@ async function generateBannerToTemporary(
         });
 
         composites.push({
-          input: await overflowDragonStrip.png().toBuffer(),
+          input: await overflowDragonStrip.toBuffer(),
           top: BANNERHEIGHT - Math.min(height, BANNERHEIGHT),
           left: cropWidth,
         });
@@ -115,7 +116,6 @@ async function generateBannerToTemporary(
     const gif = await GIF.createGif({
       delay: 100,
       repeat: 0,
-      transparent: true,
       format: 'rgb444',
     })
       .addFrame(frames)
@@ -135,7 +135,9 @@ async function getDragonStrip(dragonIds: string[]) {
       );
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      return sharp(buffer);
+      const image = sharp(buffer);
+
+      return image;
     })
   );
 
