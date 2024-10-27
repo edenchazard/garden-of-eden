@@ -20,15 +20,15 @@ async function sendJob(username: string, filePath: string) {
     {
       username,
       filePath,
+    },
+    {
+      removeOnComplete: false,
+      removeOnFail: false,
+      deduplication: {
+        id: `banner-${username}`,
+        ttl: expiry,
+      },
     }
-    // {
-    //   removeOnComplete: false,
-    //   removeOnFail: false,
-    //   deduplication: {
-    //     id: `banner-${username}`,
-    //     ttl: expiry,
-    //   },
-    // }
   );
 }
 
@@ -44,9 +44,7 @@ export default defineEventHandler(async (event) => {
       }),
   });
 
-  console.log(event);
   const params = await getValidatedRouterParams(event, schema.parse);
-  console.log(params);
   const filePath = `/cache/scroll/${encodeURIComponent(params.username)}.gif`;
 
   await sendJob(params.username, filePath);
