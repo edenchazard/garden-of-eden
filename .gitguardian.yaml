@@ -1,2 +1,5 @@
-paths-ignore:
-  - '.env.example'
+version: 2
+
+secret:
+  ignored_paths:
+    - '.env.example'
