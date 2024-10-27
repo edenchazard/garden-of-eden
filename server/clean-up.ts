@@ -39,6 +39,8 @@ export async function cleanUp() {
       }>(`https://dragcave.net/api/v2/dragons`, {
         method: 'POST',
         timeout: 20000,
+        retry: 3,
+        retryDelay: 1000 * 5,
         headers: {
           Authorization: `Bearer ${clientSecret}`,
           'Content-Type': 'application/x-www-form-urlencoded',
