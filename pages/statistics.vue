@@ -342,7 +342,7 @@ import type {
 import { DateTime } from 'luxon';
 import { Line } from 'vue-chartjs';
 import { pluralise } from '#imports';
-import type { recordingsTable } from '~/database/schema';
+import { recordingsTable } from '~/database/schema';
 import 'chartjs-adapter-luxon';
 
 useHead({
@@ -492,6 +492,21 @@ function renderCharts() {
   const mapTimes = (stat: typeof recordingsTable.$inferSelect) =>
     DateTime.fromSQL(stat.recorded_on + 'Z').toJSDate();
 
+  const cleanUpTransform = statistics.cleanUp.map((stat) => {
+    const extra = JSON.parse(stat.extra as string);
+
+    if (extra.failures && extra.failures > 0) {
+      for (const key in extra) {
+        extra[key] = null;
+      }
+    }
+
+    return {
+      ...stat,
+      extra,
+    };
+  });
+
   dragons.value = {
     labels: statistics.dragons.map(mapTimes),
     datasets: [
@@ -534,7 +549,7 @@ function renderCharts() {
         label: 'Other',
         backgroundColor: rgbAlpha(colourPalette.value[4], 0.75),
         borderColor: rgbAlpha(colourPalette.value[4]),
-        data: statistics.cleanUp.map((stat) => stat.value),
+        data: cleanUpTransform.map((stat) => stat.value),
         fill: 'origin',
         hidden: true,
       },
@@ -543,9 +558,7 @@ function renderCharts() {
         label: 'Eggs',
         backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
         borderColor: rgbAlpha(colourPalette.value[1]),
-        data: statistics.cleanUp.map((stat) =>
-          filterFailures(JSON.parse(stat.extra as string), 'eggs')
-        ),
+        data: cleanUpTransform.map((stat) => stat.extra.eggs ?? null),
         fill: 'origin',
       },
       {
@@ -553,9 +566,7 @@ function renderCharts() {
         label: 'Hatchlings',
         backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
         borderColor: rgbAlpha(colourPalette.value[2]),
-        data: statistics.cleanUp.map((stat) =>
-          filterFailures(JSON.parse(stat.extra as string), 'hatchlings')
-        ),
+        data: cleanUpTransform.map((stat) => stat.extra.hatchlings ?? null),
         fill: 'origin',
       },
       {
@@ -568,9 +579,7 @@ function renderCharts() {
         label: 'Dead',
         backgroundColor: rgbAlpha(colourPalette.value[3], 0.75),
         borderColor: rgbAlpha(colourPalette.value[3]),
-        data: statistics.cleanUp.map((stat) =>
-          filterFailures(JSON.parse(stat.extra as string), 'dead')
-        ),
+        data: cleanUpTransform.map((stat) => stat.extra.dead ?? null),
         fill: 'origin',
       },
       {
@@ -583,9 +592,7 @@ function renderCharts() {
         label: 'Adult',
         backgroundColor: rgbAlpha(colourPalette.value[4], 0.75),
         borderColor: rgbAlpha(colourPalette.value[4]),
-        data: statistics.cleanUp.map((stat) =>
-          filterFailures(JSON.parse(stat.extra as string), 'adults')
-        ),
+        data: cleanUpTransform.map((stat) => stat.extra.adults ?? null),
         fill: 'origin',
       },
     ],
@@ -599,11 +606,8 @@ function renderCharts() {
         label: 'Ungendered',
         backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
         borderColor: rgbAlpha(colourPalette.value[1]),
-        data: statistics.cleanUp.map((stat) =>
-          filterFailures(
-            JSON.parse(stat.extra as string),
-            'hatchlingsUngendered'
-          )
+        data: cleanUpTransform.map(
+          (stat) => stat.extra.hatchlingsUngendered ?? null
         ),
       },
       {
@@ -611,17 +615,15 @@ function renderCharts() {
         label: 'Male',
         backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
         borderColor: rgbAlpha(colourPalette.value[2]),
-        data: statistics.cleanUp.map((stat) =>
-          filterFailures(JSON.parse(stat.extra as string), 'hatchlingsMale')
-        ),
+        data: cleanUpTransform.map((stat) => stat.extra.hatchlingsMale ?? null),
       },
       {
         ...createPoints(),
         label: 'Female',
         backgroundColor: rgbAlpha(colourPalette.value[3], 0.75),
         borderColor: rgbAlpha(colourPalette.value[3]),
-        data: statistics.cleanUp.map((stat) =>
-          filterFailures(JSON.parse(stat.extra as string), 'hatchlingsFemale')
+        data: cleanUpTransform.map(
+          (stat) => stat.extra.hatchlingsFemale ?? null
         ),
       },
     ],
@@ -645,16 +647,6 @@ function createPoints(squished = true) {
   }
 
   return points;
-}
-
-function filterFailures(
-  extra: (typeof recordingsTable.$inferSelect)['extra'],
-  key: keyof (typeof recordingsTable.$inferSelect)['extra']
-) {
-  if (!extra || (extra.failures ?? 1) > 0) {
-    return null;
-  }
-  return extra[key] ?? null;
 }
 
 function distancePointRadius(
