@@ -197,6 +197,7 @@
         <figure v-if="dragons" class="graph">
           <div class="h-[31rem]">
             <Line
+              :key="`hatchery-${redrawTrigger}`"
               :data="dragons"
               class="w-full"
               :plugins
@@ -244,6 +245,7 @@
         <figure v-if="soilComposition" class="graph">
           <div class="h-[40rem]">
             <Line
+              :key="`composition-${redrawTrigger}`"
               :data="soilComposition"
               class="w-full"
               :plugins
@@ -276,6 +278,7 @@
         <figure v-if="hatchlingGenderRatio" class="graph">
           <div class="h-[30rem]">
             <Line
+              :key="`gender-${redrawTrigger}`"
               :data="hatchlingGenderRatio"
               class="w-full"
               :options="{
@@ -302,6 +305,7 @@
         <figure v-if="userActivity" class="graph">
           <div class="h-[20rem]">
             <Line
+              :key="`user-activity-${redrawTrigger}`"
               class="w-full"
               :data="userActivity"
               :plugins
@@ -344,11 +348,13 @@ import { Line } from 'vue-chartjs';
 import { pluralise } from '#imports';
 import type { recordingsTable } from '~/database/schema';
 import 'chartjs-adapter-luxon';
+import { useWindowSize } from '@vueuse/core';
 
 useHead({
   title: 'Statistics',
 });
 
+const redrawTrigger = ref(0);
 const dragons = ref<ChartData<'line'>>();
 const selectedWeek = ref<string | null>();
 const userActivity = ref<ChartData<'line'>>();
@@ -425,9 +431,12 @@ const colourPalette = computed(() => {
   return chartColourPalette(useColorMode().value);
 });
 
-watch(() => useColorMode().value, renderCharts);
-
-onNuxtReady(() => renderCharts());
+watch(
+  () => [useColorMode().value, useWindowSize().width.value],
+  () => redrawTrigger.value++
+);
+onNuxtReady(() => redrawTrigger.value++);
+watch(redrawTrigger, renderCharts);
 
 const defaultChartOptions: ChartOptions<'line'> = {
   interaction: {
