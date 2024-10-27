@@ -637,30 +637,26 @@ function renderCharts() {
   };
 }
 
-function createPoints(squished = true) {
+function createPoints() {
+  const determineSizeByChartWidth = (
+    context: ScriptableContext<'line'>,
+    threshold: number,
+    small: number = 0
+  ) => {
+    const resolvedDesktopSize =
+      DateTime.fromMillis(context.parsed.x).minute === 0 ? threshold : 0;
+    return context.chart.width > 615 ? resolvedDesktopSize : small;
+  };
+
   const points: Partial<ChartDataset<'line'>> = {
     pointBackgroundColor: '#fff',
     pointHoverBackgroundColor: '#fff',
-    pointRadius: 6,
-    pointHoverRadius: 12,
-    pointHoverBorderWidth: 6,
+    pointRadius: (ctx) => determineSizeByChartWidth(ctx, 6),
+    pointHoverRadius: (ctx) => determineSizeByChartWidth(ctx, 12, 4),
+    pointHoverBorderWidth: (ctx) => determineSizeByChartWidth(ctx, 6, 4),
     pointHitRadius: 0,
   };
-
-  if (squished) {
-    points.pointRadius = (context) => distancePointRadius(context);
-    points.pointHoverRadius = (context) => distancePointRadius(context, 12);
-    points.pointHoverBorderWidth = (context) => distancePointRadius(context, 6);
-  }
-
   return points;
-}
-
-function distancePointRadius(
-  context: ScriptableContext<'line'>,
-  radius: number = 6
-) {
-  return DateTime.fromMillis(context.parsed.x).minute === 0 ? radius : 0;
 }
 
 function rgbAlpha(colour: [number, number, number], a: number = 1) {
