@@ -127,6 +127,13 @@
       "when": 1729721101321,
       "tag": "0021_plain_leech",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1729975970983,
+      "tag": "0022_faulty_reavers",
+      "breakpoints": true
     }
   ]
 }

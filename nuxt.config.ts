@@ -75,6 +75,7 @@ export default defineNuxtConfig({
   },
   colorMode: {
     classSuffix: '',
+    preference: 'dark',
   },
   cron: {
     runOnInit: false,

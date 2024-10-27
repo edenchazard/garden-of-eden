@@ -9,6 +9,8 @@ import {
   LineController,
   LineElement,
   PointElement,
+  Filler,
+  TimeScale,
 } from 'chart.js';
 
 export default defineNuxtPlugin(() => {
@@ -19,14 +21,15 @@ export default defineNuxtPlugin(() => {
     LineController,
     LineElement,
     PointElement,
+    TimeScale,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    Filler
   );
 
   Chart.defaults.maintainAspectRatio = false;
   Chart.defaults.plugins.title.display = true;
-  Chart.defaults.scales.linear.ticks.precision = 0;
   Chart.defaults.datasets.line.tension = 0.25;
   Chart.defaults.datasets.line.pointBorderWidth = 4;
 });

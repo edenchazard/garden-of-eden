@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, lte, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, lte, or, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
@@ -10,6 +10,52 @@ import {
   userTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
+
+const totalScrollsCached = defineCachedFunction(
+  async () =>
+    db
+      .select()
+      .from(recordingsTable)
+      .orderBy(asc(recordingsTable.recorded_on))
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'total_scrolls')
+        )
+      ),
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'scrolls',
+  }
+);
+
+const totalDragonsCached = defineCachedFunction(
+  async () =>
+    db
+      .select()
+      .from(recordingsTable)
+      .orderBy(asc(recordingsTable.recorded_on))
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'total_dragons')
+        )
+      ),
+  {
+    maxAge: 60 * 60,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'dragons',
+  }
+);
 
 const clicksTotalAllTimeCached = defineCachedFunction(
   async () => {
@@ -29,47 +75,6 @@ const clicksTotalAllTimeCached = defineCachedFunction(
     group: 'statistics',
     name: 'clickTotals',
     getKey: () => 'allTime',
-  }
-);
-
-const recordingsTableQueryBuilder = () =>
-  db
-    .select({
-      recorded_on: recordingsTable.recorded_on,
-      value: recordingsTable.value,
-    })
-    .from(recordingsTable)
-    .orderBy(desc(recordingsTable.recorded_on))
-    .limit(48);
-
-const totalScrollsCached = defineCachedFunction(
-  async () => {
-    const data = await recordingsTableQueryBuilder().where(
-      eq(recordingsTable.record_type, 'total_scrolls')
-    );
-    return data;
-  },
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'scrolls',
-  }
-);
-
-const totalDragonsCached = defineCachedFunction(
-  async () => {
-    const data = await recordingsTableQueryBuilder().where(
-      eq(recordingsTable.record_type, 'total_dragons')
-    );
-
-    return data;
-  },
-  {
-    maxAge: 60 * 60,
-    group: 'statistics',
-    name: 'hatcheryTotals',
-    getKey: () => 'dragons',
   }
 );
 
@@ -96,10 +101,56 @@ const weekliesCached = defineCachedFunction(
     }));
   },
   {
-    maxAge: 1,
+    maxAge: 60 * 60 * 24 * 7,
     group: 'statistics',
-    name: 'leaderboards',
+    name: 'clickTotals',
     getKey: () => 'weeklies',
+  }
+);
+
+const userActivityCached = defineCachedFunction(
+  async () =>
+    db
+      .select()
+      .from(recordingsTable)
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'user_count')
+        )
+      )
+      .orderBy(asc(recordingsTable.recorded_on)),
+  {
+    maxAge: 60 * 15,
+    group: 'statistics',
+    name: 'userActivity',
+    getKey: () => 'activity',
+  }
+);
+
+const cleanUpCached = defineCachedFunction(
+  async () =>
+    db
+      .select()
+      .from(recordingsTable)
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'clean_up')
+        )
+      )
+      .orderBy(asc(recordingsTable.recorded_on)),
+  {
+    maxAge: 60 * 10,
+    group: 'statistics',
+    name: 'hatcheryTotals',
+    getKey: () => 'cleanUp',
   }
 );
 
@@ -107,12 +158,15 @@ export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
 
   const [
+    cleanUp,
     scrolls,
     dragons,
     clicksAllTimeLeaderboard,
     [{ clicks_total: clicksTotalAllTime }],
     weeklies,
+    userActivity,
   ] = await Promise.all([
+    cleanUpCached(),
     totalScrollsCached(),
     totalDragonsCached(),
     db
@@ -150,18 +204,16 @@ export default defineEventHandler(async (event) => {
       .limit(11),
     clicksTotalAllTimeCached(),
     weekliesCached(),
+    userActivityCached(),
   ]);
 
-  // since we got them in descending order (latest 48),
-  // we then have to reverse them for proper left-to-right display
-  scrolls.reverse();
-  dragons.reverse();
-
   return {
+    cleanUp,
     scrolls,
     dragons,
     clicksAllTimeLeaderboard,
     clicksTotalAllTime: parseInt(clicksTotalAllTime),
     weeklies,
+    userActivity,
   };
 });

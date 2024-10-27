@@ -39,6 +39,8 @@ export async function cleanUp() {
       }>(`https://dragcave.net/api/v2/dragons`, {
         method: 'POST',
         timeout: 20000,
+        retry: 3,
+        retryDelay: 1000 * 5,
         headers: {
           Authorization: `Bearer ${clientSecret}`,
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -123,7 +125,9 @@ export async function cleanUp() {
 
   await db.insert(recordingsTable).values([
     {
-      recorded_on: DateTime.now().startOf('minute').toJSDate(),
+      recorded_on: DateTime.now()
+        .startOf('minute')
+        .toSQL({ includeOffset: false }),
       value: successfullyRemoved,
       record_type: 'clean_up',
       extra: {
@@ -143,4 +147,8 @@ export async function cleanUp() {
       },
     },
   ]);
+
+  await useStorage('cache').removeItem(
+    'statistics:hatcheryTotals:cleanUp.json'
+  );
 }

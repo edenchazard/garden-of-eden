@@ -8,4 +8,6 @@ export default defineCronHandler('everyFifteenMinutes', async () => {
     value: sql`(SELECT COUNT(*) FROM ${userTable} WHERE ${userTable.last_activity} > NOW() - INTERVAL 15 MINUTE)`,
     record_type: 'user_count',
   });
+
+  await useStorage('cache').removeItem(`statistics:userActivity:activity.json`);
 });
