@@ -580,7 +580,6 @@ function renderCharts() {
         backgroundColor: rgbAlpha(colourPalette.value[3], 0.75),
         borderColor: rgbAlpha(colourPalette.value[3]),
         data: cleanUpTransform.map((stat) => stat.extra.dead ?? null),
-        fill: 'origin',
       },
       {
         pointHitRadius: 0,
@@ -593,7 +592,6 @@ function renderCharts() {
         backgroundColor: rgbAlpha(colourPalette.value[4], 0.75),
         borderColor: rgbAlpha(colourPalette.value[4]),
         data: cleanUpTransform.map((stat) => stat.extra.adults ?? null),
-        fill: 'origin',
       },
     ],
   };
