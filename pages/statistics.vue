@@ -340,7 +340,9 @@ import type {
   ChartData,
   ChartDataset,
   ChartOptions,
+  ChartType,
   Plugin,
+  Point,
   ScriptableContext,
 } from 'chart.js';
 import { DateTime } from 'luxon';
@@ -469,26 +471,49 @@ const defaultChartOptions: ChartOptions<'line'> = {
   },
 };
 
-const plugins: Plugin<'line', Record<string, string>>[] = [
+const plugins: Plugin[] = [
   {
-    id: 'Hover Line',
-    afterDraw: (chart) => {
-      const ctx = chart.ctx;
-      const yAxis = chart.scales.y;
-      // @ts-expect-error it really does exist
-      if (chart.tooltip?._active.length && yAxis?.top && yAxis?.bottom) {
-        // @ts-expect-error it really does exist x2
-        const x = chart.tooltip._active[0].element.x;
-        ctx.save();
-        ctx.beginPath();
-        ctx.setLineDash([5, 5]);
-        ctx.moveTo(x, yAxis.top);
-        ctx.lineTo(x, yAxis.bottom);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = 'rgba(255, 0, 255, 0.5)';
-        ctx.stroke();
-        ctx.restore();
-      }
+    id: 'corsair',
+    defaults: {
+      width: 1,
+      color: 'rgba(255, 0, 255, 0.5)',
+      dash: [5, 5],
+    },
+    afterInit: (chart) => {
+      // @ts-expect-error I ain't dealing with that
+      chart.corsair = {
+        x: 0,
+        y: 0,
+      };
+    },
+    afterEvent: (chart, args) => {
+      const { inChartArea } = args;
+      const { x, y } = args.event;
+
+      // @ts-expect-error I ain't dealing with that
+      chart.corsair = { x, y, draw: inChartArea };
+      chart.draw();
+    },
+    afterDatasetsDraw: (chart, _, opts) => {
+      const { ctx } = chart;
+      const { top, bottom, left, right } = chart.chartArea;
+      // @ts-expect-error I ain't dealing with that
+      const { x, y, draw } = chart.corsair;
+      if (!draw) return;
+
+      ctx.save();
+
+      ctx.beginPath();
+      ctx.lineWidth = opts.width;
+      ctx.strokeStyle = opts.color;
+      ctx.setLineDash(opts.dash);
+      ctx.moveTo(x, bottom);
+      ctx.lineTo(x, top);
+      ctx.moveTo(left, y);
+      ctx.lineTo(right, y);
+      ctx.stroke();
+
+      ctx.restore();
     },
   },
 ];
