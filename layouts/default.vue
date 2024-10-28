@@ -56,16 +56,25 @@
           </div>
         </div>
         <div class="flex gap-y-1 flex-col sm:flex-row justify-between">
-          <div class="text-center">
-            <NuxtLink
-              to="/"
-              :style="{
-                backgroundImage: `url(https://dragcave.net/image/2OrD.gif)`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: '0.2rem',
-              }"
-              class="pl-9 text-3xl text-white dark:text-stone-200 tracking-wider font-thin decoration-transparent"
-              >Garden of {{ userSettings.siteName }}</NuxtLink
+          <div class="text-center z-10">
+            <span
+              class="inline-block relative bg-green-800 dark:bg-neutral-950"
+            >
+              <img
+                src="/npc/ghost_of_eden.png"
+                alt=""
+                class="ghost-of-eden absolute -z-10 left-5"
+              />
+              <NuxtLink
+                to="/"
+                :style="{
+                  backgroundImage: `url(https://dragcave.net/image/2OrD.gif)`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: '0.2rem',
+                }"
+                class="pl-9 text-3xl text-white dark:text-stone-200 tracking-wider font-thin decoration-transparent"
+                >Garden of {{ userSettings.siteName }}</NuxtLink
+              ></span
             >
           </div>
           <nav
@@ -200,3 +209,50 @@ const { execute: cleanUp } = useCsrfFetch('/api/hatchery', {
   body: {},
 });
 </script>
+
+<style scoped>
+.ghost-of-eden {
+  animation: ghost-of-eden 10s infinite alternate 2s;
+}
+
+@keyframes ghost-of-eden {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-2rem);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-1.8rem);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2rem);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-1.8rem);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2rem);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-of-eden {
+    animation: none;
+  }
+}
+</style>
