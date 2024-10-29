@@ -198,7 +198,7 @@
           Visibility of individual datasets can be toggled by clicking the
           legends. Missing data points indicate an API failure.
         </p>
-        <figure v-if="dragons" class="graph">
+        <figure v-if="dragons" id="hatchery" class="graph">
           <div class="h-[31rem]">
             <Line
               :key="`hatchery-${redrawTrigger}`"
@@ -246,7 +246,7 @@
           <figcaption><p>Data taken in 30 minute intervals.</p></figcaption>
         </figure>
 
-        <figure v-if="soilComposition" class="graph">
+        <figure v-if="soilComposition" id="soil-composition" class="graph">
           <div class="h-[40rem]">
             <Line
               :key="`composition-${redrawTrigger}`"
@@ -279,7 +279,7 @@
           </figcaption>
         </figure>
 
-        <figure v-if="hatchlingGenderRatio" class="graph">
+        <figure v-if="hatchlingGenderRatio" id="hatchling-gender" class="graph">
           <div class="h-[30rem]">
             <Line
               :key="`gender-${redrawTrigger}`"
@@ -306,7 +306,7 @@
           </figcaption>
         </figure>
 
-        <figure v-if="cbVsLineaged" class="graph">
+        <figure v-if="cbVsLineaged" id="cb-vs-lineaged" class="graph">
           <div class="h-[30rem]">
             <Line
               :key="`cb-vs-lineaged-${redrawTrigger}`"
@@ -329,7 +329,7 @@
           </figcaption>
         </figure>
 
-        <figure v-if="userActivity" class="graph">
+        <figure v-if="userActivity" id="gardener-activity" class="graph">
           <div class="h-[20rem]">
             <Line
               :key="`user-activity-${redrawTrigger}`"
@@ -358,7 +358,7 @@
           </figcaption>
         </figure>
 
-        <figure v-if="apiRequests" class="graph">
+        <figure v-if="apiRequests" id="api-requests" class="graph">
           <div class="h-[20rem]">
             <Bar
               :key="`api-requests-${redrawTrigger}`"
@@ -395,9 +395,6 @@
                 plugins: {
                   title: {
                     text: 'Dragon Cave API requests',
-                  },
-                  legend: {
-                    display: false,
                   },
                   tooltip: {
                     callbacks: {
