@@ -14,7 +14,6 @@ async function exists(file: string) {
 }
 
 async function sendJob(username: string, filePath: string) {
-  console.log('test');
   await shareScrollQueue.add(
     'shareScrollQueue',
     {
@@ -58,7 +57,17 @@ export default defineEventHandler(async (event) => {
     return sendStream(event, createReadStream(filePath));
   }
 
-  // TODO: maybe serve a Single Pixel(tm)
-  setResponseStatus(event, 404, 'banner not found');
-  return 'banner not found';
+  // todo: what if banner generation fails (nonexistent scrollname)?
+  // i want to render the 'scroll not found' banner in that case
+  // but when and where to trigger that...?
+
+  setHeaders(event, {
+    'Content-Type': 'image/webp',
+  });
+
+  return sendStream(event, createReadStream(
+    '/src/public/banner/banner_inprogress.webp'
+  ));
+  // little thing: the url ends in .gif but this resource is a .webp.
+  // it serves just fine. will the filetype discrepancy be a problem later?
 });
