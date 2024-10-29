@@ -134,6 +134,7 @@ export const recordingsTable = mysqlTable(
         'lineaged',
         'user_count',
         'clean_up',
+        'api_request',
       ],
     }).notNull(),
     extra: json('extra')
@@ -151,6 +152,7 @@ export const recordingsTable = mysqlTable(
         hatchlingsFemale?: number;
         caveborn?: number;
         lineaged?: number;
+        failure?: number;
       }>()
       .notNull()
       .default({}),
