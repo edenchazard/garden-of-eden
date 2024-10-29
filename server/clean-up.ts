@@ -3,7 +3,7 @@ import { db } from '~/server/db';
 import { hatcheryTable, recordingsTable } from '~/database/schema';
 import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
-
+import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
 
@@ -33,10 +33,10 @@ export async function cleanUp() {
 
   const promises = await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
-      const apiResponse = await $fetch<{
+      const apiResponse = await dragCaveFetch()<{
         errors: unknown[];
         dragons: Record<string, DragonData>;
-      }>(`https://dragcave.net/api/v2/dragons`, {
+      }>(`/dragons`, {
         method: 'POST',
         timeout: 20000,
         retry: 3,

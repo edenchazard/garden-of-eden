@@ -3,14 +3,14 @@ import { and, eq, gt, inArray, notInArray, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
+import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 
 async function fetchScroll(username: string, token: JWT) {
-  return $fetch<
+  return dragCaveFetch()<
     DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
       dragons: Record<string, DragonData>;
     }
-  >(`https://dragcave.net/api/v2/user?username=${username}&filter=GROWING`, {
-    timeout: 10000,
+  >(`/user?username=${username}&filter=GROWING`, {
     headers: {
       Authorization: `Bearer ${token.sessionToken}`,
     },
@@ -18,7 +18,7 @@ async function fetchScroll(username: string, token: JWT) {
 }
 
 async function syncScrollName(token: JWT) {
-  const updated = await $fetch<
+  const updated = await dragCaveFetch()<
     DragCaveApiResponse<{
       username: string;
       user_id: number;

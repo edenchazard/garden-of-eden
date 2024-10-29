@@ -357,6 +357,69 @@
             </p>
           </figcaption>
         </figure>
+
+        <figure v-if="apiRequests" class="graph">
+          <div class="h-[20rem]">
+            <Bar
+              :key="`api-requests-${redrawTrigger}`"
+              class="w-full"
+              :data="apiRequests"
+              :plugins
+              :options="{
+                interaction: {
+                  intersect: false,
+                  mode: 'index',
+                },
+                normalized: true,
+                scales: {
+                  y: {
+                    stacked: true,
+                    ticks: {
+                      callback(ctx) {
+                        return Math.abs(Number(ctx));
+                      },
+                    },
+                  },
+                  x: {
+                    type: 'time',
+                    time: {
+                      unit: 'hour',
+                      displayFormats: {
+                        hour: 'T',
+                      },
+                      tooltipFormat: 'f',
+                    },
+                    stacked: true,
+                  },
+                },
+                plugins: {
+                  title: {
+                    text: 'Dragon Cave API requests',
+                  },
+                  legend: {
+                    display: false,
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label(ctx) {
+                        return (
+                          `${ctx.dataset.label}: ` +
+                          Math.abs((ctx.raw as number) ?? 0)
+                        );
+                      },
+                    },
+                  },
+                },
+              }"
+            />
+          </div>
+          <figcaption>
+            <p>
+              Data taken every 5 minutes. Each bar represents number of requests
+              made to Dragon Cave in the previous 5 minutes.
+            </p>
+          </figcaption>
+        </figure>
       </section>
     </div>
   </div>
@@ -371,7 +434,7 @@ import type {
   ScriptableContext,
 } from 'chart.js';
 import { DateTime } from 'luxon';
-import { Line } from 'vue-chartjs';
+import { Bar, Line } from 'vue-chartjs';
 import { pluralise } from '#imports';
 import type { recordingsTable } from '~/database/schema';
 import 'chartjs-adapter-luxon';
@@ -388,6 +451,7 @@ const userActivity = ref<ChartData<'line'>>();
 const soilComposition = ref<ChartData<'line'>>();
 const hatchlingGenderRatio = ref<ChartData<'line'>>();
 const cbVsLineaged = ref<ChartData<'line'>>();
+const apiRequests = ref<ChartData<'bar'>>();
 
 const { userSettings } = useUserSettings();
 
@@ -411,6 +475,7 @@ const { data: stats } = await useFetch('/api/statistics', {
     weeklies: [],
     userActivity: [],
     cleanUp: [],
+    apiRequests: [],
   }),
 });
 
@@ -552,7 +617,7 @@ function renderCharts() {
   const mapTimes = (stat: typeof recordingsTable.$inferSelect) =>
     DateTime.fromSQL(stat.recorded_on + 'Z').toJSDate();
 
-  const cleanUpTransform = statistics.cleanUp.map((stat) => {
+  function transform(stat: (typeof statistics.cleanUp)[0]) {
     const extra = JSON.parse(stat.extra as string);
 
     if (extra.failures && extra.failures > 0) {
@@ -565,7 +630,10 @@ function renderCharts() {
       ...stat,
       extra,
     };
-  });
+  }
+
+  const cleanUpTransform = statistics.cleanUp.map(transform);
+  const apiRequestsTransform = statistics.apiRequests.map(transform);
 
   dragons.value = {
     labels: statistics.dragons.map(mapTimes),
@@ -703,6 +771,24 @@ function renderCharts() {
         backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
         borderColor: rgbAlpha(colourPalette.value[2]),
         data: cleanUpTransform.map((stat) => stat.extra.lineaged ?? null),
+      },
+    ],
+  };
+
+  apiRequests.value = {
+    labels: statistics.apiRequests.map(mapTimes),
+    datasets: [
+      {
+        label: 'Successful',
+        backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[1]),
+        data: apiRequestsTransform.map((stat) => stat.extra.success ?? 0),
+      },
+      {
+        label: 'Failed',
+        backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
+        borderColor: rgbAlpha(colourPalette.value[2]),
+        data: apiRequestsTransform.map((stat) => -(stat.extra.failure ?? 0)),
       },
     ],
   };
