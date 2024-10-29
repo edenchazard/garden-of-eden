@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
   });
 
   return sendStream(event, createReadStream(
-    '/src/public/banner/banner_inprogress.webp'
+    '/src/public/banner/in_progress.webp'
   ));
   // little thing: the url ends in .gif but this resource is a .webp.
   // it serves just fine. will the filetype discrepancy be a problem later?

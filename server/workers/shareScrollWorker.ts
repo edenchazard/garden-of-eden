@@ -24,7 +24,6 @@ parentPort?.on('message', async function (message) {
   try {
     await generateBannerToTemporary(username, filePath, token);
     await moveBannerFromTemporary(filePath);
-
     parentPort?.postMessage({ type: 'success', username });
   } catch (e) {
     parentPort?.postMessage({ type: 'error', username, error: e });
@@ -45,36 +44,48 @@ async function moveBannerFromTemporary(filePath: string) {
   }
 }
 
+
 async function generateBannerToTemporary(
   username: string,
   filePath: string,
   token: string
 ) {
+  // missing things currently:
+  // - install fonts
+  // - complete the banner generation chain, one func at a time
+  // - get access token from user so we can count a hidden scroll's dragons
+  // - how to hit the hatchery's api for click info? flair info and images?
   try {
-    const dragonIds = await getDragonIds(username, token);
-
-    if (dragonIds.length === 0) {
-      console.warn(`No dragons found for user ${username}.`);
-      return;
-    }
-
-    const { dragonStrip, stripWidth, stripHeight } =
-      await getDragonStrip(dragonIds);
-
-    const frames = await createFrames(dragonStrip, stripWidth, stripHeight);
-
     const outputDir = path.dirname(filePath);
     await fs.mkdir(outputDir, { recursive: true });
 
-    const gif = await GIF.createGif({
-      delay: FRAME_DELAY,
-      repeat: 0,
-      format: 'rgb444',
-    })
-      .addFrame(frames)
-      .toSharp();
+    console.log(await getScrollData(username, token));
 
-    await gif.toFile(`${filePath}.tmp`);
+    // const dragonIds = await getDragonIds(username, token);
+
+    // if (dragonIds.length === 0) {
+    //   console.warn(`No dragons found for user ${username}.`);
+    //   return;
+    // }
+
+    // const { dragonStrip, stripWidth, stripHeight } =
+    //   await getDragonStrip(dragonIds);
+
+    // const frames = await createFrames(dragonStrip, stripWidth, stripHeight);
+
+    // const gif = await GIF.createGif({
+    //   delay: FRAME_DELAY,
+    //   repeat: 0,
+    //   format: 'rgb444',
+    // })
+    //   .addFrame(frames)
+    //   .toSharp();
+
+    // await gif.toFile(`${filePath}.tmp`);
+
+    const baseBanner = await sharp('/src/public/banner/base.webp')
+      .gif()
+      .toFile(`${filePath}.tmp`)
   } catch (error) {
     console.error('Error in generateBannerToTemporary:', error);
     await fs.unlink(`${filePath}.tmp`).catch(() => {});
@@ -82,6 +93,69 @@ async function generateBannerToTemporary(
   }
 }
 
+async function getScrollData(username: string, token: string) {
+  try {
+    type UserFetchJson = {
+      errors: any[],
+      dragons: { [key: string]: { hoursleft: number } },
+      data: { hasNextPage: boolean, endCursor: string }
+    }
+
+    const startTime = performance.now();
+    console.log('Fetching scroll data...');
+
+    const DRAGONS = {
+      dragonCount: 0,
+      growingCount: 0,
+      growingIds: [] as string[]
+    }
+
+    const FETCH_URL = `https://dragcave.net/api/v2/user?limit=1000&username=${
+      encodeURIComponent(username)
+    }`
+    const FETCH_OPT = { headers: { Authorization: `Bearer ${token}` } }
+    const initialResponse = await fetch(FETCH_URL, FETCH_OPT);
+
+    if (!initialResponse.ok) {
+      throw new Error(`Failed to fetch dragon IDs: ${initialResponse.statusText}`);
+    }
+
+    const json = await initialResponse.json() as UserFetchJson
+    if (json.errors.length > 0) {
+      console.error(json.errors);
+      throw new Error(`Failed to fetch dragon IDs: DC responded with errors.`);
+    }
+
+    // first, get growing and ids
+    DRAGONS.growingIds = Object.keys(json.dragons).filter(key => {
+      return (json.dragons[key].hoursleft) > 0;
+    });
+    DRAGONS.growingCount = DRAGONS.growingIds.length;
+
+    // then, go through pages to gather total
+    DRAGONS.dragonCount += Object.keys(json.dragons).length;
+    let hasNextPage = json.data.hasNextPage;
+    let endCursor = json.data.endCursor;
+    while (hasNextPage) {
+      await fetch(FETCH_URL + '&after=' + endCursor, FETCH_OPT)
+        .then(pageResponse => pageResponse.json())
+        .then(pageJson => {
+          hasNextPage = (pageJson as UserFetchJson).data.hasNextPage;
+          endCursor = (pageJson as UserFetchJson).data.endCursor ?? '';
+          DRAGONS.dragonCount += Object.keys((pageJson as UserFetchJson).dragons).length;
+        })
+    }
+
+    console.log(`Fetched scroll data in ${(performance.now() - startTime).toFixed(2)}ms`)
+
+    return DRAGONS;
+  } catch (error) {
+    console.error('Error fetching dragon IDs:', error);
+    throw error;
+  }
+}
+
+/*
 async function createFrames(
   dragonStrip: sharp.Sharp,
   stripWidth: number,
@@ -257,3 +331,4 @@ async function getDragonIds(
     throw error;
   }
 }
+*/
