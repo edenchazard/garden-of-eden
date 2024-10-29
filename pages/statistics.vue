@@ -346,7 +346,6 @@
                   legend: {
                     display: false,
                   },
-
                 },
               }"
             />
@@ -376,10 +375,10 @@
                   y: {
                     stacked: true,
                     ticks: {
-                      callback(ctx){
-                        return Math.abs(ctx)
-                      }
-                    }
+                      callback(ctx) {
+                        return Math.abs(Number(ctx));
+                      },
+                    },
                   },
                   x: {
                     type: 'time',
@@ -400,19 +399,24 @@
                   legend: {
                     display: false,
                   },
-                  tooltip:{
+                  tooltip: {
                     callbacks: {
-                    label(ctx){
-                      return `${ctx.dataset.label}: ` + Math.abs(ctx.raw)
-                    }}
-                  }
+                      label(ctx) {
+                        return (
+                          `${ctx.dataset.label}: ` +
+                          Math.abs((ctx.raw as number) ?? 0)
+                        );
+                      },
+                    },
+                  },
                 },
               }"
             />
           </div>
           <figcaption>
             <p>
-              Data taken every 5 minutes. Each bar represents number of requests made to Dragon Cave in the previous 5 minutes.
+              Data taken every 5 minutes. Each bar represents number of requests
+              made to Dragon Cave in the previous 5 minutes.
             </p>
           </figcaption>
         </figure>
