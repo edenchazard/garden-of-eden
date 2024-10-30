@@ -44,7 +44,7 @@ async function moveBannerFromTemporary(filePath: string) {
   }
 }
 
-// utils 
+// utils
 
 function createEmptyFrame(width: number, height: number): sharp.Sharp {
   return sharp({
@@ -68,7 +68,9 @@ async function textToPng(
         <text style="font: ${font};">${text}</text>
       </svg>`
     )
-  ).png().metadata();
+  )
+    .png()
+    .metadata();
   // make a dummy png with the text,
   // the text renders ABOVE the viewport which isn't what we want,
   // (and sharp doesn't support the dominant-baseline property!)
@@ -88,12 +90,14 @@ async function textToPng(
         <text y="${(height ?? 0) + 1}" class="text">${text}</text>
       </svg>`
     )
-  ).png().toBuffer();
+  )
+    .png()
+    .toBuffer();
   // the real deal is here. it uses the dummy-given dimensions
   // to push down the text into the viewport at an appropriate distance
   // and adds spacing to accomodate the text-shadow.
 
-  return pngBuffer
+  return pngBuffer;
 }
 
 // the meat of it
@@ -111,9 +115,10 @@ async function generateBannerToTemporary(
     const outputDir = path.dirname(filePath);
     await fs.mkdir(outputDir, { recursive: true });
 
-    const { 
-      dragonCount, growingCount, growingIds 
-    } = await getScrollData(username, token);
+    const { dragonCount, growingCount, growingIds } = await getScrollData(
+      username,
+      token
+    );
 
     // const {
     //   stripBuffer, stripWidth, stripHeight
@@ -122,16 +127,14 @@ async function generateBannerToTemporary(
     const SAMPLE_FLAIR = 'saxifrage';
     const SAMPLE_WEEKLY_CLICKS = 12345;
     const SAMPLE_ALLTIME_CLICKS = 123456;
-    const { 
-      bannerBuffer, bannerWidth, bannerHeight
-    } = await getBannerBase(
+    const { bannerBuffer, bannerWidth, bannerHeight } = await getBannerBase(
       username,
-      dragonCount, 
-      growingCount, 
-      SAMPLE_WEEKLY_CLICKS, 
+      dragonCount,
+      growingCount,
+      SAMPLE_WEEKLY_CLICKS,
       SAMPLE_ALLTIME_CLICKS,
       SAMPLE_FLAIR
-    )
+    );
 
     // const { dragonStrip, stripWidth, stripHeight } =
     //   await getDragonStrip(dragonIds);
@@ -150,7 +153,7 @@ async function generateBannerToTemporary(
 
     const baseBanner = await sharp(bannerBuffer)
       .gif()
-      .toFile(`${filePath}.tmp`)
+      .toFile(`${filePath}.tmp`);
   } catch (error) {
     console.error('Error in generateBannerToTemporary:', error);
     await fs.unlink(`${filePath}.tmp`).catch(() => {});
@@ -178,21 +181,21 @@ async function getBannerBase(
     composites.push({
       input: '/src/public/banner/base.webp',
       top: 0,
-      left: 0
-    })
+      left: 0,
+    });
 
     // scrollname
     const usernamePng = await textToPng(
-      username, '16px Alkhemikal', 'fill: #dff6f5;'
+      username,
+      '16px Alkhemikal',
+      'fill: #dff6f5;'
     );
-    const { 
-      height: usernameHeight,
-      width: usernameWidth
-    } = await sharp(usernamePng).metadata();
+    const { height: usernameHeight, width: usernameWidth } =
+      await sharp(usernamePng).metadata();
     composites.push({
       input: usernamePng,
       top: 9 + (16 - usernameHeight),
-      left: 118
+      left: 118,
     });
 
     // flair
@@ -201,61 +204,74 @@ async function getBannerBase(
       const flairImage = sharp(flairPath)
         .greyscale()
         .threshold(255)
-        .composite([{
-          input: Buffer.from([255,255,255,Math.ceil(255 / 5)]),
-          raw: {
-            width: 1,
-            height: 1,
-            channels: 4
+        .composite([
+          {
+            input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
+            raw: {
+              width: 1,
+              height: 1,
+              channels: 4,
+            },
+            tile: true,
+            blend: 'dest-in',
           },
-          tile: true,
-          blend: 'dest-in'
-        }, { input: flairPath, left: -1, top: -1 }, ])
+          { input: flairPath, left: -1, top: -1 },
+        ])
         .png();
-      const { height: flairHeight } = await flairImage.metadata()
+      const { height: flairHeight } = await flairImage.metadata();
       composites.push({
         input: await flairImage.toBuffer(),
         left: 118 + usernameWidth + 4,
-        top: 16 - Math.floor((flairHeight ?? 0) / 2)
-      })
+        top: 16 - Math.floor((flairHeight ?? 0) / 2),
+      });
     }
 
     const statText = (statName: string, statNumber: number) => `
       <tspan fill="#dff6f5">${statName}:</tspan> 
       <tspan fill="#f2bd59">${statNumber.toLocaleString()}</tspan>
-    `
+    `;
 
     // stats
     composites.push({
       input: await textToPng(
-        statText('Dragons', dragonCount), '8px Nokia Cellphone FC', ''
+        statText('Dragons', dragonCount),
+        '8px Nokia Cellphone FC',
+        ''
       ),
       left: 118,
-      top: 28
+      top: 28,
     });
     composites.push({
       input: await textToPng(
-        statText('Growing', growingCount), '8px Nokia Cellphone FC', ''
+        statText('Growing', growingCount),
+        '8px Nokia Cellphone FC',
+        ''
       ),
       left: 118,
-      top: 40
+      top: 40,
     });
     composites.push({
       input: await textToPng(
-        statText('Weekly Clicks', weeklyClicks), '8px Nokia Cellphone FC', ''
+        statText('Weekly Clicks', weeklyClicks),
+        '8px Nokia Cellphone FC',
+        ''
       ),
       left: 200,
-      top: 28
+      top: 28,
     });
     composites.push({
       input: await textToPng(
-        statText('All-time Clicks', allTimeClicks), '8px Nokia Cellphone FC', ''
+        statText('All-time Clicks', allTimeClicks),
+        '8px Nokia Cellphone FC',
+        ''
       ),
       left: 200,
-      top: 40
+      top: 40,
     });
-  
-    console.log(`Banner stats generated in ${(performance.now() - startTime).toFixed(2)}ms`)
+
+    console.log(
+      `Banner stats generated in ${(performance.now() - startTime).toFixed(2)}ms`
+    );
     const bannerBuffer = await compositeImage
       .composite(composites)
       .png()
@@ -263,8 +279,8 @@ async function getBannerBase(
     return {
       bannerBuffer,
       bannerHeight: BANNER_HEIGHT,
-      bannerWidth: BANNER_WIDTH
-    }
+      bannerWidth: BANNER_WIDTH,
+    };
   } catch (error) {
     console.error('Error in getBannerBase:', error);
     throw error;
@@ -280,10 +296,10 @@ async function getDragonStrip(dragonIds: string[]) {
     return {
       stripBuffer: null,
       stripWidth: 0,
-      stripHeight: 0
-    }
+      stripHeight: 0,
+    };
   }
-  
+
   try {
     const startTime = performance.now();
     console.log('Generating growing images...');
@@ -312,9 +328,9 @@ async function getDragonStrip(dragonIds: string[]) {
       (acc, curr) => acc + (curr.width ?? 0) + 1,
       0
     );
-    
-    const HEIGHT = 50; 
-    // height will be solid, no point in having it be flexible. 
+
+    const HEIGHT = 50;
+    // height will be solid, no point in having it be flexible.
     // plus, dragons too tall will just be cropped
 
     let compositeImage = createEmptyFrame(totalWidth, HEIGHT);
@@ -340,7 +356,9 @@ async function getDragonStrip(dragonIds: string[]) {
       .png()
       .toBuffer();
 
-    console.log(`Growing images generated in ${(performance.now() - startTime).toFixed(0)}ms`)
+    console.log(
+      `Growing images generated in ${(performance.now() - startTime).toFixed(0)}ms`
+    );
     return {
       stripBuffer,
       stripWidth: totalWidth,
@@ -355,10 +373,10 @@ async function getDragonStrip(dragonIds: string[]) {
 async function getScrollData(username: string, token: string) {
   try {
     type UserFetchJson = {
-      errors: any[],
-      dragons: { [key: string]: { hoursleft: number } },
-      data: { hasNextPage: boolean, endCursor: string }
-    }
+      errors: any[];
+      dragons: { [key: string]: { hoursleft: number } };
+      data: { hasNextPage: boolean; endCursor: string };
+    };
 
     const startTime = performance.now();
     console.log('Fetching scroll data...');
@@ -366,28 +384,30 @@ async function getScrollData(username: string, token: string) {
     const DRAGONS = {
       dragonCount: 0,
       growingCount: 0,
-      growingIds: [] as string[]
-    }
+      growingIds: [] as string[],
+    };
 
-    const FETCH_URL = `https://dragcave.net/api/v2/user?limit=1000&username=${
-      encodeURIComponent(username)
-    }`
-    const FETCH_OPT = { headers: { Authorization: `Bearer ${token}` } }
+    const FETCH_URL = `https://dragcave.net/api/v2/user?limit=1000&username=${encodeURIComponent(
+      username
+    )}`;
+    const FETCH_OPT = { headers: { Authorization: `Bearer ${token}` } };
     const initialResponse = await fetch(FETCH_URL, FETCH_OPT);
 
     if (!initialResponse.ok) {
-      throw new Error(`Failed to fetch dragon IDs: ${initialResponse.statusText}`);
+      throw new Error(
+        `Failed to fetch dragon IDs: ${initialResponse.statusText}`
+      );
     }
 
-    const json = await initialResponse.json() as UserFetchJson
+    const json = (await initialResponse.json()) as UserFetchJson;
     if (json.errors.length > 0) {
       console.error(json.errors);
       throw new Error(`Failed to fetch dragon IDs: DC responded with errors.`);
     }
 
     // first, get growing and ids
-    DRAGONS.growingIds = Object.keys(json.dragons).filter(key => {
-      return (json.dragons[key].hoursleft) > 0;
+    DRAGONS.growingIds = Object.keys(json.dragons).filter((key) => {
+      return json.dragons[key].hoursleft > 0;
     });
     DRAGONS.growingCount = DRAGONS.growingIds.length;
 
@@ -397,15 +417,19 @@ async function getScrollData(username: string, token: string) {
     let endCursor = json.data.endCursor;
     while (hasNextPage) {
       await fetch(FETCH_URL + '&after=' + endCursor, FETCH_OPT)
-        .then(pageResponse => pageResponse.json())
-        .then(pageJson => {
+        .then((pageResponse) => pageResponse.json())
+        .then((pageJson) => {
           hasNextPage = (pageJson as UserFetchJson).data.hasNextPage;
           endCursor = (pageJson as UserFetchJson).data.endCursor ?? '';
-          DRAGONS.dragonCount += Object.keys((pageJson as UserFetchJson).dragons).length;
-        })
+          DRAGONS.dragonCount += Object.keys(
+            (pageJson as UserFetchJson).dragons
+          ).length;
+        });
     }
 
-    console.log(`Fetched scroll data in ${(performance.now() - startTime).toFixed(0)}ms`)
+    console.log(
+      `Fetched scroll data in ${(performance.now() - startTime).toFixed(0)}ms`
+    );
 
     return DRAGONS;
   } catch (error) {
