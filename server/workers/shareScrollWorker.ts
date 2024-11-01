@@ -325,8 +325,7 @@ async function getDragonStrip(dragonIds: string[]) {
             `Failed to fetch dragon image ${dragonId}: ${response.statusText}`
           );
         }
-        const arrayBuffer = await response.arrayBuffer();
-        return Buffer.from(arrayBuffer);
+        return Buffer.from((await response.arrayBuffer());
       })
     );
 
