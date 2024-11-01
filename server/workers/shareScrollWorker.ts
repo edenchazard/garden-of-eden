@@ -231,43 +231,55 @@ async function getBannerBase(
       <tspan fill="#f2bd59">${statNumber.toLocaleString()}</tspan>
     `;
 
+
     // stats
-    composites.push({
-      input: await textToPng(
-        statText('Dragons', dragonCount),
-        '8px Nokia Cellphone FC',
-        ''
-      ),
-      left: 118,
-      top: 28,
-    });
-    composites.push({
-      input: await textToPng(
+    const [
+      compositeDragonCount,
+      completeGrowingCount,
+      compositeWeeklyClicks,
+      compositeAllTimeClicks,
+    ] = await Promise.all([
+      textToPng(statText('Dragons', dragonCount), '8px Nokia Cellphone FC', ''),
+      textToPng(
         statText('Growing', growingCount),
         '8px Nokia Cellphone FC',
         ''
       ),
-      left: 118,
-      top: 40,
-    });
-    composites.push({
-      input: await textToPng(
+      textToPng(
         statText('Weekly Clicks', weeklyClicks),
         '8px Nokia Cellphone FC',
         ''
       ),
-      left: 200,
-      top: 28,
-    });
-    composites.push({
-      input: await textToPng(
+      textToPng(
         statText('All-time Clicks', allTimeClicks),
         '8px Nokia Cellphone FC',
         ''
       ),
-      left: 200,
-      top: 40,
-    });
+    ]);
+
+    composites = [
+      ...composites,
+      {
+        input: compositeDragonCount,
+        left: 118,
+        top: 28,
+      },
+      {
+        input: completeGrowingCount,
+        left: 118,
+        top: 40,
+      },
+      {
+        input: compositeWeeklyClicks,
+        left: 200,
+        top: 28,
+      },
+      {
+        input: compositeAllTimeClicks,
+        left: 200,
+        top: 40,
+      },
+    ];
 
     console.log(
       `Banner stats generated in ${(performance.now() - startTime).toFixed(2)}ms`
