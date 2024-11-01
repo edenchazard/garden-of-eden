@@ -199,7 +199,7 @@ async function getBannerBase(
     });
 
     // flair
-    if (flair && flair !== '') {
+    if (flair !== '') {
       const flairPath = `/src/public/items/${flair}.png`;
       const flairImage = sharp(flairPath)
         .greyscale()
