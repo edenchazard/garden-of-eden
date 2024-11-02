@@ -84,7 +84,6 @@
                       scales: {
                         y: {
                           ...defaultChartOptions.scales?.y,
-                          beginAtZero: false,
                           ticks: {
                             font: {
                               size: 10,
@@ -92,16 +91,18 @@
                           },
                         },
                         x: {
-                          ...defaultChartOptions.scales?.x,
-                          time: {
-                            unit: 'day',
-                            displayFormats: {
-                              day: 'd',
+                          ...{
+                            ...defaultChartOptions.scales?.x,
+                            time: {
+                              unit: 'day',
+                              displayFormats: {
+                                day: 'd',
+                              },
+                              tooltipFormat: 'EEEE',
                             },
-                            tooltipFormat: 'EEEE',
-                          },
-                          ticks: {
-                            display: false,
+                            ticks: {
+                              display: false,
+                            },
                           },
                         },
                       },
@@ -418,15 +419,17 @@
                     },
                   },
                   x: {
-                    ...defaultChartOptions.scales?.x,
-                    time: {
-                      unit: 'hour',
-                      displayFormats: {
-                        hour: 'T',
+                    ...{
+                      ...defaultChartOptions.scales?.x,
+                      time: {
+                        unit: 'hour',
+                        displayFormats: {
+                          hour: 'T',
+                        },
+                        tooltipFormat: 'f',
                       },
-                      tooltipFormat: 'f',
+                      stacked: true,
                     },
-                    stacked: true,
                   },
                 },
                 plugins: {
@@ -476,19 +479,21 @@ import { useWindowSize } from '@vueuse/core';
 useHead({
   title: 'Statistics',
 });
+
 const defaultChart = {
   datasets: [],
   labels: [],
 };
+
 const redrawTrigger = ref(0);
 const selectedWeek = ref<string | null>();
+const weeklyDailyTotals = ref<ChartData<'bar'>>(defaultChart);
 const dragons = ref<ChartData<'line'>>(defaultChart);
 const userActivity = ref<ChartData<'line'>>(defaultChart);
 const soilComposition = ref<ChartData<'line'>>(defaultChart);
 const hatchlingGenderRatio = ref<ChartData<'line'>>(defaultChart);
 const cbVsLineaged = ref<ChartData<'line'>>(defaultChart);
 const apiRequests = ref<ChartData<'bar'>>(defaultChart);
-const weeklyDailyTotals = ref<ChartData<'bar'>>(defaultChart);
 
 const { userSettings } = useUserSettings();
 
