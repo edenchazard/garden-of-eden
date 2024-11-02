@@ -85,6 +85,7 @@
         }"
       >
         <legend class="text-2xl sr-only">Your scroll</legend>
+        <p>Hatchlings</p>
         <div
           class="grid gap-6 pr-2"
           :style="{
@@ -92,15 +93,37 @@
           }"
         >
           <ScrollPanel
-            v-for="(dragon, i) in scroll.dragons"
-            :key="dragon.id"
-            v-model="scroll.dragons[i]"
+            v-for="(hatchling, i) in hatchlings"
+            :key="hatchling.id"
+            v-model="hatchlings[i]"
             :settings="userSettings"
             :recently-added
             @click="
               () => {
                 if (!isProcessing) {
-                  dragon.in_garden = !dragon.in_garden;
+                  hatchling.in_garden = !hatchling.in_garden;
+                }
+              }
+            "
+          />
+        </div>
+        <p>Eggs</p>
+        <div
+          class="grid gap-6 pr-2"
+          :style="{
+            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+          }"
+        >
+          <ScrollPanel
+            v-for="(egg, i) in eggs"
+            :key="egg.id"
+            v-model="eggs[i]"
+            :settings="userSettings"
+            :recently-added
+            @click="
+              () => {
+                if (!isProcessing) {
+                  egg.in_garden = !egg.in_garden;
                 }
               }
             "
@@ -205,6 +228,7 @@
 
 <script lang="ts" setup>
 import { pluralise } from '#imports';
+import { DateTime } from 'luxon';
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
@@ -311,25 +335,45 @@ const hatchlingClosestToGrowing = computed(() => {
   return null;
 });
 
+const eggs = computed(() => {
+  return scroll.value.dragons
+    .filter((dragon) => dragon.hatch === '0')
+    .map((egg) => {
+      const startDateTime = DateTime.fromFormat(egg.start, 'yyyy/MM/dd');
+      const hoursPassed = DateTime.now().diff(startDateTime, 'hours').hours;
+      const expectedHoursLeft = 168 - hoursPassed;
+
+      egg.incubated = expectedHoursLeft - egg.hoursleft >= 24;
+      return egg;
+    });
+});
+
+const hatchlings = computed(() => {
+  return scroll.value.dragons
+    .filter((dragon) => dragon.hatch !== '0')
+    .map((hatchling) => {
+      const startDateTime = DateTime.fromFormat(hatchling.start, 'yyyy/MM/dd');
+      const hoursPassed = DateTime.now().diff(startDateTime, 'hours').hours;
+      const expectedHoursLeft = 168 - hoursPassed;
+
+      hatchling.stunned = hatchling.hoursleft - expectedHoursLeft >= 48;
+      return hatchling;
+    });
+});
+
+const sortDragonsAndEggs = (sortOrder: 'Youngest First' | 'Oldest First') => {
+  const sort = (a: ScrollView, b: ScrollView) =>
+    sortOrder === 'Youngest First'
+      ? b.hoursleft - a.hoursleft
+      : a.hoursleft - b.hoursleft;
+
+  eggs.value.sort(sort);
+  hatchlings.value.sort(sort);
+};
+
 watch(
   () => [userSettings.value.sort, scroll],
-  () => {
-    if (userSettings.value.sort === 'Youngest First') {
-      scroll.value.dragons.sort((a, b) => {
-        const valueA = a.hatch + '' + a.hoursleft;
-        const valueB = b.hatch + '' + b.hoursleft;
-        return valueA.localeCompare(valueB);
-      });
-    }
-
-    if (userSettings.value.sort === 'Oldest First') {
-      scroll.value.dragons.sort((a, b) => {
-        const valueA = a.hatch + '' + a.hoursleft;
-        const valueB = b.hatch + '' + b.hoursleft;
-        return valueB.localeCompare(valueA);
-      });
-    }
-  },
+  () => sortDragonsAndEggs(userSettings.value.sort),
   {
     immediate: true,
     deep: true,

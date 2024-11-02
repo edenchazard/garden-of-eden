@@ -19,4 +19,6 @@ FROM base
 
 COPY --from=build /src/node_modules /src/node_modules
 
+RUN npm run db:migrate
+
 CMD [ "npm", "run", "dev" ]

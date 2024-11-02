@@ -27,6 +27,8 @@ declare global {
   type ScrollView = DragonData & {
     in_garden: boolean;
     in_seed_tray: boolean;
+    incubated?: boolean;
+    stunned?: boolean;
   };
 
   type HatcheryDragon = {
