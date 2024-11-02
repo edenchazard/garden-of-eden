@@ -97,6 +97,9 @@ export default defineCronHandler('everyFiveMinutes', async () => {
     useStorage('cache').removeItem(
       `statistics:clickTotals:week-${weekStart.toISO()}.json`
     ),
+    useStorage('cache').removeItem(
+      `statistics:clickTotals:week-${weekStart.toISO()}-daily-totals.json`
+    ),
   ];
 
   if (newWeek) {

@@ -64,7 +64,7 @@
             </p>
           </div>
 
-          <div class="col-start-1 md:row-start-2">
+          <div class="col-start-1 md:row-start-2 space-y-2">
             <ClicksLeaderboard
               :start="weeklyLeaderboard.weekStart"
               :end="weeklyLeaderboard.weekEnd"
@@ -72,6 +72,51 @@
               :total="weeklyLeaderboard.clicksGiven"
             />
             <div class="text-xs italic text-right">
+              <figure id="daily-totals-for-week">
+                <div class="h-[5rem]">
+                  <Bar
+                    :key="`daily-totals-${redrawTrigger}`"
+                    class="w-full"
+                    :data="weeklyDailyTotals"
+                    :options="{
+                      ...defaultChartOptions,
+                      normalized: true,
+                      scales: {
+                        y: {
+                          ...defaultChartOptions.scales?.y,
+                          beginAtZero: false,
+                          ticks: {
+                            font: {
+                              size: 10,
+                            },
+                          },
+                        },
+                        x: {
+                          ...defaultChartOptions.scales?.x,
+                          time: {
+                            unit: 'day',
+                            displayFormats: {
+                              day: 'd',
+                            },
+                            tooltipFormat: 'EEEE',
+                          },
+                          ticks: {
+                            display: false,
+                          },
+                        },
+                      },
+                      plugins: {
+                        title: {
+                          display: false,
+                        },
+                        legend: {
+                          display: false,
+                        },
+                      },
+                    }"
+                  />
+                </div>
+              </figure>
               <p>
                 <ClientOnly
                   v-if="
@@ -107,8 +152,8 @@
                     }}</span
                   >
                 </ClientOnly>
-                <ClientOnly v-else
-                  >Results for
+                <ClientOnly v-else>
+                  Results for
                   {{
                     DateTime.fromISO(
                       weeklyLeaderboard.weekStart
@@ -129,7 +174,7 @@
             </div>
 
             <div
-              class="flex flex-col sm:flex-row justify-between sm:items-center mt-4 gap-x-4 gap-y-2"
+              class="border-t pt-3 flex flex-col sm:flex-row justify-between sm:items-center mt-4 gap-x-4 gap-y-2"
             >
               <p>
                 <label for="week-selector" class="text-sm"
@@ -154,9 +199,7 @@
                       Intl.DateTimeFormat(undefined, {
                         dateStyle: 'medium',
                       }).format(
-                        DateTime.fromISO(weekly.start)
-                          .plus({ weeks: 1 })
-                          .toJSDate()
+                        DateTime.fromISO(weekly.start).endOf('week').toJSDate()
                       )
                     }}
                   </option>
@@ -198,13 +241,12 @@
           Visibility of individual datasets can be toggled by clicking the
           legends. Missing data points indicate an API failure.
         </p>
-        <figure v-if="dragons" id="hatchery" class="graph">
+        <figure id="hatchery" class="graph">
           <div class="h-[31rem]">
             <Line
               :key="`hatchery-${redrawTrigger}`"
               :data="dragons"
               class="w-full"
-              :plugins
               :options="{
                 ...defaultChartOptions,
                 scales: {
@@ -217,14 +259,16 @@
                       z: 0,
                     },
                     ticks: {
-                      color: dragons.datasets[1].borderColor as string,
+                      color:
+                        (dragons.datasets[1]?.borderColor as string) ?? '#fff',
                     },
                   },
                   y: {
                     type: 'linear',
                     position: 'left',
                     ticks: {
-                      color: dragons.datasets[0].borderColor as string,
+                      color:
+                        (dragons.datasets[0]?.borderColor as string) ?? '#fff',
                     },
                     grid: {
                       ...defaultChartOptions.scales?.y?.grid,
@@ -246,13 +290,12 @@
           <figcaption><p>Data taken in 30 minute intervals.</p></figcaption>
         </figure>
 
-        <figure v-if="soilComposition" id="soil-composition" class="graph">
+        <figure id="soil-composition" class="graph">
           <div class="h-[40rem]">
             <Line
               :key="`composition-${redrawTrigger}`"
               :data="soilComposition"
               class="w-full"
-              :plugins
               :options="{
                 ...defaultChartOptions,
                 normalized: true,
@@ -279,7 +322,7 @@
           </figcaption>
         </figure>
 
-        <figure v-if="hatchlingGenderRatio" id="hatchling-gender" class="graph">
+        <figure id="hatchling-gender" class="graph">
           <div class="h-[30rem]">
             <Line
               :key="`gender-${redrawTrigger}`"
@@ -294,7 +337,6 @@
                   },
                 },
               }"
-              :plugins
             />
           </div>
           <figcaption>
@@ -306,7 +348,7 @@
           </figcaption>
         </figure>
 
-        <figure v-if="cbVsLineaged" id="cb-vs-lineaged" class="graph">
+        <figure id="cb-vs-lineaged" class="graph">
           <div class="h-[30rem]">
             <Line
               :key="`cb-vs-lineaged-${redrawTrigger}`"
@@ -321,7 +363,6 @@
                   },
                 },
               }"
-              :plugins
             />
           </div>
           <figcaption>
@@ -329,13 +370,12 @@
           </figcaption>
         </figure>
 
-        <figure v-if="userActivity" id="gardener-activity" class="graph">
+        <figure id="gardener-activity" class="graph">
           <div class="h-[20rem]">
             <Line
               :key="`user-activity-${redrawTrigger}`"
               class="w-full"
               :data="userActivity"
-              :plugins
               :options="{
                 ...defaultChartOptions,
                 normalized: true,
@@ -358,21 +398,18 @@
           </figcaption>
         </figure>
 
-        <figure v-if="apiRequests" id="api-requests" class="graph">
+        <figure id="api-requests" class="graph">
           <div class="h-[20rem]">
             <Bar
               :key="`api-requests-${redrawTrigger}`"
               class="w-full"
               :data="apiRequests"
-              :plugins
               :options="{
-                interaction: {
-                  intersect: false,
-                  mode: 'index',
-                },
+                ...defaultChartOptions,
                 normalized: true,
                 scales: {
                   y: {
+                    ...defaultChartOptions.scales?.y,
                     stacked: true,
                     ticks: {
                       callback(ctx) {
@@ -381,7 +418,7 @@
                     },
                   },
                   x: {
-                    type: 'time',
+                    ...defaultChartOptions.scales?.x,
                     time: {
                       unit: 'hour',
                       displayFormats: {
@@ -427,7 +464,6 @@ import type {
   ChartData,
   ChartDataset,
   ChartOptions,
-  Plugin,
   ScriptableContext,
 } from 'chart.js';
 import { DateTime } from 'luxon';
@@ -440,15 +476,19 @@ import { useWindowSize } from '@vueuse/core';
 useHead({
   title: 'Statistics',
 });
-
+const defaultChart = {
+  datasets: [],
+  labels: [],
+};
 const redrawTrigger = ref(0);
-const dragons = ref<ChartData<'line'>>();
 const selectedWeek = ref<string | null>();
-const userActivity = ref<ChartData<'line'>>();
-const soilComposition = ref<ChartData<'line'>>();
-const hatchlingGenderRatio = ref<ChartData<'line'>>();
-const cbVsLineaged = ref<ChartData<'line'>>();
-const apiRequests = ref<ChartData<'bar'>>();
+const dragons = ref<ChartData<'line'>>(defaultChart);
+const userActivity = ref<ChartData<'line'>>(defaultChart);
+const soilComposition = ref<ChartData<'line'>>(defaultChart);
+const hatchlingGenderRatio = ref<ChartData<'line'>>(defaultChart);
+const cbVsLineaged = ref<ChartData<'line'>>(defaultChart);
+const apiRequests = ref<ChartData<'bar'>>(defaultChart);
+const weeklyDailyTotals = ref<ChartData<'bar'>>(defaultChart);
 
 const { userSettings } = useUserSettings();
 
@@ -488,6 +528,7 @@ const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
     weekStart: '',
     weekEnd: '',
     results: [],
+    dailyTotals: {},
     clicksGiven: 0,
   }),
 });
@@ -525,10 +566,17 @@ watch(
   () => [useColorMode().value, useWindowSize().width.value],
   () => redrawTrigger.value++
 );
+
+watch(
+  () => weeklyLeaderboard.value.dailyTotals,
+  () => renderCharts()
+);
+
 onNuxtReady(() => redrawTrigger.value++);
+
 watch(redrawTrigger, renderCharts);
 
-const defaultChartOptions: ChartOptions<'line'> = {
+const defaultChartOptions: ChartOptions<'line' | 'bar'> = {
   interaction: {
     intersect: false,
     mode: 'index',
@@ -559,53 +607,6 @@ const defaultChartOptions: ChartOptions<'line'> = {
   },
 };
 
-const plugins: Plugin[] = [
-  {
-    id: 'corsair',
-    defaults: {
-      width: 1,
-      color: 'rgba(255, 0, 255, 0.5)',
-      dash: [5, 5],
-    },
-    afterInit: (chart) => {
-      // @ts-expect-error I ain't dealing with that
-      chart.corsair = {
-        x: 0,
-        y: 0,
-      };
-    },
-    afterEvent: (chart, args) => {
-      const { inChartArea } = args;
-      const { x, y } = args.event;
-
-      // @ts-expect-error I ain't dealing with that
-      chart.corsair = { x, y, draw: inChartArea };
-      chart.draw();
-    },
-    afterDatasetsDraw: (chart, _, opts) => {
-      const { ctx } = chart;
-      const { top, bottom, left, right } = chart.chartArea;
-      // @ts-expect-error I ain't dealing with that
-      const { x, y, draw } = chart.corsair;
-      if (!draw) return;
-
-      ctx.save();
-
-      ctx.beginPath();
-      ctx.lineWidth = opts.width;
-      ctx.strokeStyle = opts.color;
-      ctx.setLineDash(opts.dash);
-      ctx.moveTo(x, bottom);
-      ctx.lineTo(x, top);
-      ctx.moveTo(left, y);
-      ctx.lineTo(right, y);
-      ctx.stroke();
-
-      ctx.restore();
-    },
-  },
-];
-
 function renderCharts() {
   const statistics = stats.value;
 
@@ -631,6 +632,16 @@ function renderCharts() {
 
   const cleanUpTransform = statistics.cleanUp.map(transform);
   const apiRequestsTransform = statistics.apiRequests.map(transform);
+
+  weeklyDailyTotals.value = {
+    labels: Object.keys(weeklyLeaderboard.value.dailyTotals),
+    datasets: [
+      {
+        data: Object.values(weeklyLeaderboard.value.dailyTotals),
+        backgroundColor: rgbAlpha(colourPalette.value[0]),
+      },
+    ],
+  };
 
   dragons.value = {
     labels: statistics.dragons.map(mapTimes),
