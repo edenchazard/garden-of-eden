@@ -101,10 +101,10 @@
           :icon="['fas', 'venus']"
         />
       </span>
-      <span v-if="dragon.stunned" title="stunned">
+      <span v-if="dragon.stunned" title="Stunned">
         <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
       </span>
-      <span v-if="dragon.incubated" title="incubated">
+      <span v-if="dragon.incubated" title="Incubated">
         <font-awesome-icon :icon="['fas', 'fire']" />
       </span>
     </div>
