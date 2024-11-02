@@ -840,6 +840,10 @@ function rgbAlpha(colour: [number, number, number], a: number = 1) {
     @apply p-3 border border-green-300 dark:border-stone-700 bg-black/25;
   }
 
+  & canvas {
+    user-select: none;
+  }
+
   & figcaption {
     @apply text-xs italic mt-2 flex justify-end;
   }
