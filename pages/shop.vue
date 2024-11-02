@@ -38,7 +38,7 @@
       </div>
 
       <div
-        class="p-4 bg-orange-200 text-black dark:bg-sky-900 dark:text-white max-w-prose mx-auto rounded-lg grid gap-2 grid-cols-[auto_1fr] data-center"
+        class="p-4 bg-orange-200 text-black dark:bg-sky-900 dark:text-white max-w-prose mx-auto rounded-lg grid items-center gap-2 grid-cols-[auto_1fr] data-center"
       >
         <p class="col-span-full">
           Matthias will sell you <strong>flairs</strong> to display alongside
@@ -50,7 +50,7 @@
           You can acquire Dragon Dollars by clicking on dragons in the site and
           may have a maximum of 500 Dragon Dollars at any time.
         </p>
-        <font-awesome-icon :icon="['fas', 'dragon']" class="size-4" />
+        <img src="/public/other/dragon-dollar.png" width="17" height="10" />
         <p>You have {{ authData?.user.money ?? 0 }} Dragon Dollars.</p>
         <template v-if="data.currentFlair">
           <img :src="userFlair(data.currentFlair.url)" alt="" />
