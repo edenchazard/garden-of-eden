@@ -85,50 +85,54 @@
         }"
       >
         <legend class="text-2xl sr-only">Your scroll</legend>
-        <p>Hatchlings</p>
-        <div
-          class="grid gap-6 pr-2"
-          :style="{
-            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
-          }"
-        >
-          <ScrollPanel
-            v-for="(hatchling, i) in hatchlings"
-            :key="hatchling.id"
-            v-model="hatchlings[i]"
-            :settings="userSettings"
-            :recently-added
-            @click="
-              () => {
-                if (!isProcessing) {
-                  hatchling.in_garden = !hatchling.in_garden;
+        <template v-if="hatchlings.length">
+          <p>Hatchlings</p>
+          <div
+            class="grid gap-6 pr-2"
+            :style="{
+              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+            }"
+          >
+            <ScrollPanel
+              v-for="(hatchling, i) in hatchlings"
+              :key="hatchling.id"
+              v-model="hatchlings[i]"
+              :settings="userSettings"
+              :recently-added
+              @click="
+                () => {
+                  if (!isProcessing) {
+                    hatchling.in_garden = !hatchling.in_garden;
+                  }
                 }
-              }
-            "
-          />
-        </div>
-        <p>Eggs</p>
-        <div
-          class="grid gap-6 pr-2"
-          :style="{
-            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
-          }"
-        >
-          <ScrollPanel
-            v-for="(egg, i) in eggs"
-            :key="egg.id"
-            v-model="eggs[i]"
-            :settings="userSettings"
-            :recently-added
-            @click="
-              () => {
-                if (!isProcessing) {
-                  egg.in_garden = !egg.in_garden;
+              "
+            />
+          </div>
+        </template>
+        <template v-if="eggs.length">
+          <p>Eggs</p>
+          <div
+            class="grid gap-6 pr-2"
+            :style="{
+              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+            }"
+          >
+            <ScrollPanel
+              v-for="(egg, i) in eggs"
+              :key="egg.id"
+              v-model="eggs[i]"
+              :settings="userSettings"
+              :recently-added
+              @click="
+                () => {
+                  if (!isProcessing) {
+                    egg.in_garden = !egg.in_garden;
+                  }
                 }
-              }
-            "
-          />
-        </div>
+              "
+            />
+          </div>
+        </template>
         <ScrollToolbar
           id="scroll-toolbar"
           v-model:sort="userSettings.sort"
