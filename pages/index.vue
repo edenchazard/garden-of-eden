@@ -339,8 +339,8 @@ const hatchlingClosestToGrowing = computed(() => {
   return null;
 });
 
-const eggs = computed(() => {
-  return scroll.value.dragons
+const eggs = computed(() =>
+  scroll.value.dragons
     .filter((dragon) => dragon.hatch === '0')
     .map((egg) => {
       const startDateTime = DateTime.fromFormat(egg.start, 'yyyy/MM/dd');
@@ -349,11 +349,11 @@ const eggs = computed(() => {
 
       egg.incubated = expectedHoursLeft - egg.hoursleft >= 24;
       return egg;
-    });
-});
+    })
+);
 
-const hatchlings = computed(() => {
-  return scroll.value.dragons
+const hatchlings = computed(() =>
+  scroll.value.dragons
     .filter((dragon) => dragon.hatch !== '0')
     .map((hatchling) => {
       const startDateTime = DateTime.fromFormat(hatchling.start, 'yyyy/MM/dd');
@@ -362,10 +362,9 @@ const hatchlings = computed(() => {
 
       hatchling.stunned = hatchling.hoursleft - expectedHoursLeft >= 48;
       return hatchling;
-    });
-});
+    })
+);
 
-console.log(hatchlings);
 const sortDragonsAndEggs = (sortOrder: 'Youngest First' | 'Oldest First') => {
   const sort = (a: ScrollView, b: ScrollView) =>
     sortOrder === 'Youngest First'
