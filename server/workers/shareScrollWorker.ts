@@ -4,10 +4,8 @@ import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-const BANNER_WIDTH = 150;
-const BANNER_HEIGHT = 50;
-const FRAME_DELAY = 100;
-const SCROLL_STEP = 2;
+const baseBannerWidth = 327;
+const baseBannerHeight = 61;
 
 async function fileExists(filePath: string) {
   try {
@@ -120,14 +118,14 @@ async function generateBannerToTemporary(
       token
     );
 
-    // const {
-    //   stripBuffer, stripWidth, stripHeight
-    // } = await getDragonStrip([]);
+    const {
+      stripBuffer, stripWidth, stripHeight
+    } = await getDragonStrip(growingIds);
 
     const SAMPLE_FLAIR = 'saxifrage';
     const SAMPLE_WEEKLY_CLICKS = 12345;
     const SAMPLE_ALLTIME_CLICKS = 123456;
-    const { bannerBuffer, bannerWidth, bannerHeight } = await getBannerBase(
+    const bannerBuffer = await getBannerBase(
       username,
       dragonCount,
       growingCount,
@@ -151,8 +149,11 @@ async function generateBannerToTemporary(
 
     // await gif.toFile(`${filePath}.tmp`);
 
-    const baseBanner = await sharp(bannerBuffer)
-      .gif()
+    // const baseBanner = await sharp(bannerBuffer)
+    //   .gif()
+    //   .toFile(`${filePath}.tmp`);
+    await sharp(bannerBuffer)
+      .png()
       .toFile(`${filePath}.tmp`);
   } catch (error) {
     console.error('Error in generateBannerToTemporary:', error);
@@ -172,10 +173,8 @@ async function getBannerBase(
   try {
     const startTime = performance.now();
     console.log('Generating banner stats...');
-    const BANNER_WIDTH = 327;
-    const BANNER_HEIGHT = 61;
-    let compositeImage = createEmptyFrame(BANNER_WIDTH, BANNER_HEIGHT);
-    const composites: sharp.OverlayOptions[] = [];
+    let compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+    let composites: sharp.OverlayOptions[] = [];
 
     // base
     composites.push({
@@ -194,7 +193,7 @@ async function getBannerBase(
       await sharp(usernamePng).metadata();
     composites.push({
       input: usernamePng,
-      top: 9 + (16 - usernameHeight),
+      top: 25 - usernameHeight,
       left: 118,
     });
 
@@ -228,7 +227,7 @@ async function getBannerBase(
 
     const statText = (statName: string, statNumber: number) => `
       <tspan fill="#dff6f5">${statName}:</tspan> 
-      <tspan fill="#f2bd59">${statNumber.toLocaleString()}</tspan>
+      <tspan fill="#f2bd59">${statNumber.toLocaleString('en-gb')}</tspan>
     `;
 
 
@@ -288,11 +287,7 @@ async function getBannerBase(
       .composite(composites)
       .png()
       .toBuffer();
-    return {
-      bannerBuffer,
-      bannerHeight: BANNER_HEIGHT,
-      bannerWidth: BANNER_WIDTH,
-    };
+    return bannerBuffer
   } catch (error) {
     console.error('Error in getBannerBase:', error);
     throw error;
@@ -325,7 +320,7 @@ async function getDragonStrip(dragonIds: string[]) {
             `Failed to fetch dragon image ${dragonId}: ${response.statusText}`
           );
         }
-        return Buffer.from((await response.arrayBuffer());
+        return Buffer.from(await response.arrayBuffer());
       })
     );
 
@@ -340,27 +335,27 @@ async function getDragonStrip(dragonIds: string[]) {
       0
     );
 
-    const HEIGHT = 50;
+    const stripHeight = 50;
     // height will be solid, no point in having it be flexible.
     // plus, dragons too tall will just be cropped
 
-    let compositeImage = createEmptyFrame(totalWidth, HEIGHT);
+    let compositeImage = createEmptyFrame(totalWidth, stripHeight);
 
     const composites: sharp.OverlayOptions[] = [];
-    let xOffset = 0;
 
-    for (let i = 0; i < dragonImages.length; i++) {
-      const dragonImage = dragonImages[i];
-      const metadata = dragonMetadatas[i];
-
+    const xOffsets: number[] = [0];
+    dragonMetadatas.forEach(metadata => {
+      const prevOffset = xOffsets[xOffsets.length - 1];
+      xOffsets.push(prevOffset + (metadata.width ?? 0) + 1)
+    })
+    
+    await Promise.all(dragonImages.map(async (dragonImage, index) => {
       composites.push({
         input: await dragonImage.toBuffer(),
-        top: HEIGHT - (metadata.height ?? 0),
-        left: xOffset,
-      });
-
-      xOffset += (metadata.width ?? 0) + 1;
-    }
+        top: stripHeight - (dragonMetadatas[index].height ?? 0),
+        left: xOffsets[index]
+      })
+    }))
 
     const stripBuffer = await compositeImage
       .composite(composites)
@@ -373,7 +368,7 @@ async function getDragonStrip(dragonIds: string[]) {
     return {
       stripBuffer,
       stripWidth: totalWidth,
-      stripHeight: HEIGHT,
+      stripHeight,
     };
   } catch (error) {
     console.error('Error in getDragonStrip:', error);
@@ -398,11 +393,11 @@ async function getScrollData(username: string, token: string) {
       growingIds: [] as string[],
     };
 
-    const FETCH_URL = `https://dragcave.net/api/v2/user?limit=1000&username=${encodeURIComponent(
+    const url = `https://dragcave.net/api/v2/user?limit=1000&username=${encodeURIComponent(
       username
     )}`;
-    const FETCH_OPT = { headers: { Authorization: `Bearer ${token}` } };
-    const initialResponse = await fetch(FETCH_URL, FETCH_OPT);
+    const options = { headers: { Authorization: `Bearer ${token}` } };
+    const initialResponse = await fetch(url, options);
 
     if (!initialResponse.ok) {
       throw new Error(
@@ -427,7 +422,7 @@ async function getScrollData(username: string, token: string) {
     let hasNextPage = json.data.hasNextPage;
     let endCursor = json.data.endCursor;
     while (hasNextPage) {
-      await fetch(FETCH_URL + '&after=' + endCursor, FETCH_OPT)
+      await fetch(url + '&after=' + endCursor, options)
         .then((pageResponse) => pageResponse.json())
         .then((pageJson) => {
           hasNextPage = (pageJson as UserFetchJson).data.hasNextPage;
