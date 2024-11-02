@@ -101,6 +101,12 @@
           :icon="['fas', 'venus']"
         />
       </span>
+      <span v-if="dragon.stunned" title="stunned">
+        <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
+      </span>
+      <span v-if="dragon.incubated" title="incubated">
+        <font-awesome-icon :icon="['fas', 'fire']" />
+      </span>
     </div>
   </div>
 </template>

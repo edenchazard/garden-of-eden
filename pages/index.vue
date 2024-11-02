@@ -365,6 +365,7 @@ const hatchlings = computed(() => {
     });
 });
 
+console.log(hatchlings);
 const sortDragonsAndEggs = (sortOrder: 'Youngest First' | 'Oldest First') => {
   const sort = (a: ScrollView, b: ScrollView) =>
     sortOrder === 'Youngest First'
