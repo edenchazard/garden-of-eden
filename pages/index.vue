@@ -346,8 +346,6 @@ const hatchlings = computed(() =>
   scroll.value.dragons.filter((dragon) => dragon.hatch !== '0')
 );
 
-console.log(eggs);
-
 const sortDragonsAndEggs = (sortOrder: 'Youngest First' | 'Oldest First') => {
   const sort = (a: ScrollView, b: ScrollView) =>
     sortOrder === 'Youngest First'
