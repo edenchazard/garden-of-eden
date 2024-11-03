@@ -116,12 +116,10 @@ export default defineEventHandler(async (event) => {
           in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
         };
       })
-      .map((dragon) => {
-        console.log(dragon.id);
-        dragon.incubated = isIncubated(dragon);
-        dragon.stunned = isStunned(dragon);
-
-        return dragon;
-      }),
+      .map((dragon) => ({
+        ...dragon,
+        incubated: isIncubated(dragon),
+        stunned: isStunned(dragon),
+      })),
   };
 });

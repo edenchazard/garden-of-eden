@@ -78,7 +78,7 @@
       </div>
 
       <fieldset
-        class="space-y-6 transition-opacity"
+        class="space-y-6 transition-opacity mt-6"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
@@ -86,7 +86,7 @@
       >
         <legend class="text-2xl sr-only">Your scroll</legend>
         <template v-if="hatchlings.length">
-          <p>Hatchlings</p>
+          <legend>Hatchlings</legend>
           <div
             class="grid gap-6 pr-2"
             :style="{
@@ -110,7 +110,7 @@
           </div>
         </template>
         <template v-if="eggs.length">
-          <p>Eggs</p>
+          <legend>Eggs</legend>
           <div
             class="grid gap-6 pr-2"
             :style="{
