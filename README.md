@@ -29,7 +29,7 @@ npm run dev:docker:migrate
 
 ## Troubleshooting
 
-If you need to start from scratch you can run the following commands to remove the docker containers and images whilst keeping the database intact:
+If you need to start from scratch, you can run the following commands to remove the docker containers and images whilst keeping the database intact:
 
 ```bash
 npm run dev:docker:cleanup
