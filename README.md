@@ -20,9 +20,7 @@ At this point, you'll want to run the database migrations. Drizzle is used for m
 docker compose exec hatchery bash -c "npm run db:migrate"
 ```
 
-# Useful links
-
-### Drizzle
+## Useful links
 
 - [Drizzle](https://orm.drizzle.team/)
 - [Tailwind](https://tailwindcss.com/)
