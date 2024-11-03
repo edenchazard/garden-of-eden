@@ -31,14 +31,24 @@
         <p>The brief and unnerving silence concludes...</p>
         <q>Now then, let's get right to business.</q>
         <p>You never even asked, and yet he's going to tell you anyway.</p>
-        (<NuxtLink class="text-sm italic" to="#policy"
-          >Terms and Conditions apply, please see Matthias' purchase
-          policy.</NuxtLink
-        >)
+      </div>
+
+      <div v-if="data.tickets" class="mx-auto">
+        <q>Oh... What's this? It seems you have a ticket to use at my shop.</q>
+        <ul
+          class="grid gap-6 mt-4 justify-center"
+          :style="{
+            gridTemplateColumns: `repeat(auto-fit, 19rem)`,
+          }"
+        >
+          <template v-for="ticket in data.tickets" :key="ticket.name">
+            <ShopPanel :item="ticket" as="li" @purchase="purchase" />
+          </template>
+        </ul>
       </div>
 
       <div
-        class="p-4 bg-orange-200 text-black dark:bg-sky-900 dark:text-white max-w-prose mx-auto rounded-lg grid items-center gap-2 grid-cols-[auto_1fr] data-center"
+        class="p-4 bg-orange-200 text-black dark:bg-sky-900 dark:text-white max-w-prose mx-auto rounded-lg grid items-center gap-2 grid-cols-[auto_1fr]"
       >
         <p class="col-span-full">
           Matthias will sell you <strong>flairs</strong> to display alongside
@@ -72,6 +82,12 @@
           </p>
         </template>
         <p v-else class="col-span-full">You have no flair currently.</p>
+        <p class="col-span-full text-right">
+          (<NuxtLink class="text-sm italic !text-white" to="#policy"
+            >Terms and Conditions apply, please see Matthias' purchase
+            policy.</NuxtLink
+          >)
+        </p>
       </div>
     </section>
 
@@ -155,6 +171,7 @@
 <script lang="ts" setup>
 import { userFlair } from '#imports';
 import { DateTime } from 'luxon';
+import ShopPanel from '~/components/ShopPanel.vue';
 
 definePageMeta({
   middleware: 'auth',
@@ -172,6 +189,7 @@ const { data } = await useFetch('/api/shop', {
     currentFlair: null,
     regular: [],
     limited: [],
+    tickets: [],
   }),
 });
 

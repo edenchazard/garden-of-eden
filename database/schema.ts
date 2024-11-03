@@ -243,7 +243,7 @@ export const itemsTable = mysqlTable('items', {
   }),
   category: varchar('category', {
     length: 24,
-    enum: ['flair'],
+    enum: ['flair', 'ticket'],
   }).notNull(),
   availableFrom: datetime('available_from', {
     mode: 'string',
@@ -255,6 +255,12 @@ export const itemsTable = mysqlTable('items', {
     length: 255,
   }).notNull(),
   cost: smallint('cost'),
+  associated: tinyint('id', { unsigned: true }).references(
+    () => itemsTable.id,
+    {
+      onDelete: 'restrict',
+    }
+  ),
   artist: varchar('artist', {
     length: 64,
   }),
@@ -284,6 +290,7 @@ export const purchasesTable = mysqlTable('purchases', {
   purchased_on: datetime('purchased_on', { mode: 'date' })
     .default(sql`NOW()`)
     .notNull(),
+  expiry: datetime('expiry', { mode: 'date' }),
 });
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
