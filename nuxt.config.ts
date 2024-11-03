@@ -9,8 +9,9 @@ export default defineNuxtConfig({
     '@nuxtjs/robots',
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
-    'nuxt-security',
-    '~/modules/watch-workers',
+    'nuxt-security', 
+    'floating-vue/nuxt',
+    '~/modules/watch-workers', 
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
@@ -90,7 +91,7 @@ export default defineNuxtConfig({
       crossOriginEmbedderPolicy: false,
       referrerPolicy: false,
       contentSecurityPolicy: {
-        'img-src': ["'self'", 'dragcave.net'],
+        'img-src': ["'self'", 'dragcave.net', 'data:;'],
       },
     },
     csrf: true,
@@ -102,6 +103,25 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    storage: {
+      redis: {
+        driver: 'redis',
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+      },
+      cache: {
+        driver: 'redis',
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+      },
+    },
+    devStorage: {
+      cache: {
+        driver: 'redis',
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+      },
+    },
     esbuild: {
       options: {
         target: 'esnext',

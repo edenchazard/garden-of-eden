@@ -78,13 +78,14 @@
       </div>
 
       <fieldset
-        class="space-y-6 transition-opacity"
+        v-if="hatchlings.length"
+        class="transition-opacity pt-2 mt-2"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
         }"
       >
-        <legend class="text-2xl sr-only">Your scroll</legend>
+        <legend class="text-sm font-bold">Hatchlings</legend>
         <div
           class="grid gap-6 pr-2"
           :style="{
@@ -92,31 +93,63 @@
           }"
         >
           <ScrollPanel
-            v-for="(dragon, i) in scroll.dragons"
-            :key="dragon.id"
-            v-model="scroll.dragons[i]"
+            v-for="(hatchling, i) in hatchlings"
+            :key="hatchling.id"
+            v-model="hatchlings[i]"
             :settings="userSettings"
             :recently-added
             @click="
               () => {
                 if (!isProcessing) {
-                  dragon.in_garden = !dragon.in_garden;
+                  hatchling.in_garden = !hatchling.in_garden;
                 }
               }
             "
           />
         </div>
-        <ScrollToolbar
-          id="scroll-toolbar"
-          v-model:sort="userSettings.sort"
-          :dragons="scroll.dragons"
-          :settings="userSettings"
-          :fetch-scroll-status
-          :save-scroll-status
-          @reload="refreshScroll()"
-          @toggle-all="toggleAll"
-        />
       </fieldset>
+      <fieldset
+        v-if="eggs.length"
+        class="transition-opacity pt-2 pb-6 mt-2"
+        :disabled="isProcessing"
+        :class="{
+          'opacity-50': isProcessing,
+        }"
+      >
+        <legend class="text-sm font-bold">Eggs</legend>
+        <div
+          class="grid gap-6 pr-2"
+          :style="{
+            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+          }"
+        >
+          <ScrollPanel
+            v-for="(egg, i) in eggs"
+            :key="egg.id"
+            v-model="eggs[i]"
+            :settings="userSettings"
+            :recently-added
+            @click="
+              () => {
+                if (!isProcessing) {
+                  egg.in_garden = !egg.in_garden;
+                }
+              }
+            "
+          />
+        </div>
+      </fieldset>
+
+      <ScrollToolbar
+        id="scroll-toolbar"
+        v-model:sort="userSettings.sort"
+        :dragons="scroll.dragons"
+        :settings="userSettings"
+        :fetch-scroll-status
+        :save-scroll-status
+        @reload="refreshScroll()"
+        @toggle-all="toggleAll"
+      />
     </form>
 
     <section class="space-y-2">
@@ -311,25 +344,27 @@ const hatchlingClosestToGrowing = computed(() => {
   return null;
 });
 
+const eggs = computed(() =>
+  scroll.value.dragons.filter((dragon) => dragon.hatch === '0')
+);
+
+const hatchlings = computed(() =>
+  scroll.value.dragons.filter((dragon) => dragon.hatch !== '0')
+);
+
+const sortDragonsAndEggs = (sortOrder: 'Youngest First' | 'Oldest First') => {
+  const sort = (a: ScrollView, b: ScrollView) =>
+    sortOrder === 'Youngest First'
+      ? b.hoursleft - a.hoursleft
+      : a.hoursleft - b.hoursleft;
+
+  eggs.value.sort(sort);
+  hatchlings.value.sort(sort);
+};
+
 watch(
   () => [userSettings.value.sort, scroll],
-  () => {
-    if (userSettings.value.sort === 'Youngest First') {
-      scroll.value.dragons.sort((a, b) => {
-        const valueA = a.hatch + '' + a.hoursleft;
-        const valueB = b.hatch + '' + b.hoursleft;
-        return valueA.localeCompare(valueB);
-      });
-    }
-
-    if (userSettings.value.sort === 'Oldest First') {
-      scroll.value.dragons.sort((a, b) => {
-        const valueA = a.hatch + '' + a.hoursleft;
-        const valueB = b.hatch + '' + b.hoursleft;
-        return valueB.localeCompare(valueA);
-      });
-    }
-  },
+  () => sortDragonsAndEggs(userSettings.value.sort),
   {
     immediate: true,
     deep: true,
