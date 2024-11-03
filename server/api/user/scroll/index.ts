@@ -4,6 +4,7 @@ import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
+import { isIncubated, isStunned } from '~/utils/calculations';
 
 async function fetchScroll(username: string, token: JWT) {
   return dragCaveFetch()<
@@ -103,16 +104,22 @@ export default defineEventHandler(async (event) => {
     details: {
       clicksToday,
     },
-    dragons: alive.map<ScrollView>((id) => {
-      const hatcheryDragon = usersDragonsInHatchery.find(
-        (row) => row.id === id
-      );
+    dragons: alive
+      .map<ScrollView>((id) => {
+        const hatcheryDragon = usersDragonsInHatchery.find(
+          (row) => row.id === id
+        );
 
-      return {
-        ...scrollResponse.dragons[id],
-        in_garden: !!(hatcheryDragon?.in_garden ?? false),
-        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-      };
-    }),
+        return {
+          ...scrollResponse.dragons[id],
+          in_garden: !!(hatcheryDragon?.in_garden ?? false),
+          in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+        };
+      })
+      .map((dragon) => ({
+        ...dragon,
+        incubated: isIncubated(dragon),
+        stunned: isStunned(dragon),
+      })),
   };
 });

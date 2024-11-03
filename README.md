@@ -11,13 +11,13 @@ First, make a copy of the `.env.example` file and name it `.env`. Make sure to p
 The project uses docker, so you'll need to have `docker` and `docker compose` installed. After that, just run:
 
 ```bash
-docker compose -f docker-compose.dev.yml up
+npm run dev:docker
 ```
 
 At this point, you'll want to run the database migrations. Drizzle is used for migrating and interacting with the database.
 
 ```bash
-docker compose exec hatchery bash -c "npm run db:migrate"
+npm run dev:docker:migrate
 ```
 
 ## Useful links
@@ -26,3 +26,19 @@ docker compose exec hatchery bash -c "npm run db:migrate"
 - [Tailwind](https://tailwindcss.com/)
 - [Nuxt](https://nuxt.com/)
 - [Vue.js](https://vuejs.org/)
+
+## Troubleshooting
+
+If you need to start from scratch, you can run the following commands to remove the docker containers and images whilst keeping the database intact:
+
+```bash
+npm run dev:docker:cleanup
+```
+
+If you need to remove the database and other volumes you can run:
+
+```bash
+npm run dev:docker:cleanup:all
+```
+
+_n.b. you will need to rerun the migrations if you decide to remove the volumes_

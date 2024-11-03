@@ -8,8 +8,8 @@ export {};
 declare global {
   type DragonData = {
     id: string;
-    name: string;
-    owner: string;
+    name: string | null;
+    owner: string | null;
     start: string;
     hatch: string;
     grow: string;
@@ -27,6 +27,8 @@ declare global {
   type ScrollView = DragonData & {
     in_garden: boolean;
     in_seed_tray: boolean;
+    incubated?: boolean;
+    stunned?: boolean;
   };
 
   type HatcheryDragon = {
