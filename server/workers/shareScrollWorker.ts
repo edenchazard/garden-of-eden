@@ -17,10 +17,14 @@ async function fileExists(filePath: string) {
 }
 
 parentPort?.on('message', async function (message) {
-  if (message.type !== 'banner') return;
-  const { username, filePath, token } = message;
+  if (message.type !== 'banner') return;  
+  const { 
+    username, filePath, weeklyClicks, allTimeClicks, flairUrl, token 
+  } = message;
   try {
-    await generateBannerToTemporary(username, filePath, token);
+    await generateBannerToTemporary(
+      username, filePath, weeklyClicks, allTimeClicks, flairUrl, token
+    );
     await moveBannerFromTemporary(filePath);
     parentPort?.postMessage({ type: 'success', username });
   } catch (e) {
@@ -103,6 +107,9 @@ async function textToPng(
 async function generateBannerToTemporary(
   username: string,
   filePath: string,
+  weeklyClicks: number,
+  allTimeClicks: number,
+  flairUrl: string | null,
   token: string
 ) {
   // missing things currently:
@@ -122,16 +129,13 @@ async function generateBannerToTemporary(
       stripBuffer, stripWidth, stripHeight
     } = await getDragonStrip(growingIds);
 
-    const SAMPLE_FLAIR = 'saxifrage';
-    const SAMPLE_WEEKLY_CLICKS = 12345;
-    const SAMPLE_ALLTIME_CLICKS = 123456;
     const bannerBuffer = await getBannerBase(
       username,
       dragonCount,
       growingCount,
-      SAMPLE_WEEKLY_CLICKS,
-      SAMPLE_ALLTIME_CLICKS,
-      SAMPLE_FLAIR
+      weeklyClicks,
+      allTimeClicks,
+      flairUrl
     );
 
     // const { dragonStrip, stripWidth, stripHeight } =
@@ -168,7 +172,7 @@ async function getBannerBase(
   growingCount: number,
   weeklyClicks: number,
   allTimeClicks: number,
-  flair: string | null
+  flairUrl: string | null
 ) {
   try {
     const startTime = performance.now();
@@ -193,13 +197,13 @@ async function getBannerBase(
       await sharp(usernamePng).metadata();
     composites.push({
       input: usernamePng,
-      top: 25 - usernameHeight,
+      top: 25 - (usernameHeight ?? 0),
       left: 118,
     });
 
     // flair
-    if (flair !== '') {
-      const flairPath = `/src/public/items/${flair}.png`;
+    if (flairUrl) {
+      const flairPath = `/src/public/items${flairUrl}`;
       const flairImage = sharp(flairPath)
         .greyscale()
         .threshold(255)
@@ -215,12 +219,17 @@ async function getBannerBase(
             blend: 'dest-in',
           },
           { input: flairPath, left: -1, top: -1 },
+          // actually, this cuts off the top and left
+          // of the flair image. fiddling with the `left` and `top`
+          // of either composite input did not keep the shadow.
+          // if only there was native drop shadow support.
+          // i guess we might drop the flair shadow? it's very subtle anyway
         ])
         .png();
       const { height: flairHeight } = await flairImage.metadata();
       composites.push({
         input: await flairImage.toBuffer(),
-        left: 118 + usernameWidth + 4,
+        left: 122 + (usernameWidth ?? 0),
         top: 16 - Math.floor((flairHeight ?? 0) / 2),
       });
     }
@@ -233,17 +242,17 @@ async function getBannerBase(
 
     // stats
     const [
-      compositeDragonCount,
-      completeGrowingCount,
+      // compositeDragonCount,
+      // completeGrowingCount,
       compositeWeeklyClicks,
       compositeAllTimeClicks,
     ] = await Promise.all([
-      textToPng(statText('Dragons', dragonCount), '8px Nokia Cellphone FC', ''),
-      textToPng(
-        statText('Growing', growingCount),
-        '8px Nokia Cellphone FC',
-        ''
-      ),
+      // textToPng(statText('Dragons', dragonCount), '8px Nokia Cellphone FC', ''),
+      // textToPng(
+      //   statText('Growing', growingCount),
+      //   '8px Nokia Cellphone FC',
+      //   ''
+      // ),
       textToPng(
         statText('Weekly Clicks', weeklyClicks),
         '8px Nokia Cellphone FC',
@@ -258,24 +267,24 @@ async function getBannerBase(
 
     composites = [
       ...composites,
-      {
-        input: compositeDragonCount,
-        left: 118,
-        top: 28,
-      },
-      {
-        input: completeGrowingCount,
-        left: 118,
-        top: 40,
-      },
+      // {
+      //   input: compositeDragonCount,
+      //   left: 118,
+      //   top: 28,
+      // },
+      // {
+      //   input: completeGrowingCount,
+      //   left: 118,
+      //   top: 40,
+      // },
       {
         input: compositeWeeklyClicks,
-        left: 200,
+        left: 118,
         top: 28,
       },
       {
         input: compositeAllTimeClicks,
-        left: 200,
+        left: 118,
         top: 40,
       },
     ];
