@@ -95,5 +95,5 @@ h3 {
 }
 
 abbr {
-  @apply decoration-dotted underline-offset-4 !decoration-2 decoration-white;
+  @apply decoration-dotted underline-offset-4 decoration-white;
 }

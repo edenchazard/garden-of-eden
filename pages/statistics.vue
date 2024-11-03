@@ -213,7 +213,7 @@
             <p class="max-w-prose">
               The leaderboard for the most gardencore of gardeners. A spot on
               the prestigious &quot;all-time&quot; will make you known as a
-              <abbr v-tooltip="`Gardener of all time`">GOAT</abbr> 🐐.
+              <abbr v-tooltip="`Gardener of all time`" title="">GOAT</abbr> 🐐.
             </p>
           </div>
           <div class="md:col-start-2 md:row-start-2">
