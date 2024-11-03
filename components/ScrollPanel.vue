@@ -70,9 +70,15 @@
       class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
       @click.stop
     >
+      <span v-if="dragon.stunned" v-tooltip.bottom="`Stunned`">
+        <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
+      </span>
+      <span v-if="dragon.incubated" v-tooltip.bottom="`Incubated`">
+        <font-awesome-icon :icon="['fas', 'fire']" />
+      </span>
       <span
         v-tooltip.bottom="formatHoursLeft(dragon.hoursleft, true)"
-        class="!pl-0.5 inline-flex items-center"
+        class="inline-flex items-center"
       >
         <ToggleInput
           v-if="dragon.hoursleft <= 96 || dragon.in_seed_tray"
@@ -108,12 +114,6 @@
           v-else-if="dragon.gender === 'Female'"
           :icon="['fas', 'venus']"
         />
-      </span>
-      <span v-if="dragon.stunned" v-tooltip.bottom="`Stunned`">
-        <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
-      </span>
-      <span v-if="dragon.incubated" v-tooltip.bottom="`Incubated`">
-        <font-awesome-icon :icon="['fas', 'fire']" />
       </span>
     </div>
   </div>
