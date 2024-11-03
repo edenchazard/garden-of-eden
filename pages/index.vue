@@ -78,72 +78,78 @@
       </div>
 
       <fieldset
-        class="space-y-6 transition-opacity mt-6"
+        v-if="hatchlings.length"
+        class="transition-opacity pt-2 mt-2"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
         }"
       >
-        <legend class="text-2xl sr-only">Your scroll</legend>
-        <template v-if="hatchlings.length">
-          <legend>Hatchlings</legend>
-          <div
-            class="grid gap-6 pr-2"
-            :style="{
-              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
-            }"
-          >
-            <ScrollPanel
-              v-for="(hatchling, i) in hatchlings"
-              :key="hatchling.id"
-              v-model="hatchlings[i]"
-              :settings="userSettings"
-              :recently-added
-              @click="
-                () => {
-                  if (!isProcessing) {
-                    hatchling.in_garden = !hatchling.in_garden;
-                  }
+        <legend class="text-sm font-bold">Hatchlings</legend>
+        <div
+          class="grid gap-6 pr-2"
+          :style="{
+            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+          }"
+        >
+          <ScrollPanel
+            v-for="(hatchling, i) in hatchlings"
+            :key="hatchling.id"
+            v-model="hatchlings[i]"
+            :settings="userSettings"
+            :recently-added
+            @click="
+              () => {
+                if (!isProcessing) {
+                  hatchling.in_garden = !hatchling.in_garden;
                 }
-              "
-            />
-          </div>
-        </template>
-        <template v-if="eggs.length">
-          <legend>Eggs</legend>
-          <div
-            class="grid gap-6 pr-2"
-            :style="{
-              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
-            }"
-          >
-            <ScrollPanel
-              v-for="(egg, i) in eggs"
-              :key="egg.id"
-              v-model="eggs[i]"
-              :settings="userSettings"
-              :recently-added
-              @click="
-                () => {
-                  if (!isProcessing) {
-                    egg.in_garden = !egg.in_garden;
-                  }
-                }
-              "
-            />
-          </div>
-        </template>
-        <ScrollToolbar
-          id="scroll-toolbar"
-          v-model:sort="userSettings.sort"
-          :dragons="scroll.dragons"
-          :settings="userSettings"
-          :fetch-scroll-status
-          :save-scroll-status
-          @reload="refreshScroll()"
-          @toggle-all="toggleAll"
-        />
+              }
+            "
+          />
+        </div>
       </fieldset>
+      <fieldset
+        v-if="eggs.length"
+        class="transition-opacity pt-2 pb-6 mt-2"
+        :disabled="isProcessing"
+        :class="{
+          'opacity-50': isProcessing,
+        }"
+      >
+        <legend class="text-sm font-bold">Eggs</legend>
+        <div
+          class="grid gap-6 pr-2"
+          :style="{
+            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+          }"
+        >
+          <ScrollPanel
+            v-for="(egg, i) in eggs"
+            :key="egg.id"
+            v-model="eggs[i]"
+            :settings="userSettings"
+            :recently-added
+            @click="
+              () => {
+                if (!isProcessing) {
+                  egg.in_garden = !egg.in_garden;
+                }
+              }
+            "
+          />
+        </div>
+      </fieldset>
+
+      <ScrollToolbar
+        id="scroll-toolbar"
+        v-model:sort="userSettings.sort"
+        :dragons="scroll.dragons"
+        :settings="userSettings"
+        :fetch-scroll-status
+        :save-scroll-status
+        @reload="refreshScroll()"
+        @toggle-all="toggleAll"
+      />
     </form>
 
     <section class="space-y-2">
