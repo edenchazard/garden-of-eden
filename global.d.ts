@@ -8,8 +8,8 @@ export {};
 declare global {
   type DragonData = {
     id: string;
-    name: string | null;
-    owner: string | null;
+    name: string;
+    owner: string;
     start: string;
     hatch: string;
     grow: string;
@@ -17,7 +17,7 @@ declare global {
     views: number;
     unique: number;
     clicks: number;
-    gender: 'Male' | 'Female' | '';
+    gender: 'Male' | 'Female';
     acceptaid: boolean;
     hoursleft: number;
     parent_f: string;
