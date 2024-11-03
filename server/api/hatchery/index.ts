@@ -39,7 +39,6 @@ async function getDragons(
   area: Area = 'garden'
 ) {
   const token = await getToken({ event });
-
   let query;
 
   if (token?.userId) {

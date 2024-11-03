@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
     'nuxt-security',
+    'floating-vue/nuxt',
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
@@ -101,6 +102,25 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    storage: {
+      redis: {
+        driver: 'redis',
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+      },
+      cache: {
+        driver: 'redis',
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+      },
+    },
+    devStorage: {
+      cache: {
+        driver: 'redis',
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+      },
+    },
     esbuild: {
       options: {
         target: 'esnext',

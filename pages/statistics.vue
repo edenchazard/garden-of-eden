@@ -213,7 +213,15 @@
             <p class="max-w-prose">
               The leaderboard for the most gardencore of gardeners. A spot on
               the prestigious &quot;all-time&quot; will make you known as a
-              <abbr title="Gardener of all time">GOAT</abbr> 🐐.
+              <abbr
+                v-tooltip="{
+                  content: `Gardener of all time`,
+                  triggers: ['hover', 'click'],
+                }"
+                title=""
+                >GOAT</abbr
+              >
+              🐐.
             </p>
           </div>
           <div class="md:col-start-2 md:row-start-2">
@@ -838,6 +846,10 @@ function rgbAlpha(colour: [number, number, number], a: number = 1) {
 .graph {
   & div {
     @apply p-3 border border-green-300 dark:border-stone-700 bg-black/25;
+  }
+
+  & canvas {
+    user-select: none;
   }
 
   & figcaption {
