@@ -343,11 +343,16 @@ const eggs = computed(() =>
   scroll.value.dragons
     .filter((dragon) => dragon.hatch === '0')
     .map((egg) => {
-      const startDateTime = DateTime.fromFormat(egg.start, 'yyyy/MM/dd');
-      const hoursPassed = DateTime.now().diff(startDateTime, 'hours').hours;
-      const expectedHoursLeft = 168 - hoursPassed;
+      const eggCreationTime = predictedStartTimeFromHoursLeft(egg);
+      const startDate = DateTime.fromFormat(egg.start, 'yyyy/MM/dd', {
+        zone: 'America/New_York',
+      });
+      const daysDifference = eggCreationTime
+        .startOf('day')
+        .diff(startDate.startOf('day'), 'day').days;
 
-      egg.incubated = expectedHoursLeft - egg.hoursleft >= 24;
+      egg.incubated = daysDifference < 0;
+
       return egg;
     })
 );
@@ -356,14 +361,46 @@ const hatchlings = computed(() =>
   scroll.value.dragons
     .filter((dragon) => dragon.hatch !== '0')
     .map((hatchling) => {
-      const startDateTime = DateTime.fromFormat(hatchling.start, 'yyyy/MM/dd');
-      const hoursPassed = DateTime.now().diff(startDateTime, 'hours').hours;
-      const expectedHoursLeft = 168 - hoursPassed;
+      console.log('hatchlingId: ', hatchling.id);
+      console.log('hatchling.hatch', hatchling.hatch);
+      console.log('hatchling.hoursleft', hatchling.hoursleft);
 
-      hatchling.stunned = hatchling.hoursleft - expectedHoursLeft >= 48;
+      const hatchedTime = predictedStartTimeFromHoursLeft(hatchling);
+      console.log('Hatched Time:', hatchedTime.toString());
+
+      const startDate = DateTime.fromFormat(hatchling.hatch, 'yyyy/MM/dd', {
+        zone: 'America/New_York',
+      });
+      console.log('Start Date:', startDate.toString());
+
+      const hoursDifference = hatchedTime
+        .startOf('day')
+        .diff(startDate.startOf('day'), 'day').days;
+      console.log('Hours Difference:', hoursDifference);
+
+      hatchling.stunned = hoursDifference > 0;
+      console.log('Stunned:', hatchling.stunned);
+
+      // console.log('hatchlingId: ', hatchling.id);
+      // Parse start date as UTC to avoid timezone differences
+      // const startDateTime = DateTime.fromFormat(hatchling.hatch, 'yyyy/MM/dd', {
+      //   zone: 'utc',
+      // });
+      // // console.log('startDateTime: ', startDateTime.toString());
+
+      // // Calculate hours passed using UTC
+      // const hoursPassed = DateTime.utc().diff(startDateTime, 'hours').hours;
+      // // console.log('hoursPassed: ', hoursPassed);
+
+      // const expectedHoursLeft = 168 - hoursPassed;
+      // console.log('expectedHoursLeft: ', expectedHoursLeft);
+
+      // hatchling.stunned = hatchling.hoursleft - expectedHoursLeft >= 48;
       return hatchling;
     })
 );
+
+console.log(eggs);
 
 const sortDragonsAndEggs = (sortOrder: 'Youngest First' | 'Oldest First') => {
   const sort = (a: ScrollView, b: ScrollView) =>

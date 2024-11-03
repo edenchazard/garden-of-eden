@@ -5,12 +5,17 @@ import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 
+// _Charky - Y8nZN - stunned
+// 42 - no stunned
+// schenanigan - no stunned
+// MissK. s0Rpr, ci3R0, 5y50w
+
 async function fetchScroll(username: string, token: JWT) {
   return dragCaveFetch()<
     DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
       dragons: Record<string, DragonData>;
     }
-  >(`/user?username=${username}&filter=GROWING`, {
+  >(`/user?username=schenanigan&filter=GROWING`, {
     headers: {
       Authorization: `Bearer ${token.sessionToken}`,
     },
