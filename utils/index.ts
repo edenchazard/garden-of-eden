@@ -2,9 +2,20 @@ export function formatNumber(num: number) {
   return Intl.NumberFormat().format(num);
 }
 
-export function formatHoursLeft(hours: number) {
-  if (hours < 24) return `${hours}h`;
-  return `${Math.floor(hours / 24)}d ${hours % 24}h`;
+export function formatHoursLeft(hours: number, full: boolean = false) {
+  if (hours < 24) return hours + (full ? pluralise('hour', hours) : 'h');
+
+  const dayValue = Math.floor(hours / 24);
+  const hourValue = hours % 24;
+
+  if (full) {
+    const dayWord = pluralise('day', dayValue);
+    const hourWord = pluralise('hour', hours);
+
+    return `${dayValue} ${dayWord} and ${hourValue} ${hourWord}`;
+  }
+
+  return `${dayValue}d ${hourValue}h`;
 }
 
 export function formatRatio(a: number, b: number) {

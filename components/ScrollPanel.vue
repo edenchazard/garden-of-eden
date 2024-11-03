@@ -48,10 +48,14 @@
 
         <div
           class="uppercase text-xs bg-green-900/70 dark:bg-neutral-950/70 p-1 rounded-md self-end *:underline-offset-2 absolute -right-2 bottom-4 px-1.5"
+          @click.stop
         >
-          {{ formatNumber(dragon.views) }}<abbr title="Views">V</abbr> /
-          {{ formatNumber(dragon.unique) }}<abbr title="Unique Views">U</abbr> /
-          {{ formatNumber(dragon.clicks) }}<abbr title="Clicks">C</abbr>
+          <span v-tooltip="`Views`">{{ formatNumber(dragon.views) }}V</span> /
+          <span v-tooltip="`Unique Views`"
+            >{{ formatNumber(dragon.unique) }}U</span
+          >
+          /
+          <span v-tooltip="`Clicks`">{{ formatNumber(dragon.clicks) }}C</span>
         </div>
         <input
           :id="`dragon-check-${dragon.id}`"
@@ -64,8 +68,12 @@
     </div>
     <div
       class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
+      @click.stop
     >
-      <span class="!pl-0.5 inline-flex items-center">
+      <span
+        v-tooltip.bottom="formatHoursLeft(dragon.hoursleft, true)"
+        class="!pl-0.5 inline-flex items-center"
+      >
         <ToggleInput
           v-if="dragon.hoursleft <= 96 || dragon.in_seed_tray"
           v-model="dragon.in_seed_tray"
@@ -77,7 +85,7 @@
       </span>
       <span
         v-if="settings.showScrollRatio"
-        title="Views to unique views ratio"
+        v-tooltip.bottom="`Views to unique views ratio`"
         >{{ formatRatio(dragon.views, dragon.unique) }}</span
       >
       <span>
@@ -89,9 +97,9 @@
           @click.stop
           >LINEAGE</NuxtLink
         >
-        <span v-else>CB</span>
+        <span v-else v-tooltip.bottom="`Caveborn`">CB</span>
       </span>
-      <span v-if="dragon.gender" :title="dragon.gender">
+      <span v-if="dragon.gender" v-tooltip="dragon.gender">
         <font-awesome-icon
           v-if="dragon.gender === 'Male'"
           :icon="['fas', 'mars']"

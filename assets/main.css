@@ -93,3 +93,7 @@ h2 {
 h3 {
   @apply text-xl;
 }
+
+abbr {
+  @apply decoration-dotted underline-offset-4 decoration-white;
+}
