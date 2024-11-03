@@ -8,8 +8,8 @@ export {};
 declare global {
   type DragonData = {
     id: string;
-    name: string;
-    owner: string;
+    name: string | null;
+    owner: string | null;
     start: string;
     hatch: string;
     grow: string;
