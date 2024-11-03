@@ -17,7 +17,7 @@ declare global {
     views: number;
     unique: number;
     clicks: number;
-    gender: 'Male' | 'Female';
+    gender: 'Male' | 'Female' | '';
     acceptaid: boolean;
     hoursleft: number;
     parent_f: string;
