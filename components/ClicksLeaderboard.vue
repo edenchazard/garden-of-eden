@@ -8,7 +8,7 @@
       </tr>
     </thead>
     <tbody
-      class="divide-y divide-white [&_td]:px-4 [&_td]:py-1 [&_tr]:divide-x"
+      class="divide-y divide-white [&_td]:px-4 [&_td]:py-1 [&_tr]:divide-x table-fixed"
     >
       <tr
         v-for="(user, $index) in leaderboard"
@@ -19,21 +19,23 @@
           '!border-t-2': user.rank > 10,
         }"
       >
-        <td class="text-right">#{{ user.rank }}</td>
+        <td class="text-right w-20">#{{ user.rank }}</td>
         <td>
           <span class="inline-flex items-center">
             <span v-if="['-1', '-2'].includes(user.username)" class="italic">
               (anonymous)
             </span>
-            <template v-else> {{ user.username }} </template
-            ><img
+            <template v-else> {{ user.username }} </template>
+            <ItemPanel
               v-if="user.flair"
-              class="inline ml-1"
-              :src="userFlair(user.flair.url)"
-              :alt="user.flair.name"
-          /></span>
+              :aria-id="`${user.rank}-${start}-flair`"
+              :item="user.flair"
+            />
+          </span>
         </td>
-        <td>{{ Intl.NumberFormat().format(user.clicks_given) }}</td>
+        <td class="w-28">
+          {{ Intl.NumberFormat().format(user.clicks_given) }}
+        </td>
       </tr>
       <tr v-if="leaderboard.length === 10">
         <td colspan="3" class="hidden md:block">&nbsp;</td>
@@ -51,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import userFlair from '~/utils/userFlair';
+import ItemPanel from './ItemPanel.vue';
 
 withDefaults(
   defineProps<{
@@ -60,7 +62,7 @@ withDefaults(
       rank: number;
       username: string;
       clicks_given: number;
-      flair: Pick<Item, 'url' | 'name'> | null;
+      flair: Pick<Item, 'url' | 'name' | 'description'> | null;
     }>;
     total: number;
   }>(),

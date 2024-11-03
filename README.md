@@ -1,75 +1,44 @@
-# Nuxt 3 Minimal Starter
+# Garden of Eden
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Garden of Eden is a hatchery site for [Dragon Cave](https://dragcave.net).
 
-## Setup
+You can see it in action [here](https://chazza.me/dc/hatchery)!
 
-Make sure to install the dependencies:
+## Getting started
 
-```bash
-# npm
-npm install
+First, make a copy of the `.env.example` file and name it `.env`. Make sure to put in your Dragon Cave API private key.
 
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+The project uses docker, so you'll need to have `docker` and `docker compose` installed. After that, just run:
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+npm run dev:docker
 ```
 
-## Production
-
-Build the application for production:
+At this point, you'll want to run the database migrations. Drizzle is used for migrating and interacting with the database.
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npm run dev:docker:migrate
 ```
 
-Locally preview production build:
+## Useful links
+
+- [Drizzle](https://orm.drizzle.team/)
+- [Tailwind](https://tailwindcss.com/)
+- [Nuxt](https://nuxt.com/)
+- [Vue.js](https://vuejs.org/)
+
+## Troubleshooting
+
+If you need to start from scratch, you can run the following commands to remove the docker containers and images whilst keeping the database intact:
 
 ```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+npm run dev:docker:cleanup
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+If you need to remove the database and other volumes you can run:
+
+```bash
+npm run dev:docker:cleanup:all
+```
+
+_n.b. you will need to rerun the migrations if you decide to remove the volumes_

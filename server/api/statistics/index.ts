@@ -154,10 +154,34 @@ const cleanUpCached = defineCachedFunction(
   }
 );
 
+const apiRequestsCached = defineCachedFunction(
+  async () =>
+    db
+      .select()
+      .from(recordingsTable)
+      .where(
+        and(
+          gte(
+            recordingsTable.recorded_on,
+            DateTime.now().minus({ hours: 24 }).toSQL()
+          ),
+          eq(recordingsTable.record_type, 'api_request')
+        )
+      )
+      .orderBy(asc(recordingsTable.recorded_on)),
+  {
+    maxAge: 60 * 10,
+    group: 'statistics',
+    name: 'api',
+    getKey: () => 'requests',
+  }
+);
+
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
 
   const [
+    apiRequests,
     cleanUp,
     scrolls,
     dragons,
@@ -166,6 +190,7 @@ export default defineEventHandler(async (event) => {
     weeklies,
     userActivity,
   ] = await Promise.all([
+    apiRequestsCached(),
     cleanUpCached(),
     totalScrollsCached(),
     totalDragonsCached(),
@@ -182,6 +207,7 @@ export default defineEventHandler(async (event) => {
         flair: {
           url: itemsTable.url,
           name: itemsTable.name,
+          description: itemsTable.description,
         },
       })
       .from(clicksLeaderboardTable)
@@ -208,6 +234,7 @@ export default defineEventHandler(async (event) => {
   ]);
 
   return {
+    apiRequests,
     cleanUp,
     scrolls,
     dragons,
