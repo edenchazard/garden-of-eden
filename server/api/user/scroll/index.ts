@@ -4,18 +4,14 @@ import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
-
-// _Charky - Y8nZN - stunned
-// 42 - no stunned
-// schenanigan - no stunned
-// MissK. s0Rpr, ci3R0, 5y50w
+import { isIncubated, isStunned } from '~/utils/calculations';
 
 async function fetchScroll(username: string, token: JWT) {
   return dragCaveFetch()<
     DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
       dragons: Record<string, DragonData>;
     }
-  >(`/user?username=schenanigan&filter=GROWING`, {
+  >(`/user?username=${username}&filter=GROWING`, {
     headers: {
       Authorization: `Bearer ${token.sessionToken}`,
     },
@@ -108,16 +104,23 @@ export default defineEventHandler(async (event) => {
     details: {
       clicksToday,
     },
-    dragons: alive.map<ScrollView>((id) => {
-      const hatcheryDragon = usersDragonsInHatchery.find(
-        (row) => row.id === id
-      );
+    dragons: alive
+      .map<ScrollView>((id) => {
+        const hatcheryDragon = usersDragonsInHatchery.find(
+          (row) => row.id === id
+        );
 
-      return {
-        ...scrollResponse.dragons[id],
-        in_garden: !!(hatcheryDragon?.in_garden ?? false),
-        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-      };
-    }),
+        return {
+          ...scrollResponse.dragons[id],
+          in_garden: !!(hatcheryDragon?.in_garden ?? false),
+          in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+        };
+      })
+      .map((dragon) => {
+        dragon.incubated = isIncubated(dragon);
+        dragon.stunned = isStunned(dragon);
+
+        return dragon;
+      }),
   };
 });

@@ -232,7 +232,6 @@
 
 <script lang="ts" setup>
 import { pluralise } from '#imports';
-import { DateTime } from 'luxon';
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
@@ -340,64 +339,11 @@ const hatchlingClosestToGrowing = computed(() => {
 });
 
 const eggs = computed(() =>
-  scroll.value.dragons
-    .filter((dragon) => dragon.hatch === '0')
-    .map((egg) => {
-      const eggCreationTime = predictedStartTimeFromHoursLeft(egg);
-      const startDate = DateTime.fromFormat(egg.start, 'yyyy/MM/dd', {
-        zone: 'America/New_York',
-      });
-      const daysDifference = eggCreationTime
-        .startOf('day')
-        .diff(startDate.startOf('day'), 'day').days;
-
-      egg.incubated = daysDifference < 0;
-
-      return egg;
-    })
+  scroll.value.dragons.filter((dragon) => dragon.hatch === '0')
 );
 
 const hatchlings = computed(() =>
-  scroll.value.dragons
-    .filter((dragon) => dragon.hatch !== '0')
-    .map((hatchling) => {
-      console.log('hatchlingId: ', hatchling.id);
-      console.log('hatchling.hatch', hatchling.hatch);
-      console.log('hatchling.hoursleft', hatchling.hoursleft);
-
-      const hatchedTime = predictedStartTimeFromHoursLeft(hatchling);
-      console.log('Hatched Time:', hatchedTime.toString());
-
-      const startDate = DateTime.fromFormat(hatchling.hatch, 'yyyy/MM/dd', {
-        zone: 'America/New_York',
-      });
-      console.log('Start Date:', startDate.toString());
-
-      const hoursDifference = hatchedTime
-        .startOf('day')
-        .diff(startDate.startOf('day'), 'day').days;
-      console.log('Hours Difference:', hoursDifference);
-
-      hatchling.stunned = hoursDifference > 0;
-      console.log('Stunned:', hatchling.stunned);
-
-      // console.log('hatchlingId: ', hatchling.id);
-      // Parse start date as UTC to avoid timezone differences
-      // const startDateTime = DateTime.fromFormat(hatchling.hatch, 'yyyy/MM/dd', {
-      //   zone: 'utc',
-      // });
-      // // console.log('startDateTime: ', startDateTime.toString());
-
-      // // Calculate hours passed using UTC
-      // const hoursPassed = DateTime.utc().diff(startDateTime, 'hours').hours;
-      // // console.log('hoursPassed: ', hoursPassed);
-
-      // const expectedHoursLeft = 168 - hoursPassed;
-      // console.log('expectedHoursLeft: ', expectedHoursLeft);
-
-      // hatchling.stunned = hatchling.hoursleft - expectedHoursLeft >= 48;
-      return hatchling;
-    })
+  scroll.value.dragons.filter((dragon) => dragon.hatch !== '0')
 );
 
 console.log(eggs);
