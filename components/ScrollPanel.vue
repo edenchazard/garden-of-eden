@@ -109,10 +109,10 @@
           :icon="['fas', 'venus']"
         />
       </span>
-      <span v-if="dragon.stunned" title="Stunned">
+      <span v-if="dragon.stunned" v-tooltip.bottom="`Stunned`">
         <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
       </span>
-      <span v-if="dragon.incubated" title="Incubated">
+      <span v-if="dragon.incubated" v-tooltip.bottom="`Incubated`">
         <font-awesome-icon :icon="['fas', 'fire']" />
       </span>
     </div>
