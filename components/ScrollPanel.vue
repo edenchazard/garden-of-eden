@@ -48,11 +48,14 @@
 
         <div
           class="uppercase text-xs bg-green-900/70 dark:bg-neutral-950/70 p-1 rounded-md self-end *:underline-offset-2 absolute -right-2 bottom-4 px-1.5"
+          @click.stop
         >
-          {{ formatNumber(dragon.views) }}<span v-tooltip="`Views`">V</span> /
-          {{ formatNumber(dragon.unique)
-          }}<span v-tooltip="`Unique Views`">U</span> /
-          {{ formatNumber(dragon.clicks) }}<span v-tooltip="`Clicks`">C</span>
+          <span v-tooltip="`Views`">{{ formatNumber(dragon.views) }}V</span> /
+          <span v-tooltip="`Unique Views`"
+            >{{ formatNumber(dragon.unique) }}U</span
+          >
+          /
+          <span v-tooltip="`Clicks`">{{ formatNumber(dragon.clicks) }}C</span>
         </div>
         <input
           :id="`dragon-check-${dragon.id}`"
@@ -65,9 +68,10 @@
     </div>
     <div
       class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
+      @click.stop
     >
       <span
-        v-tooltip="formatHoursLeft(dragon.hoursleft, true)"
+        v-tooltip.bottom="formatHoursLeft(dragon.hoursleft, true)"
         class="!pl-0.5 inline-flex items-center"
       >
         <ToggleInput
@@ -81,7 +85,7 @@
       </span>
       <span
         v-if="settings.showScrollRatio"
-        v-tooltip="`Views to unique views ratio`"
+        v-tooltip.bottom="`Views to unique views ratio`"
         >{{ formatRatio(dragon.views, dragon.unique) }}</span
       >
       <span>
@@ -93,7 +97,7 @@
           @click.stop
           >LINEAGE</NuxtLink
         >
-        <span v-else v-tooltip="`Caveborn`">CB</span>
+        <span v-else v-tooltip.bottom="`Caveborn`">CB</span>
       </span>
       <span v-if="dragon.gender" v-tooltip="dragon.gender">
         <font-awesome-icon
