@@ -117,6 +117,7 @@ export default defineEventHandler(async (event) => {
         };
       })
       .map((dragon) => {
+        console.log(dragon.id);
         dragon.incubated = isIncubated(dragon);
         dragon.stunned = isStunned(dragon);
 

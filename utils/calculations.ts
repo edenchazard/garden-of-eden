@@ -1,13 +1,13 @@
 import { DateTime } from 'luxon';
 
 export function predictedStartTimeFromHoursLeft(scroll: ScrollView) {
-  const elapsedHours = 168 - scroll.hoursleft;
+  // 168 + 1 to account for hidden minutes within hoursleft
+  const elapsedHours = 168 + 1 - scroll.hoursleft;
 
   const now = DateTime.local()
     .setZone('America/New_York')
     .startOf('hour')
     .set({ second: 0, millisecond: 0 });
-
   return now.minus({ hours: elapsedHours });
 }
 
