@@ -101,6 +101,7 @@ export default defineEventHandler(async (event) => {
         flair: {
           url: itemsTable.url,
           name: itemsTable.name,
+          description: itemsTable.description,
         },
       })
       .from(clicksLeaderboardTable)
