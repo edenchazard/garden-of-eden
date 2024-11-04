@@ -31,7 +31,7 @@
       </p>
     </div>
 
-    <form v-else @submit.prevent="saveScroll()">
+    <form v-else class="space-y-4" @submit.prevent="saveScroll()">
       <div class="*:max-w-prose">
         <p v-if="fetchScrollError">
           Aurrrr naurrr!!! There was an error trying to fetch your scroll. Whack
@@ -79,7 +79,7 @@
 
       <fieldset
         v-if="hatchlings.length"
-        class="transition-opacity pt-2 mt-2"
+        class="transition-opacity pt-2"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
@@ -110,7 +110,7 @@
       </fieldset>
       <fieldset
         v-if="eggs.length"
-        class="transition-opacity pt-2 pb-6 mt-2"
+        class="transition-opacity pt-2"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
@@ -143,6 +143,7 @@
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
+        class="!mt-6"
         :dragons="scroll.dragons"
         :settings="userSettings"
         :fetch-scroll-status
