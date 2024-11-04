@@ -8,8 +8,9 @@ import {
 } from '~/database/schema';
 import { DateTime } from 'luxon';
 
-//const expiry = 1000 * 60;
-const expiry = 1;
+const expiry = process.env.NODE_ENV === 'development'
+  ? 1
+  : 1000 * 60;
 
 async function exists(file: string) {
   try {
@@ -60,56 +61,67 @@ export default defineEventHandler(async (event) => {
   });
   const params = await getValidatedRouterParams(event, schema.parse);
 
-  // first, does user exist?
-  const userId = await db
-  // one could shorten this to `[{ id }]` for convenience like i saw you do elsewhere
-  // but this could throw an error if a user can't actually be found.
-  // or maybe we can get around that by wrapping all this db-touching in a try/catch?
-    .select({
-      id: userTable.id,
-    })
+  const [user] = await db
+    .select({ id: userTable.id })
     .from(userTable)
     .where(eq(userTable.username, params.username));
 
-  if (userId.length === 0) {
+  if (!user) {
     // todo: banner
     return 'no garden account exists with this username, sign in?'
   }
 
-  // second, get user clicks
-  const now = DateTime.now();
-  const weekStart = now.startOf('week');
-  const { length: weeklyClicks } = await db
-    .select()
-    .from(clicksTable)
-    .where(
-      and(
-        gte(clicksTable.clicked_on, weekStart.toJSDate()),
-        eq(clicksTable.user_id, userId[0].id)
-      )
-    );
-  const { length: allTimeClicks } = await db
-    .select()
-    .from(clicksTable)
-    .where(
-      eq(clicksTable.user_id, userId[0].id)
-    )
-  // these are almost the same query, how do i keep this a little drier?
+  let stats: {
+    weeklyClicks: number,
+    allTimeClicks: number,
+    flairUrl: null | string
+  } = {
+    weeklyClicks: 0,
+    allTimeClicks: 0,
+    flairUrl: null
+  }
 
-  // get flair
-  const [{ url: flairUrl }] = await db
-    .select({
-      url: itemsTable.url
-    })
-    .from(userTable)
-      .leftJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
-      .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
-    .where(eq(userTable.id, userId[0].id));
+  await Promise.all([
+    async () => {
+      const now = DateTime.now();
+      const weekStart = now.startOf('week');
+      const [{ weeklyClicks }] = await db
+        .select({
+          weeklyClicks: sql<number>`COUNT(*)`.as('weeklyClicks')
+        })
+        .from(clicksTable)
+        .where(and(
+          eq(clicksTable.user_id, user.id),
+          gte(clicksTable.clicked_on, weekStart.toJSDate()),
+        ));
+      stats.weeklyClicks = weeklyClicks
+    },
+    async () => {
+      const [{ allTimeClicks }] = await db
+        .select({
+          allTimeClicks: sql<number>`COUNT(*)`.as('allTimeClicks')
+        })
+        .from(clicksTable)
+        .where(eq(clicksTable.user_id, user.id));
+      stats.allTimeClicks = allTimeClicks
+    },
+    async () => {
+      const [{ url }] = await db
+        .select({
+          url: itemsTable.url
+        })
+        .from(userTable)
+          .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
+          .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
+        .where(eq(userTable.id, user.id));
+      stats.flairUrl = url
+    }
+  ])
 
   const filePath = `/cache/scroll/${encodeURIComponent(params.username)}.gif`;
 
   await sendJob(
-    params.username, filePath, weeklyClicks, allTimeClicks, flairUrl
+    params.username, filePath, stats.weeklyClicks, stats.allTimeClicks, stats.flairUrl
   );
 
   if (await exists(filePath)) {
@@ -120,10 +132,6 @@ export default defineEventHandler(async (event) => {
 
     return sendStream(event, createReadStream(filePath));
   }
-
-  // todo: what if banner generation fails (nonexistent scrollname)?
-  // i want to render the 'scroll not found' banner in that case
-  // but when and where to trigger that...?
 
   setHeaders(event, {
     'Content-Type': 'image/webp',
