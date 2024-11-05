@@ -12,6 +12,43 @@ const expiry = process.env.NODE_ENV === 'development'
   ? 1
   : 1000 * 60;
 
+const getWeeklyClicks = async (userId: number) => {
+  const now = DateTime.now();
+  const weekStart = now.startOf('week');
+  const [{ weeklyClicks }] = await db
+    .select({
+      weeklyClicks: sql<number>`COUNT(*)`.as('weeklyClicks')
+    })
+    .from(clicksTable)
+    .where(and(
+      eq(clicksTable.user_id, userId),
+      gte(clicksTable.clicked_on, weekStart.toJSDate()),
+    ));
+  return weeklyClicks
+};
+
+const getAllTimeClicks = async (userId: number) => {
+  const [{ allTimeClicks }] = await db
+    .select({
+      allTimeClicks: sql<number>`COUNT(*)`.as('allTimeClicks')
+    })
+    .from(clicksTable)
+    .where(eq(clicksTable.user_id, userId));
+  return allTimeClicks
+};
+
+const getFlairUrl = async (userId: number) => {
+  const [{ url }] = await db
+    .select({
+      url: itemsTable.url
+    })
+    .from(userTable)
+      .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
+      .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
+    .where(eq(userTable.id, userId));
+  return url
+};
+
 async function exists(file: string) {
   try {
     await fs.stat(file);
@@ -71,57 +108,20 @@ export default defineEventHandler(async (event) => {
     return 'no garden account exists with this username, sign in?'
   }
 
-  let stats: {
-    weeklyClicks: number,
-    allTimeClicks: number,
-    flairUrl: null | string
-  } = {
-    weeklyClicks: 0,
-    allTimeClicks: 0,
-    flairUrl: null
-  }
-
-  await Promise.all([
-    async () => {
-      const now = DateTime.now();
-      const weekStart = now.startOf('week');
-      const [{ weeklyClicks }] = await db
-        .select({
-          weeklyClicks: sql<number>`COUNT(*)`.as('weeklyClicks')
-        })
-        .from(clicksTable)
-        .where(and(
-          eq(clicksTable.user_id, user.id),
-          gte(clicksTable.clicked_on, weekStart.toJSDate()),
-        ));
-      stats.weeklyClicks = weeklyClicks
-    },
-    async () => {
-      const [{ allTimeClicks }] = await db
-        .select({
-          allTimeClicks: sql<number>`COUNT(*)`.as('allTimeClicks')
-        })
-        .from(clicksTable)
-        .where(eq(clicksTable.user_id, user.id));
-      stats.allTimeClicks = allTimeClicks
-    },
-    async () => {
-      const [{ url }] = await db
-        .select({
-          url: itemsTable.url
-        })
-        .from(userTable)
-          .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
-          .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
-        .where(eq(userTable.id, user.id));
-      stats.flairUrl = url
-    }
+  const [
+    weeklyClicks,
+    allTimeClicks,
+    flairUrl
+  ] = await Promise.all([
+    getWeeklyClicks(user.id),
+    getAllTimeClicks(user.id),
+    getFlairUrl(user.id)
   ])
 
   const filePath = `/cache/scroll/${encodeURIComponent(params.username)}.gif`;
 
   await sendJob(
-    params.username, filePath, stats.weeklyClicks, stats.allTimeClicks, stats.flairUrl
+    params.username, filePath, weeklyClicks, allTimeClicks, flairUrl
   );
 
   if (await exists(filePath)) {
