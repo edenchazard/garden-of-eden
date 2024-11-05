@@ -77,7 +77,7 @@
               <option value="hatchlings,eggs">Hatchlings, then eggs</option>
               <option value="eggs,hatchlings">Eggs, then hatchlings</option>
             </select>
-            <label for="site-name">
+            <label for="section-order">
               {{
                 newSettings.sectionOrder === 'eggs,hatchlings'
                   ? 'Show me eggs first, then hatchlings underneath.'
