@@ -134,6 +134,13 @@
       "when": 1729975970983,
       "tag": "0022_faulty_reavers",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1730829174594,
+      "tag": "0023_tearful_zaran",
+      "breakpoints": true
     }
   ]
 }

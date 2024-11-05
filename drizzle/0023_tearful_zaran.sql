@@ -1,0 +1,1 @@
+ALTER TABLE `user_settings` ADD `scroll_order` varchar(15) DEFAULT 'hatchlings,eggs' NOT NULL;
