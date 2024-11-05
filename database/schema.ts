@@ -55,6 +55,12 @@ export const userSettingsTable = mysqlTable('user_settings', {
   }).references(() => itemsTable.id, {
     onDelete: 'set null',
   }),
+  sectionOrder: varchar('scroll_order', {
+    enum: ['eggs,hatchlings', 'hatchlings,eggs'],
+    length: 15,
+  })
+    .notNull()
+    .default('hatchlings,eggs'),
   gardenFrequency: smallint('gardenFrequency').notNull().default(30),
   gardenPerPage: smallint('gardenPerPage').notNull().default(50),
   seedTrayFrequency: smallint('seedTrayFrequency').notNull().default(30),
@@ -301,4 +307,5 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
     schema.highlightClickedDragons.default(true),
   anonymiseStatistics: (schema) => schema.anonymiseStatistics.default(false),
   flair_id: (schema) => schema.flair_id.nullable().default(null),
+  sectionOrder: (schema) => schema.sectionOrder.default('hatchlings,eggs'),
 }).omit({ user_id: true, flair_id: true });
