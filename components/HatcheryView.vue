@@ -15,6 +15,7 @@
       <option value="100">100 dragons</option>
       <option value="150">150 dragons</option>
       <option value="200">200 dragons</option>
+      <option value="500">500 dragons</option>
     </select>
     <label :for="`${label}-every`">every</label>
     <select
