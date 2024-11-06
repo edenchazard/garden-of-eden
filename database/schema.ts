@@ -293,10 +293,13 @@ export const purchasesTable = mysqlTable('purchases', {
 });
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
-  gardenFrequency: (schema) => schema.gardenFrequency.default(30),
-  gardenPerPage: (schema) => schema.gardenPerPage.min(10).default(100),
-  seedTrayFrequency: (schema) => schema.seedTrayFrequency.default(30),
-  seedTrayPerPage: (schema) => schema.seedTrayPerPage.min(10).default(100),
+  gardenFrequency: (schema) =>
+    schema.gardenFrequency.min(15).max(300).default(30),
+  gardenPerPage: (schema) => schema.gardenPerPage.min(10).max(500).default(500),
+  seedTrayFrequency: (schema) =>
+    schema.seedTrayFrequency.min(15).max(300).default(30),
+  seedTrayPerPage: (schema) =>
+    schema.seedTrayPerPage.min(10).max(500).default(200),
   sort: (schema) => schema.sort.default('Youngest First'),
   hatchlingMinAge: (schema) => schema.hatchlingMinAge.max(72).min(0).default(0),
   eggMinAge: (schema) => schema.eggMinAge.max(72).min(0).default(0),
