@@ -104,8 +104,12 @@ export default defineEventHandler(async (event) => {
     .where(eq(userTable.username, params.username));
 
   if (!user) {
-    // todo: banner
-    return 'no garden account exists with this username, sign in?'
+    setHeaders(event, {
+      'Content-Type': 'image/webp',
+    });
+    return sendStream(event, createReadStream(
+      '/src/public/banner/not_found.webp'
+    ));
   }
 
   const [
