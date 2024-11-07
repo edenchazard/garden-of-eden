@@ -6,6 +6,7 @@ import path from 'path';
 
 const baseBannerWidth = 327;
 const baseBannerHeight = 61;
+const baseCarouselWidth = 106;
 
 async function fileExists(filePath: string) {
   try {
@@ -131,7 +132,7 @@ async function generateBannerToTemporary(
 
     const {
       stripBuffer, stripWidth, stripHeight
-    } = await getDragonStrip(dragonCodes);
+    } = await getDragonStrip(dragonCodes.slice(0, 4));
 
     const bannerBuffer = await getBannerBase(
       username,
@@ -384,10 +385,6 @@ async function getDragonStrip(dragonIds: string[]) {
   }
 }
 
-const SCROLL_STEP = 2;
-const BANNER_WIDTH = 106;
-const BANNER_HEIGHT = 50;
-
 async function createFrames(
   bannerBuffer: Buffer,
   stripBuffer: Buffer,
@@ -396,20 +393,44 @@ async function createFrames(
 ): Promise<sharp.Sharp[]> {
   const startTime = performance.now();
   console.log('Generating carousel...');
+
   const framePromises = [];
-  for (
-    let scrollPosition = 0;
-    scrollPosition < stripWidth;
-    scrollPosition += SCROLL_STEP
-  ) {
-    framePromises.push(
-      createFrame(
-        scrollPosition, bannerBuffer, stripBuffer, stripWidth, stripHeight
-      )
-    );
+
+  if (stripWidth < baseCarouselWidth) {
+    const frame = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+    const composites: sharp.OverlayOptions[] = [
+      {
+        input: bannerBuffer,
+        top: 0,
+        left: 0
+      },
+      {
+        input: stripBuffer,
+        top: 5,
+        left: Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
+      }
+    ];
+
+    const composedFrameBuffer = await frame
+      .composite(composites)
+      .png()
+      .toBuffer();
+    framePromises.push(sharp(composedFrameBuffer));
+  } else {
+    for (
+      let scrollPosition = 0;
+      scrollPosition < stripWidth;
+      scrollPosition += 2
+    ) {
+      framePromises.push(
+        createFrame(
+          scrollPosition, bannerBuffer, stripBuffer, stripWidth, stripHeight
+        )
+      );
+    }
   }
 
-  console.log(`Carousel generated in ${performance.now() - startTime}ms`)
+  console.log(`Carousel generated in ${performance.now() - startTime}ms`);
   return Promise.all(framePromises);
 }
 
@@ -421,13 +442,13 @@ async function createFrame(
   stripHeight: number
 ): Promise<sharp.Sharp> {
   const cropX = scrollPosition % stripWidth;
-  const visibleWidth = Math.min(BANNER_WIDTH, stripWidth - cropX);
+  const visibleWidth = Math.min(baseCarouselWidth, stripWidth - cropX);
 
   const visibleDragonStrip = sharp(dragonStripBuffer).extract({
     left: cropX,
     top: 0,
     width: visibleWidth,
-    height: Math.min(stripHeight, BANNER_HEIGHT),
+    height: stripHeight
   });
 
   const frame = createEmptyFrame(baseBannerWidth, baseBannerHeight);
@@ -445,15 +466,15 @@ async function createFrame(
     },
   ];
 
-  if (visibleWidth < BANNER_WIDTH) {
-    const overflowWidth = BANNER_WIDTH - visibleWidth;
+  if (visibleWidth < baseCarouselWidth) {
+    const overflowWidth = baseCarouselWidth - visibleWidth;
     const overflowStripWidth = Math.min(overflowWidth, stripWidth);
 
     const overflowDragonStrip = sharp(dragonStripBuffer).extract({
       left: 0,
       top: 0,
       width: overflowStripWidth,
-      height: Math.min(stripHeight, BANNER_HEIGHT),
+      height: stripHeight
     });
 
     composites.push({
