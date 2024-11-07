@@ -4,7 +4,8 @@ import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
 import { and, eq, gte, sql } from 'drizzle-orm';
 import { 
-  itemsTable, userSettingsTable, userTable, clicksTable, clicksLeaderboardTable
+  itemsTable, userSettingsTable, userTable, clicksTable, clicksLeaderboardTable,
+  hatcheryTable
 } from '~/database/schema';
 import { DateTime } from 'luxon';
 
@@ -24,7 +25,26 @@ const getWeeklyClicks = async (userId: number) => {
       eq(clicksTable.user_id, userId),
       gte(clicksTable.clicked_on, weekStart.toJSDate()),
     ));
-  return weeklyClicks
+
+  const [ weeklyRank ]: { rank: number }[] = await db
+    .select({
+      rank: clicksLeaderboardTable.rank
+    })
+    .from(clicksLeaderboardTable)
+      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
+    .where(
+      and(
+        eq(userTable.id, userId),
+        eq(clicksLeaderboardTable.leaderboard, 'weekly')
+    )); 
+    // referenced off of statistics/index.ts but i haven't a clue if this works.
+    // at least it's not throwing
+    // i should find out how to pull data from prod.
+
+  return {
+    weeklyClicks,
+    weeklyRank: weeklyRank ? weeklyRank.rank : null
+  }
 };
 
 const getAllTimeClicks = async (userId: number) => {
@@ -34,7 +54,19 @@ const getAllTimeClicks = async (userId: number) => {
     })
     .from(clicksTable)
     .where(eq(clicksTable.user_id, userId));
-  return allTimeClicks
+
+  const [ allTimeRank ]: { rank: number }[] = await db
+    .select({
+      rank: clicksLeaderboardTable.rank
+    })
+    .from(clicksLeaderboardTable)
+      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
+    .where(eq(userTable.id, userId));
+
+  return {
+    allTimeClicks,
+    allTimeRank: allTimeRank ? allTimeRank.rank : null
+  }
 };
 
 const getFlairUrl = async (userId: number) => {
@@ -49,6 +81,17 @@ const getFlairUrl = async (userId: number) => {
   return url
 };
 
+const getDragonCodes = async (userId: number) => {
+  const dragons = await db
+    .select({
+      code: hatcheryTable.id
+    })
+    .from(hatcheryTable)
+    .where(eq(hatcheryTable.user_id, userId));
+
+  return dragons.map(dragon => dragon.code);
+}
+
 async function exists(file: string) {
   try {
     await fs.stat(file);
@@ -62,16 +105,19 @@ async function sendJob(
   username: string, 
   filePath: string,
   weeklyClicks: number,
+  weeklyRank: number | null,
   allTimeClicks: number,
+  allTimeRank: number | null,
+  dragonCodes: string[],
   flairUrl: string | null
 ) {
   await shareScrollQueue.add(
     'shareScrollQueue',
     {
-      username,
-      filePath,
-      weeklyClicks,
-      allTimeClicks,
+      username, filePath, 
+      weeklyClicks, weeklyRank,
+      allTimeClicks, allTimeRank,
+      dragonCodes,
       flairUrl
     },
     {
@@ -113,19 +159,28 @@ export default defineEventHandler(async (event) => {
   }
 
   const [
-    weeklyClicks,
-    allTimeClicks,
+    { weeklyClicks, weeklyRank },
+    { allTimeClicks, allTimeRank },
+    dragonCodes,
     flairUrl
   ] = await Promise.all([
     getWeeklyClicks(user.id),
     getAllTimeClicks(user.id),
+    getDragonCodes(user.id),
     getFlairUrl(user.id)
   ])
 
   const filePath = `/cache/scroll/${encodeURIComponent(params.username)}.gif`;
 
+  // todo later: it might be better to contain all of these variables
+  // into a "data" object instead of threading every single one
+  // through multiple funcs.
   await sendJob(
-    params.username, filePath, weeklyClicks, allTimeClicks, flairUrl
+    params.username, filePath, 
+    weeklyClicks, weeklyRank,
+    allTimeClicks, allTimeRank,
+    dragonCodes,
+    flairUrl
   );
 
   if (await exists(filePath)) {
