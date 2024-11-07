@@ -142,27 +142,19 @@ async function generateBannerToTemporary(
       flairUrl
     );
 
-    // const { dragonStrip, stripWidth, stripHeight } =
-    //   await getDragonStrip(dragonIds);
+    const frames = await createFrames(
+      bannerBuffer, stripBuffer, stripWidth, stripHeight
+    );
 
-    // const frames = await createFrames(dragonStrip, stripWidth, stripHeight);
+    const gif = await GIF.createGif({
+      delay: 100,
+      repeat: 0,
+      format: 'rgb444',
+    })
+      .addFrame(frames)
+      .toSharp();
 
-    // const gif = await GIF.createGif({
-    //   delay: FRAME_DELAY,
-    //   repeat: 0,
-    //   format: 'rgb444',
-    // })
-    //   .addFrame(frames)
-    //   .toSharp();
-
-    // await gif.toFile(`${filePath}.tmp`);
-
-    // const baseBanner = await sharp(bannerBuffer)
-    //   .gif()
-    //   .toFile(`${filePath}.tmp`);
-    await sharp(bannerBuffer)
-      .png()
-      .toFile(`${filePath}.tmp`);
+    await gif.toFile(`${filePath}.tmp`);
   } catch (error) {
     console.error('Error in generateBannerToTemporary:', error);
     await fs.unlink(`${filePath}.tmp`).catch(() => {});
@@ -312,8 +304,6 @@ async function getBannerBase(
   }
 }
 
-//
-
 async function getDragonStrip(dragonIds: string[]) {
   // it's fine for there to be no growing things,
   // it just means the carousel will be empty.
@@ -394,14 +384,18 @@ async function getDragonStrip(dragonIds: string[]) {
   }
 }
 
-/*
+const SCROLL_STEP = 2;
+const BANNER_WIDTH = 106;
+const BANNER_HEIGHT = 50;
+
 async function createFrames(
-  dragonStrip: sharp.Sharp,
+  bannerBuffer: Buffer,
+  stripBuffer: Buffer,
   stripWidth: number,
   stripHeight: number
 ): Promise<sharp.Sharp[]> {
-  const dragonStripBuffer = await dragonStrip.png().toBuffer();
-
+  const startTime = performance.now();
+  console.log('Generating carousel...');
   const framePromises = [];
   for (
     let scrollPosition = 0;
@@ -409,15 +403,19 @@ async function createFrames(
     scrollPosition += SCROLL_STEP
   ) {
     framePromises.push(
-      createFrame(scrollPosition, dragonStripBuffer, stripWidth, stripHeight)
+      createFrame(
+        scrollPosition, bannerBuffer, stripBuffer, stripWidth, stripHeight
+      )
     );
   }
 
+  console.log(`Carousel generated in ${performance.now() - startTime}ms`)
   return Promise.all(framePromises);
 }
 
 async function createFrame(
   scrollPosition: number,
+  bannerBuffer: Buffer,
   dragonStripBuffer: Buffer,
   stripWidth: number,
   stripHeight: number
@@ -432,13 +430,18 @@ async function createFrame(
     height: Math.min(stripHeight, BANNER_HEIGHT),
   });
 
-  const frame = createEmptyFrame(BANNER_WIDTH, BANNER_HEIGHT);
+  const frame = createEmptyFrame(baseBannerWidth, baseBannerHeight);
 
   const composites: sharp.OverlayOptions[] = [
     {
+      input: bannerBuffer,
+      top: 0,
+      left: 0
+    },
+    {
       input: await visibleDragonStrip.toBuffer(),
-      top: BANNER_HEIGHT - Math.min(stripHeight, BANNER_HEIGHT),
-      left: 0,
+      top: 5,
+      left: 5,
     },
   ];
 
@@ -455,8 +458,8 @@ async function createFrame(
 
     composites.push({
       input: await overflowDragonStrip.toBuffer(),
-      top: BANNER_HEIGHT - Math.min(stripHeight, BANNER_HEIGHT),
-      left: visibleWidth,
+      top: 5,
+      left: visibleWidth + 5,
     });
   }
 
@@ -466,39 +469,3 @@ async function createFrame(
     .toBuffer();
   return sharp(composedFrameBuffer);
 }
-
-
-
-
-
-async function getDragonIds(
-  username: string,
-  token: string
-): Promise<string[]> {
-  try {
-    const response = await fetch(
-      `https://dragcave.net/api/v2/user?username=${encodeURIComponent(username)}&filter=GROWING`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch dragon IDs: ${response.statusText}`);
-    }
-
-    const data = (await response.json()) as {
-      dragons: { id: string; hoursleft: number }[];
-    };
-
-    return Object.values(data.dragons)
-      .filter((dragon) => dragon.hoursleft > 0)
-      .map((dragon) => dragon.id);
-  } catch (error) {
-    console.error('Error fetching dragon IDs:', error);
-    throw error;
-  }
-}
-*/
