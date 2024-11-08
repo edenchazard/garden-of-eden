@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <VDropdown :triggers="['hover']">
+  <VDropdown :triggers="['hover']" class="shrink-0">
     <img class="inline ml-1" :src="userFlair(item.url)" :alt="item.name" />
     <template #popper>
       <div class="w-full max-w-56 p-2">

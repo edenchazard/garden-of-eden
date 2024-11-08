@@ -31,8 +31,8 @@
       </p>
     </div>
 
-    <form v-else @submit.prevent="saveScroll()">
-      <div class="*:max-w-prose">
+    <form v-else class="flex flex-col space-y-4" @submit.prevent="saveScroll()">
+      <div class="*:max-w-prose order-1">
         <p v-if="fetchScrollError">
           Aurrrr naurrr!!! There was an error trying to fetch your scroll. Whack
           that reload button and try again.
@@ -79,10 +79,12 @@
 
       <fieldset
         v-if="hatchlings.length"
-        class="transition-opacity pt-2 mt-2"
+        class="transition-opacity pt-2"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
+          'order-2': userSettings.sectionOrder === 'hatchlings,eggs',
+          'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
         }"
       >
         <legend class="text-sm font-bold">Hatchlings</legend>
@@ -110,10 +112,12 @@
       </fieldset>
       <fieldset
         v-if="eggs.length"
-        class="transition-opacity pt-2 pb-6 mt-2"
+        class="transition-opacity pt-2"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
+          'order-3': userSettings.sectionOrder === 'hatchlings,eggs',
+          'order-2': userSettings.sectionOrder === 'eggs,hatchlings',
         }"
       >
         <legend class="text-sm font-bold">Eggs</legend>
@@ -143,6 +147,7 @@
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
+        class="!mt-6 order-4"
         :dragons="scroll.dragons"
         :settings="userSettings"
         :fetch-scroll-status

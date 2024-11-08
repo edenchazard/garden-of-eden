@@ -72,6 +72,19 @@
               Show views to unique views ratio.</label
             >
           </li>
+          <li class="flex items-center gap-x-2">
+            <select id="section-order" v-model="newSettings.sectionOrder">
+              <option value="hatchlings,eggs">Hatchlings, then eggs</option>
+              <option value="eggs,hatchlings">Eggs, then hatchlings</option>
+            </select>
+            <label for="section-order">
+              {{
+                newSettings.sectionOrder === 'eggs,hatchlings'
+                  ? 'Show me eggs first, then hatchlings underneath.'
+                  : 'Show me hatchlings first, then eggs underneath.'
+              }}
+            </label>
+          </li>
         </ul>
       </fieldset>
       <fieldset>

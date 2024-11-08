@@ -8,7 +8,7 @@
       </tr>
     </thead>
     <tbody
-      class="divide-y divide-white [&_td]:px-4 [&_td]:py-1 [&_tr]:divide-x table-fixed"
+      class="divide-y divide-white [&_td]:px-3 [&_td]:py-1 [&_tr]:divide-x table-fixed text-sm"
     >
       <tr
         v-for="(user, $index) in leaderboard"
@@ -19,9 +19,9 @@
           '!border-t-2': user.rank > 10,
         }"
       >
-        <td class="text-right w-20">#{{ user.rank }}</td>
+        <td class="text-right w-16">#{{ user.rank }}</td>
         <td>
-          <span class="inline-flex items-center">
+          <span class="inline-flex items-center flex-wrap">
             <span v-if="['-1', '-2'].includes(user.username)" class="italic">
               (anonymous)
             </span>
@@ -33,7 +33,7 @@
             />
           </span>
         </td>
-        <td class="w-28">
+        <td class="w-20 text-right">
           {{ Intl.NumberFormat().format(user.clicks_given) }}
         </td>
       </tr>
@@ -42,9 +42,9 @@
       </tr>
     </tbody>
     <tfoot class="font-bold">
-      <tr class="*:px-4 divide-x border-t-4">
-        <td colspan="2">Total</td>
-        <td>
+      <tr class="*:px-3 divide-x border-t-4">
+        <td>Total</td>
+        <td colspan="2" class="text-right">
           {{ Intl.NumberFormat().format(total) }}
         </td>
       </tr>

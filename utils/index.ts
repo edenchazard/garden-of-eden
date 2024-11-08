@@ -3,7 +3,7 @@ export function formatNumber(num: number) {
 }
 
 export function formatHoursLeft(hours: number, full: boolean = false) {
-  if (hours < 24) return hours + (full ? pluralise('hour', hours) : 'h');
+  if (hours < 24) return hours + (full ? ' ' + pluralise('hour', hours) : 'h');
 
   const dayValue = Math.floor(hours / 24);
   const hourValue = hours % 24;

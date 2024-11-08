@@ -58,6 +58,12 @@ export const userSettingsTable = mysqlTable('user_settings', {
   }).references(() => itemsTable.id, {
     onDelete: 'set null',
   }),
+  sectionOrder: varchar('scroll_order', {
+    enum: ['eggs,hatchlings', 'hatchlings,eggs'],
+    length: 15,
+  })
+    .notNull()
+    .default('hatchlings,eggs'),
   gardenFrequency: smallint('gardenFrequency').notNull().default(30),
   gardenPerPage: smallint('gardenPerPage').notNull().default(50),
   seedTrayFrequency: smallint('seedTrayFrequency').notNull().default(30),
@@ -290,10 +296,13 @@ export const purchasesTable = mysqlTable('purchases', {
 });
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
-  gardenFrequency: (schema) => schema.gardenFrequency.default(30),
-  gardenPerPage: (schema) => schema.gardenPerPage.min(10).default(100),
-  seedTrayFrequency: (schema) => schema.seedTrayFrequency.default(30),
-  seedTrayPerPage: (schema) => schema.seedTrayPerPage.min(10).default(100),
+  gardenFrequency: (schema) =>
+    schema.gardenFrequency.min(15).max(300).default(30),
+  gardenPerPage: (schema) => schema.gardenPerPage.min(10).max(500).default(500),
+  seedTrayFrequency: (schema) =>
+    schema.seedTrayFrequency.min(15).max(300).default(30),
+  seedTrayPerPage: (schema) =>
+    schema.seedTrayPerPage.min(10).max(500).default(200),
   sort: (schema) => schema.sort.default('Youngest First'),
   hatchlingMinAge: (schema) => schema.hatchlingMinAge.max(72).min(0).default(0),
   eggMinAge: (schema) => schema.eggMinAge.max(72).min(0).default(0),
@@ -304,4 +313,5 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
     schema.highlightClickedDragons.default(true),
   anonymiseStatistics: (schema) => schema.anonymiseStatistics.default(false),
   flair_id: (schema) => schema.flair_id.nullable().default(null),
+  sectionOrder: (schema) => schema.sectionOrder.default('hatchlings,eggs'),
 }).omit({ user_id: true, flair_id: true });
