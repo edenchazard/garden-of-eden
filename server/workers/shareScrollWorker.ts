@@ -18,23 +18,27 @@ async function fileExists(filePath: string) {
 }
 
 parentPort?.on('message', async function (message) {
-  if (message.type !== 'banner') return;  
-  const { 
-    username, filePath, 
-    weeklyClicks, weeklyRank,
-    allTimeClicks, allTimeRank,
+  if (message.type !== 'banner') return;
+  const {
+    username,
+    filePath,
+    weeklyClicks,
+    weeklyRank,
+    allTimeClicks,
+    allTimeRank,
     dragonCodes,
     flairUrl,
-    token 
   } = message;
   try {
     await generateBannerToTemporary(
-      username, filePath, 
-      weeklyClicks, weeklyRank,
-      allTimeClicks, allTimeRank,
+      username,
+      filePath,
+      weeklyClicks,
+      weeklyRank,
+      allTimeClicks,
+      allTimeRank,
       dragonCodes,
-      flairUrl,
-      token 
+      flairUrl
     );
     await moveBannerFromTemporary(filePath);
     parentPort?.postMessage({ type: 'success', username });
@@ -116,24 +120,23 @@ async function textToPng(
 // the meat of it
 
 async function generateBannerToTemporary(
-  username: string, 
+  username: string,
   filePath: string,
   weeklyClicks: number,
   weeklyRank: number | null,
   allTimeClicks: number,
   allTimeRank: number | null,
   dragonCodes: string[],
-  flairUrl: string | null,
-  token: string
+  flairUrl: string | null
 ) {
   try {
     const outputDir = path.dirname(filePath);
     await fs.mkdir(outputDir, { recursive: true });
 
-    const {
-      stripBuffer, stripWidth, stripHeight
-    } = await getDragonStrip(dragonCodes.slice(0, 4));
+    const { stripBuffer, stripWidth, stripHeight } =
+      await getDragonStrip(dragonCodes);
 
+    console.log('buffed', stripBuffer);
     const bannerBuffer = await getBannerBase(
       username,
       weeklyClicks,
@@ -144,7 +147,10 @@ async function generateBannerToTemporary(
     );
 
     const frames = await createFrames(
-      bannerBuffer, stripBuffer, stripWidth, stripHeight
+      bannerBuffer,
+      stripBuffer,
+      stripWidth,
+      stripHeight
     );
 
     const gif = await GIF.createGif({
@@ -174,8 +180,8 @@ async function getBannerBase(
   try {
     const startTime = performance.now();
     console.log('Generating banner stats...');
-    let compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-    let composites: sharp.OverlayOptions[] = [];
+    const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+    const composites: sharp.OverlayOptions[] = [];
 
     // base
     composites.push({
@@ -192,6 +198,7 @@ async function getBannerBase(
     );
     const { height: usernameHeight, width: usernameWidth } =
       await sharp(usernamePng).metadata();
+
     composites.push({
       input: usernamePng,
       top: 25 - (usernameHeight ?? 0),
@@ -231,42 +238,40 @@ async function getBannerBase(
       });
     }
 
-    const statText = async (
-      statName: string, statNumber: number
-    ) => await textToPng(
-      `
+    const statText = (statName: string, statNumber: number) =>
+      textToPng(
+        `
         <tspan fill="#dff6f5">${statName}:</tspan> 
-        <tspan fill="#f2bd59">${statNumber.toLocaleString('en-gb')}</tspan>
+        <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
       `,
-      '8px Nokia Cellphone FC',
-      ''
-    );
+        '8px Nokia Cellphone FC',
+        ''
+      );
 
-    const rankText = async (rankNumber: number) => await textToPng(
-      `
+    const rankText = (rankNumber: number) =>
+      textToPng(
+        `
         <tspan fill="#dff6f5">Ranked</tspan> 
         <tspan fill="#f2bd59">#${rankNumber}</tspan>
       `,
-      '8px Nokia Cellphone FC',
-      ''
-    );
-
+        '8px Nokia Cellphone FC',
+        ''
+      );
 
     // stats
     const [
       compositeWeeklyClicks,
       compositeWeeklyRank,
       compositeAllTimeClicks,
-      compositeAllTimeRank
+      compositeAllTimeRank,
     ] = await Promise.all([
       statText('Weekly Clicks', weeklyClicks),
-      (weeklyRank ? rankText(weeklyRank) : null),
+      weeklyRank ? rankText(weeklyRank) : null,
       statText('All-time Clicks', allTimeClicks),
-      (allTimeRank ? rankText(allTimeRank) : null)
+      allTimeRank ? rankText(allTimeRank) : null,
     ]);
 
-    composites = [
-      ...composites,
+    composites.push(
       {
         input: compositeWeeklyClicks,
         left: 118,
@@ -276,29 +281,29 @@ async function getBannerBase(
         input: compositeAllTimeClicks,
         left: 118,
         top: 40,
-      },
-    ];
+      }
+    );
 
-    if (compositeWeeklyRank) composites = [...composites, {
-      input: compositeWeeklyRank,
-      left: 245,
-      top: 29
-    }];
+    if (compositeWeeklyRank) {
+      composites.push({
+        input: compositeWeeklyRank,
+        left: 245,
+        top: 29,
+      });
+    }
 
-    if (compositeAllTimeRank) composites = [...composites, {
-      input: compositeAllTimeRank,
-      left: 245,
-      top: 41
-    }];
+    if (compositeAllTimeRank) {
+      composites.push({
+        input: compositeAllTimeRank,
+        left: 245,
+        top: 41,
+      });
+    }
 
     console.log(
       `Banner stats generated in ${(performance.now() - startTime).toFixed(2)}ms`
     );
-    const bannerBuffer = await compositeImage
-      .composite(composites)
-      .png()
-      .toBuffer();
-    return bannerBuffer
+    return await compositeImage.composite(composites).png().toBuffer();
   } catch (error) {
     console.error('Error in getBannerBase:', error);
     throw error;
@@ -308,7 +313,8 @@ async function getBannerBase(
 async function getDragonStrip(dragonIds: string[]) {
   // it's fine for there to be no growing things,
   // it just means the carousel will be empty.
-  if (dragonIds.length === 0) {
+  console.log('growing', dragonIds);
+  if (!dragonIds.length) {
     return {
       stripBuffer: null,
       stripWidth: 0,
@@ -348,23 +354,25 @@ async function getDragonStrip(dragonIds: string[]) {
     // height will be solid, no point in having it be flexible.
     // plus, dragons too tall will just be cropped
 
-    let compositeImage = createEmptyFrame(totalWidth, stripHeight);
+    const compositeImage = createEmptyFrame(totalWidth, stripHeight);
 
     const composites: sharp.OverlayOptions[] = [];
 
     const xOffsets: number[] = [0];
-    dragonMetadatas.forEach(metadata => {
+    dragonMetadatas.forEach((metadata) => {
       const prevOffset = xOffsets[xOffsets.length - 1];
-      xOffsets.push(prevOffset + (metadata.width ?? 0) + 1)
-    })
-    
-    await Promise.all(dragonImages.map(async (dragonImage, index) => {
-      composites.push({
-        input: await dragonImage.toBuffer(),
-        top: stripHeight - (dragonMetadatas[index].height ?? 0),
-        left: xOffsets[index]
+      xOffsets.push(prevOffset + (metadata.width ?? 0) + 1);
+    });
+
+    await Promise.all(
+      dragonImages.map(async (dragonImage, index) => {
+        composites.push({
+          input: await dragonImage.toBuffer(),
+          top: stripHeight - (dragonMetadatas[index].height ?? 0),
+          left: xOffsets[index],
+        });
       })
-    }))
+    );
 
     const stripBuffer = await compositeImage
       .composite(composites)
@@ -390,7 +398,7 @@ async function createFrames(
   stripBuffer: Buffer,
   stripWidth: number,
   stripHeight: number
-): Promise<sharp.Sharp[]> {
+) {
   const startTime = performance.now();
   console.log('Generating carousel...');
 
@@ -402,15 +410,16 @@ async function createFrames(
       {
         input: bannerBuffer,
         top: 0,
-        left: 0
+        left: 0,
       },
       {
         input: stripBuffer,
         top: 5,
-        left: Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
-      }
+        left:
+          Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
+      },
     ];
-
+    console.log(composites);
     const composedFrameBuffer = await frame
       .composite(composites)
       .png()
@@ -424,7 +433,11 @@ async function createFrames(
     ) {
       framePromises.push(
         createFrame(
-          scrollPosition, bannerBuffer, stripBuffer, stripWidth, stripHeight
+          scrollPosition,
+          bannerBuffer,
+          stripBuffer,
+          stripWidth,
+          stripHeight
         )
       );
     }
@@ -440,7 +453,7 @@ async function createFrame(
   dragonStripBuffer: Buffer,
   stripWidth: number,
   stripHeight: number
-): Promise<sharp.Sharp> {
+) {
   const cropX = scrollPosition % stripWidth;
   const visibleWidth = Math.min(baseCarouselWidth, stripWidth - cropX);
 
@@ -448,7 +461,7 @@ async function createFrame(
     left: cropX,
     top: 0,
     width: visibleWidth,
-    height: stripHeight
+    height: stripHeight,
   });
 
   const frame = createEmptyFrame(baseBannerWidth, baseBannerHeight);
@@ -457,7 +470,7 @@ async function createFrame(
     {
       input: bannerBuffer,
       top: 0,
-      left: 0
+      left: 0,
     },
     {
       input: await visibleDragonStrip.toBuffer(),
@@ -474,7 +487,7 @@ async function createFrame(
       left: 0,
       top: 0,
       width: overflowStripWidth,
-      height: stripHeight
+      height: stripHeight,
     });
 
     composites.push({
@@ -484,9 +497,5 @@ async function createFrame(
     });
   }
 
-  const composedFrameBuffer = await frame
-    .composite(composites)
-    .png()
-    .toBuffer();
-  return sharp(composedFrameBuffer);
+  return sharp(await frame.composite(composites).png().toBuffer());
 }

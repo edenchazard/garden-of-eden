@@ -41,23 +41,29 @@ export default defineNitroPlugin(async () => {
   new BullWorker(
     'shareScrollQueue',
     async (job) => {
-      const { 
-        username, filePath, 
-        weeklyClicks, weeklyRank,
-        allTimeClicks, allTimeRank,
+      const {
+        username,
+        filePath,
+        weeklyClicks,
+        weeklyRank,
+        allTimeClicks,
+        allTimeRank,
         dragonCodes,
-        flairUrl
-       } = job.data;
-      console.log('received', username, filePath);
+        flairUrl,
+      } = job.data;
+
+      console.log('received', username, filePath, 'codes', dragonCodes);
 
       shareScrollWorker.postMessage({
         type: 'banner',
-        username, filePath, 
-        weeklyClicks, weeklyRank,
-        allTimeClicks, allTimeRank,
+        username,
+        filePath,
+        weeklyClicks,
+        weeklyRank,
+        allTimeClicks,
+        allTimeRank,
         dragonCodes,
         flairUrl,
-        token: clientSecret, // TODO: change to user oauth token
       });
     },
     {
