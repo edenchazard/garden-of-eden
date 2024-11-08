@@ -1,8 +1,10 @@
 import { DateTime } from 'luxon';
 
-export function predictedStartTimeFromHoursLeft(scroll: ScrollView) {
-  // 168 + 1 to account for hidden minutes within hoursleft
-  const elapsedHours = 168 + 1 - scroll.hoursleft;
+export function predictedStartTimeFromHoursLeft(
+  scroll: ScrollView,
+  offset: number = 0
+) {
+  const elapsedHours = 168 + offset - scroll.hoursleft;
 
   const now = DateTime.local()
     .setZone('America/New_York')
@@ -12,6 +14,7 @@ export function predictedStartTimeFromHoursLeft(scroll: ScrollView) {
 }
 
 export function isIncubated(scroll: ScrollView) {
+  // no offset as eggs are weird
   const predictedStartTime = predictedStartTimeFromHoursLeft(scroll);
   const startDate = DateTime.fromFormat(scroll.start, 'yyyy/MM/dd', {
     zone: 'America/New_York',
@@ -25,7 +28,8 @@ export function isIncubated(scroll: ScrollView) {
 }
 
 export function isStunned(scroll: ScrollView) {
-  const predictedStartTime = predictedStartTimeFromHoursLeft(scroll);
+  // +1 offset to account for minutes within hoursleft on hatch time
+  const predictedStartTime = predictedStartTimeFromHoursLeft(scroll, 1);
   const hatchDate = DateTime.fromFormat(scroll.hatch, 'yyyy/MM/dd', {
     zone: 'America/New_York',
   });
