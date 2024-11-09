@@ -27,8 +27,10 @@ parentPort?.on('message', async function (message) {
     allTimeClicks,
     allTimeRank,
     dragonCodes,
+    resources,
   } = message;
   try {
+    console.log('resources', resources);
     await generateBannerToTemporary(
       user,
       filePath,
@@ -36,7 +38,8 @@ parentPort?.on('message', async function (message) {
       weeklyRank,
       allTimeClicks,
       allTimeRank,
-      dragonCodes
+      dragonCodes,
+      resources
     );
     await moveBannerFromTemporary(filePath);
     parentPort?.postMessage({ type: 'success', user });
@@ -124,7 +127,8 @@ async function generateBannerToTemporary(
   weeklyRank: number | null,
   allTimeClicks: number,
   allTimeRank: number | null,
-  dragonCodes: string[]
+  dragonCodes: string[],
+  resources: string
 ) {
   try {
     const outputDir = path.dirname(filePath);
@@ -141,7 +145,8 @@ async function generateBannerToTemporary(
       weeklyRank,
       allTimeClicks,
       allTimeRank,
-      user.flairUrl
+      user.flairUrl,
+      resources
     );
 
     const frames = await createFrames(
@@ -173,7 +178,8 @@ async function getBannerBase(
   weeklyRank: number | null,
   allTimeClicks: number,
   allTimeRank: number | null,
-  flairUrl: string | null
+  flairPath: string | null,
+  resources: string
 ) {
   try {
     const startTime = performance.now();
@@ -183,7 +189,7 @@ async function getBannerBase(
 
     // base
     composites.push({
-      input: '/src/public/banner/base.webp',
+      input: path.resolve(resources, '/banner/base.webp'),
       top: 0,
       left: 0,
     });
@@ -204,8 +210,7 @@ async function getBannerBase(
     });
 
     // flair
-    if (flairUrl) {
-      const flairPath = path.resolve('./public/items', flairUrl);
+    if (flairPath) {
       const flairImage = sharp(flairPath)
         .greyscale()
         .threshold(255)

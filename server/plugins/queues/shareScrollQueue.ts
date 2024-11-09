@@ -52,7 +52,7 @@ export default defineNitroPlugin(async () => {
         dragonCodes,
       } = job.data;
 
-      console.log('received', user, filePath, 'codes', dragonCodes);
+      console.log('received', user, filePath, dragonCodes);
 
       shareScrollWorker.postMessage({
         type: 'banner',
@@ -63,6 +63,7 @@ export default defineNitroPlugin(async () => {
         allTimeClicks,
         allTimeRank,
         dragonCodes,
+        resources: '/src/resources',
       });
     },
     {

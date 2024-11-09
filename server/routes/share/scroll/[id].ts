@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { promises as fs, createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
-import { and, eq, param, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import {
   itemsTable,
   userSettingsTable,
@@ -11,6 +11,7 @@ import {
   hatcheryTable,
 } from '~/database/schema';
 import { DateTime } from 'luxon';
+import path from 'node:path';
 
 const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
@@ -72,6 +73,14 @@ const getUser = async (userId: number) => {
     .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
     .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
     .where(eq(userTable.id, userId));
+
+  if (user.flairUrl) {
+    user.flairUrl = path.resolve(
+      useRuntimeConfig().rootPath,
+      'public/items',
+      user.flairUrl
+    );
+  }
 
   return user;
 };
@@ -137,7 +146,15 @@ export default defineEventHandler(async (event) => {
 
   if (!user) {
     setHeader(event, 'Content-Type', 'image/webp');
-    return sendStream(event, createReadStream('public/banner/not_found.webp'));
+    return sendStream(
+      event,
+      createReadStream(
+        path.resolve(
+          useRuntimeConfig().rootPath,
+          'resources/banner/not_found.webp'
+        )
+      )
+    );
   }
 
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
@@ -169,7 +186,15 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', 'image/webp');
 
-  return sendStream(event, createReadStream('public/banner/in_progress.webp'));
+  return sendStream(
+    event,
+    createReadStream(
+      path.resolve(
+        useRuntimeConfig().rootPath,
+        'resources/banner/in_progress.webp'
+      )
+    )
+  );
   // little thing: the url ends in .gif but this resource is a .webp.
   // it serves just fine. will the filetype discrepancy be a problem later?
 });

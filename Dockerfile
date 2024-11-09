@@ -31,6 +31,7 @@ WORKDIR /src
 COPY --from=build /src/.output .output
 COPY --from=build /src/package*.json . 
 COPY resources/fonts /usr/share/fonts/
+COPY resources/banner resources/banner
 COPY workers/*.js workers/
 RUN npm i sharp sharp-gif2
 CMD [ "node", ".output/server/index.mjs" ]
