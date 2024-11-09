@@ -11,6 +11,7 @@ import {
   hatcheryTable,
 } from '~/database/schema';
 import { DateTime } from 'luxon';
+import path from 'path';
 
 const getClickStatistics = async (userId: number) => {
   const [[weekly], [allTime]] = await Promise.all([
@@ -148,7 +149,7 @@ export default defineEventHandler(async (event) => {
     setHeader(event, 'Content-Type', 'image/webp');
     return sendStream(
       event,
-      createReadStream('/src/public/banner/not_found.webp')
+      createReadStream(path.resolve('./public/banner/not_found.webp'))
     );
   }
 
@@ -181,13 +182,11 @@ export default defineEventHandler(async (event) => {
     return sendStream(event, createReadStream(filePath));
   }
 
-  setHeaders(event, {
-    'Content-Type': 'image/webp',
-  });
+  setHeader(event, 'Content-Type', 'image/webp');
 
   return sendStream(
     event,
-    createReadStream('/src/public/banner/in_progress.webp')
+    createReadStream(path.resolve('./public/banner/in_progress.webp'))
   );
   // little thing: the url ends in .gif but this resource is a .webp.
   // it serves just fine. will the filetype discrepancy be a problem later?

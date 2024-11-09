@@ -205,7 +205,7 @@ async function getBannerBase(
 
     // flair
     if (flairUrl) {
-      const flairPath = `/src/public/items${flairUrl}`;
+      const flairPath = path.resolve('./public/items', flairUrl);
       const flairImage = sharp(flairPath)
         .greyscale()
         .threshold(255)
