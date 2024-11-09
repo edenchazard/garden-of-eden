@@ -58,7 +58,7 @@ export default defineNuxtConfig({
     clientSecret: process.env.CLIENT_SECRET,
     nextAuthSecret: process.env.NEXT_SECRET,
     bannerCacheExpiry: parseInt(process.env.BANNER_CACHE_EXPIRY ?? '1800'),
-    rootPath: process.env.NODE_ENV === 'development' ? '/src/server' : '/src',
+    rootPath: '/src',
     db: {
       port: 3306,
       host: process.env.MYSQL_HOST,

@@ -189,7 +189,7 @@ async function getBannerBase(
 
     // base
     composites.push({
-      input: path.resolve(resources, '/banner/base.webp'),
+      input: path.resolve(resources, 'banner/base.webp'),
       top: 0,
       left: 0,
     });

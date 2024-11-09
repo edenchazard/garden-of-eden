@@ -74,6 +74,8 @@ const getUser = async (userId: number) => {
     .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
     .where(eq(userTable.id, userId));
 
+  if (!user) return null;
+
   if (user.flairUrl) {
     user.flairUrl = path.resolve(
       useRuntimeConfig().rootPath,
