@@ -39,7 +39,6 @@ volumes:
   dbdata:
   node_modules:
   caches:
-  tmp:
 
 networks:
   internal:
