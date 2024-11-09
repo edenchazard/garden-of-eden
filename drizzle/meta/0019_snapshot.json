@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "5047d0e4-d623-487d-bcba-731ef98a486a",
-  "prevId": "7006ef46-7a9d-4350-bdab-9b713c6cc9ba",
+  "id": "f0455567-c8f0-4afa-a561-df96266c7fcc",
+  "prevId": "ac119a43-b89e-4c41-9876-0bc708c62a5f",
   "tables": {
     "clicks_leaderboard": {
       "name": "clicks_leaderboard",
@@ -281,13 +281,6 @@
         "cost": {
           "name": "cost",
           "type": "smallint",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "artist": {
-          "name": "artist",
-          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -605,13 +598,6 @@
           "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "access_token": {
-          "name": "access_token",
-          "type": "varchar(32)",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "role": {
