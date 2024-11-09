@@ -11,17 +11,19 @@ export default defineNitroPlugin(async () => {
   await fs.mkdir('/cache/scroll', { recursive: true });
 
   const createWorker = () =>
-    new Worker('./server/workers/shareScrollWorker.js', {
+    new Worker('./workers/shareScrollWorker.js', {
       workerData: { username: null, filePath: null },
     });
 
   let shareScrollWorker = createWorker();
 
-  watch('./server/workers/shareScrollWorker.js', () => {
-    shareScrollWorker.terminate();
-    shareScrollWorker = createWorker();
-    console.info('Share scroll worker thread started');
-  });
+  if (import.meta.dev) {
+    watch('./workers/shareScrollWorker.js', () => {
+      shareScrollWorker.terminate();
+      shareScrollWorker = createWorker();
+      console.info('Share scroll worker thread started');
+    });
+  }
 
   shareScrollWorker
     .on('message', async (message) => {

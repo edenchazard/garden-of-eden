@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
@@ -11,7 +13,12 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     'nuxt-security',
     'floating-vue/nuxt',
-    '~/modules/watch-workers',
+    [
+      '~/modules/watch-workers',
+      {
+        path: fileURLToPath(new URL('/src/workers', import.meta.url)),
+      },
+    ],
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {

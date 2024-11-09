@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { promises as fs, createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, param, sql } from 'drizzle-orm';
 import {
   itemsTable,
   userSettingsTable,
@@ -11,10 +11,9 @@ import {
   hatcheryTable,
 } from '~/database/schema';
 import { DateTime } from 'luxon';
-import path from 'path';
 
-const getClickStatistics = async (userId: number) => {
-  const [[weekly], [allTime]] = await Promise.all([
+const getData = async (userId: number) => {
+  const [[weekly], [allTime], dragons] = await Promise.all([
     db
       .select({
         weeklyClicks: clicksLeaderboardTable.clicks_given,
@@ -45,16 +44,20 @@ const getClickStatistics = async (userId: number) => {
           eq(clicksLeaderboardTable.user_id, userId)
         )
       ),
+    db
+      .select({
+        code: hatcheryTable.id,
+      })
+      .from(hatcheryTable)
+      .where(eq(hatcheryTable.user_id, userId)),
   ]);
 
-  // referenced off of statistics/index.ts but i haven't a clue if this works.
-  // at least it's not throwing
-  // i should find out how to pull data from prod.
   return {
     weeklyClicks: weekly?.weeklyClicks ?? 0,
     weeklyRank: weekly?.weeklyRank ?? null,
     allTimeClicks: allTime?.allTimeClicks ?? 0,
     allTimeRank: allTime?.allTimeRank ?? null,
+    dragons: dragons.map((dragon) => dragon.code),
   };
 };
 
@@ -65,23 +68,12 @@ const getUser = async (userId: number) => {
       username: userTable.username,
       flairUrl: itemsTable.url,
     })
-    .from(userSettingsTable)
-    .innerJoin(userTable, eq(userSettingsTable.user_id, userTable.id))
+    .from(userTable)
+    .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
     .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
-    .where(eq(userSettingsTable.user_id, userId));
+    .where(eq(userTable.id, userId));
 
   return user;
-};
-
-const getDragonCodes = async (userId: number) => {
-  const dragons = await db
-    .select({
-      code: hatcheryTable.id,
-    })
-    .from(hatcheryTable)
-    .where(eq(hatcheryTable.user_id, userId));
-
-  return dragons.map((dragon) => dragon.code);
 };
 
 async function exists(file: string) {
@@ -128,35 +120,28 @@ export default defineEventHandler(async (event) => {
   const schema = z.object({
     id: z
       .string()
-      .min(4)
+      .min(1)
       .endsWith('.gif')
-      .transform((v) => {
-        const dotIndex = v.indexOf('.');
-        return dotIndex !== -1 ? v.substring(0, dotIndex) : v;
-      }),
+      .transform((v) => v.substring(0, v.lastIndexOf('.')))
+      .pipe(z.coerce.number()),
   });
 
   const params = await getValidatedRouterParams(event, schema.safeParseAsync);
 
-  if (!params.data) {
+  if (!params.data || !params.success) {
     setResponseStatus(event, 404);
     return;
   }
 
-  const user = await getUser(parseInt(params.data.id));
+  const user = await getUser(params.data.id);
 
   if (!user) {
     setHeader(event, 'Content-Type', 'image/webp');
-    return sendStream(
-      event,
-      createReadStream(path.resolve('./public/banner/not_found.webp'))
-    );
+    return sendStream(event, createReadStream('public/banner/not_found.webp'));
   }
 
-  const [
-    { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank },
-    dragonCodes,
-  ] = await Promise.all([getClickStatistics(user.id), getDragonCodes(user.id)]);
+  const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
+    await getData(params.data.id);
 
   const filePath = `/cache/scroll/${user.id}.gif`;
 
@@ -170,7 +155,7 @@ export default defineEventHandler(async (event) => {
     weeklyRank,
     allTimeClicks,
     allTimeRank,
-    dragonCodes
+    dragons
   );
 
   if (await exists(filePath)) {
@@ -184,10 +169,7 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', 'image/webp');
 
-  return sendStream(
-    event,
-    createReadStream(path.resolve('./public/banner/in_progress.webp'))
-  );
+  return sendStream(event, createReadStream('public/banner/in_progress.webp'));
   // little thing: the url ends in .gif but this resource is a .webp.
   // it serves just fine. will the filetype discrepancy be a problem later?
 });

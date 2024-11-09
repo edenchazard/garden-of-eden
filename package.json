@@ -55,7 +55,7 @@
     "autoprefixer": "^10.4.19",
     "drizzle-kit": "^0.24.2",
     "happy-dom": "^14.12.3",
-    "nuxt-cron": "^1.6.0",
+    "nuxt-cron": "^1.7.0",
     "postcss": "^8.4.39",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.4",

@@ -3,9 +3,9 @@ import chokidar from 'chokidar';
 import { exec } from 'child_process';
 
 export default defineNuxtModule({
-  setup(_, nuxt) {
+  setup({ path }, nuxt) {
     exec(
-      `tsc server/workers/**.ts --module esnext --moduleResolution bundler --target esnext`,
+      `tsc ${path}/**.ts --module esnext --moduleResolution bundler --target esnext`,
       (error, stdout, stderr) => {
         if (error) console.error(`Error: ${error.message}`);
         if (stderr) console.error(`stderr: ${stderr}`);
@@ -15,7 +15,7 @@ export default defineNuxtModule({
     );
 
     nuxt.hook('build:before', () => {
-      const watcher = chokidar.watch('server/workers/**/*.ts', {
+      const watcher = chokidar.watch(`${path}/**/*.ts`, {
         ignoreInitial: true,
       });
 
