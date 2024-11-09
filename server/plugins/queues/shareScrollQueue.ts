@@ -5,7 +5,6 @@ import { Worker } from 'worker_threads';
 
 const {
   redis: { host, port },
-  clientSecret,
 } = useRuntimeConfig();
 
 export default defineNitroPlugin(async () => {
@@ -42,28 +41,26 @@ export default defineNitroPlugin(async () => {
     'shareScrollQueue',
     async (job) => {
       const {
-        username,
+        user,
         filePath,
         weeklyClicks,
         weeklyRank,
         allTimeClicks,
         allTimeRank,
         dragonCodes,
-        flairUrl,
       } = job.data;
 
-      console.log('received', username, filePath, 'codes', dragonCodes);
+      console.log('received', user, filePath, 'codes', dragonCodes);
 
       shareScrollWorker.postMessage({
         type: 'banner',
-        username,
+        user,
         filePath,
         weeklyClicks,
         weeklyRank,
         allTimeClicks,
         allTimeRank,
         dragonCodes,
-        flairUrl,
       });
     },
     {

@@ -20,32 +20,30 @@ async function fileExists(filePath: string) {
 parentPort?.on('message', async function (message) {
   if (message.type !== 'banner') return;
   const {
-    username,
+    user,
     filePath,
     weeklyClicks,
     weeklyRank,
     allTimeClicks,
     allTimeRank,
     dragonCodes,
-    flairUrl,
   } = message;
   try {
     await generateBannerToTemporary(
-      username,
+      user,
       filePath,
       weeklyClicks,
       weeklyRank,
       allTimeClicks,
       allTimeRank,
-      dragonCodes,
-      flairUrl
+      dragonCodes
     );
     await moveBannerFromTemporary(filePath);
-    parentPort?.postMessage({ type: 'success', username });
+    parentPort?.postMessage({ type: 'success', user });
   } catch (e) {
-    parentPort?.postMessage({ type: 'error', username, error: e });
+    parentPort?.postMessage({ type: 'error', user, error: e });
   } finally {
-    parentPort?.postMessage({ type: 'jobFinished', username });
+    parentPort?.postMessage({ type: 'jobFinished', user });
   }
 });
 
@@ -120,14 +118,13 @@ async function textToPng(
 // the meat of it
 
 async function generateBannerToTemporary(
-  username: string,
+  user: { id: number; username: string; flairUrl: string | null },
   filePath: string,
   weeklyClicks: number,
   weeklyRank: number | null,
   allTimeClicks: number,
   allTimeRank: number | null,
-  dragonCodes: string[],
-  flairUrl: string | null
+  dragonCodes: string[]
 ) {
   try {
     const outputDir = path.dirname(filePath);
@@ -137,13 +134,14 @@ async function generateBannerToTemporary(
       await getDragonStrip(dragonCodes);
 
     console.log('buffed', stripBuffer);
+
     const bannerBuffer = await getBannerBase(
-      username,
+      user.username,
       weeklyClicks,
       weeklyRank,
       allTimeClicks,
       allTimeRank,
-      flairUrl
+      user.flairUrl
     );
 
     const frames = await createFrames(

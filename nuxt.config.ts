@@ -9,9 +9,9 @@ export default defineNuxtConfig({
     '@nuxtjs/robots',
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
-    'nuxt-security', 
+    'nuxt-security',
     'floating-vue/nuxt',
-    '~/modules/watch-workers', 
+    '~/modules/watch-workers',
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
@@ -50,6 +50,7 @@ export default defineNuxtConfig({
     clientId: process.env.CLIENT_ID ?? '',
     clientSecret: process.env.CLIENT_SECRET,
     nextAuthSecret: process.env.NEXT_SECRET,
+    bannerCacheExpiry: parseInt(process.env.BANNER_CACHE_EXPIRY ?? '1800'),
     db: {
       port: 3306,
       host: process.env.MYSQL_HOST,

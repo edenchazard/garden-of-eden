@@ -12,8 +12,6 @@ import {
 } from '~/database/schema';
 import { DateTime } from 'luxon';
 
-const expiry = import.meta.dev ? 1 : 1000 * 60;
-
 const getClickStatistics = async (userId: number) => {
   const [
     [{ weeklyClicks = 0, weeklyRank = null }],
@@ -62,16 +60,19 @@ const getClickStatistics = async (userId: number) => {
   };
 };
 
-const getFlairUrl = async (userId: number) => {
-  const [{ url }] = await db
+const getUser = async (userId: number) => {
+  const [user] = await db
     .select({
-      url: itemsTable.url,
+      id: userTable.id,
+      username: userTable.username,
+      flairUrl: itemsTable.url,
     })
     .from(userSettingsTable)
+    .innerJoin(userTable, eq(userSettingsTable.user_id, userTable.id))
     .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
     .where(eq(userSettingsTable.user_id, userId));
 
-  return url;
+  return user;
 };
 
 const getDragonCodes = async (userId: number) => {
@@ -95,33 +96,31 @@ async function exists(file: string) {
 }
 
 async function sendJob(
-  username: string,
+  user: { id: number; username: string; flairUrl: string | null },
   filePath: string,
   weeklyClicks: number,
   weeklyRank: number | null,
   allTimeClicks: number,
   allTimeRank: number | null,
-  dragonCodes: string[],
-  flairUrl: string | null
+  dragonCodes: string[]
 ) {
   await shareScrollQueue.add(
     'shareScrollQueue',
     {
-      username,
+      user,
       filePath,
       weeklyClicks,
       weeklyRank,
       allTimeClicks,
       allTimeRank,
       dragonCodes,
-      flairUrl,
     },
     {
       removeOnComplete: false,
       removeOnFail: false,
       deduplication: {
-        id: `banner-${username}`,
-        ttl: expiry,
+        id: `banner-${user.id}`,
+        ttl: useRuntimeConfig().bannerCacheExpiry * 1000,
       },
     }
   );
@@ -129,26 +128,27 @@ async function sendJob(
 
 export default defineEventHandler(async (event) => {
   const schema = z.object({
-    username: z
+    id: z
       .string()
-      .min(2)
-      .max(36)
+      .min(4)
+      .endsWith('.gif')
       .transform((v) => {
         const dotIndex = v.indexOf('.');
         return dotIndex !== -1 ? v.substring(0, dotIndex) : v;
       }),
   });
-  const params = await getValidatedRouterParams(event, schema.parse);
 
-  const [user] = await db
-    .select({ id: userTable.id })
-    .from(userTable)
-    .where(eq(userTable.username, params.username));
+  const params = await getValidatedRouterParams(event, schema.safeParseAsync);
+
+  if (!params.data) {
+    setResponseStatus(event, 404);
+    return;
+  }
+
+  const user = await getUser(parseInt(params.data.id));
 
   if (!user) {
-    setHeaders(event, {
-      'Content-Type': 'image/webp',
-    });
+    setHeader(event, 'Content-Type', 'image/webp');
     return sendStream(
       event,
       createReadStream('/src/public/banner/not_found.webp')
@@ -158,32 +158,27 @@ export default defineEventHandler(async (event) => {
   const [
     { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank },
     dragonCodes,
-    flairUrl,
-  ] = await Promise.all([
-    getClickStatistics(user.id),
-    getDragonCodes(user.id),
-    getFlairUrl(user.id),
-  ]);
-  const filePath = `/cache/scroll/${encodeURIComponent(params.username)}.gif`;
+  ] = await Promise.all([getClickStatistics(user.id), getDragonCodes(user.id)]);
+
+  const filePath = `/cache/scroll/${user.id}.gif`;
 
   // todo later: it might be better to contain all of these variables
   // into a "data" object instead of threading every single one
   // through multiple funcs.
   await sendJob(
-    params.username,
+    user,
     filePath,
     weeklyClicks,
     weeklyRank,
     allTimeClicks,
     allTimeRank,
-    dragonCodes,
-    flairUrl
+    dragonCodes
   );
 
   if (await exists(filePath)) {
     setHeaders(event, {
       'Content-Type': 'image/gif',
-      'Cache-Control': `public, max-age=${expiry / 1000}`,
+      'Cache-Control': `public, max-age=${useRuntimeConfig().bannerCacheExpiry}`,
     });
 
     return sendStream(event, createReadStream(filePath));
