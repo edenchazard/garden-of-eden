@@ -13,10 +13,7 @@ import {
 import { DateTime } from 'luxon';
 
 const getClickStatistics = async (userId: number) => {
-  const [
-    [{ weeklyClicks = 0, weeklyRank = null }],
-    [{ allTimeClicks = 0, allTimeRank = null }],
-  ] = await Promise.all([
+  const [[weekly], [allTime]] = await Promise.all([
     db
       .select({
         weeklyClicks: clicksLeaderboardTable.clicks_given,
@@ -53,10 +50,10 @@ const getClickStatistics = async (userId: number) => {
   // at least it's not throwing
   // i should find out how to pull data from prod.
   return {
-    weeklyClicks,
-    weeklyRank,
-    allTimeClicks,
-    allTimeRank,
+    weeklyClicks: weekly?.weeklyClicks ?? 0,
+    weeklyRank: weekly?.weeklyRank ?? null,
+    allTimeClicks: allTime?.allTimeClicks ?? 0,
+    allTimeRank: allTime?.allTimeRank ?? null,
   };
 };
 
