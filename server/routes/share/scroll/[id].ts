@@ -80,7 +80,11 @@ const getUser = async (userId: number) => {
     user.flairUrl = path.resolve(
       useRuntimeConfig().rootPath,
       'public/items',
-      user.flairUrl
+      user.flairUrl.substring(1)
+      // frustratingly if the final argument of resolve()
+      // starts with a slash, the preceding arguments
+      // don't count. it's been returning just `/saxifrage.png`
+      // until i cut that slash out
     );
   }
 
