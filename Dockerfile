@@ -28,5 +28,6 @@ RUN apt-get update && apt-get install curl -y
 ENV PORT=$PORT
 
 COPY --from=build /src/.output /src/.output
+COPY resources/fonts /usr/share/fonts/
 
 CMD [ "node", ".output/server/index.mjs" ]
