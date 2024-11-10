@@ -90,18 +90,22 @@ async function generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRan
     try {
         const outputDir = path.dirname(filePath);
         await fs.mkdir(outputDir, { recursive: true });
-        const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(dragonCodes);
-        console.log('buffed', stripBuffer);
         const bannerBuffer = await getBannerBase(user.username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, user.flairUrl, resources);
-        const frames = await createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight);
-        const gif = await GIF.createGif({
-            delay: 100,
-            repeat: 0,
-            format: 'rgb444',
-        })
-            .addFrame(frames)
-            .toSharp();
-        await gif.toFile(`${filePath}.tmp`);
+        if (dragonCodes.length > 0) {
+            const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(dragonCodes);
+            const frames = await createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight);
+            const gif = await GIF.createGif({
+                delay: 100,
+                repeat: 0,
+                format: 'rgb444',
+            })
+                .addFrame(frames)
+                .toSharp();
+            await gif.toFile(`${filePath}.tmp`);
+        }
+        else {
+            await sharp(bannerBuffer).gif().toFile(`${filePath}.tmp`);
+        }
     }
     catch (error) {
         console.error('Error in generateBannerToTemporary:', error);
@@ -207,16 +211,6 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
     }
 }
 async function getDragonStrip(dragonIds) {
-    // it's fine for there to be no growing things,
-    // it just means the carousel will be empty.
-    console.log('growing', dragonIds);
-    if (!dragonIds.length) {
-        return {
-            stripBuffer: null,
-            stripWidth: 0,
-            stripHeight: 0,
-        };
-    }
     try {
         const startTime = performance.now();
         console.log('Generating growing images...');
@@ -229,16 +223,18 @@ async function getDragonStrip(dragonIds) {
         }));
         const dragonImages = dragonBuffers.map((buffer) => sharp(buffer));
         const dragonMetadatas = await Promise.all(dragonImages.map((img) => img.metadata()));
-        const totalWidth = dragonMetadatas.reduce((acc, curr) => acc + (curr.width ?? 0) + 1, 0);
-        const stripHeight = 50;
+        const spacing = 2;
+        // how much room between each thing
+        const stripHeight = 49;
         // height will be solid, no point in having it be flexible.
         // plus, dragons too tall will just be cropped
+        const totalWidth = dragonMetadatas.reduce((acc, curr) => acc + (curr.width ?? 0) + spacing, 0);
         const compositeImage = createEmptyFrame(totalWidth, stripHeight);
         const composites = [];
         const xOffsets = [0];
         dragonMetadatas.forEach((metadata) => {
             const prevOffset = xOffsets[xOffsets.length - 1];
-            xOffsets.push(prevOffset + (metadata.width ?? 0) + 1);
+            xOffsets.push(prevOffset + (metadata.width ?? 0) + spacing);
         });
         await Promise.all(dragonImages.map(async (dragonImage, index) => {
             composites.push({
