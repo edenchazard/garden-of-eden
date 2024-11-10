@@ -1,5 +1,5 @@
 import { Worker as BullWorker } from 'bullmq';
-import { promises as fs, watch } from 'fs';
+import { watch } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { Worker } from 'worker_threads';
 
@@ -9,8 +9,6 @@ const {
 } = useRuntimeConfig();
 
 export default defineNitroPlugin(async () => {
-  await fs.mkdir('/cache/scroll', { recursive: true });
-
   const createWorker = () =>
     new Worker('./workers/shareScrollWorker.js', {
       workerData: { username: null, filePath: null },
@@ -50,10 +48,10 @@ export default defineNitroPlugin(async () => {
         weeklyRank,
         allTimeClicks,
         allTimeRank,
-        dragonCodes,
+        dragons,
       } = job.data;
 
-      console.log('received', user, filePath, dragonCodes);
+      console.log('received', user, filePath, dragons);
 
       shareScrollWorker.postMessage({
         type: 'banner',
@@ -63,8 +61,7 @@ export default defineNitroPlugin(async () => {
         weeklyRank,
         allTimeClicks,
         allTimeRank,
-        dragonCodes,
-        resources: '/src/resources',
+        dragons,
         clientSecret,
       });
     },

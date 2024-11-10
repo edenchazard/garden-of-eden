@@ -33,5 +33,5 @@ COPY --from=build /src/package*.json .
 COPY resources/fonts /usr/share/fonts/
 COPY resources/banner resources/banner
 COPY workers/*.js workers/
-RUN npm i sharp sharp-gif2
+RUN npm i sharp sharp-gif2 ofetch
 CMD [ "node", ".output/server/index.mjs" ]

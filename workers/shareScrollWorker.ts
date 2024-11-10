@@ -27,12 +27,10 @@ parentPort?.on('message', async function (message) {
     weeklyRank,
     allTimeClicks,
     allTimeRank,
-    dragonCodes,
-    resources,
+    dragons,
     clientSecret,
   } = message;
   try {
-    console.log('resources', resources);
     await generateBannerToTemporary(
       user,
       filePath,
@@ -40,8 +38,7 @@ parentPort?.on('message', async function (message) {
       weeklyRank,
       allTimeClicks,
       allTimeRank,
-      dragonCodes,
-      resources,
+      dragons,
       clientSecret
     );
     await moveBannerFromTemporary(filePath);
@@ -131,8 +128,7 @@ async function generateBannerToTemporary(
   weeklyRank: number | null,
   allTimeClicks: number,
   allTimeRank: number | null,
-  dragonCodes: string[],
-  resources: string,
+  dragons: string[],
   clientSecret: string
 ) {
   try {
@@ -148,16 +144,15 @@ async function generateBannerToTemporary(
       weeklyRank,
       allTimeClicks,
       allTimeRank,
-      user.flairUrl,
-      resources
+      user.flairUrl
     );
     console.log(`Banner stats generated in ${performance.now() - startTime}ms`);
 
-    if (dragonCodes.length > 0) {
+    if (dragons.length > 0) {
       startTime = performance.now();
       console.log('Generating dragon strip...');
       const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(
-        dragonCodes,
+        dragons,
         clientSecret
       );
       console.log(
@@ -208,8 +203,7 @@ async function getBannerBase(
   weeklyRank: number | null,
   allTimeClicks: number,
   allTimeRank: number | null,
-  flairPath: string | null,
-  resources: string
+  flairPath: string | null
 ) {
   try {
     const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
@@ -217,7 +211,7 @@ async function getBannerBase(
 
     // base
     composites.push({
-      input: path.resolve(resources, 'banner/base.webp'),
+      input: path.resolve('/src/resources/', 'banner/base.webp'),
       top: 0,
       left: 0,
     });

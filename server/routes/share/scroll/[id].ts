@@ -12,6 +12,7 @@ import {
 } from '~/database/schema';
 import { DateTime } from 'luxon';
 import path from 'node:path';
+import type { H3Event } from 'h3';
 
 const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
@@ -77,15 +78,7 @@ const getUser = async (userId: number) => {
   if (!user) return null;
 
   if (user.flairUrl) {
-    user.flairUrl = path.resolve(
-      useRuntimeConfig().rootPath,
-      'public/items',
-      user.flairUrl.substring(1)
-      // frustratingly if the final argument of resolve()
-      // starts with a slash, the preceding arguments
-      // don't count. it's been returning just `/saxifrage.png`
-      // until i cut that slash out
-    );
+    user.flairUrl = path.resolve('/src/resources/public/items/', user.flairUrl);
   }
 
   return user;
@@ -102,13 +95,11 @@ async function exists(file: string) {
 
 async function sendJob(
   user: { id: number; username: string; flairUrl: string | null },
-  filePath: string,
-  weeklyClicks: number,
-  weeklyRank: number | null,
-  allTimeClicks: number,
-  allTimeRank: number | null,
-  dragonCodes: string[]
+  filePath: string
 ) {
+  const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
+    await getData(user.id);
+
   await shareScrollQueue.add(
     'shareScrollQueue',
     {
@@ -118,7 +109,7 @@ async function sendJob(
       weeklyRank,
       allTimeClicks,
       allTimeRank,
-      dragonCodes,
+      dragons,
     },
     {
       removeOnComplete: false,
@@ -131,16 +122,11 @@ async function sendJob(
   );
 }
 
-function sendNotFound(event) {
+function sendNotFound(event: H3Event) {
   setHeader(event, 'Content-Type', 'image/gif');
   return sendStream(
     event,
-    createReadStream(
-      path.resolve(
-        useRuntimeConfig().rootPath,
-        'resources/banner/not_found.gif'
-      )
-    )
+    createReadStream(path.resolve('/src/resources/banner/not_found.gif'))
   );
 }
 
@@ -159,6 +145,16 @@ export default defineEventHandler(async (event) => {
   if (!params.data || !params.success) return sendNotFound(event);
 
   const filePath = `/cache/scroll/${params.data.id}.gif`;
+
+  const user = await getUser(params.data.id);
+
+  if (!user) return sendNotFound(event);
+
+  // todo later: it might be better to contain all of these variables
+  // into a "data" object instead of threading every single one
+  // through multiple funcs.
+  await sendJob(user, filePath);
+
   if (await exists(filePath)) {
     setHeaders(event, {
       'Content-Type': 'image/gif',
@@ -167,34 +163,10 @@ export default defineEventHandler(async (event) => {
     return sendStream(event, createReadStream(filePath));
   }
 
-  const user = await getUser(params.data.id);
-  if (!user) return sendNotFound(event);
-
-  const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
-    await getData(params.data.id);
-
-  // todo later: it might be better to contain all of these variables
-  // into a "data" object instead of threading every single one
-  // through multiple funcs.
-  await sendJob(
-    user,
-    filePath,
-    weeklyClicks,
-    weeklyRank,
-    allTimeClicks,
-    allTimeRank,
-    dragons
-  );
-
   setHeader(event, 'Content-Type', 'image/gif');
 
   return sendStream(
     event,
-    createReadStream(
-      path.resolve(
-        useRuntimeConfig().rootPath,
-        'resources/banner/in_progress.gif'
-      )
-    )
+    createReadStream(path.resolve('/src/resources/banner/in_progress.gif'))
   );
 });

@@ -25,3 +25,5 @@ logs
 
 # Worker js files
 /server/workers/*.js
+
+/resources/public

@@ -19,10 +19,9 @@ async function fileExists(filePath) {
 parentPort?.on('message', async function (message) {
     if (message.type !== 'banner')
         return;
-    const { user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragonCodes, resources, clientSecret, } = message;
+    const { user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret, } = message;
     try {
-        console.log('resources', resources);
-        await generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragonCodes, resources, clientSecret);
+        await generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret);
         await moveBannerFromTemporary(filePath);
         parentPort?.postMessage({ type: 'success', user });
     }
@@ -88,19 +87,19 @@ styles // eg: "fill: white; ..."
     return pngBuffer;
 }
 // the meat of it
-async function generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragonCodes, resources, clientSecret) {
+async function generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret) {
     try {
         const outputDir = path.dirname(filePath);
         await fs.mkdir(outputDir, { recursive: true });
         const totalStartTime = performance.now();
         let startTime = totalStartTime;
         console.log('Generating banner stats...');
-        const bannerBuffer = await getBannerBase(user.username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, user.flairUrl, resources);
+        const bannerBuffer = await getBannerBase(user.username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, user.flairUrl);
         console.log(`Banner stats generated in ${performance.now() - startTime}ms`);
-        if (dragonCodes.length > 0) {
+        if (dragons.length > 0) {
             startTime = performance.now();
             console.log('Generating dragon strip...');
-            const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(dragonCodes, clientSecret);
+            const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(dragons, clientSecret);
             console.log(`Dragon strip generated in ${performance.now() - startTime}ms`);
             console.log('Generating frames...');
             startTime = performance.now();
@@ -132,13 +131,13 @@ async function generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRan
         throw error;
     }
 }
-async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, flairPath, resources) {
+async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, flairPath) {
     try {
         const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
         const composites = [];
         // base
         composites.push({
-            input: path.resolve(resources, 'banner/base.webp'),
+            input: path.resolve('/src/resources/', 'banner/base.webp'),
             top: 0,
             left: 0,
         });
