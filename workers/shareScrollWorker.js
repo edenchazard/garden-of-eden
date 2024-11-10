@@ -27,7 +27,7 @@ parentPort?.on('message', async function (message) {
     }
     catch (e) {
         console.log(e);
-        parentPort?.postMessage({ type: 'error', user, error: e });
+        parentPort?.postMessage({ type: 'error', user, filePath, error: e });
     }
     finally {
         parentPort?.postMessage({ type: 'jobFinished', user });

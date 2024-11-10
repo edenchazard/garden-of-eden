@@ -30,7 +30,8 @@ export default defineNitroPlugin(async () => {
 
       if (message.type === 'error') {
         await shareScrollQueue.removeDeduplicationKey(
-          `banner-${message.username}`
+          `banner-` +
+            message.filePath.substring(message.filePath.lastIndexOf('/') + 1)
         );
       }
     })

@@ -115,7 +115,7 @@ async function sendJob(
       removeOnComplete: false,
       removeOnFail: false,
       deduplication: {
-        id: `banner-${user.id}` + filePath.substring(filePath.lastIndexOf('.')),
+        id: `banner-` + filePath.substring(filePath.lastIndexOf('/') + 1),
         ttl: useRuntimeConfig().bannerCacheExpiry * 1000,
       },
     }
