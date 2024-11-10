@@ -3,6 +3,7 @@ import GIF from 'sharp-gif2';
 import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { ofetch } from 'ofetch';
 
 const baseBannerWidth = 327;
 const baseBannerHeight = 61;
@@ -340,31 +341,27 @@ async function getDragonStrip(dragonIds: string[], clientSecret: string) {
   try {
     let validDragonIds: string[] = [];
 
-    const getAllResponse = await fetch(
+    const {
+      errors,
+      dragons,
+    }: {
+      errors: string[];
+      dragons: Record<string, { hoursleft: number }>;
+    } = await ofetch(
       `https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`,
-      { headers: { Authorization: `Bearer ${clientSecret}` } }
-    );
-    if (!getAllResponse.ok) {
-      throw new Error(
-        'Problem getting bulk dragons: ' +
-          getAllResponse.status +
-          getAllResponse.statusText
-      );
-    } else {
-      const getAllJson: {
-        errors: string[];
-        dragons: Record<string, { hoursleft: number }>;
-      } = await getAllResponse.json();
-      if (getAllJson.errors.length > 0) {
-        throw new Error('Errors getting bulk dragons: ' + getAllJson.errors);
-      } else {
-        validDragonIds = Object.keys(getAllJson.dragons).filter((key) => {
-          return (
-            'hoursleft' in getAllJson.dragons[key] &&
-            getAllJson.dragons[key].hoursleft > 0
-          );
-        });
+      {
+        headers: { Authorization: `Bearer ${clientSecret}` },
+        retry: 3,
+        retryDelay: 1000,
       }
+    );
+
+    if (errors.length > 0) {
+      throw new Error('Errors getting bulk dragons: ' + errors);
+    } else {
+      validDragonIds = Object.keys(dragons).filter((key) => {
+        return 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0;
+      });
     }
 
     // log who got left out. works for fogballs so far.
@@ -376,15 +373,15 @@ async function getDragonStrip(dragonIds: string[], clientSecret: string) {
 
     const dragonBuffers = await Promise.all(
       validDragonIds.map(async (dragonId) => {
-        const response = await fetch(
-          `https://dragcave.net/image/${dragonId}.gif`
+        const response = await ofetch(
+          `https://dragcave.net/image/${dragonId}.gif`,
+          {
+            retry: 3,
+            retryDelay: 1000,
+          }
         );
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch dragon image ${dragonId}: ${response.statusText}`
-          );
-        }
         return Buffer.from(await response.arrayBuffer());
+        // i can't find ofetch documentation for the proper way to fetch as buffer
       })
     );
 
