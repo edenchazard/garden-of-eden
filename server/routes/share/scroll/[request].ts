@@ -156,9 +156,6 @@ export default defineEventHandler(async (event) => {
 
   if (!user) return sendNotFound(event);
 
-  // todo later: it might be better to contain all of these variables
-  // into a "data" object instead of threading every single one
-  // through multiple funcs.
   await sendJob(user, filePath);
 
   if (await exists(filePath)) {
