@@ -115,7 +115,7 @@ async function sendJob(
       removeOnComplete: false,
       removeOnFail: false,
       deduplication: {
-        id: `banner-${user.id}`,
+        id: `banner-${user.id}` + filePath.substring(filePath.lastIndexOf('.')),
         ttl: useRuntimeConfig().bannerCacheExpiry * 1000,
       },
     }
@@ -131,21 +131,27 @@ function sendNotFound(event: H3Event) {
 }
 
 export default defineEventHandler(async (event) => {
-  const schema = z.object({
-    id: z
-      .string()
-      .min(1)
-      .endsWith('.gif')
-      .transform((v) => v.substring(0, v.lastIndexOf('.')))
-      .pipe(z.coerce.number()),
-  });
+  const { request } = getRouterParams(event);
 
-  const params = await getValidatedRouterParams(event, schema.safeParseAsync);
+  const contentTypes = {
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+  };
+
+  const params = await z
+    .object({
+      id: z.string().min(1).pipe(z.coerce.number()),
+      ext: z.union([z.literal('.gif'), z.literal('.webp')]),
+    })
+    .safeParseAsync({
+      id: request.substring(0, request.lastIndexOf('.')),
+      ext: request.substring(request.lastIndexOf('.')),
+    });
 
   if (!params.data || !params.success) return sendNotFound(event);
 
-  const filePath = `/cache/scroll/${params.data.id}.gif`;
-
+  const filePath = `/cache/scroll/${params.data.id}${params.data.ext}`;
+  const contentType = contentTypes[params.data.ext];
   const user = await getUser(params.data.id);
 
   if (!user) return sendNotFound(event);
@@ -157,16 +163,16 @@ export default defineEventHandler(async (event) => {
 
   if (await exists(filePath)) {
     setHeaders(event, {
-      'Content-Type': 'image/gif',
+      'Content-Type': contentType,
       'Cache-Control': `public, max-age=${useRuntimeConfig().bannerCacheExpiry}`,
     });
     return sendStream(event, createReadStream(filePath));
   }
 
-  setHeader(event, 'Content-Type', 'image/gif');
+  setHeader(event, 'Content-Type', contentType);
 
   return sendStream(
     event,
-    createReadStream(path.resolve('/src/resources/banner/in_progress.gif'))
+    createReadStream(`/src/resources/banner/in_progress${params.data.ext}`)
   );
 });
