@@ -134,6 +134,9 @@ async function generateBannerToTemporary(
     const outputDir = path.dirname(filePath);
     await fs.mkdir(outputDir, { recursive: true });
 
+    const totalStartTime = performance.now();
+    let startTime = totalStartTime;
+    console.log('Generating banner stats...');
     const bannerBuffer = await getBannerBase(
       user.username,
       weeklyClicks,
@@ -143,18 +146,29 @@ async function generateBannerToTemporary(
       user.flairUrl,
       resources
     );
+    console.log(`Banner stats generated in ${performance.now() - startTime}ms`);
 
     if (dragonCodes.length > 0) {
+      startTime = performance.now();
+      console.log('Generating dragon strip...');
       const { stripBuffer, stripWidth, stripHeight } =
         await getDragonStrip(dragonCodes);
+      console.log(
+        `Dragon strip generated in ${performance.now() - startTime}ms`
+      );
 
+      console.log('Generating frames...');
+      startTime = performance.now();
       const frames = await createFrames(
         bannerBuffer,
         stripBuffer,
         stripWidth,
         stripHeight
       );
+      console.log(`Frames generated in ${performance.now() - startTime}ms`);
 
+      console.log('Creating and saving the GIF...');
+      startTime = performance.now();
       const gif = await GIF.createGif({
         delay: 100,
         repeat: 0,
@@ -164,9 +178,16 @@ async function generateBannerToTemporary(
         .toSharp();
 
       await gif.toFile(`${filePath}.tmp`);
+      console.log(`GIF saved in ${performance.now() - startTime}`);
     } else {
+      console.log('Creating and saving the GIF...');
+      startTime = performance.now();
       await sharp(bannerBuffer).gif().toFile(`${filePath}.tmp`);
+      console.log(`GIF saved in ${performance.now() - startTime}`);
     }
+    console.log(
+      `Total generation time ${performance.now() - totalStartTime}ms`
+    );
   } catch (error) {
     console.error('Error in generateBannerToTemporary:', error);
     await fs.unlink(`${filePath}.tmp`).catch(() => {});
@@ -184,8 +205,6 @@ async function getBannerBase(
   resources: string
 ) {
   try {
-    const startTime = performance.now();
-    console.log('Generating banner stats...');
     const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
     const composites: sharp.OverlayOptions[] = [];
 
@@ -305,9 +324,6 @@ async function getBannerBase(
       });
     }
 
-    console.log(
-      `Banner stats generated in ${(performance.now() - startTime).toFixed(2)}ms`
-    );
     return await compositeImage.composite(composites).png().toBuffer();
   } catch (error) {
     console.error('Error in getBannerBase:', error);
@@ -317,8 +333,6 @@ async function getBannerBase(
 
 async function getDragonStrip(dragonIds: string[]) {
   try {
-    const startTime = performance.now();
-    console.log('Generating growing images...');
     const dragonBuffers = await Promise.all(
       dragonIds.map(async (dragonId) => {
         const response = await fetch(
@@ -374,9 +388,6 @@ async function getDragonStrip(dragonIds: string[]) {
       .png()
       .toBuffer();
 
-    console.log(
-      `Growing images generated in ${(performance.now() - startTime).toFixed(0)}ms`
-    );
     return {
       stripBuffer,
       stripWidth: totalWidth,
@@ -394,9 +405,6 @@ async function createFrames(
   stripWidth: number,
   stripHeight: number
 ) {
-  const startTime = performance.now();
-  console.log('Generating carousel...');
-
   const framePromises = [];
 
   if (stripWidth < baseCarouselWidth) {
@@ -437,8 +445,6 @@ async function createFrames(
       );
     }
   }
-
-  console.log(`Carousel generated in ${performance.now() - startTime}ms`);
   return Promise.all(framePromises);
 }
 
