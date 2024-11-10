@@ -5,6 +5,7 @@ import { Worker } from 'worker_threads';
 
 const {
   redis: { host, port },
+  clientSecret,
 } = useRuntimeConfig();
 
 export default defineNitroPlugin(async () => {
@@ -64,6 +65,7 @@ export default defineNitroPlugin(async () => {
         allTimeRank,
         dragonCodes,
         resources: '/src/resources',
+        clientSecret,
       });
     },
     {

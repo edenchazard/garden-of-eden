@@ -25,6 +25,7 @@ parentPort?.on('message', async function (message) {
     allTimeRank,
     dragonCodes,
     resources,
+    clientSecret,
   } = message;
   try {
     console.log('resources', resources);
@@ -36,7 +37,8 @@ parentPort?.on('message', async function (message) {
       allTimeClicks,
       allTimeRank,
       dragonCodes,
-      resources
+      resources,
+      clientSecret
     );
     await moveBannerFromTemporary(filePath);
     parentPort?.postMessage({ type: 'success', user });
@@ -113,7 +115,8 @@ async function generateBannerToTemporary(
   allTimeClicks,
   allTimeRank,
   dragonCodes,
-  resources
+  resources,
+  clientSecret
 ) {
   try {
     const outputDir = path.dirname(filePath);
@@ -134,8 +137,10 @@ async function generateBannerToTemporary(
     if (dragonCodes.length > 0) {
       startTime = performance.now();
       console.log('Generating dragon strip...');
-      const { stripBuffer, stripWidth, stripHeight } =
-        await getDragonStrip(dragonCodes);
+      const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(
+        dragonCodes,
+        clientSecret
+      );
       console.log(
         `Dragon strip generated in ${performance.now() - startTime}ms`
       );
@@ -298,10 +303,40 @@ async function getBannerBase(
     throw error;
   }
 }
-async function getDragonStrip(dragonIds) {
+async function getDragonStrip(dragonIds, clientSecret) {
   try {
+    let validDragonIds = [];
+    const getAllResponse = await fetch(
+      `https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`,
+      { headers: { Authorization: `Bearer ${clientSecret}` } }
+    );
+    if (!getAllResponse.ok) {
+      throw new Error(
+        'Problem getting bulk dragons: ' +
+          getAllResponse.status +
+          getAllResponse.statusText
+      );
+    } else {
+      const getAllJson = await getAllResponse.json();
+      if (getAllJson.errors.length > 0) {
+        throw new Error('Errors getting bulk dragons: ' + getAllJson.errors);
+      } else {
+        validDragonIds = Object.keys(getAllJson.dragons).filter((key) => {
+          return (
+            'hoursleft' in getAllJson.dragons[key] &&
+            getAllJson.dragons[key].hoursleft > 0
+          );
+        });
+      }
+    }
+    // log who got left out. works for fogballs so far.
+    dragonIds.forEach((id) => {
+      if (!validDragonIds.find((i) => i === id)) {
+        console.log(`Dragon ${id} was omitted`);
+      }
+    });
     const dragonBuffers = await Promise.all(
-      dragonIds.map(async (dragonId) => {
+      validDragonIds.map(async (dragonId) => {
         const response = await fetch(
           `https://dragcave.net/image/${dragonId}.gif`
         );
