@@ -47,6 +47,7 @@ parentPort?.on('message', async function (message) {
     await moveBannerFromTemporary(filePath);
     parentPort?.postMessage({ type: 'success', user });
   } catch (e) {
+    console.log(e);
     parentPort?.postMessage({ type: 'error', user, error: e });
   } finally {
     parentPort?.postMessage({ type: 'jobFinished', user });

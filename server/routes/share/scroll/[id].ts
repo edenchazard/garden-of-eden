@@ -132,13 +132,13 @@ async function sendJob(
 }
 
 function sendNotFound(event) {
-  setHeader(event, 'Content-Type', 'image/webp');
+  setHeader(event, 'Content-Type', 'image/gif');
   return sendStream(
     event,
     createReadStream(
       path.resolve(
         useRuntimeConfig().rootPath,
-        'resources/banner/not_found.webp'
+        'resources/banner/not_found.gif'
       )
     )
   );
@@ -186,14 +186,14 @@ export default defineEventHandler(async (event) => {
     dragons
   );
 
-  setHeader(event, 'Content-Type', 'image/webp');
+  setHeader(event, 'Content-Type', 'image/gif');
 
   return sendStream(
     event,
     createReadStream(
       path.resolve(
         useRuntimeConfig().rootPath,
-        'resources/banner/in_progress.webp'
+        'resources/banner/in_progress.gif'
       )
     )
   );
