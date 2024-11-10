@@ -131,6 +131,19 @@ async function sendJob(
   );
 }
 
+function sendNotFound(event) {
+  setHeader(event, 'Content-Type', 'image/webp');
+  return sendStream(
+    event,
+    createReadStream(
+      path.resolve(
+        useRuntimeConfig().rootPath,
+        'resources/banner/not_found.webp'
+      )
+    )
+  );
+}
+
 export default defineEventHandler(async (event) => {
   const schema = z.object({
     id: z
@@ -143,30 +156,22 @@ export default defineEventHandler(async (event) => {
 
   const params = await getValidatedRouterParams(event, schema.safeParseAsync);
 
-  if (!params.data || !params.success) {
-    setResponseStatus(event, 404);
-    return;
+  if (!params.data || !params.success) return sendNotFound(event);
+
+  const filePath = `/cache/scroll/${params.data.id}.gif`;
+  if (await exists(filePath)) {
+    setHeaders(event, {
+      'Content-Type': 'image/gif',
+      'Cache-Control': `public, max-age=${useRuntimeConfig().bannerCacheExpiry}`,
+    });
+    return sendStream(event, createReadStream(filePath));
   }
 
   const user = await getUser(params.data.id);
-
-  if (!user) {
-    setHeader(event, 'Content-Type', 'image/webp');
-    return sendStream(
-      event,
-      createReadStream(
-        path.resolve(
-          useRuntimeConfig().rootPath,
-          'resources/banner/not_found.webp'
-        )
-      )
-    );
-  }
+  if (!user) return sendNotFound(event);
 
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(params.data.id);
-
-  const filePath = `/cache/scroll/${user.id}.gif`;
 
   // todo later: it might be better to contain all of these variables
   // into a "data" object instead of threading every single one
@@ -181,15 +186,6 @@ export default defineEventHandler(async (event) => {
     dragons
   );
 
-  if (await exists(filePath)) {
-    setHeaders(event, {
-      'Content-Type': 'image/gif',
-      'Cache-Control': `public, max-age=${useRuntimeConfig().bannerCacheExpiry}`,
-    });
-
-    return sendStream(event, createReadStream(filePath));
-  }
-
   setHeader(event, 'Content-Type', 'image/webp');
 
   return sendStream(
@@ -201,6 +197,4 @@ export default defineEventHandler(async (event) => {
       )
     )
   );
-  // little thing: the url ends in .gif but this resource is a .webp.
-  // it serves just fine. will the filetype discrepancy be a problem later?
 });
