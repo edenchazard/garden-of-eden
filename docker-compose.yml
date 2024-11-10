@@ -5,6 +5,8 @@ services:
     command: node .output/server/index.mjs
     env_file:
       - .env
+    volumes:
+      - caches:/cache
     depends_on:
       - db
     healthcheck:
@@ -56,6 +58,7 @@ services:
 
 volumes:
   dbdata:
+  caches:
 
 networks:
   internal:
