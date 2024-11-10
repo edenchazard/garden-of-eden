@@ -353,6 +353,7 @@ async function getDragonStrip(dragonIds: string[], clientSecret: string) {
         headers: { Authorization: `Bearer ${clientSecret}` },
         retry: 3,
         retryDelay: 1000,
+        timeout: 10000,
       }
     );
 
@@ -378,6 +379,7 @@ async function getDragonStrip(dragonIds: string[], clientSecret: string) {
           {
             retry: 3,
             retryDelay: 1000,
+            timeout: 10000,
           }
         );
         return Buffer.from(await response.arrayBuffer());
