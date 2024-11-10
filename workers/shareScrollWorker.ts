@@ -356,7 +356,7 @@ async function getDragonStrip(dragonIds: string[], clientSecret: string) {
       throw new Error('Errors getting bulk dragons: ' + errors);
     } else {
       validDragonIds = Object.keys(dragons).filter((key) => {
-        return 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0;
+        return dragons[key]?.hoursleft > 0;
       });
     }
 
