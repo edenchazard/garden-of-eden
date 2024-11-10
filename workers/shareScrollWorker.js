@@ -227,7 +227,7 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
 }
 async function getDragonStrip(dragonIds, clientSecret) {
     try {
-        let validDragonIds = [];
+        const validDragonIds = [];
         const { errors, dragons, } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
             headers: { Authorization: `Bearer ${clientSecret}` },
             retry: 3,
@@ -238,9 +238,7 @@ async function getDragonStrip(dragonIds, clientSecret) {
             throw new Error('Errors getting bulk dragons: ' + errors);
         }
         else {
-            validDragonIds = Object.keys(dragons).filter((key) => {
-                return 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0;
-            });
+            validDragonIds.push(...Object.keys(dragons).filter((key) => 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0));
         }
         // log who got left out. works for fogballs so far.
         dragonIds.forEach((id) => {

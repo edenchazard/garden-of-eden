@@ -334,7 +334,7 @@ async function getBannerBase(
 
 async function getDragonStrip(dragonIds: string[], clientSecret: string) {
   try {
-    let validDragonIds: string[] = [];
+    const validDragonIds: string[] = [];
 
     const {
       errors,
@@ -355,9 +355,11 @@ async function getDragonStrip(dragonIds: string[], clientSecret: string) {
     if (errors.length > 0) {
       throw new Error('Errors getting bulk dragons: ' + errors);
     } else {
-      validDragonIds = Object.keys(dragons).filter((key) => {
-        return dragons[key]?.hoursleft > 0;
-      });
+      validDragonIds.push(
+        ...Object.keys(dragons).filter(
+          (key) => 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0
+        )
+      );
     }
 
     // log who got left out. works for fogballs so far.
