@@ -249,13 +249,13 @@ async function getDragonStrip(dragonIds, clientSecret) {
             }
         });
         const dragonBuffers = await Promise.all(validDragonIds.map(async (dragonId) => {
-            const response = await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
+            const dragonBuffer = await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
                 retry: 3,
                 retryDelay: 1000,
                 timeout: 10000,
+                responseType: 'arrayBuffer',
             });
-            return Buffer.from(await response.arrayBuffer());
-            // i can't find ofetch documentation for the proper way to fetch as buffer
+            return Buffer.from(dragonBuffer);
         }));
         const dragonImages = dragonBuffers.map((buffer) => sharp(buffer));
         const dragonMetadatas = await Promise.all(dragonImages.map((img) => img.metadata()));
