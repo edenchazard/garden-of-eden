@@ -314,13 +314,9 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
     length: 24,
   }),
   dragons_included: json('dragons_included')
-    .$type<string[]>()
-    .notNull()
-    .default([]),
+    .$type<string[]>(),
   dragons_omitted: json('dragons_omitted')
-    .$type<string[]>()
-    .notNull()
-    .default([]),
+    .$type<string[]>(),
   stat_gen_time: mediumint('stat_gen_time', { unsigned: true }),
   dragon_fetch_time: mediumint('dragon_fetch_time', { unsigned: true }),
   dragon_gen_time: mediumint('dragon_gen_time', { unsigned: true }),
