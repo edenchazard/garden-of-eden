@@ -3,7 +3,7 @@ import GIF from 'sharp-gif2';
 import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { ofetch } from 'ofetch';
+import { ofetch, FetchError } from 'ofetch';
 const baseBannerWidth = 327;
 const baseBannerHeight = 61;
 const baseCarouselWidth = 106;
@@ -20,9 +20,30 @@ parentPort?.on('message', async function (message) {
     if (message.type !== 'banner')
         return;
     const { user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret, } = message;
+    let performanceData = {
+        // initialize every timing stat with null, filling them in
+        // one by one after each of the funcs do their things.
+        // let's use null for funcs that never ran (in case of error),
+        // and 0 for funcs that needn't run (in case of no carousel/frames)?
+        statGenTime: null,
+        dragonFetchTime: null,
+        dragonGenTime: null,
+        frameGenTime: null,
+        gifGenTime: null,
+        totalTime: null,
+        error: null,
+    };
     try {
-        await generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret);
-        await moveBannerFromTemporary(filePath);
+        // bannergen will take perfdata as an argument and write to it
+        performanceData = await generateBannerToTemporary(performanceData, user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret);
+        // i moved moveBannerFromTemporary() into generateBannerToTemporary()
+        // because i wanted any error it threw to be caught in there, too
+        // and recorded to the error field of the perfdata.
+        if (performanceData.error) {
+            // TODO: if error is dc api error, post message requesting retry
+            // else rethrow so catch handles it and posts error
+            throw performanceData.error;
+        }
         parentPort?.postMessage({ type: 'success', user });
     }
     catch (e) {
@@ -30,7 +51,9 @@ parentPort?.on('message', async function (message) {
         parentPort?.postMessage({ type: 'error', user, filePath, error: e });
     }
     finally {
-        parentPort?.postMessage({ type: 'jobFinished', user });
+        // since we need the performance data in EVERY case,
+        // it'll only be passed in the jobFinished message.
+        parentPort?.postMessage({ type: 'jobFinished', user, performanceData });
     }
 });
 async function moveBannerFromTemporary(filePath) {
@@ -45,68 +68,30 @@ async function moveBannerFromTemporary(filePath) {
         throw error;
     }
 }
-// utils
-function createEmptyFrame(width, height) {
-    return sharp({
-        create: {
-            width,
-            height,
-            channels: 4,
-            background: { r: 0, g: 0, b: 0, alpha: 0 },
-        },
-    });
-}
-async function textToPng(text, font, // eg. "16px Alkhemikal"
-styles // eg: "fill: white; ..."
-) {
-    const { width, height } = await sharp(Buffer.from(`<svg>
-        <text style="font: ${font};">${text}</text>
-      </svg>`))
-        .png()
-        .metadata();
-    // make a dummy png with the text,
-    // the text renders ABOVE the viewport which isn't what we want,
-    // (and sharp doesn't support the dominant-baseline property!)
-    // and there's no way for a svg to grab its own children's dimensions,
-    // so the purpose of this dummy is to provide the raw dimensions of the text.
-    const pngBuffer = await sharp(Buffer.from(`<svg width="${(width ?? 0) + 1}" height="${(height ?? 0) + 4}">
-        <style>
-          .text {
-            font: ${font};
-            filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.25));
-            ${styles}
-          }
-        </style>
-        <text y="${(height ?? 0) + 1}" class="text">${text}</text>
-      </svg>`))
-        .png()
-        .toBuffer();
-    // the real deal is here. it uses the dummy-given dimensions
-    // to push down the text into the viewport at an appropriate distance
-    // and adds spacing to accomodate the text-shadow.
-    return pngBuffer;
-}
-// the meat of it
-async function generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret) {
+async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret) {
+    let startTime = performance.now();
+    const start = () => {
+        startTime = performance.now();
+    };
+    const end = () => performance.now() - startTime;
     try {
         const outputDir = path.dirname(filePath);
         await fs.mkdir(outputDir, { recursive: true });
-        const totalStartTime = performance.now();
-        let startTime = totalStartTime;
-        console.log('Generating banner stats...');
+        const totalStartTime = startTime;
+        start();
         const bannerBuffer = await getBannerBase(user.username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, user.flairUrl);
-        console.log(`Banner stats generated in ${performance.now() - startTime}ms`);
+        perfData.statGenTime = end();
         if (dragons.length > 0) {
-            startTime = performance.now();
-            console.log('Generating dragon strip...');
-            const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(dragons, clientSecret);
-            console.log(`Dragon strip generated in ${performance.now() - startTime}ms`);
-            console.log('Generating frames...');
-            startTime = performance.now();
+            start();
+            const dragonBuffers = await getDragonBuffers(dragons, clientSecret);
+            perfData.dragonFetchTime = end();
+            start();
+            const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(dragonBuffers);
+            perfData.dragonGenTime = end();
+            start();
             const frames = await createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight);
-            console.log(`Frames generated in ${performance.now() - startTime}ms`);
-            console.log('Creating and saving the GIF...');
-            startTime = performance.now();
+            perfData.frameGenTime = end();
+            start();
             const gif = await GIF.createGif({
                 delay: 100,
                 repeat: 0,
@@ -115,21 +100,24 @@ async function generateBannerToTemporary(user, filePath, weeklyClicks, weeklyRan
                 .addFrame(frames)
                 .toSharp();
             await gif.toFile(`${filePath}.tmp`);
-            console.log(`GIF saved in ${performance.now() - startTime}`);
+            perfData.gifGenTime = end();
         }
         else {
-            console.log('Creating and saving the GIF...');
-            startTime = performance.now();
+            perfData.dragonFetchTime = 0;
+            perfData.dragonGenTime = 0;
+            perfData.frameGenTime = 0;
+            start();
             await sharp(bannerBuffer).gif().toFile(`${filePath}.tmp`);
-            console.log(`GIF saved in ${performance.now() - startTime}`);
+            perfData.gifGenTime = end();
         }
-        console.log(`Total generation time ${performance.now() - totalStartTime}ms`);
+        perfData.totalTime = performance.now() - totalStartTime;
+        await moveBannerFromTemporary(filePath);
     }
     catch (error) {
-        console.error('Error in generateBannerToTemporary:', error);
+        perfData.error = error;
         await fs.unlink(`${filePath}.tmp`).catch(() => { });
-        throw error;
     }
+    return perfData;
 }
 async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, flairPath) {
     try {
@@ -225,7 +213,7 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
         throw error;
     }
 }
-async function getDragonStrip(dragonIds, clientSecret) {
+async function getDragonBuffers(dragonIds, clientSecret) {
     try {
         const validDragonIds = [];
         const { errors, dragons, } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
@@ -236,16 +224,11 @@ async function getDragonStrip(dragonIds, clientSecret) {
         });
         if (errors.length > 0) {
             throw new Error('Errors getting bulk dragons: ' + errors);
+            // todo: trigger retry from here. somehow
         }
         else {
             validDragonIds.push(...Object.keys(dragons).filter((key) => 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0));
         }
-        // log who got left out. works for fogballs so far.
-        dragonIds.forEach((id) => {
-            if (!validDragonIds.find((i) => i === id)) {
-                console.log(`Dragon ${id} was omitted`);
-            }
-        });
         const dragonBuffers = await Promise.all(validDragonIds.map(async (dragonId) => {
             const dragonBuffer = await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
                 retry: 3,
@@ -255,42 +238,50 @@ async function getDragonStrip(dragonIds, clientSecret) {
             });
             return Buffer.from(dragonBuffer);
         }));
-        const dragonImages = dragonBuffers.map((buffer) => sharp(buffer));
-        const dragonMetadatas = await Promise.all(dragonImages.map((img) => img.metadata()));
-        const spacing = 2;
-        // how much room between each thing
-        const stripHeight = 49;
-        // height will be solid, no point in having it be flexible.
-        // plus, dragons too tall will just be cropped
-        const totalWidth = dragonMetadatas.reduce((acc, curr) => acc + (curr.width ?? 0) + spacing, 0);
-        const compositeImage = createEmptyFrame(totalWidth, stripHeight);
-        const composites = [];
-        const xOffsets = [0];
-        dragonMetadatas.forEach((metadata) => {
-            const prevOffset = xOffsets[xOffsets.length - 1];
-            xOffsets.push(prevOffset + (metadata.width ?? 0) + spacing);
-        });
-        await Promise.all(dragonImages.map(async (dragonImage, index) => {
-            composites.push({
-                input: await dragonImage.toBuffer(),
-                top: stripHeight - (dragonMetadatas[index].height ?? 0),
-                left: xOffsets[index],
-            });
-        }));
-        const stripBuffer = await compositeImage
-            .composite(composites)
-            .png()
-            .toBuffer();
-        return {
-            stripBuffer,
-            stripWidth: totalWidth,
-            stripHeight,
-        };
+        return dragonBuffers;
     }
     catch (error) {
-        console.error('Error in getDragonStrip:', error);
+        if (error instanceof FetchError) {
+            // todo: handle the fetch error specifically
+            console.log(error.name, error.status);
+        }
         throw error;
     }
+}
+async function getDragonStrip(dragonBuffers) {
+    const dragonMetadatas = await Promise.all(dragonBuffers.map((buf) => {
+        const img = sharp(buf);
+        return img.metadata();
+    }));
+    const spacing = 2;
+    // how much room between each thing
+    const stripHeight = 49;
+    // height will be solid, no point in having it be flexible.
+    // plus, dragons too tall will just be cropped
+    const totalWidth = dragonMetadatas.reduce((acc, curr) => acc + (curr.width ?? 0) + spacing, 0);
+    const compositeImage = createEmptyFrame(totalWidth, stripHeight);
+    const composites = [];
+    const xOffsets = [0];
+    dragonMetadatas.forEach((metadata) => {
+        const prevOffset = xOffsets[xOffsets.length - 1];
+        xOffsets.push(prevOffset + (metadata.width ?? 0) + spacing);
+    });
+    await Promise.all(dragonBuffers.map(async (dragonBuffer, index) => {
+        composites.push({
+            input: dragonBuffer,
+            top: stripHeight - (dragonMetadatas[index].height ?? 0),
+            left: xOffsets[index],
+        });
+    }));
+    const stripBuffer = await compositeImage
+        .composite(composites)
+        .png()
+        .toBuffer();
+    return {
+        stripBuffer,
+        stripWidth: totalWidth,
+        stripHeight,
+    };
 }
 async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) {
     const framePromises = [];
@@ -321,6 +312,47 @@ async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) 
         }
     }
     return Promise.all(framePromises);
+}
+// utils
+function createEmptyFrame(width, height) {
+    return sharp({
+        create: {
+            width,
+            height,
+            channels: 4,
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+        },
+    });
+}
+async function textToPng(text, font, // eg. "16px Alkhemikal"
+styles // eg: "fill: white; ..."
+) {
+    const { width, height } = await sharp(Buffer.from(`<svg>
+        <text style="font: ${font};">${text}</text>
+      </svg>`))
+        .png()
+        .metadata();
+    // make a dummy png with the text,
+    // the text renders ABOVE the viewport which isn't what we want,
+    // (and sharp doesn't support the dominant-baseline property!)
+    // and there's no way for a svg to grab its own children's dimensions,
+    // so the purpose of this dummy is to provide the raw dimensions of the text.
+    const pngBuffer = await sharp(Buffer.from(`<svg width="${(width ?? 0) + 1}" height="${(height ?? 0) + 4}">
+        <style>
+          .text {
+            font: ${font};
+            filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.25));
+            ${styles}
+          }
+        </style>
+        <text y="${(height ?? 0) + 1}" class="text">${text}</text>
+      </svg>`))
+        .png()
+        .toBuffer();
+    // the real deal is here. it uses the dummy-given dimensions
+    // to push down the text into the viewport at an appropriate distance
+    // and adds spacing to accomodate the text-shadow.
+    return pngBuffer;
 }
 async function createFrame(scrollPosition, bannerBuffer, dragonStripBuffer, stripWidth, stripHeight) {
     const cropX = scrollPosition % stripWidth;

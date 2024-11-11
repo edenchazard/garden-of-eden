@@ -26,7 +26,9 @@ export default defineNitroPlugin(async () => {
 
   shareScrollWorker
     .on('message', async (message) => {
-      console.log('MESSAGE FROM WORKER', message);
+      if (message.type === 'jobFinished') {
+        console.log('Job finished with stats: ', message.performanceData);
+      }
 
       if (message.type === 'error') {
         await shareScrollQueue.removeDeduplicationKey(
