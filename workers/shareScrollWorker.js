@@ -36,6 +36,7 @@ parentPort?.on('message', async function (message) {
         totalTime: null,
         error: null,
     };
+    let retryFlag = false;
     try {
         // bannergen will take perfdata as an argument and write to it
         performanceData = await generateBannerToTemporary(performanceData, user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret);
@@ -43,15 +44,21 @@ parentPort?.on('message', async function (message) {
         // because i wanted any error it threw to be caught in there, too
         // and recorded to the error field of the perfdata.
         if (performanceData.error) {
-            // TODO: if error is dc api error, post message requesting retry
-            // else rethrow so catch handles it and posts error
+            if (performanceData.error === 'API FAIL, RETRY')
+                retryFlag = true;
             throw performanceData.error;
         }
         parentPort?.postMessage({ type: 'success', user });
     }
     catch (e) {
         console.log(e);
-        parentPort?.postMessage({ type: 'error', user, filePath, error: e });
+        parentPort?.postMessage({
+            type: 'error',
+            user,
+            filePath,
+            error: e,
+            retry: retryFlag,
+        });
     }
     finally {
         // since we need the performance data in EVERY case,
@@ -117,7 +124,7 @@ async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks,
         await moveBannerFromTemporary(filePath);
     }
     catch (error) {
-        perfData.error = error;
+        perfData.error = error !== 'API FAIL, RETRY' ? error : 'API FAIL, RETRY';
         await fs.unlink(`${filePath}.tmp`).catch(() => { });
     }
     return perfData;
@@ -218,12 +225,13 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
 }
 async function getDragonBuffers(dragonIds, clientSecret) {
     try {
+        const timeout = 10000;
         const validDragonIds = [];
         const { errors, dragons, } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
             headers: { Authorization: `Bearer ${clientSecret}` },
             retry: 3,
             retryDelay: 1000,
-            timeout: 10000,
+            timeout,
         });
         if (errors.length > 0) {
             throw new Error('Errors getting bulk dragons: ' + errors);
@@ -236,7 +244,7 @@ async function getDragonBuffers(dragonIds, clientSecret) {
             const dragonBuffer = await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
                 retry: 3,
                 retryDelay: 1000,
-                timeout: 10000,
+                timeout,
                 responseType: 'arrayBuffer',
             });
             return Buffer.from(dragonBuffer);
@@ -245,8 +253,11 @@ async function getDragonBuffers(dragonIds, clientSecret) {
     }
     catch (error) {
         if (error instanceof FetchError) {
-            // todo: handle the fetch error specifically
-            console.log(error.name, error.status);
+            const code = error.cause?.code ?? 0;
+            if (code === 23)
+                throw 'API FAIL, RETRY';
+            // actually, thinking on this i can post a message
+            // to parentPort right here instead?
         }
         throw error;
     }

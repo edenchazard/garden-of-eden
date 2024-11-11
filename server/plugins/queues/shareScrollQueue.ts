@@ -54,6 +54,10 @@ export default defineNitroPlugin(async () => {
           `banner-` +
             message.filePath.substring(message.filePath.lastIndexOf('/') + 1)
         );
+
+        if (message.retry) {
+          // ... i can't figure out how to fail and retry a job by hand?
+        }
       }
     })
     .on('error', (message) => {
