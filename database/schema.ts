@@ -295,7 +295,7 @@ export const purchasesTable = mysqlTable('purchases', {
 export const bannerJobTable = mysqlTable('banner_jobs', {
   id: bigint('id', {
     unsigned: true,
-    mode: 'number'
+    mode: 'number',
   })
     .autoincrement()
     .primaryKey(),
