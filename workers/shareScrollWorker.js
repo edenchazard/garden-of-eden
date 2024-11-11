@@ -20,7 +20,7 @@ parentPort?.on('message', async function (message) {
     if (message.type !== 'banner')
         return;
     const { user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret, } = message;
-    let performanceData = {
+    const performanceData = {
         // initialize every timing stat with null, filling them in
         // one by one after each of the funcs do their things.
         // let's use null for funcs that never ran (in case of error),
@@ -41,7 +41,7 @@ parentPort?.on('message', async function (message) {
     let retryFlag = false;
     try {
         // bannergen will take perfdata as an argument and write to it
-        performanceData = await generateBannerToTemporary(performanceData, user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret);
+        Object.assign(performanceData, await generateBannerToTemporary(performanceData, user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret));
         // i moved moveBannerFromTemporary() into generateBannerToTemporary()
         // because i wanted any error it threw to be caught in there, too
         // and recorded to the error field of the perfdata.
