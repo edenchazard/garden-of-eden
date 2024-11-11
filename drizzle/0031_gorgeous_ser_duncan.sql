@@ -1,0 +1,1 @@
+ALTER TABLE `banner_jobs` RENAME COLUMN `generated_on` TO `created_at`;

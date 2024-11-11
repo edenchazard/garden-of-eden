@@ -12,6 +12,7 @@ import {
   tinyint,
   unique,
   varchar,
+  text,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
 
@@ -292,7 +293,7 @@ export const purchasesTable = mysqlTable('purchases', {
     .notNull(),
 });
 
-export const bannerJobTable = mysqlTable('banner_jobs', {
+export const bannerJobsTable = mysqlTable('banner_jobs', {
   id: bigint('id', {
     unsigned: true,
     mode: 'number',
@@ -309,17 +310,25 @@ export const bannerJobTable = mysqlTable('banner_jobs', {
   username: varchar('username', {
     length: 32,
   }).notNull(),
-  flair_name: varchar('flair_name', {
+  flair_path: varchar('flair_path', {
     length: 24,
   }),
+  dragons_included: json('dragons_included')
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  dragons_omitted: json('dragons_omitted')
+    .$type<string[]>()
+    .notNull()
+    .default([]),
   stat_gen_time: mediumint('stat_gen_time', { unsigned: true }),
   dragon_fetch_time: mediumint('dragon_fetch_time', { unsigned: true }),
   dragon_gen_time: mediumint('dragon_gen_time', { unsigned: true }),
   frame_gen_time: mediumint('frame_gen_time', { unsigned: true }),
   gif_gen_time: mediumint('gif_gen_time', { unsigned: true }),
   total_time: mediumint('total_time', { unsigned: true }),
-  // error: what format should error be, since it can be anything? just a string?
-  generated_on: datetime('generated_on', { mode: 'date' })
+  error: text('error'),
+  created_at: datetime('created_at', { mode: 'date' })
     .default(sql`NOW()`)
     .notNull(),
 });
