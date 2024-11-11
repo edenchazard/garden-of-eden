@@ -292,6 +292,25 @@ export const purchasesTable = mysqlTable('purchases', {
     .notNull(),
 });
 
+export const bannerJobTable = mysqlTable('banner_jobs', {
+  id: bigint('id', {
+    unsigned: true,
+    mode: 'number'
+  })
+    .autoincrement()
+    .primaryKey(),
+  user_id: mediumint('user_id', {
+    unsigned: true,
+  })
+    .references(() => userTable.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  generated_on: datetime('generated_on', { mode: 'date' })
+    .default(sql`NOW()`)
+    .notNull(),
+});
+
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   gardenFrequency: (schema) =>
     schema.gardenFrequency.min(15).max(300).default(30),

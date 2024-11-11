@@ -2,6 +2,8 @@ import { Worker as BullWorker } from 'bullmq';
 import { watch } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { Worker } from 'worker_threads';
+import { db } from '~/server/db';
+import { bannerJobTable } from '~/database/schema';
 
 const {
   redis: { host, port },
@@ -31,6 +33,9 @@ export default defineNitroPlugin(async () => {
         // well, since an error can be ANYTHING, how can it be stored in db?
         // stringify the whole error, callstack and all?
         // or keep only the message string?
+        await db.insert(bannerJobTable).values({
+          user_id: message.user.id,
+        });
       }
 
       if (message.type === 'error') {
