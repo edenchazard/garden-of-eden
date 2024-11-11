@@ -3,7 +3,7 @@ import { watch } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { Worker } from 'worker_threads';
 import { db } from '~/server/db';
-import { bannerJobTable } from '~/database/schema';
+import { bannerJobsTable } from '~/database/schema';
 
 const {
   redis: { host, port },
@@ -33,10 +33,12 @@ export default defineNitroPlugin(async () => {
     .on('message', async (message) => {
       if (message.type === 'jobFinished') {
         console.log('Job finished with stats: ', message.performanceData);
-        await db.insert(bannerJobTable).values({
+        await db.insert(bannerJobsTable).values({
           user_id: message.user.id,
           username: message.user.username,
           flair_name: message.user.flair_id,
+          dragons_included: message.performanceData.dragonsIncluded,
+          dragons_omitted: message.performanceData.dragonsOmitted,
           stat_gen_time: round(message.performanceData.statGenTime),
           dragon_fetch_time: round(message.performanceData.dragonFetchTime),
           dragon_gen_time: round(message.performanceData.dragonGenTime),
@@ -54,10 +56,6 @@ export default defineNitroPlugin(async () => {
           `banner-` +
             message.filePath.substring(message.filePath.lastIndexOf('/') + 1)
         );
-
-        if (message.retry) {
-          // ... i can't figure out how to fail and retry a job by hand?
-        }
       }
     })
     .on('error', (message) => {

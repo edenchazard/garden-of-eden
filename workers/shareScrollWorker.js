@@ -28,6 +28,8 @@ parentPort?.on('message', async function (message) {
         // this way, if we look at the row of a job that errored,
         // if the error text alone doesn't help us locate it,
         // we can still deduce from the null columns which function errored
+        dragonsIncluded: null,
+        dragonsOmitted: null,
         statGenTime: null,
         dragonFetchTime: null,
         dragonGenTime: null,
@@ -93,8 +95,10 @@ async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks,
         perfData.statGenTime = end();
         if (dragons.length > 0) {
             start();
-            const dragonBuffers = await getDragonBuffers(dragons, clientSecret);
+            const { dragonsIncluded, dragonsOmitted, dragonBuffers } = await getDragonBuffers(dragons, clientSecret);
             perfData.dragonFetchTime = end();
+            perfData.dragonsIncluded = dragonsIncluded;
+            perfData.dragonsOmitted = dragonsOmitted;
             start();
             const { stripBuffer, stripWidth, stripHeight } = await getDragonStrip(dragonBuffers);
             perfData.dragonGenTime = end();
@@ -113,6 +117,8 @@ async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks,
             perfData.gifGenTime = end();
         }
         else {
+            perfData.dragonsIncluded = [];
+            perfData.dragonsOmitted = [];
             perfData.dragonFetchTime = 0;
             perfData.dragonGenTime = 0;
             perfData.frameGenTime = 0;
@@ -226,7 +232,8 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
 async function getDragonBuffers(dragonIds, clientSecret) {
     try {
         const timeout = 10000;
-        const validDragonIds = [];
+        const dragonsIncluded = [];
+        const dragonsOmitted = [];
         const { errors, dragons, } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
             headers: { Authorization: `Bearer ${clientSecret}` },
             retry: 3,
@@ -235,12 +242,18 @@ async function getDragonBuffers(dragonIds, clientSecret) {
         });
         if (errors.length > 0) {
             throw new Error('Errors getting bulk dragons: ' + errors);
-            // todo: trigger retry from here. somehow
         }
         else {
-            validDragonIds.push(...Object.keys(dragons).filter((key) => 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0));
+            Object.keys(dragons).forEach((key) => {
+                if ('hoursleft' in dragons[key] && dragons[key].hoursleft > 0) {
+                    dragonsIncluded.push(key);
+                }
+                else {
+                    dragonsOmitted.push(key);
+                }
+            });
         }
-        const dragonBuffers = await Promise.all(validDragonIds.map(async (dragonId) => {
+        const dragonBuffers = await Promise.all(dragonsIncluded.map(async (dragonId) => {
             const dragonBuffer = await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
                 retry: 3,
                 retryDelay: 1000,
@@ -249,15 +262,15 @@ async function getDragonBuffers(dragonIds, clientSecret) {
             });
             return Buffer.from(dragonBuffer);
         }));
-        return dragonBuffers;
+        return {
+            dragonsIncluded,
+            dragonsOmitted,
+            dragonBuffers,
+        };
     }
     catch (error) {
         if (error instanceof FetchError) {
-            const code = error.cause?.code ?? 0;
-            if (code === 23)
-                throw 'API FAIL, RETRY';
-            // actually, thinking on this i can post a message
-            // to parentPort right here instead?
+            // todo: just rethink this
         }
         throw error;
     }
