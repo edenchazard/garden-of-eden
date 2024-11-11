@@ -46,6 +46,9 @@ parentPort?.on('message', async function (message) {
     // one by one after each of the funcs do their things.
     // let's use null for funcs that never ran (in case of error),
     // and 0 for funcs that needn't run (in case of no carousel/frames)?
+    // this way, if we look at the row of a job that errored,
+    // if the error text alone doesn't help us locate it,
+    // we can still deduce from the null columns which function errored
     statGenTime: null,
     dragonFetchTime: null,
     dragonGenTime: null,

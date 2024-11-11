@@ -28,6 +28,9 @@ export default defineNitroPlugin(async () => {
     .on('message', async (message) => {
       if (message.type === 'jobFinished') {
         console.log('Job finished with stats: ', message.performanceData);
+        // well, since an error can be ANYTHING, how can it be stored in db?
+        // stringify the whole error, callstack and all?
+        // or keep only the message string?
       }
 
       if (message.type === 'error') {
