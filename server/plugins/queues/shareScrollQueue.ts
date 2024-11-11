@@ -10,6 +10,9 @@ const {
   clientSecret,
 } = useRuntimeConfig();
 
+const round = (num: number | null) =>
+  num !== null ? parseInt(num.toFixed(0)) : null;
+
 export default defineNitroPlugin(async () => {
   const createWorker = () =>
     new Worker('./workers/shareScrollWorker.js', {
@@ -30,11 +33,19 @@ export default defineNitroPlugin(async () => {
     .on('message', async (message) => {
       if (message.type === 'jobFinished') {
         console.log('Job finished with stats: ', message.performanceData);
-        // well, since an error can be ANYTHING, how can it be stored in db?
-        // stringify the whole error, callstack and all?
-        // or keep only the message string?
         await db.insert(bannerJobTable).values({
           user_id: message.user.id,
+          username: message.user.username,
+          flair_name: message.user.flair_id,
+          stat_gen_time: round(message.performanceData.statGenTime),
+          dragon_fetch_time: round(message.performanceData.dragonFetchTime),
+          dragon_gen_time: round(message.performanceData.dragonGenTime),
+          frame_gen_time: round(message.performanceData.frameGenTime),
+          gif_gen_time: round(message.performanceData.gifGenTime),
+          total_time: round(message.performanceData.totalTime),
+          // since an error can be anything, how can it be stored in db?
+          // stringify the whole error, callstack and all?
+          // or keep only the message string?
         });
       }
 

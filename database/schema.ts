@@ -306,6 +306,19 @@ export const bannerJobTable = mysqlTable('banner_jobs', {
       onDelete: 'cascade',
     })
     .notNull(),
+  username: varchar('username', {
+    length: 32,
+  }).notNull(),
+  flair_name: varchar('flair_name', {
+    length: 24,
+  }),
+  stat_gen_time: mediumint('stat_gen_time', { unsigned: true }),
+  dragon_fetch_time: mediumint('dragon_fetch_time', { unsigned: true }),
+  dragon_gen_time: mediumint('dragon_gen_time', { unsigned: true }),
+  frame_gen_time: mediumint('frame_gen_time', { unsigned: true }),
+  gif_gen_time: mediumint('gif_gen_time', { unsigned: true }),
+  total_time: mediumint('total_time', { unsigned: true }),
+  // error: what format should error be, since it can be anything? just a string?
   generated_on: datetime('generated_on', { mode: 'date' })
     .default(sql`NOW()`)
     .notNull(),
