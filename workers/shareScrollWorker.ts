@@ -66,23 +66,26 @@ parentPort?.on('message', async function (message) {
 
   try {
     // bannergen will take perfdata as an argument and write to it
-    Object.assign(performanceData, await generateBannerToTemporary(
+    Object.assign(
       performanceData,
-      user,
-      filePath,
-      weeklyClicks,
-      weeklyRank,
-      allTimeClicks,
-      allTimeRank,
-      dragons,
-      clientSecret
-    ));
+      await generateBannerToTemporary(
+        performanceData,
+        user,
+        filePath,
+        weeklyClicks,
+        weeklyRank,
+        allTimeClicks,
+        allTimeRank,
+        dragons,
+        clientSecret
+      )
+    );
     // i moved moveBannerFromTemporary() into generateBannerToTemporary()
     // because i wanted any error it threw to be caught in there, too
     // and recorded to the error field of the perfdata.
 
     if (performanceData.error) {
-      if (performanceData.error === 'API FAIL, RETRY') retryFlag = true;
+      if (performanceData.error === 'API Timeout') retryFlag = true;
       throw performanceData.error;
     }
 
@@ -101,6 +104,8 @@ parentPort?.on('message', async function (message) {
     // it'll only be passed in the jobFinished message.
     parentPort?.postMessage({ type: 'jobFinished', user, performanceData });
   }
+
+  if (retryFlag) throw new Error('API Timeout, Retry');
 });
 
 async function moveBannerFromTemporary(filePath: string) {
@@ -194,7 +199,7 @@ async function generateBannerToTemporary(
     perfData.totalTime = performance.now() - totalStartTime;
     await moveBannerFromTemporary(filePath);
   } catch (error) {
-    perfData.error = error !== 'API FAIL, RETRY' ? error : 'API FAIL, RETRY';
+    perfData.error = error === 23 ? 'API Timeout' : error;
     await fs.unlink(`${filePath}.tmp`).catch(() => {});
   }
 
@@ -339,6 +344,7 @@ async function getBannerBase(
 async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
   try {
     const timeout = 10000;
+    // change to 1 to force timeout
     const dragonsIncluded: string[] = [];
     const dragonsOmitted: string[] = [];
 
@@ -391,7 +397,8 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
     };
   } catch (error) {
     if (error instanceof FetchError) {
-      // todo: just rethink this
+      const code = (error.cause as { code: number })?.code ?? 0;
+      if (code === 23) throw 23;
     }
     throw error;
   }

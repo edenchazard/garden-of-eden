@@ -46,7 +46,7 @@ parentPort?.on('message', async function (message) {
         // because i wanted any error it threw to be caught in there, too
         // and recorded to the error field of the perfdata.
         if (performanceData.error) {
-            if (performanceData.error === 'API FAIL, RETRY')
+            if (performanceData.error === 'API Timeout')
                 retryFlag = true;
             throw performanceData.error;
         }
@@ -67,6 +67,8 @@ parentPort?.on('message', async function (message) {
         // it'll only be passed in the jobFinished message.
         parentPort?.postMessage({ type: 'jobFinished', user, performanceData });
     }
+    if (retryFlag)
+        throw new Error('API Timeout, Retry');
 });
 async function moveBannerFromTemporary(filePath) {
     try {
@@ -130,7 +132,7 @@ async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks,
         await moveBannerFromTemporary(filePath);
     }
     catch (error) {
-        perfData.error = error !== 'API FAIL, RETRY' ? error : 'API FAIL, RETRY';
+        perfData.error = error === 23 ? 'API Timeout' : error;
         await fs.unlink(`${filePath}.tmp`).catch(() => { });
     }
     return perfData;
@@ -232,6 +234,7 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
 async function getDragonBuffers(dragonIds, clientSecret) {
     try {
         const timeout = 10000;
+        // change to 1 to force timeout
         const dragonsIncluded = [];
         const dragonsOmitted = [];
         const { errors, dragons, } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
@@ -270,7 +273,9 @@ async function getDragonBuffers(dragonIds, clientSecret) {
     }
     catch (error) {
         if (error instanceof FetchError) {
-            // todo: just rethink this
+            const code = error.cause?.code ?? 0;
+            if (code === 23)
+                throw 23;
         }
         throw error;
     }

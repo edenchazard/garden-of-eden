@@ -313,10 +313,8 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   flair_path: varchar('flair_path', {
     length: 24,
   }),
-  dragons_included: json('dragons_included')
-    .$type<string[]>(),
-  dragons_omitted: json('dragons_omitted')
-    .$type<string[]>(),
+  dragons_included: json('dragons_included').$type<string[]>(),
+  dragons_omitted: json('dragons_omitted').$type<string[]>(),
   stat_gen_time: mediumint('stat_gen_time', { unsigned: true }),
   dragon_fetch_time: mediumint('dragon_fetch_time', { unsigned: true }),
   dragon_gen_time: mediumint('dragon_gen_time', { unsigned: true }),

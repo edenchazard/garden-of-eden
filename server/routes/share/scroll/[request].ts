@@ -118,6 +118,11 @@ async function sendJob(
         id: `banner-` + filePath.substring(filePath.lastIndexOf('/') + 1),
         ttl: useRuntimeConfig().bannerCacheExpiry * 1000,
       },
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 1,
+      },
     }
   );
 }
