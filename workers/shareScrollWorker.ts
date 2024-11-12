@@ -4,22 +4,11 @@ import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
+import type { PerformanceData, WorkerInput } from './shareScrollWorkerTypes';
 
 const baseBannerWidth = 327;
 const baseBannerHeight = 61;
 const baseCarouselWidth = 106;
-
-type PerformanceData = {
-  dragonsIncluded: string[] | null;
-  dragonsOmitted: string[] | null;
-  statGenTime: number | null; // placing numbers on the base
-  dragonFetchTime: number | null; // fetching dragon imgs from server
-  dragonGenTime: number | null; // placing dragon imgs on a strip
-  frameGenTime: number | null; // generating frames for carousel
-  gifGenTime: number | null; // putting it all together and creating the gif
-  totalTime: number | null;
-  error: unknown; // any error that occurred on the way
-};
 
 async function fileExists(filePath: string) {
   try {
@@ -30,18 +19,8 @@ async function fileExists(filePath: string) {
   }
 }
 
-parentPort?.on('message', async function (message) {
-  if (message.type !== 'banner') return;
-  const {
-    user,
-    filePath,
-    weeklyClicks,
-    weeklyRank,
-    allTimeClicks,
-    allTimeRank,
-    dragons,
-    clientSecret,
-  } = message;
+parentPort?.on('message', async function (message: WorkerInput) {
+  const { user, filePath } = message;
 
   const performanceData: PerformanceData = {
     // initialize every timing stat with null, filling them in
@@ -68,17 +47,7 @@ parentPort?.on('message', async function (message) {
     // bannergen will take perfdata as an argument and write to it
     Object.assign(
       performanceData,
-      await generateBannerToTemporary(
-        performanceData,
-        user,
-        filePath,
-        weeklyClicks,
-        weeklyRank,
-        allTimeClicks,
-        allTimeRank,
-        dragons,
-        clientSecret
-      )
+      await generateBannerToTemporary(performanceData, message)
     );
     // i moved moveBannerFromTemporary() into generateBannerToTemporary()
     // because i wanted any error it threw to be caught in there, too
@@ -122,14 +91,7 @@ async function moveBannerFromTemporary(filePath: string) {
 
 async function generateBannerToTemporary(
   perfData: PerformanceData,
-  user: { id: number; username: string; flairUrl: string | null },
-  filePath: string,
-  weeklyClicks: number,
-  weeklyRank: number | null,
-  allTimeClicks: number,
-  allTimeRank: number | null,
-  dragons: string[],
-  clientSecret: string
+  input: WorkerInput
 ) {
   let startTime = performance.now();
   const start = () => {
@@ -138,25 +100,18 @@ async function generateBannerToTemporary(
   const end = () => performance.now() - startTime;
 
   try {
-    const outputDir = path.dirname(filePath);
+    const outputDir = path.dirname(input.filePath);
     await fs.mkdir(outputDir, { recursive: true });
     const totalStartTime = startTime;
 
     start();
-    const bannerBuffer = await getBannerBase(
-      user.username,
-      weeklyClicks,
-      weeklyRank,
-      allTimeClicks,
-      allTimeRank,
-      user.flairUrl
-    );
+    const bannerBuffer = await getBannerBase(input);
     perfData.statGenTime = end();
 
-    if (dragons.length > 0) {
+    if (input.dragons.length > 0) {
       start();
       const { dragonsIncluded, dragonsOmitted, dragonBuffers } =
-        await getDragonBuffers(dragons, clientSecret);
+        await getDragonBuffers(input.dragons, input.clientSecret);
       perfData.dragonFetchTime = end();
       perfData.dragonsIncluded = dragonsIncluded;
       perfData.dragonsOmitted = dragonsOmitted;
@@ -183,7 +138,7 @@ async function generateBannerToTemporary(
       })
         .addFrame(frames)
         .toSharp();
-      await gif.toFile(`${filePath}.tmp`);
+      await gif.toFile(`${input.filePath}.tmp`);
       perfData.gifGenTime = end();
     } else {
       perfData.dragonsIncluded = [];
@@ -193,27 +148,20 @@ async function generateBannerToTemporary(
       perfData.frameGenTime = 0;
 
       start();
-      await sharp(bannerBuffer).gif().toFile(`${filePath}.tmp`);
+      await sharp(bannerBuffer).gif().toFile(`${input.filePath}.tmp`);
       perfData.gifGenTime = end();
     }
     perfData.totalTime = performance.now() - totalStartTime;
-    await moveBannerFromTemporary(filePath);
+    await moveBannerFromTemporary(input.filePath);
   } catch (error) {
     perfData.error = error === 23 ? 'API Timeout' : error;
-    await fs.unlink(`${filePath}.tmp`).catch(() => {});
+    await fs.unlink(`${input.filePath}.tmp`).catch(() => {});
   }
 
   return perfData;
 }
 
-async function getBannerBase(
-  username: string,
-  weeklyClicks: number,
-  weeklyRank: number | null,
-  allTimeClicks: number,
-  allTimeRank: number | null,
-  flairPath: string | null
-) {
+async function getBannerBase(input: WorkerInput) {
   try {
     const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
     const composites: sharp.OverlayOptions[] = [];
@@ -227,7 +175,7 @@ async function getBannerBase(
 
     // scrollname
     const usernamePng = await textToPng(
-      username,
+      input.user.username,
       '16px Alkhemikal',
       'fill: #dff6f5;'
     );
@@ -241,8 +189,8 @@ async function getBannerBase(
     });
 
     // flair
-    if (flairPath) {
-      const flairImage = sharp(flairPath)
+    if (input.user.flairPath) {
+      const flairImage = sharp(input.user.flairPath)
         .greyscale()
         .threshold(255)
         .composite([
@@ -256,7 +204,7 @@ async function getBannerBase(
             tile: true,
             blend: 'dest-in',
           },
-          { input: flairPath, left: -1, top: -1 },
+          { input: input.user.flairPath, left: -1, top: -1 },
           // actually, this cuts off the top and left
           // of the flair image. fiddling with the `left` and `top`
           // of either composite input did not keep the shadow.
@@ -299,10 +247,10 @@ async function getBannerBase(
       compositeAllTimeClicks,
       compositeAllTimeRank,
     ] = await Promise.all([
-      statText('Weekly Clicks', weeklyClicks),
-      weeklyRank ? rankText(weeklyRank) : null,
-      statText('All-time Clicks', allTimeClicks),
-      allTimeRank ? rankText(allTimeRank) : null,
+      statText('Weekly Clicks', input.weeklyClicks),
+      input.weeklyRank ? rankText(input.weeklyRank) : null,
+      statText('All-time Clicks', input.allTimeClicks),
+      input.allTimeRank ? rankText(input.allTimeRank) : null,
     ]);
 
     composites.push(

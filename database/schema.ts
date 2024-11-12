@@ -300,7 +300,7 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   })
     .autoincrement()
     .primaryKey(),
-  user_id: mediumint('user_id', {
+  userId: mediumint('user_id', {
     unsigned: true,
   })
     .references(() => userTable.id, {
@@ -310,19 +310,19 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   username: varchar('username', {
     length: 32,
   }).notNull(),
-  flair_path: varchar('flair_path', {
+  flairPath: varchar('flair_path', {
     length: 24,
   }),
-  dragons_included: json('dragons_included').$type<string[]>(),
-  dragons_omitted: json('dragons_omitted').$type<string[]>(),
-  stat_gen_time: mediumint('stat_gen_time', { unsigned: true }),
-  dragon_fetch_time: mediumint('dragon_fetch_time', { unsigned: true }),
-  dragon_gen_time: mediumint('dragon_gen_time', { unsigned: true }),
-  frame_gen_time: mediumint('frame_gen_time', { unsigned: true }),
-  gif_gen_time: mediumint('gif_gen_time', { unsigned: true }),
-  total_time: mediumint('total_time', { unsigned: true }),
+  dragonsIncluded: json('dragons_included').$type<string[]>(),
+  dragonsOmitted: json('dragons_omitted').$type<string[]>(),
+  statGenTime: mediumint('stat_gen_time', { unsigned: true }),
+  dragonFetchTime: mediumint('dragon_fetch_time', { unsigned: true }),
+  dragonGenTime: mediumint('dragon_gen_time', { unsigned: true }),
+  frameGenTime: mediumint('frame_gen_time', { unsigned: true }),
+  gifGenTime: mediumint('gif_gen_time', { unsigned: true }),
+  totalTime: mediumint('total_time', { unsigned: true }),
   error: text('error'),
-  created_at: datetime('created_at', { mode: 'date' })
+  createdAt: datetime('created_at', { mode: 'date' })
     .default(sql`NOW()`)
     .notNull(),
 });

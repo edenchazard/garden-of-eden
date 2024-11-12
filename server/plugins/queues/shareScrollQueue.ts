@@ -4,6 +4,12 @@ import { shareScrollQueue } from '~/server/queue';
 import { Worker } from 'worker_threads';
 import { db } from '~/server/db';
 import { bannerJobsTable } from '~/database/schema';
+import type {
+  WorkerInput,
+  WorkerFinished,
+  WorkerResponse,
+  WorkerError,
+} from '~/workers/shareScrollWorkerTypes';
 
 const {
   redis: { host, port },
@@ -12,6 +18,14 @@ const {
 
 const round = (num: number | null) =>
   num !== null ? parseInt(num.toFixed(0)) : null;
+
+function isJobFinished(message: WorkerResponse): message is WorkerFinished {
+  return message.type === 'jobFinished';
+}
+
+function isJobError(message: WorkerResponse): message is WorkerError {
+  return message.type === 'error';
+}
 
 export default defineNitroPlugin(async () => {
   const createWorker = () =>
@@ -30,28 +44,30 @@ export default defineNitroPlugin(async () => {
   }
 
   shareScrollWorker
-    .on('message', async (message) => {
-      if (message.type === 'jobFinished') {
+    .on('message', async (message: WorkerResponse) => {
+      if (isJobFinished(message)) {
         console.log('Job finished with stats: ', message.performanceData);
+
         await db.insert(bannerJobsTable).values({
-          user_id: message.user.id,
+          userId: message.user.id,
           username: message.user.username,
-          flair_name: message.user.flair_id,
-          dragons_included: message.performanceData.dragonsIncluded,
-          dragons_omitted: message.performanceData.dragonsOmitted,
-          stat_gen_time: round(message.performanceData.statGenTime),
-          dragon_fetch_time: round(message.performanceData.dragonFetchTime),
-          dragon_gen_time: round(message.performanceData.dragonGenTime),
-          frame_gen_time: round(message.performanceData.frameGenTime),
-          gif_gen_time: round(message.performanceData.gifGenTime),
-          total_time: round(message.performanceData.totalTime),
+          flairPath: message.user.flairPath,
+          dragonsIncluded: message.performanceData.dragonsIncluded,
+          dragonsOmitted: message.performanceData.dragonsOmitted,
+          statGenTime: round(message.performanceData.statGenTime),
+          dragonFetchTime: round(message.performanceData.dragonFetchTime),
+          dragonGenTime: round(message.performanceData.dragonGenTime),
+          frameGenTime: round(message.performanceData.frameGenTime),
+          gifGenTime: round(message.performanceData.gifGenTime),
+          totalTime: round(message.performanceData.totalTime),
           // since an error can be anything, how can it be stored in db?
           // stringify the whole error, callstack and all?
           // or keep only the message string?
         });
+        return;
       }
 
-      if (message.type === 'error') {
+      if (isJobError(message)) {
         await shareScrollQueue.removeDeduplicationKey(
           `banner-` +
             message.filePath.substring(message.filePath.lastIndexOf('/') + 1)
@@ -62,30 +78,13 @@ export default defineNitroPlugin(async () => {
       console.log('error', message);
     });
 
-  new BullWorker(
+  new BullWorker<WorkerInput>(
     'shareScrollQueue',
     async (job) => {
-      const {
-        user,
-        filePath,
-        weeklyClicks,
-        weeklyRank,
-        allTimeClicks,
-        allTimeRank,
-        dragons,
-      } = job.data;
-
-      console.log('received', user, filePath, dragons);
+      console.log('received', job.data);
 
       shareScrollWorker.postMessage({
-        type: 'banner',
-        user,
-        filePath,
-        weeklyClicks,
-        weeklyRank,
-        allTimeClicks,
-        allTimeRank,
-        dragons,
+        ...job.data,
         clientSecret,
       });
     },

@@ -17,9 +17,7 @@ async function fileExists(filePath) {
     }
 }
 parentPort?.on('message', async function (message) {
-    if (message.type !== 'banner')
-        return;
-    const { user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret, } = message;
+    const { user, filePath } = message;
     const performanceData = {
         // initialize every timing stat with null, filling them in
         // one by one after each of the funcs do their things.
@@ -41,7 +39,7 @@ parentPort?.on('message', async function (message) {
     let retryFlag = false;
     try {
         // bannergen will take perfdata as an argument and write to it
-        Object.assign(performanceData, await generateBannerToTemporary(performanceData, user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret));
+        Object.assign(performanceData, await generateBannerToTemporary(performanceData, message));
         // i moved moveBannerFromTemporary() into generateBannerToTemporary()
         // because i wanted any error it threw to be caught in there, too
         // and recorded to the error field of the perfdata.
@@ -82,22 +80,22 @@ async function moveBannerFromTemporary(filePath) {
         throw error;
     }
 }
-async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons, clientSecret) {
+async function generateBannerToTemporary(perfData, input) {
     let startTime = performance.now();
     const start = () => {
         startTime = performance.now();
     };
     const end = () => performance.now() - startTime;
     try {
-        const outputDir = path.dirname(filePath);
+        const outputDir = path.dirname(input.filePath);
         await fs.mkdir(outputDir, { recursive: true });
         const totalStartTime = startTime;
         start();
-        const bannerBuffer = await getBannerBase(user.username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, user.flairUrl);
+        const bannerBuffer = await getBannerBase(input);
         perfData.statGenTime = end();
-        if (dragons.length > 0) {
+        if (input.dragons.length > 0) {
             start();
-            const { dragonsIncluded, dragonsOmitted, dragonBuffers } = await getDragonBuffers(dragons, clientSecret);
+            const { dragonsIncluded, dragonsOmitted, dragonBuffers } = await getDragonBuffers(input.dragons, input.clientSecret);
             perfData.dragonFetchTime = end();
             perfData.dragonsIncluded = dragonsIncluded;
             perfData.dragonsOmitted = dragonsOmitted;
@@ -115,7 +113,7 @@ async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks,
             })
                 .addFrame(frames)
                 .toSharp();
-            await gif.toFile(`${filePath}.tmp`);
+            await gif.toFile(`${input.filePath}.tmp`);
             perfData.gifGenTime = end();
         }
         else {
@@ -125,19 +123,19 @@ async function generateBannerToTemporary(perfData, user, filePath, weeklyClicks,
             perfData.dragonGenTime = 0;
             perfData.frameGenTime = 0;
             start();
-            await sharp(bannerBuffer).gif().toFile(`${filePath}.tmp`);
+            await sharp(bannerBuffer).gif().toFile(`${input.filePath}.tmp`);
             perfData.gifGenTime = end();
         }
         perfData.totalTime = performance.now() - totalStartTime;
-        await moveBannerFromTemporary(filePath);
+        await moveBannerFromTemporary(input.filePath);
     }
     catch (error) {
         perfData.error = error === 23 ? 'API Timeout' : error;
-        await fs.unlink(`${filePath}.tmp`).catch(() => { });
+        await fs.unlink(`${input.filePath}.tmp`).catch(() => { });
     }
     return perfData;
 }
-async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, flairPath) {
+async function getBannerBase(input) {
     try {
         const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
         const composites = [];
@@ -148,7 +146,7 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
             left: 0,
         });
         // scrollname
-        const usernamePng = await textToPng(username, '16px Alkhemikal', 'fill: #dff6f5;');
+        const usernamePng = await textToPng(input.user.username, '16px Alkhemikal', 'fill: #dff6f5;');
         const { height: usernameHeight, width: usernameWidth } = await sharp(usernamePng).metadata();
         composites.push({
             input: usernamePng,
@@ -156,8 +154,8 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
             left: 118,
         });
         // flair
-        if (flairPath) {
-            const flairImage = sharp(flairPath)
+        if (input.user.flairPath) {
+            const flairImage = sharp(input.user.flairPath)
                 .greyscale()
                 .threshold(255)
                 .composite([
@@ -171,7 +169,7 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
                     tile: true,
                     blend: 'dest-in',
                 },
-                { input: flairPath, left: -1, top: -1 },
+                { input: input.user.flairPath, left: -1, top: -1 },
                 // actually, this cuts off the top and left
                 // of the flair image. fiddling with the `left` and `top`
                 // of either composite input did not keep the shadow.
@@ -196,10 +194,10 @@ async function getBannerBase(username, weeklyClicks, weeklyRank, allTimeClicks, 
       `, '8px Nokia Cellphone FC', '');
         // stats
         const [compositeWeeklyClicks, compositeWeeklyRank, compositeAllTimeClicks, compositeAllTimeRank,] = await Promise.all([
-            statText('Weekly Clicks', weeklyClicks),
-            weeklyRank ? rankText(weeklyRank) : null,
-            statText('All-time Clicks', allTimeClicks),
-            allTimeRank ? rankText(allTimeRank) : null,
+            statText('Weekly Clicks', input.weeklyClicks),
+            input.weeklyRank ? rankText(input.weeklyRank) : null,
+            statText('All-time Clicks', input.allTimeClicks),
+            input.allTimeRank ? rankText(input.allTimeRank) : null,
         ]);
         composites.push({
             input: compositeWeeklyClicks,
