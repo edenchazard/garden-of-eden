@@ -1,1 +1,0 @@
-ALTER TABLE `banner_jobs` ADD `error` text;

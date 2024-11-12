@@ -1,1 +1,0 @@
-ALTER TABLE `banner_jobs` RENAME COLUMN `flair_name` TO `flair_path`;

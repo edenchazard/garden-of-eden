@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "2ff87164-4601-44a0-a36f-a9d4c95a3091",
+  "id": "c0c85401-2655-41a4-b18e-b5eed551f064",
   "prevId": "4d634e0f-4d52-404c-94e1-e9767b05c3a4",
   "tables": {
     "banner_jobs": {
@@ -21,8 +21,85 @@
           "notNull": true,
           "autoincrement": false
         },
-        "generated_on": {
-          "name": "generated_on",
+        "username": {
+          "name": "username",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "flair_path": {
+          "name": "flair_path",
+          "type": "varchar(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dragons_included": {
+          "name": "dragons_included",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dragons_omitted": {
+          "name": "dragons_omitted",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "stat_gen_time": {
+          "name": "stat_gen_time",
+          "type": "mediumint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dragon_fetch_time": {
+          "name": "dragon_fetch_time",
+          "type": "mediumint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dragon_gen_time": {
+          "name": "dragon_gen_time",
+          "type": "mediumint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "frame_gen_time": {
+          "name": "frame_gen_time",
+          "type": "mediumint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "gif_gen_time": {
+          "name": "gif_gen_time",
+          "type": "mediumint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "total_time": {
+          "name": "total_time",
+          "type": "mediumint unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
           "type": "datetime",
           "primaryKey": false,
           "notNull": true,

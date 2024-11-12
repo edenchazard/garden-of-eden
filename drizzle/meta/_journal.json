@@ -152,57 +152,8 @@
     {
       "idx": 25,
       "version": "5",
-      "when": 1731297678146,
-      "tag": "0025_ambiguous_lady_ursula",
-      "breakpoints": true
-    },
-    {
-      "idx": 26,
-      "version": "5",
-      "when": 1731299210349,
-      "tag": "0026_flawless_warlock",
-      "breakpoints": true
-    },
-    {
-      "idx": 27,
-      "version": "5",
-      "when": 1731299334611,
-      "tag": "0027_fantastic_fantastic_four",
-      "breakpoints": true
-    },
-    {
-      "idx": 28,
-      "version": "5",
-      "when": 1731353817900,
-      "tag": "0028_lyrical_unus",
-      "breakpoints": true
-    },
-    {
-      "idx": 29,
-      "version": "5",
-      "when": 1731353863029,
-      "tag": "0029_cynical_ben_parker",
-      "breakpoints": true
-    },
-    {
-      "idx": 30,
-      "version": "5",
-      "when": 1731353983979,
-      "tag": "0030_chemical_vindicator",
-      "breakpoints": true
-    },
-    {
-      "idx": 31,
-      "version": "5",
-      "when": 1731354059178,
-      "tag": "0031_gorgeous_ser_duncan",
-      "breakpoints": true
-    },
-    {
-      "idx": 32,
-      "version": "5",
-      "when": 1731361036826,
-      "tag": "0032_groovy_legion",
+      "when": 1731434175399,
+      "tag": "0025_zippy_living_lightning",
       "breakpoints": true
     }
   ]
