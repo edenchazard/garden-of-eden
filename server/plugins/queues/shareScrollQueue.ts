@@ -10,6 +10,7 @@ import type {
 
 const {
   redis: { host, port },
+  clientSecret
 } = useRuntimeConfig();
 
 const round = (num: number | null) =>
@@ -43,13 +44,15 @@ export default defineNitroPlugin(async () => {
     .on('failed', async (job) => {
       if (!job) return;
 
-      // currently, failures not occurring in bannergen, where failures
-      // are always caught and recorded in the perfdata error field,
-      // end up in this block and not recorded in the db.
-      // this includes api failures.
-      // should ALL failures be inserted to db anyway?
       console.error(`Bannergen job failed: `, job.failedReason);
       console.error(job.stacktrace.join('\n'));
+      await db.insert(bannerJobsTable).values({
+        userId: job.data.user.id,
+        username: job.data.user.username,
+        flairPath: job.data.user.flairUrl,
+        dragonsIncluded: job.data.dragons,
+        error: job.failedReason
+      });
       await shareScrollQueue.removeDeduplicationKey(
         `banner-` +
           job.data.filePath.substring(job.data.filePath.lastIndexOf('/') + 1)
@@ -70,7 +73,7 @@ export default defineNitroPlugin(async () => {
       await db.insert(bannerJobsTable).values({
         userId: job.returnvalue.user.id,
         username: job.returnvalue.user.username,
-        flairPath: job.returnvalue.user.flairPath,
+        flairPath: job.returnvalue.user.flairUrl,
         dragonsIncluded: job.returnvalue.performanceData.dragonsIncluded,
         dragonsOmitted: job.returnvalue.performanceData.dragonsOmitted,
         statGenTime: round(job.returnvalue.performanceData.statGenTime),
@@ -79,6 +82,7 @@ export default defineNitroPlugin(async () => {
         frameGenTime: round(job.returnvalue.performanceData.frameGenTime),
         gifGenTime: round(job.returnvalue.performanceData.gifGenTime),
         totalTime: round(job.returnvalue.performanceData.totalTime),
+        error: JSON.stringify(job.returnvalue.performanceData.error)
       });
     });
 

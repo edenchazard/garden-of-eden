@@ -17,7 +17,7 @@ export const shareScrollQueue = new Queue('shareScrollQueue', {
     host,
     port: Number(port),
   },
-}).on('waiting', (job) => {
-  job.updateData({ ...job.data, clientSecret });
-  console.log('shareScrollQueue waiting', job.id);
+}).on('waiting', async (job) => {
+  await job.updateData({ ...job.data, clientSecret });
+  // console.log(job.data.clientSecret);
 });

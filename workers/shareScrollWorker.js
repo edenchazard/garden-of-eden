@@ -1,21 +1,20 @@
 import sharp from 'sharp';
 import GIF from 'sharp-gif2';
-// import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 export default async function bannerGen(job) {
     console.info('Bannergen started for user: ', job.data.user);
+    console.log(job.data);
     const perfData = await generateBannerToTemporary(job.data);
-    if (perfData.error) {
-        if (perfData.error === 'API Timeout')
-            throw new Error(perfData.error);
-        else
-            console.error(perfData.error);
-    }
+    if (perfData.error === 'API Timeout')
+        throw new Error(perfData.error);
+    else
+        console.error(perfData.error);
     return {
-        ...job.data.user,
-        ...perfData,
+        type: "jobFinished" /* WorkerResponseType.jobFinished */,
+        user: job.data.user,
+        performanceData: perfData,
     };
 }
 const baseBannerWidth = 327;
