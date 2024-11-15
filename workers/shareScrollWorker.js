@@ -108,7 +108,7 @@ async function getBannerBase(input) {
         });
         // flair
         if (input.user.flairPath) {
-            const flairPath = path.resolve('/src/resources/public/', input.user.flairPath);
+            const flairPath = path.resolve('/src/resources/public', input.user.flairPath);
             const flairImage = sharp(flairPath)
                 .greyscale()
                 .threshold(255)

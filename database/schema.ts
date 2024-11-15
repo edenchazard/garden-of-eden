@@ -311,7 +311,7 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
     length: 32,
   }).notNull(),
   flairPath: varchar('flair_path', {
-    length: 24,
+    length: 100,
   }),
   dragonsIncluded: json('dragons_included').$type<string[]>(),
   dragonsOmitted: json('dragons_omitted').$type<string[]>(),

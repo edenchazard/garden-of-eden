@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "c0c85401-2655-41a4-b18e-b5eed551f064",
+  "id": "3c3bda27-40dd-4ea3-b299-d9c4bce3017c",
   "prevId": "4d634e0f-4d52-404c-94e1-e9767b05c3a4",
   "tables": {
     "banner_jobs": {
@@ -30,7 +30,7 @@
         },
         "flair_path": {
           "name": "flair_path",
-          "type": "varchar(24)",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

@@ -2,7 +2,7 @@ CREATE TABLE `banner_jobs` (
 	`id` bigint unsigned AUTO_INCREMENT NOT NULL,
 	`user_id` mediumint unsigned NOT NULL,
 	`username` varchar(32) NOT NULL,
-	`flair_path` varchar(24),
+	`flair_path` varchar(100),
 	`dragons_included` json,
 	`dragons_omitted` json,
 	`stat_gen_time` mediumint unsigned,

@@ -144,7 +144,7 @@ async function getBannerBase(input: WorkerInput) {
     // flair
     if (input.user.flairPath) {
       const flairPath = path.resolve(
-        '/src/resources/public/',
+        '/src/resources/public',
         input.user.flairPath
       );
       const flairImage = sharp(flairPath)

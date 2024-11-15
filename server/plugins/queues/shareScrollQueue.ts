@@ -59,8 +59,8 @@ export default defineNitroPlugin(async () => {
       }
 
       console.log(
-        'Bannergen job for user ',
-        job.data.user,
+        'Bannergen job ',
+        job.data,
         ' completed in ',
         round(job.returnvalue.performanceData.totalTime),
         'ms'
