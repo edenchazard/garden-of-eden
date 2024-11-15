@@ -13,6 +13,7 @@ import {
 import { DateTime } from 'luxon';
 import path from 'node:path';
 import type { H3Event } from 'h3';
+import type { User } from '~/workers/shareScrollWorkerTypes';
 
 const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
@@ -68,7 +69,7 @@ const getUser = async (userId: number) => {
     .select({
       id: userTable.id,
       username: userTable.username,
-      flairUrl: itemsTable.url,
+      flairPath: itemsTable.url,
     })
     .from(userTable)
     .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
@@ -77,8 +78,8 @@ const getUser = async (userId: number) => {
 
   if (!user) return null;
 
-  if (user.flairUrl) {
-    user.flairUrl = path.resolve('/src/resources/public/items/', user.flairUrl);
+  if (user.flairPath) {
+    user.flairPath = `items/${user.flairPath}`;
   }
 
   return user;
@@ -93,10 +94,21 @@ async function exists(file: string) {
   }
 }
 
-async function sendJob(
-  user: { id: number; username: string; flairUrl: string | null },
-  filePath: string
-) {
+async function sendJob(user: User, filePath: string) {
+  const { bannerCacheExpiry, clientSecret } = useRuntimeConfig();
+  const expires = bannerCacheExpiry * 1000;
+  const jobId = `banner-` + filePath.substring(filePath.lastIndexOf('/') + 1);
+
+  // We don't want to rerun these queries if not enough time has passed.
+  const existingJob = await shareScrollQueue.getJob(jobId);
+
+  if (existingJob && Date.now() - existingJob.timestamp < expires) {
+    console.log('not met expiry threshold yet.');
+    return;
+  } else {
+    existingJob?.remove();
+  }
+
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(user.id);
 
@@ -110,15 +122,11 @@ async function sendJob(
       allTimeClicks,
       allTimeRank,
       dragons,
-      clientSecret: useRuntimeConfig().clientSecret,
+      clientSecret,
     },
     {
-      removeOnComplete: false,
-      removeOnFail: false,
-      deduplication: {
-        id: `banner-` + filePath.substring(filePath.lastIndexOf('/') + 1),
-        ttl: useRuntimeConfig().bannerCacheExpiry * 1000,
-      },
+      removeOnFail: true,
+      jobId,
       attempts: 3,
       backoff: {
         type: 'fixed',

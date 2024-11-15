@@ -143,7 +143,11 @@ async function getBannerBase(input: WorkerInput) {
 
     // flair
     if (input.user.flairPath) {
-      const flairImage = sharp(input.user.flairPath)
+      const flairPath = path.resolve(
+        '/src/resources/public/',
+        input.user.flairPath
+      );
+      const flairImage = sharp(flairPath)
         .greyscale()
         .threshold(255)
         .composite([
@@ -157,7 +161,7 @@ async function getBannerBase(input: WorkerInput) {
             tile: true,
             blend: 'dest-in',
           },
-          { input: input.user.flairPath, left: -1, top: -1 },
+          { input: flairPath, left: -1, top: -1 },
           // todo: drop this
         ])
         .png();

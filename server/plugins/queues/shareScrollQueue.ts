@@ -1,6 +1,5 @@
 import { Worker as BullWorker } from 'bullmq';
 import { watch } from 'fs';
-import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
 import { bannerJobsTable } from '~/database/schema';
 import type {
@@ -45,6 +44,7 @@ export default defineNitroPlugin(async () => {
 
       console.error(`Bannergen job failed: `, job.failedReason);
       console.error(job.stacktrace.join('\n'));
+
       await db.insert(bannerJobsTable).values({
         userId: job.data.user.id,
         username: job.data.user.username,
@@ -52,10 +52,6 @@ export default defineNitroPlugin(async () => {
         dragonsIncluded: job.data.dragons,
         error: job.failedReason,
       });
-      await shareScrollQueue.removeDeduplicationKey(
-        `banner-` +
-          job.data.filePath.substring(job.data.filePath.lastIndexOf('/') + 1)
-      );
     })
     .on('completed', async (job) => {
       if (!job.returnvalue) {
@@ -69,6 +65,7 @@ export default defineNitroPlugin(async () => {
         round(job.returnvalue.performanceData.totalTime),
         'ms'
       );
+
       await db.insert(bannerJobsTable).values({
         userId: job.returnvalue.user.id,
         username: job.returnvalue.user.username,
