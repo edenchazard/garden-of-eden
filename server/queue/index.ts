@@ -2,7 +2,6 @@ import { Queue } from 'bullmq';
 
 const {
   redis: { host, port },
-  clientSecret,
 } = useRuntimeConfig();
 
 export const clickRecordQueue = new Queue('clickRecordQueue', {
@@ -17,7 +16,4 @@ export const shareScrollQueue = new Queue('shareScrollQueue', {
     host,
     port: Number(port),
   },
-}).on('waiting', async (job) => {
-  await job.updateData({ ...job.data, clientSecret });
-  // console.log(job.data.clientSecret);
 });

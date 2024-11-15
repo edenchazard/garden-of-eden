@@ -110,6 +110,7 @@ async function sendJob(
       allTimeClicks,
       allTimeRank,
       dragons,
+      clientSecret: useRuntimeConfig().clientSecret,
     },
     {
       removeOnComplete: false,

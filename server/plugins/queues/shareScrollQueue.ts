@@ -48,7 +48,7 @@ export default defineNitroPlugin(async () => {
       await db.insert(bannerJobsTable).values({
         userId: job.data.user.id,
         username: job.data.user.username,
-        flairPath: job.data.user.flairUrl,
+        flairPath: job.data.user.flairPath,
         dragonsIncluded: job.data.dragons,
         error: job.failedReason,
       });
@@ -72,7 +72,7 @@ export default defineNitroPlugin(async () => {
       await db.insert(bannerJobsTable).values({
         userId: job.returnvalue.user.id,
         username: job.returnvalue.user.username,
-        flairPath: job.returnvalue.user.flairUrl,
+        flairPath: job.returnvalue.user.flairPath,
         dragonsIncluded: job.returnvalue.performanceData.dragonsIncluded,
         dragonsOmitted: job.returnvalue.performanceData.dragonsOmitted,
         statGenTime: round(job.returnvalue.performanceData.statGenTime),

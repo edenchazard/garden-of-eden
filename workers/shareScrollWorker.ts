@@ -12,8 +12,7 @@ import {
 import type { Job } from 'bullmq';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
-  console.info('Bannergen started for user: ', job.data.user);
-  console.log(job.data);
+  console.info('Bannergen started for user: ', job.data);
   const perfData: PerformanceData = await generateBannerToTemporary(job.data);
 
   if (perfData.error === 'API Timeout') throw new Error(perfData.error);

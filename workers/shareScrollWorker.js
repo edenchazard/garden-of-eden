@@ -4,8 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 export default async function bannerGen(job) {
-    console.info('Bannergen started for user: ', job.data.user);
-    console.log(job.data);
+    console.info('Bannergen started for user: ', job.data);
     const perfData = await generateBannerToTemporary(job.data);
     if (perfData.error === 'API Timeout')
         throw new Error(perfData.error);
