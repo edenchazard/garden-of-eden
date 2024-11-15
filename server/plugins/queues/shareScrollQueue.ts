@@ -10,7 +10,6 @@ import type {
 
 const {
   redis: { host, port },
-  clientSecret
 } = useRuntimeConfig();
 
 const round = (num: number | null) =>
@@ -51,7 +50,7 @@ export default defineNitroPlugin(async () => {
         username: job.data.user.username,
         flairPath: job.data.user.flairUrl,
         dragonsIncluded: job.data.dragons,
-        error: job.failedReason
+        error: job.failedReason,
       });
       await shareScrollQueue.removeDeduplicationKey(
         `banner-` +
@@ -82,7 +81,7 @@ export default defineNitroPlugin(async () => {
         frameGenTime: round(job.returnvalue.performanceData.frameGenTime),
         gifGenTime: round(job.returnvalue.performanceData.gifGenTime),
         totalTime: round(job.returnvalue.performanceData.totalTime),
-        error: JSON.stringify(job.returnvalue.performanceData.error)
+        error: JSON.stringify(job.returnvalue.performanceData.error),
       });
     });
 
