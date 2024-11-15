@@ -1,15 +1,11 @@
-import { Worker as BullWorker, type Job } from 'bullmq';
+import { Worker as BullWorker } from 'bullmq';
 import { watch } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
-// import { Worker } from 'worker_threads';
 import { db } from '~/server/db';
 import { bannerJobsTable } from '~/database/schema';
 import type {
+  WorkerFinished,
   WorkerInput,
-  // WorkerFinished,
-  // WorkerResponse,
-  // WorkerError,
-  // since i'm not using these, should they be removed from the types file too?
 } from '~/workers/shareScrollWorkerTypes';
 
 const {
@@ -19,19 +15,9 @@ const {
 const round = (num: number | null) =>
   num !== null ? parseInt(num.toFixed(0)) : null;
 
-// function isJobFinished(message: WorkerResponse): message is WorkerFinished {
-//   return message.type === 'jobFinished';
-// }
-
-// function isJobError(message: WorkerResponse): message is WorkerError {
-//   return message.type === 'error';
-// }
-
-// i ended up not using these but should i?
-
 export default defineNitroPlugin(async () => {
   const createWorker = () =>
-    new BullWorker<WorkerInput>(
+    new BullWorker<WorkerInput, WorkerFinished>(
       'shareScrollQueue',
       '/src/workers/shareScrollWorker.js',
       {
@@ -54,7 +40,9 @@ export default defineNitroPlugin(async () => {
   }
 
   shareScrollWorker
-    .on('failed', async (job: Job) => {
+    .on('failed', async (job) => {
+      if (!job) return;
+
       // currently, failures not occurring in bannergen, where failures
       // are always caught and recorded in the perfdata error field,
       // end up in this block and not recorded in the db.
@@ -67,30 +55,31 @@ export default defineNitroPlugin(async () => {
           job.data.filePath.substring(job.data.filePath.lastIndexOf('/') + 1)
       );
     })
-    .on('completed', async (job: Job) => {
-      if (job.returnvalue) {
-        console.log(
-          'Bannergen job for user ',
-          job.data.user,
-          ' completed in ',
-          round(job.returnvalue.totalTime),
-          'ms'
-        );
-        await db.insert(bannerJobsTable).values({
-          userId: job.returnvalue.id,
-          username: job.returnvalue.username,
-          flairPath: job.returnvalue.flairUrl,
-          dragonsIncluded: job.returnvalue.dragonsIncluded,
-          dragonsOmitted: job.returnvalue.dragonsOmitted,
-          statGenTime: round(job.returnvalue.statGenTime),
-          dragonFetchTime: round(job.returnvalue.dragonFetchTime),
-          dragonGenTime: round(job.returnvalue.dragonGenTime),
-          frameGenTime: round(job.returnvalue.frameGenTime),
-          gifGenTime: round(job.returnvalue.gifGenTime),
-          totalTime: round(job.returnvalue.totalTime),
-        });
+    .on('completed', async (job) => {
+      if (!job.returnvalue) {
+        return;
       }
-      return;
+
+      console.log(
+        'Bannergen job for user ',
+        job.data.user,
+        ' completed in ',
+        round(job.returnvalue.performanceData.totalTime),
+        'ms'
+      );
+      await db.insert(bannerJobsTable).values({
+        userId: job.returnvalue.user.id,
+        username: job.returnvalue.user.username,
+        flairPath: job.returnvalue.user.flairPath,
+        dragonsIncluded: job.returnvalue.performanceData.dragonsIncluded,
+        dragonsOmitted: job.returnvalue.performanceData.dragonsOmitted,
+        statGenTime: round(job.returnvalue.performanceData.statGenTime),
+        dragonFetchTime: round(job.returnvalue.performanceData.dragonFetchTime),
+        dragonGenTime: round(job.returnvalue.performanceData.dragonGenTime),
+        frameGenTime: round(job.returnvalue.performanceData.frameGenTime),
+        gifGenTime: round(job.returnvalue.performanceData.gifGenTime),
+        totalTime: round(job.returnvalue.performanceData.totalTime),
+      });
     });
 
   console.info('Banner worker queue started');

@@ -41,11 +41,9 @@ export interface WorkerFinished extends WorkerResponse {
   type: WorkerResponseType.jobFinished;
   performanceData: PerformanceData;
   user: WorkerInput['user'];
-  filePath: WorkerInput['filePath'];
 }
 
 export interface WorkerError extends WorkerResponse {
-  type: WorkerResponseType.jobFinished;
+  type: WorkerResponseType.error;
   user: WorkerInput['user'];
-  filePath: WorkerInput['filePath'];
 }

@@ -1,24 +1,27 @@
 import sharp from 'sharp';
 import GIF from 'sharp-gif2';
-// import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
-import type { PerformanceData, WorkerInput } from './shareScrollWorkerTypes';
+import {
+  WorkerResponseType,
+  type PerformanceData,
+  type WorkerFinished,
+  type WorkerInput,
+} from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
 
-export default async function bannerGen(job: Job) {
+export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   console.info('Bannergen started for user: ', job.data.user);
   const perfData: PerformanceData = await generateBannerToTemporary(job.data);
 
-  if (perfData.error) {
-    if (perfData.error === 'API Timeout') throw new Error(perfData.error);
-    else console.error(perfData.error);
-  }
+  if (perfData.error === 'API Timeout') throw new Error(perfData.error);
+  else console.error(perfData.error);
 
   return {
-    ...job.data.user,
-    ...perfData,
+    type: WorkerResponseType.jobFinished,
+    user: job.data.user,
+    performanceData: perfData,
   };
 }
 
