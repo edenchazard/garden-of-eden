@@ -249,21 +249,15 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
     const dragonsIncluded: string[] = [];
     const dragonsOmitted: string[] = [];
 
-    const {
-      errors,
-      dragons,
-    }: {
+    const { errors, dragons } = await ofetch<{
       errors: string[];
       dragons: Record<string, { hoursleft: number }>;
-    } = await ofetch(
-      `https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`,
-      {
-        headers: { Authorization: `Bearer ${clientSecret}` },
-        retry: 3,
-        retryDelay: 1000,
-        timeout,
-      }
-    );
+    }>(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
+      headers: { Authorization: `Bearer ${clientSecret}` },
+      retry: 3,
+      retryDelay: 1000,
+      timeout,
+    });
 
     if (errors.length > 0) {
       throw new Error('Errors getting bulk dragons: ' + errors);

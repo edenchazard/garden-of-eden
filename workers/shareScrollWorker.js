@@ -185,7 +185,7 @@ async function getDragonBuffers(dragonIds, clientSecret) {
         // change to 1 to force timeout
         const dragonsIncluded = [];
         const dragonsOmitted = [];
-        const { errors, dragons, } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
+        const { errors, dragons } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
             headers: { Authorization: `Bearer ${clientSecret}` },
             retry: 3,
             retryDelay: 1000,
