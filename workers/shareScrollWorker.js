@@ -1,31 +1,28 @@
 import sharp from 'sharp';
 import GIF from 'sharp-gif2';
-import { parentPort } from 'worker_threads';
+// import { parentPort } from 'worker_threads';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
+export default async function bannerGen(job) {
+    console.info('Bannergen started for user: ', job.data.user);
+    const perfData = await generateBannerToTemporary(job.data);
+    if (perfData.error) {
+        if (perfData.error === 'API Timeout')
+            throw new Error(perfData.error);
+        else
+            console.error(perfData.error);
+    }
+    return {
+        ...job.data.user,
+        ...perfData,
+    };
+}
 const baseBannerWidth = 327;
 const baseBannerHeight = 61;
 const baseCarouselWidth = 106;
-async function fileExists(filePath) {
-    try {
-        await fs.stat(filePath);
-        return true;
-    }
-    catch {
-        return false;
-    }
-}
-parentPort?.on('message', async function (message) {
-    const { user, filePath } = message;
-    const performanceData = {
-        // initialize every timing stat with null, filling them in
-        // one by one after each of the funcs do their things.
-        // let's use null for funcs that never ran (in case of error),
-        // and 0 for funcs that needn't run (in case of no carousel/frames)?
-        // this way, if we look at the row of a job that errored,
-        // if the error text alone doesn't help us locate it,
-        // we can still deduce from the null columns which function errored
+async function generateBannerToTemporary(input) {
+    const perfData = {
         dragonsIncluded: null,
         dragonsOmitted: null,
         statGenTime: null,
@@ -36,56 +33,13 @@ parentPort?.on('message', async function (message) {
         totalTime: null,
         error: null,
     };
-    let retryFlag = false;
-    try {
-        // bannergen will take perfdata as an argument and write to it
-        Object.assign(performanceData, await generateBannerToTemporary(performanceData, message));
-        // i moved moveBannerFromTemporary() into generateBannerToTemporary()
-        // because i wanted any error it threw to be caught in there, too
-        // and recorded to the error field of the perfdata.
-        if (performanceData.error) {
-            if (performanceData.error === 'API Timeout')
-                retryFlag = true;
-            throw performanceData.error;
-        }
-        parentPort?.postMessage({ type: 'success', user });
-    }
-    catch (e) {
-        console.log(e);
-        parentPort?.postMessage({
-            type: 'error',
-            user,
-            filePath,
-            error: e,
-            retry: retryFlag,
-        });
-    }
-    finally {
-        // since we need the performance data in EVERY case,
-        // it'll only be passed in the jobFinished message.
-        parentPort?.postMessage({ type: 'jobFinished', user, performanceData });
-    }
-    if (retryFlag)
-        throw new Error('API Timeout, Retry');
-});
-async function moveBannerFromTemporary(filePath) {
-    try {
-        if (await fileExists(filePath)) {
-            await fs.unlink(filePath);
-        }
-        await fs.rename(`${filePath}.tmp`, filePath);
-    }
-    catch (error) {
-        console.error('Error moving banner from temporary:', error);
-        throw error;
-    }
-}
-async function generateBannerToTemporary(perfData, input) {
     let startTime = performance.now();
     const start = () => {
-        startTime = performance.now();
+        return (startTime = performance.now());
     };
-    const end = () => performance.now() - startTime;
+    const end = () => {
+        return performance.now() - startTime;
+    };
     try {
         const outputDir = path.dirname(input.filePath);
         await fs.mkdir(outputDir, { recursive: true });
@@ -135,6 +89,7 @@ async function generateBannerToTemporary(perfData, input) {
     }
     return perfData;
 }
+// bannergen steps
 async function getBannerBase(input) {
     try {
         const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
@@ -170,11 +125,7 @@ async function getBannerBase(input) {
                     blend: 'dest-in',
                 },
                 { input: input.user.flairPath, left: -1, top: -1 },
-                // actually, this cuts off the top and left
-                // of the flair image. fiddling with the `left` and `top`
-                // of either composite input did not keep the shadow.
-                // if only there was native drop shadow support.
-                // i guess we might drop the flair shadow? it's very subtle anyway
+                // todo: drop this
             ])
                 .png();
             const { height: flairHeight } = await flairImage.metadata();
@@ -329,7 +280,6 @@ async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) 
                 left: Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
             },
         ];
-        console.log(composites);
         const composedFrameBuffer = await frame
             .composite(composites)
             .png()
@@ -344,16 +294,6 @@ async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) 
     return Promise.all(framePromises);
 }
 // utils
-function createEmptyFrame(width, height) {
-    return sharp({
-        create: {
-            width,
-            height,
-            channels: 4,
-            background: { r: 0, g: 0, b: 0, alpha: 0 },
-        },
-    });
-}
 async function textToPng(text, font, // eg. "16px Alkhemikal"
 styles // eg: "fill: white; ..."
 ) {
@@ -383,6 +323,16 @@ styles // eg: "fill: white; ..."
     // to push down the text into the viewport at an appropriate distance
     // and adds spacing to accomodate the text-shadow.
     return pngBuffer;
+}
+function createEmptyFrame(width, height) {
+    return sharp({
+        create: {
+            width,
+            height,
+            channels: 4,
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+        },
+    });
 }
 async function createFrame(scrollPosition, bannerBuffer, dragonStripBuffer, stripWidth, stripHeight) {
     const cropX = scrollPosition % stripWidth;
@@ -422,4 +372,25 @@ async function createFrame(scrollPosition, bannerBuffer, dragonStripBuffer, stri
         });
     }
     return sharp(await frame.composite(composites).png().toBuffer());
+}
+async function moveBannerFromTemporary(filePath) {
+    try {
+        if (await fileExists(filePath)) {
+            await fs.unlink(filePath);
+        }
+        await fs.rename(`${filePath}.tmp`, filePath);
+    }
+    catch (error) {
+        console.error('Error moving banner from temporary:', error);
+        throw error;
+    }
+}
+async function fileExists(filePath) {
+    try {
+        await fs.stat(filePath);
+        return true;
+    }
+    catch {
+        return false;
+    }
 }

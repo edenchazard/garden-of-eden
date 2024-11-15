@@ -1,100 +1,97 @@
-import { Worker as BullWorker } from 'bullmq';
+import { Worker as BullWorker, type Job } from 'bullmq';
 import { watch } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
-import { Worker } from 'worker_threads';
+// import { Worker } from 'worker_threads';
 import { db } from '~/server/db';
 import { bannerJobsTable } from '~/database/schema';
 import type {
   WorkerInput,
-  WorkerFinished,
-  WorkerResponse,
-  WorkerError,
+  // WorkerFinished,
+  // WorkerResponse,
+  // WorkerError,
+  // since i'm not using these, should they be removed from the types file too?
 } from '~/workers/shareScrollWorkerTypes';
 
 const {
   redis: { host, port },
-  clientSecret,
 } = useRuntimeConfig();
 
 const round = (num: number | null) =>
   num !== null ? parseInt(num.toFixed(0)) : null;
 
-function isJobFinished(message: WorkerResponse): message is WorkerFinished {
-  return message.type === 'jobFinished';
-}
+// function isJobFinished(message: WorkerResponse): message is WorkerFinished {
+//   return message.type === 'jobFinished';
+// }
 
-function isJobError(message: WorkerResponse): message is WorkerError {
-  return message.type === 'error';
-}
+// function isJobError(message: WorkerResponse): message is WorkerError {
+//   return message.type === 'error';
+// }
+
+// i ended up not using these but should i?
 
 export default defineNitroPlugin(async () => {
   const createWorker = () =>
-    new Worker('./workers/shareScrollWorker.js', {
-      workerData: { username: null, filePath: null },
-    });
+    new BullWorker<WorkerInput>(
+      'shareScrollQueue',
+      '/src/workers/shareScrollWorker.js',
+      {
+        useWorkerThreads: true,
+        connection: {
+          host,
+          port: Number(port),
+        },
+      }
+    );
 
   let shareScrollWorker = createWorker();
 
   if (import.meta.dev) {
-    watch('./workers/shareScrollWorker.js', () => {
-      shareScrollWorker.terminate();
+    watch('/src/workers/shareScrollWorker.js', () => {
+      shareScrollWorker.close();
       shareScrollWorker = createWorker();
-      console.info('Share scroll worker thread started');
+      console.info('shareScrollWorker thread started');
     });
   }
 
   shareScrollWorker
-    .on('message', async (message: WorkerResponse) => {
-      if (isJobFinished(message)) {
-        console.log('Job finished with stats: ', message.performanceData);
-
-        await db.insert(bannerJobsTable).values({
-          userId: message.user.id,
-          username: message.user.username,
-          flairPath: message.user.flairPath,
-          dragonsIncluded: message.performanceData.dragonsIncluded,
-          dragonsOmitted: message.performanceData.dragonsOmitted,
-          statGenTime: round(message.performanceData.statGenTime),
-          dragonFetchTime: round(message.performanceData.dragonFetchTime),
-          dragonGenTime: round(message.performanceData.dragonGenTime),
-          frameGenTime: round(message.performanceData.frameGenTime),
-          gifGenTime: round(message.performanceData.gifGenTime),
-          totalTime: round(message.performanceData.totalTime),
-          // since an error can be anything, how can it be stored in db?
-          // stringify the whole error, callstack and all?
-          // or keep only the message string?
-        });
-        return;
-      }
-
-      if (isJobError(message)) {
-        await shareScrollQueue.removeDeduplicationKey(
-          `banner-` +
-            message.filePath.substring(message.filePath.lastIndexOf('/') + 1)
-        );
-      }
+    .on('failed', async (job: Job) => {
+      // currently, failures not occurring in bannergen, where failures
+      // are always caught and recorded in the perfdata error field,
+      // end up in this block and not recorded in the db.
+      // this includes api failures.
+      // should ALL failures be inserted to db anyway?
+      console.error(`Bannergen job failed: `, job.failedReason);
+      console.error(job.stacktrace.join('\n'));
+      await shareScrollQueue.removeDeduplicationKey(
+        `banner-` +
+          job.data.filePath.substring(job.data.filePath.lastIndexOf('/') + 1)
+      );
     })
-    .on('error', (message) => {
-      console.log('error', message);
+    .on('completed', async (job: Job) => {
+      if (job.returnvalue) {
+        console.log(
+          'Bannergen job for user ',
+          job.data.user,
+          ' completed in ',
+          round(job.returnvalue.totalTime),
+          'ms'
+        );
+        await db.insert(bannerJobsTable).values({
+          userId: job.returnvalue.id,
+          username: job.returnvalue.username,
+          flairPath: job.returnvalue.flairUrl,
+          dragonsIncluded: job.returnvalue.dragonsIncluded,
+          dragonsOmitted: job.returnvalue.dragonsOmitted,
+          statGenTime: round(job.returnvalue.statGenTime),
+          dragonFetchTime: round(job.returnvalue.dragonFetchTime),
+          dragonGenTime: round(job.returnvalue.dragonGenTime),
+          frameGenTime: round(job.returnvalue.frameGenTime),
+          gifGenTime: round(job.returnvalue.gifGenTime),
+          totalTime: round(job.returnvalue.totalTime),
+        });
+      }
+      return;
     });
-
-  new BullWorker<WorkerInput>(
-    'shareScrollQueue',
-    async (job) => {
-      console.log('received', job.data);
-
-      shareScrollWorker.postMessage({
-        ...job.data,
-        clientSecret,
-      });
-    },
-    {
-      connection: {
-        host,
-        port: Number(port),
-      },
-    }
-  );
 
   console.info('Banner worker queue started');
 });
