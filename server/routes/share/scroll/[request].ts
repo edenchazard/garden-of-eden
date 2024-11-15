@@ -100,8 +100,6 @@ async function sendJob(
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(user.id);
 
-  const { clientSecret } = useRuntimeConfig();
-
   await shareScrollQueue.add(
     'shareScrollQueue',
     {
@@ -112,7 +110,6 @@ async function sendJob(
       allTimeClicks,
       allTimeRank,
       dragons,
-      clientSecret,
     },
     {
       removeOnComplete: false,
