@@ -175,7 +175,7 @@ export default defineEventHandler(async (event) => {
   if (await exists(filePath)) {
     setHeaders(event, {
       'Content-Type': contentType,
-      'Cache-Control': `public, max-age=${useRuntimeConfig().bannerCacheExpiry}`,
+      'Cache-Control': `public, max-age=120`,
     });
     return sendStream(event, createReadStream(filePath));
   }
