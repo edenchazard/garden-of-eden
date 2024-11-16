@@ -112,12 +112,10 @@ export async function cleanUp() {
 
         if (
           hatcheryStatus?.is_stunned === false &&
-          !removeFromHatchery.includes(code)
-        ) {
-          if (isStunned(dragon)) {
+          !removeFromHatchery.includes(code) &&
+          isStunned(dragon)) {
             updateStunned.push(code);
-          }
-        }
+          } 
       }
     })
   );
