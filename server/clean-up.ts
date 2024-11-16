@@ -135,6 +135,24 @@ export async function cleanUp() {
     })
   );
 
+  await Promise.allSettled(
+    chunkArray(updateIncubated, 200).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ in_seed_tray: false })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
+
+  await Promise.allSettled(
+    chunkArray(updateStunned, 200).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ in_seed_tray: false })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
+
   const end = new Date().getTime();
 
   const failures = promises.filter((p) => p.status === 'rejected').length;
