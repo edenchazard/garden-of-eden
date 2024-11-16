@@ -60,16 +60,6 @@ export async function cleanUp() {
         const dragon = apiResponse.dragons[code];
         const hatcheryStatus = hatcheryDragons.find((d) => d.id === dragon.id);
 
-        if (hatcheryStatus?.is_incubated === false) {
-          hatcheryStatus.is_incubated = isIncubated(dragon);
-          updateIncubated.push(code);
-        }
-
-        if (hatcheryStatus?.is_stunned === false) {
-          hatcheryStatus.is_stunned = isStunned(dragon);
-          updateStunned.push(code);
-        }
-
         if (hatcheryStatus?.in_seed_tray && dragon.hoursleft > 96) {
           hatcheryStatus.in_seed_tray = false;
           removeFromSeedTray.push(code);
@@ -111,6 +101,24 @@ export async function cleanUp() {
             }
           }
         }
+
+        if (
+          hatcheryStatus?.is_incubated === false &&
+          !removeFromHatchery.includes(code)
+        ) {
+          if (isIncubated(dragon)) {
+            updateIncubated.push(code);
+          }
+        }
+
+        if (
+          hatcheryStatus?.is_stunned === false &&
+          !removeFromHatchery.includes(code)
+        ) {
+          if (isStunned(dragon)) {
+            updateStunned.push(code);
+          }
+        }
       }
     })
   );
@@ -139,7 +147,7 @@ export async function cleanUp() {
     chunkArray(updateIncubated, 200).map(async (chunk) =>
       db
         .update(hatcheryTable)
-        .set({ in_seed_tray: false })
+        .set({ is_incubated: true })
         .where(inArray(hatcheryTable.id, chunk))
     )
   );
@@ -148,7 +156,7 @@ export async function cleanUp() {
     chunkArray(updateStunned, 200).map(async (chunk) =>
       db
         .update(hatcheryTable)
-        .set({ in_seed_tray: false })
+        .set({ is_stunned: true })
         .where(inArray(hatcheryTable.id, chunk))
     )
   );
