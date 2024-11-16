@@ -14,7 +14,7 @@ export function predictedStartTimeFromHoursLeft(
 }
 
 export function isIncubated(scroll: DragonData) {
-  // no offset as eggs are weird
+  // -1 offset to account for minutes within hoursleft on start time
   const predictedStartTime = predictedStartTimeFromHoursLeft(scroll, -1);
   const startDate = DateTime.fromFormat(scroll.start, 'yyyy/MM/dd', {
     zone: 'America/New_York',
