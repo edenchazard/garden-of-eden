@@ -5,7 +5,10 @@ import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 import { WorkerResponseType } from './shareScrollWorkerTypes';
 import type {
+  BannerGardenClicks,
+  BannerScrollStatistics,
   PerformanceData,
+  ScrollStats,
   WorkerFinished,
   WorkerInput,
 } from './shareScrollWorkerTypes';
@@ -56,7 +59,7 @@ async function generateBannerToTemporary(input: WorkerInput) {
     if (input.dragons.length > 0) {
       start();
       const { dragonsIncluded, dragonsOmitted, dragonBuffers } =
-        await getDragonBuffers(input.dragons, input.clientSecret);
+        await getDragonBuffers(input.dragons, input.secret);
       perfData.dragonFetchTime = end();
       perfData.dragonsIncluded = dragonsIncluded;
       perfData.dragonsOmitted = dragonsOmitted;
@@ -108,7 +111,7 @@ async function generateBannerToTemporary(input: WorkerInput) {
 
 // bannergen steps
 
-async function getBannerBase(input: WorkerInput) {
+async function getBannerBase(input: BannerGardenClicks) {
   const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
   const composites: sharp.OverlayOptions[] = [
     // base
@@ -501,4 +504,56 @@ async function fileExists(filePath: string) {
   } catch {
     return false;
   }
+}
+
+async function getScrollStats(
+  input: BannerScrollStatistics
+): Promise<ScrollStats> {
+  const { errors, dragons } = await ofetch<
+    DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
+      dragons: Record<string, DragonData>;
+    }
+  >('https://dragcave.net/api/v2/scroll', {
+    headers: { Authorization: `Bearer ${input.secret}` },
+    retry: 3,
+    retryDelay: 1000,
+  });
+
+  const stats: ScrollStats = {
+    female: 0,
+    male: 0,
+    eggs: 0,
+    hatch: 0,
+    adult: 0,
+    frozen: 0,
+    total: Object.keys(dragons).length,
+  };
+
+  for (const code in dragons) {
+    const dragon = dragons[code];
+
+    if (dragon.gender === 'Female') {
+      stats.female++;
+    } else if (dragon.gender === 'Male') {
+      stats.male++;
+    }
+
+    if (dragon.grow !== '0') {
+      stats.adult++;
+    } else if (dragon.hatch !== '0') {
+      stats.hatch++;
+    } else {
+      stats.eggs++;
+    }
+
+    if (dragon.hoursleft === -1 && dragon.grow === '0') {
+      stats.frozen++;
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error('Errors getting stats: ' + errors);
+  }
+
+  return stats;
 }

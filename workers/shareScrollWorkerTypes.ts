@@ -16,16 +16,40 @@ export type User = {
   flairPath: string | null;
 };
 
-export type WorkerInput = {
+export type ScrollStats = {
+  female: number;
+  male: number;
+  adult: number;
+  eggs: number;
+  hatch: number;
+  frozen: number;
+  total: number;
+};
+
+export const enum BannerType {
+  gardenClicks = 'gardenClicks',
+  scrollStatistics = 'scrollStatistics',
+}
+
+export interface WorkerInput {
   user: User;
   filePath: string;
+  dragons: string[];
+  secret: string;
+  bannerType: BannerType;
+}
+
+export interface BannerGardenClicks extends WorkerInput {
+  bannerType: BannerType.gardenClicks;
   weeklyClicks: number;
   weeklyRank: number | null;
   allTimeClicks: number;
   allTimeRank: number | null;
-  dragons: string[];
-  clientSecret: string;
-};
+}
+
+export interface BannerScrollStatistics extends WorkerInput {
+  bannerType: BannerType.scrollStatistics;
+}
 
 export const enum WorkerResponseType {
   jobStarted = 'jobStarted',
