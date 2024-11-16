@@ -3,16 +3,16 @@ import GIF from 'sharp-gif2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
-import {
-  WorkerResponseType,
-  type PerformanceData,
-  type WorkerFinished,
-  type WorkerInput,
+import { WorkerResponseType } from './shareScrollWorkerTypes';
+import type {
+  PerformanceData,
+  WorkerFinished,
+  WorkerInput,
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
-  const perfData: PerformanceData = await generateBannerToTemporary(job.data);
+  const perfData = await generateBannerToTemporary(job.data);
 
   if (perfData.error === 'API Timeout') throw new Error(perfData.error);
 
@@ -41,12 +41,8 @@ async function generateBannerToTemporary(input: WorkerInput) {
   };
 
   let startTime = performance.now();
-  const start = () => {
-    return (startTime = performance.now());
-  };
-  const end = () => {
-    return performance.now() - startTime;
-  };
+  const start = () => (startTime = performance.now());
+  const end = () => performance.now() - startTime;
 
   try {
     const outputDir = path.dirname(input.filePath);
@@ -114,14 +110,14 @@ async function generateBannerToTemporary(input: WorkerInput) {
 
 async function getBannerBase(input: WorkerInput) {
   const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-  const composites: sharp.OverlayOptions[] = [];
-
-  // base
-  composites.push({
-    input: path.resolve('/src/resources/', 'banner/base.webp'),
-    top: 0,
-    left: 0,
-  });
+  const composites: sharp.OverlayOptions[] = [
+    // base
+    {
+      input: path.resolve('/src/resources/', 'banner/base.webp'),
+      top: 0,
+      left: 0,
+    },
+  ];
 
   // scrollname
   const usernamePng = await textToPng(
@@ -232,7 +228,7 @@ async function getBannerBase(input: WorkerInput) {
     });
   }
 
-  return await compositeImage.composite(composites).png().toBuffer();
+  return compositeImage.composite(composites).png().toBuffer();
 }
 
 async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
@@ -254,29 +250,27 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
 
     if (errors.length > 0) {
       throw new Error('Errors getting bulk dragons: ' + errors);
-    } else {
-      Object.keys(dragons).forEach((key) => {
-        if ('hoursleft' in dragons[key] && dragons[key].hoursleft > 0) {
-          dragonsIncluded.push(key);
-        } else {
-          dragonsOmitted.push(key);
-        }
-      });
     }
 
+    Object.keys(dragons).forEach((key) => {
+      const arr =
+        'hoursleft' in dragons[key] && dragons[key].hoursleft > 0
+          ? dragonsIncluded
+          : dragonsOmitted;
+      arr.push(key);
+    });
+
     const dragonBuffers = await Promise.all(
-      dragonsIncluded.map(async (dragonId) => {
-        const dragonBuffer = await ofetch(
-          `https://dragcave.net/image/${dragonId}.gif`,
-          {
+      dragonsIncluded.map(async (dragonId) =>
+        Buffer.from(
+          await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
             retry: 3,
             retryDelay: 1000,
             timeout,
             responseType: 'arrayBuffer',
-          }
-        );
-        return Buffer.from(dragonBuffer);
-      })
+          })
+        )
+      )
     );
     return {
       dragonsIncluded,
@@ -294,10 +288,7 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
 
 async function getDragonStrip(dragonBuffers: Buffer[]) {
   const dragonMetadatas = await Promise.all(
-    dragonBuffers.map((buf) => {
-      const img = sharp(buf);
-      return img.metadata();
-    })
+    dragonBuffers.map((buf) => sharp(buf).metadata())
   );
 
   const spacing = 2;
@@ -320,15 +311,13 @@ async function getDragonStrip(dragonBuffers: Buffer[]) {
     xOffsets.push(prevOffset + (metadata.width ?? 0) + spacing);
   });
 
-  await Promise.all(
-    dragonBuffers.map(async (dragonBuffer, index) => {
-      composites.push({
-        input: dragonBuffer,
-        top: stripHeight - (dragonMetadatas[index].height ?? 0),
-        left: xOffsets[index],
-      });
-    })
-  );
+  dragonBuffers.forEach(async (dragonBuffer, index) => {
+    composites.push({
+      input: dragonBuffer,
+      top: stripHeight - (dragonMetadatas[index].height ?? 0),
+      left: xOffsets[index],
+    });
+  });
 
   const stripBuffer = await compositeImage
     .composite(composites)
@@ -351,22 +340,23 @@ async function createFrames(
   const framePromises = [];
 
   if (stripWidth < baseCarouselWidth) {
-    const frame = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-    const composites: sharp.OverlayOptions[] = [
-      {
-        input: bannerBuffer,
-        top: 0,
-        left: 0,
-      },
-      {
-        input: stripBuffer,
-        top: 5,
-        left:
-          Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
-      },
-    ];
-    const composedFrameBuffer = await frame
-      .composite(composites)
+    const composedFrameBuffer = await createEmptyFrame(
+      baseBannerWidth,
+      baseBannerHeight
+    )
+      .composite([
+        {
+          input: bannerBuffer,
+          top: 0,
+          left: 0,
+        },
+        {
+          input: stripBuffer,
+          top: 5,
+          left:
+            Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
+        },
+      ])
       .png()
       .toBuffer();
     framePromises.push(sharp(composedFrameBuffer));
@@ -412,7 +402,7 @@ async function textToPng(
   // and there's no way for a svg to grab its own children's dimensions,
   // so the purpose of this dummy is to provide the raw dimensions of the text.
 
-  const pngBuffer = await sharp(
+  return sharp(
     Buffer.from(
       `<svg width="${(width ?? 0) + 1}" height="${(height ?? 0) + 4}">
         <style>
@@ -431,11 +421,9 @@ async function textToPng(
   // the real deal is here. it uses the dummy-given dimensions
   // to push down the text into the viewport at an appropriate distance
   // and adds spacing to accomodate the text-shadow.
-
-  return pngBuffer;
 }
 
-function createEmptyFrame(width: number, height: number): sharp.Sharp {
+function createEmptyFrame(width: number, height: number) {
   return sharp({
     create: {
       width,
