@@ -18,10 +18,10 @@ services:
     labels:
       autoheal: true
     ports:
-      - 3001:3000
+      - 3000:3000
     networks:
       - internal
-      #- dragcave
+      - dragcave
 
   db:
     image: mariadb:10
@@ -62,5 +62,5 @@ volumes:
 
 networks:
   internal:
-  #dragcave:
-  #external: true
+  dragcave:
+    external: true
