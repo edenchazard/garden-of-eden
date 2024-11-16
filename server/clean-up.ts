@@ -104,11 +104,10 @@ export async function cleanUp() {
 
         if (
           hatcheryStatus?.is_incubated === false &&
-          !removeFromHatchery.includes(code)
+          !removeFromHatchery.includes(code) &&
+          isIncubated(dragon)
         ) {
-          if (isIncubated(dragon)) {
             updateIncubated.push(code);
-          }
         }
 
         if (
