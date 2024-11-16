@@ -130,8 +130,12 @@
             alt="animated 327x61 banner by Mu-Cephei"
           />
           <span class="italic text-sm">Mu-Cephei</span>
-          <p class="italic text-xs self-center">The above is an example.</p>
+
           <div v-if="authData?.user" class="space-y-2">
+            <div class="flex items-center bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose mx-auto text-sm">
+              The above banner is an example. The banner displays any eggs and hatchlings you currently have present in the Garden of Eden. It updates at a minimum of every 30 minutes.
+            </div>
+
             <div class="flex items-center gap-2">
               <label for="animated-327x61-direct">Direct:</label>
               <input
