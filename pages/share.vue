@@ -135,8 +135,8 @@
             <div
               class="flex items-center bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose mx-auto text-sm"
             >
-              The above banner is an example. The banner displays any eggs and
-              hatchlings you currently have present in the Garden of Eden. It
+              The above banner is an example. Your banner will display any eggs and
+              hatchlings you currently have in the garden. If you have a flair, it'll be shown alongside your username. It
               updates at a minimum of every 30 minutes.
             </div>
 
