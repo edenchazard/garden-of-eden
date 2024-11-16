@@ -148,6 +148,13 @@
       "when": 1730844308971,
       "tag": "0024_seed-buddleia-violet",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1731710928029,
+      "tag": "0025_aspiring_thundra",
+      "breakpoints": true
     }
   ]
 }

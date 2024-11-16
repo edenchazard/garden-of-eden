@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
@@ -11,6 +13,12 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     'nuxt-security',
     'floating-vue/nuxt',
+    [
+      '~/modules/watch-workers',
+      {
+        path: fileURLToPath(new URL('/src/workers', import.meta.url)),
+      },
+    ],
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   postcss: {
@@ -49,6 +57,7 @@ export default defineNuxtConfig({
     clientId: process.env.CLIENT_ID ?? '',
     clientSecret: process.env.CLIENT_SECRET,
     nextAuthSecret: process.env.NEXT_SECRET,
+    bannerCacheExpiry: parseInt(process.env.BANNER_CACHE_EXPIRY ?? '1800'),
     db: {
       port: 3306,
       host: process.env.MYSQL_HOST,
@@ -124,6 +133,7 @@ export default defineNuxtConfig({
     esbuild: {
       options: {
         target: 'esnext',
+        drop: ['console'],
       },
     },
   },

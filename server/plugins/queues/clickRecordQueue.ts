@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+import { Worker as BullWorker } from 'bullmq';
 import { db } from '~/server/db';
 import { clicksTable, userTable } from '~/database/schema';
 import { and, eq, lt, sql } from 'drizzle-orm';
@@ -7,8 +7,8 @@ const {
   redis: { host, port },
 } = useRuntimeConfig();
 
-export default defineNitroPlugin(() => {
-  new Worker(
+export default defineNitroPlugin(async () => {
+  new BullWorker(
     'clickRecordQueue',
     async (job) => {
       const { userId, hatcheryId } = job.data;
@@ -36,5 +36,5 @@ export default defineNitroPlugin(() => {
     }
   );
 
-  console.info('Click record worker started');
+  console.info('Click record queue worker started');
 });
