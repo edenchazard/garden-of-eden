@@ -6,6 +6,7 @@ import type {
   WorkerFinished,
   WorkerInput,
 } from '~/workers/shareScrollWorkerTypes';
+import { pathToFileURL } from 'url';
 
 const {
   redis: { host, port },
@@ -18,7 +19,7 @@ export default defineNitroPlugin(async () => {
   const createWorker = () =>
     new BullWorker<WorkerInput, WorkerFinished>(
       'shareScrollQueue',
-      '/src/workers/shareScrollWorker.js',
+      pathToFileURL('./workers/shareScrollWorker.js'),
       {
         useWorkerThreads: true,
         connection: {
@@ -31,7 +32,7 @@ export default defineNitroPlugin(async () => {
   let shareScrollWorker = createWorker();
 
   if (import.meta.dev) {
-    watch('/src/workers/shareScrollWorker.js', () => {
+    watch('./workers/shareScrollWorker.js', () => {
       shareScrollWorker.close();
       shareScrollWorker = createWorker();
       console.info('shareScrollWorker thread started');

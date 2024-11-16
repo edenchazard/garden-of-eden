@@ -12,11 +12,9 @@ import {
 import type { Job } from 'bullmq';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
-  console.info('Bannergen started for user: ', job.data);
   const perfData: PerformanceData = await generateBannerToTemporary(job.data);
 
   if (perfData.error === 'API Timeout') throw new Error(perfData.error);
-  else console.error(perfData.error);
 
   return {
     type: WorkerResponseType.jobFinished,
@@ -115,131 +113,126 @@ async function generateBannerToTemporary(input: WorkerInput) {
 // bannergen steps
 
 async function getBannerBase(input: WorkerInput) {
-  try {
-    const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-    const composites: sharp.OverlayOptions[] = [];
+  const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+  const composites: sharp.OverlayOptions[] = [];
 
-    // base
-    composites.push({
-      input: path.resolve('/src/resources/', 'banner/base.webp'),
-      top: 0,
-      left: 0,
-    });
+  // base
+  composites.push({
+    input: path.resolve('/src/resources/', 'banner/base.webp'),
+    top: 0,
+    left: 0,
+  });
 
-    // scrollname
-    const usernamePng = await textToPng(
-      input.user.username,
-      '16px Alkhemikal',
-      'fill: #dff6f5;'
+  // scrollname
+  const usernamePng = await textToPng(
+    input.user.username,
+    '16px Alkhemikal',
+    'fill: #dff6f5;'
+  );
+  const { height: usernameHeight, width: usernameWidth } =
+    await sharp(usernamePng).metadata();
+
+  composites.push({
+    input: usernamePng,
+    top: 25 - (usernameHeight ?? 0),
+    left: 118,
+  });
+
+  // flair
+  if (input.user.flairPath) {
+    const flairPath = path.resolve(
+      '/src/resources/public',
+      input.user.flairPath
     );
-    const { height: usernameHeight, width: usernameWidth } =
-      await sharp(usernamePng).metadata();
-
-    composites.push({
-      input: usernamePng,
-      top: 25 - (usernameHeight ?? 0),
-      left: 118,
-    });
-
-    // flair
-    if (input.user.flairPath) {
-      const flairPath = path.resolve(
-        '/src/resources/public',
-        input.user.flairPath
-      );
-      const flairImage = sharp(flairPath)
-        .greyscale()
-        .threshold(255)
-        .composite([
-          {
-            input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
-            raw: {
-              width: 1,
-              height: 1,
-              channels: 4,
-            },
-            tile: true,
-            blend: 'dest-in',
+    const flairImage = sharp(flairPath)
+      .greyscale()
+      .threshold(255)
+      .composite([
+        {
+          input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
+          raw: {
+            width: 1,
+            height: 1,
+            channels: 4,
           },
-          { input: flairPath, left: -1, top: -1 },
-          // todo: drop this
-        ])
-        .png();
-      const { height: flairHeight } = await flairImage.metadata();
-      composites.push({
-        input: await flairImage.toBuffer(),
-        left: 122 + (usernameWidth ?? 0),
-        top: 17 - Math.floor((flairHeight ?? 0) / 2),
-      });
-    }
+          tile: true,
+          blend: 'dest-in',
+        },
+        { input: flairPath, left: -1, top: -1 },
+        // todo: drop this
+      ])
+      .png();
+    const { height: flairHeight } = await flairImage.metadata();
+    composites.push({
+      input: await flairImage.toBuffer(),
+      left: 122 + (usernameWidth ?? 0),
+      top: 17 - Math.floor((flairHeight ?? 0) / 2),
+    });
+  }
 
-    const statText = (statName: string, statNumber: number) =>
-      textToPng(
-        `
+  const statText = (statName: string, statNumber: number) =>
+    textToPng(
+      `
         <tspan fill="#dff6f5">${statName}:</tspan> 
         <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
       `,
-        '8px Nokia Cellphone FC',
-        ''
-      );
+      '8px Nokia Cellphone FC',
+      ''
+    );
 
-    const rankText = (rankNumber: number) =>
-      textToPng(
-        `
+  const rankText = (rankNumber: number) =>
+    textToPng(
+      `
         <tspan fill="#dff6f5">Ranked</tspan> 
         <tspan fill="#f2bd59">#${rankNumber}</tspan>
       `,
-        '8px Nokia Cellphone FC',
-        ''
-      );
-
-    // stats
-    const [
-      compositeWeeklyClicks,
-      compositeWeeklyRank,
-      compositeAllTimeClicks,
-      compositeAllTimeRank,
-    ] = await Promise.all([
-      statText('Weekly Clicks', input.weeklyClicks),
-      input.weeklyRank ? rankText(input.weeklyRank) : null,
-      statText('All-time Clicks', input.allTimeClicks),
-      input.allTimeRank ? rankText(input.allTimeRank) : null,
-    ]);
-
-    composites.push(
-      {
-        input: compositeWeeklyClicks,
-        left: 118,
-        top: 28,
-      },
-      {
-        input: compositeAllTimeClicks,
-        left: 118,
-        top: 40,
-      }
+      '8px Nokia Cellphone FC',
+      ''
     );
 
-    if (compositeWeeklyRank) {
-      composites.push({
-        input: compositeWeeklyRank,
-        left: 245,
-        top: 29,
-      });
-    }
+  // stats
+  const [
+    compositeWeeklyClicks,
+    compositeWeeklyRank,
+    compositeAllTimeClicks,
+    compositeAllTimeRank,
+  ] = await Promise.all([
+    statText('Weekly Clicks', input.weeklyClicks),
+    input.weeklyRank ? rankText(input.weeklyRank) : null,
+    statText('All-time Clicks', input.allTimeClicks),
+    input.allTimeRank ? rankText(input.allTimeRank) : null,
+  ]);
 
-    if (compositeAllTimeRank) {
-      composites.push({
-        input: compositeAllTimeRank,
-        left: 245,
-        top: 41,
-      });
+  composites.push(
+    {
+      input: compositeWeeklyClicks,
+      left: 118,
+      top: 28,
+    },
+    {
+      input: compositeAllTimeClicks,
+      left: 118,
+      top: 40,
     }
+  );
 
-    return await compositeImage.composite(composites).png().toBuffer();
-  } catch (error) {
-    console.error('Error in getBannerBase:', error);
-    throw error;
+  if (compositeWeeklyRank) {
+    composites.push({
+      input: compositeWeeklyRank,
+      left: 245,
+      top: 29,
+    });
   }
+
+  if (compositeAllTimeRank) {
+    composites.push({
+      input: compositeAllTimeRank,
+      left: 245,
+      top: 41,
+    });
+  }
+
+  return await compositeImage.composite(composites).png().toBuffer();
 }
 
 async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
@@ -507,15 +500,10 @@ async function createFrame(
 }
 
 async function moveBannerFromTemporary(filePath: string) {
-  try {
-    if (await fileExists(filePath)) {
-      await fs.unlink(filePath);
-    }
-    await fs.rename(`${filePath}.tmp`, filePath);
-  } catch (error) {
-    console.error('Error moving banner from temporary:', error);
-    throw error;
+  if (await fileExists(filePath)) {
+    await fs.unlink(filePath);
   }
+  await fs.rename(`${filePath}.tmp`, filePath);
 }
 
 async function fileExists(filePath: string) {

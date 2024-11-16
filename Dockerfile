@@ -30,8 +30,14 @@ ENV PORT=$PORT
 WORKDIR /src
 COPY --from=build /src/.output .output
 COPY --from=build /src/package*.json . 
+
+# Required hacks for working animated banners in prod.
 COPY resources/fonts /usr/share/fonts/
 COPY resources/banner resources/banner
 COPY workers/*.js workers/
+COPY --from=build /src/node_modules/bullmq/dist/cjs dist/cjs 
+COPY --from=build /src/node_modules/bullmq/package.json dist/package.json
 RUN npm i sharp sharp-gif2 ofetch
+
 CMD [ "node", ".output/server/index.mjs" ]
+
