@@ -4,7 +4,6 @@ import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
-import { isIncubated, isStunned } from '~/utils/calculations';
 
 async function fetchScroll(username: string, token: JWT) {
   return dragCaveFetch()<
@@ -95,6 +94,8 @@ export default defineEventHandler(async (event) => {
           id: hatcheryTable.id,
           in_garden: hatcheryTable.in_garden,
           in_seed_tray: hatcheryTable.in_seed_tray,
+          is_incubated: hatcheryTable.is_incubated,
+          is_stunned: hatcheryTable.is_stunned,
         })
         .from(hatcheryTable)
         .where(eq(hatcheryTable.user_id, token.userId)),
@@ -104,22 +105,18 @@ export default defineEventHandler(async (event) => {
     details: {
       clicksToday,
     },
-    dragons: alive
-      .map<ScrollView>((id) => {
-        const hatcheryDragon = usersDragonsInHatchery.find(
-          (row) => row.id === id
-        );
+    dragons: alive.map<ScrollView>((id) => {
+      const hatcheryDragon = usersDragonsInHatchery.find(
+        (row) => row.id === id
+      );
 
-        return {
-          ...scrollResponse.dragons[id],
-          in_garden: !!(hatcheryDragon?.in_garden ?? false),
-          in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-        };
-      })
-      .map((dragon) => ({
-        ...dragon,
-        incubated: isIncubated(dragon),
-        stunned: isStunned(dragon),
-      })),
+      return {
+        ...scrollResponse.dragons[id],
+        in_garden: !!(hatcheryDragon?.in_garden ?? false),
+        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
+        is_incubated: !!(hatcheryDragon?.is_incubated ?? false),
+        is_stunned: !!(hatcheryDragon?.is_stunned ?? false),
+      };
+    }),
   };
 });

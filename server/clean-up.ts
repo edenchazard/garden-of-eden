@@ -4,6 +4,8 @@ import { hatcheryTable, recordingsTable } from '~/database/schema';
 import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
+import { isIncubated, isStunned } from '~/utils/calculations';
+
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
 
@@ -14,11 +16,15 @@ export async function cleanUp() {
       id: hatcheryTable.id,
       in_seed_tray: hatcheryTable.in_seed_tray,
       in_garden: hatcheryTable.in_garden,
+      is_incubated: hatcheryTable.is_incubated,
+      is_stunned: hatcheryTable.is_stunned,
     })
     .from(hatcheryTable);
 
   const removeFromSeedTray: string[] = [];
   const removeFromHatchery: string[] = [];
+  const updateIncubated: string[] = [];
+  const updateStunned: string[] = [];
   let hatchlings = 0;
   let eggs = 0;
   let adults = 0;
@@ -53,6 +59,16 @@ export async function cleanUp() {
       for (const code in apiResponse.dragons) {
         const dragon = apiResponse.dragons[code];
         const hatcheryStatus = hatcheryDragons.find((d) => d.id === dragon.id);
+
+        if (hatcheryStatus?.is_incubated === false) {
+          hatcheryStatus.is_incubated = isIncubated(dragon);
+          updateIncubated.push(code);
+        }
+
+        if (hatcheryStatus?.is_stunned === false) {
+          hatcheryStatus.is_stunned = isStunned(dragon);
+          updateStunned.push(code);
+        }
 
         if (hatcheryStatus?.in_seed_tray && dragon.hoursleft > 96) {
           hatcheryStatus.in_seed_tray = false;

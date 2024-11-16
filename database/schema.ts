@@ -104,6 +104,8 @@ export const hatcheryTable = mysqlTable(
       .notNull(),
     in_seed_tray: boolean('in_seed_tray').notNull().default(false),
     in_garden: boolean('in_garden').notNull().default(false),
+    is_incubated: boolean('is_incubated').notNull().default(false),
+    is_stunned: boolean('is_stunned').notNull().default(false),
   },
   (table) => {
     return {
