@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     'nuxt-security',
     'floating-vue/nuxt',
+    '@nuxt/image',
     [
       '~/modules/watch-workers',
       {
@@ -100,12 +101,18 @@ export default defineNuxtConfig({
       referrerPolicy: false,
       contentSecurityPolicy: {
         'img-src': ["'self'", 'dragcave.net', 'data:;'],
+        'upgrade-insecure-requests': false,
+        'script-src-attr': ["'unsafe-inline'"],
       },
     },
     csrf: {
       enabled: true,
       encryptSecret: process.env.CSRF_SECRET,
     },
+  },
+  image: {
+    format: ['avif', 'webp'],
+    formats: ['avif', 'webp'],
   },
   routeRules: {
     // nuxt-auth has its own CSRF protection

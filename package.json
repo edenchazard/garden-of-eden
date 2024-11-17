@@ -25,6 +25,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@nuxt/image": "^1.8.1",
     "@nuxtjs/color-mode": "^3.4.2",
     "@nuxtjs/robots": "^4.0.2",
     "@sidebase/nuxt-auth": "^0.8.1",
