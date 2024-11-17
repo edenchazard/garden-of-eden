@@ -1,42 +1,69 @@
 <template>
   <div class="space-y-4">
-    <div v-if="!authData?.user" class="flex flex-col gap-y-4 text-center">
-      <p>
-        The <b>Garden of {{ userSettings.siteName }}</b> is a highly secure
-        garden where only those with a DragCave account can enter. You'll need
-        to sign in to add your <s>plants</s> dragons.
-      </p>
-      <button
-        class="btn-primary py-4"
-        type="button"
-        @click="signIn('dragcave')"
-      >
-        Sign in via Dragon Cave
-      </button>
-      <p class="text-xs">
-        * The above link will take you directly to
-        <b class="font-normal">dragcave.net</b>.
-        <em class="italic"
-          >The Garden of {{ userSettings.siteName }} only stores your user id
-          and username, not your password.</em
+    <div
+      v-if="!authData?.user"
+      class="mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
+    >
+      <div class="flex flex-col gap-y-4 items-center justify-center">
+        <p>
+          The <b>Garden of {{ userSettings.siteName }}</b> is a highly secure
+          garden where only those with a Dragon Cave account can enter. You'll
+          need to sign in to add your <s>plants</s> dragons.
+        </p>
+        <button
+          class="btn-primary py-4 self-stretch"
+          type="button"
+          @click="signIn('dragcave')"
         >
-      </p>
-      <p>
-        Without signing in, you can still give views and clicks, but you won't
-        be able to add your own plants.
-        <span class="italic">
-          You're basically looking through the gate and waving at the plants
-          like a madman.
-        </span>
-      </p>
+          Sign in via Dragon Cave
+        </button>
+        <p class="text-xs">
+          The above link will take you directly to
+          <b class="font-normal">dragcave.net</b>.
+          <em class="italic"
+            >The Garden of {{ userSettings.siteName }} only stores your user id
+            and username, not your password.</em
+          >
+        </p>
+        <p>
+          Without signing in, you can still give views and clicks, but you won't
+          be able to add your own plants.
+          <span class="italic">
+            You're basically looking through the gate and waving at the plants
+            like a madman.
+          </span>
+        </p>
+      </div>
+      <NuxtImg
+        loading="lazy"
+        format="avif,webp"
+        src="/illustrations/backwards-binoculars.png"
+        sizes="100px md:200px"
+        alt="Mint looking through the gates"
+      />
     </div>
 
     <form v-else class="flex flex-col space-y-4" @submit.prevent="saveScroll()">
       <div class="*:max-w-prose order-1">
-        <p v-if="fetchScrollError">
-          Aurrrr naurrr!!! There was an error trying to fetch your scroll. Whack
-          that reload button and try again.
-        </p>
+        <div
+          v-if="fetchScrollError"
+          class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
+        >
+          <NuxtImg
+            loading="lazy"
+            format="avif,webp"
+            src="/illustrations/tinkering-in-the-garden.png"
+            sizes="150px md:300px"
+            alt="Mint tinkering in the garden"
+          />
+          <div>
+            <span class="font-bold">Aurrrr naurrr!!!</span>
+            <p>
+              There was an error trying to fetch your scroll. Whack that reload
+              button and try again.
+            </p>
+          </div>
+        </div>
         <template v-else>
           <p v-if="!scroll.dragons.length">
             It looks like you've got no dragons! Time to hit up that cave and go
