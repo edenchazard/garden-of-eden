@@ -130,8 +130,17 @@
             alt="animated 327x61 banner by Mu-Cephei"
           />
           <span class="italic text-sm">Mu-Cephei</span>
-          <p class="italic text-xs self-center">The above is an example.</p>
+
           <div v-if="authData?.user" class="space-y-2">
+            <p
+              class="flex items-center bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose mx-auto text-sm"
+            >
+              The above banner is an example. Your banner will display any eggs
+              and hatchlings you currently have in the garden. If you have a
+              flair, it'll be shown alongside your username. It updates at a
+              minimum of every 30 minutes.
+            </p>
+
             <div class="flex items-center gap-2">
               <label for="animated-327x61-direct">Direct:</label>
               <input
