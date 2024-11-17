@@ -1,8 +1,4 @@
-import type {
-  clicksTable,
-  userSettingsTable,
-  userTable,
-} from '~/database/schema';
+import type { userSettingsTable, userTable } from '~/database/schema';
 export {};
 
 declare global {
