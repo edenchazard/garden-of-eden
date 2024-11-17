@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
       // we should update its user id to reflect the change of ownership.
       await tx
         .update(hatcheryTable)
-        .set({ user_id: token.userId })
+        .set({ user_id: token.userId, is_incubated: false, is_stunned: false })
         .where(inArray(hatcheryTable.id, alive));
 
       await tx
@@ -95,6 +95,8 @@ export default defineEventHandler(async (event) => {
           id: hatcheryTable.id,
           in_garden: hatcheryTable.in_garden,
           in_seed_tray: hatcheryTable.in_seed_tray,
+          is_incubated: hatcheryTable.is_incubated,
+          is_stunned: hatcheryTable.is_stunned,
         })
         .from(hatcheryTable)
         .where(eq(hatcheryTable.user_id, token.userId)),
@@ -104,22 +106,24 @@ export default defineEventHandler(async (event) => {
     details: {
       clicksToday,
     },
-    dragons: alive
-      .map<ScrollView>((id) => {
-        const hatcheryDragon = usersDragonsInHatchery.find(
-          (row) => row.id === id
-        );
+    dragons: alive.map<ScrollView>((id) => {
+      const apiDragon = scrollResponse.dragons[id];
+      const hatcheryDragon = usersDragonsInHatchery.find(
+        (row) => row.id === id
+      ) ?? {
+        in_garden: false,
+        in_seed_tray: false,
+        is_incubated: false,
+        is_stunned: false,
+      };
 
-        return {
-          ...scrollResponse.dragons[id],
-          in_garden: !!(hatcheryDragon?.in_garden ?? false),
-          in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-        };
-      })
-      .map((dragon) => ({
-        ...dragon,
-        incubated: isIncubated(dragon),
-        stunned: isStunned(dragon),
-      })),
+      return {
+        ...apiDragon,
+        in_garden: !!(hatcheryDragon.in_garden ?? false),
+        in_seed_tray: !!(hatcheryDragon.in_seed_tray ?? false),
+        is_incubated: !!(hatcheryDragon.is_incubated ?? isIncubated(apiDragon)),
+        is_stunned: !!(hatcheryDragon.is_stunned ?? isStunned(apiDragon)),
+      };
+    }),
   };
 });
