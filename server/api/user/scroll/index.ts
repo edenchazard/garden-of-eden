@@ -110,16 +110,19 @@ export default defineEventHandler(async (event) => {
       const apiDragon = scrollResponse.dragons[id];
       const hatcheryDragon = usersDragonsInHatchery.find(
         (row) => row.id === id
-      );
+      ) ?? {
+        in_garden: false,
+        in_seed_tray: false,
+        is_incubated: false,
+        is_stunned: false,
+      };
 
       return {
         ...apiDragon,
-        in_garden: !!(hatcheryDragon?.in_garden ?? false),
-        in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-        is_incubated: !!(
-          hatcheryDragon?.is_incubated ?? isIncubated(apiDragon)
-        ),
-        is_stunned: !!(hatcheryDragon?.is_stunned ?? isStunned(apiDragon)),
+        in_garden: !!(hatcheryDragon.in_garden ?? false),
+        in_seed_tray: !!(hatcheryDragon.in_seed_tray ?? false),
+        is_incubated: !!(hatcheryDragon.is_incubated ?? isIncubated(apiDragon)),
+        is_stunned: !!(hatcheryDragon.is_stunned ?? isStunned(apiDragon)),
       };
     }),
   };
