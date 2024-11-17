@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
       // we should update its user id to reflect the change of ownership.
       await tx
         .update(hatcheryTable)
-        .set({ user_id: token.userId })
+        .set({ user_id: token.userId, is_incubated: false, is_stunned: false })
         .where(inArray(hatcheryTable.id, alive));
 
       await tx
