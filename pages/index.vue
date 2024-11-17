@@ -300,7 +300,10 @@ const {
   data: recentlyAdded,
   execute: saveScroll,
   status: saveScrollStatus,
-} = useCsrfFetch('/api/user/scroll', {
+} = useFetch('/api/user/scroll', {
+  headers: computed(() => ({
+    'Csrf-token': useCsrf().csrf,
+  })),
   immediate: false,
   watch: false,
   default: () => [],
