@@ -1,5 +1,5 @@
 import { getToken, getServerSession } from '#auth';
-import { and, eq, gt, inArray, notInArray, sql } from 'drizzle-orm';
+import { and, eq, gt, inArray, not, notInArray, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
@@ -63,7 +63,12 @@ export default defineEventHandler(async (event) => {
       await tx
         .update(hatcheryTable)
         .set({ user_id: token.userId, is_incubated: false, is_stunned: false })
-        .where(inArray(hatcheryTable.id, alive));
+        .where(
+          and(
+            inArray(hatcheryTable.id, alive),
+            not(eq(hatcheryTable.user_id, token.userId))
+          )
+        );
 
       await tx
         .delete(hatcheryTable)
@@ -108,21 +113,24 @@ export default defineEventHandler(async (event) => {
     },
     dragons: alive.map<ScrollView>((id) => {
       const apiDragon = scrollResponse.dragons[id];
-      const hatcheryDragon = usersDragonsInHatchery.find(
-        (row) => row.id === id
-      ) ?? {
+      const hatcheryData = {
         in_garden: false,
         in_seed_tray: false,
         is_incubated: false,
         is_stunned: false,
+        ...usersDragonsInHatchery.find((row) => row.id === id),
+      };
+
+      const hatcheryDragon = {
+        in_garden: hatcheryData.in_garden,
+        in_seed_tray: hatcheryData.in_seed_tray,
+        is_incubated: hatcheryData.is_incubated || isIncubated(apiDragon),
+        is_stunned: hatcheryData.is_stunned || isStunned(apiDragon),
       };
 
       return {
         ...apiDragon,
-        in_garden: !!(hatcheryDragon.in_garden ?? false),
-        in_seed_tray: !!(hatcheryDragon.in_seed_tray ?? false),
-        is_incubated: !!(hatcheryDragon.is_incubated ?? isIncubated(apiDragon)),
-        is_stunned: !!(hatcheryDragon.is_stunned ?? isStunned(apiDragon)),
+        ...hatcheryDragon,
       };
     }),
   };
