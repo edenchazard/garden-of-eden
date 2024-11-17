@@ -107,15 +107,16 @@ export async function cleanUp() {
           !removeFromHatchery.includes(code) &&
           isIncubated(dragon)
         ) {
-            updateIncubated.push(code);
+          updateIncubated.push(code);
         }
 
         if (
           hatcheryStatus?.is_stunned === false &&
           !removeFromHatchery.includes(code) &&
-          isStunned(dragon)) {
-            updateStunned.push(code);
-          } 
+          isStunned(dragon)
+        ) {
+          updateStunned.push(code);
+        }
       }
     })
   );
