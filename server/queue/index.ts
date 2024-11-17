@@ -10,3 +10,10 @@ export const clickRecordQueue = new Queue('clickRecordQueue', {
     port: Number(port),
   },
 });
+
+export const shareScrollQueue = new Queue('shareScrollQueue', {
+  connection: {
+    host,
+    port: Number(port),
+  },
+});

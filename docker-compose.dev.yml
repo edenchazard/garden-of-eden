@@ -7,6 +7,8 @@ services:
     volumes:
       - .:/src
       - node_modules:/src/node_modules
+      - caches:/cache
+      - ./resources/fonts:/usr/share/fonts/
     ports:
       - 3000:3000
     env_file:
@@ -36,6 +38,7 @@ services:
 volumes:
   dbdata:
   node_modules:
+  caches:
 
 networks:
   internal:

@@ -12,6 +12,7 @@ import {
   tinyint,
   unique,
   varchar,
+  text,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
 
@@ -290,6 +291,40 @@ export const purchasesTable = mysqlTable('purchases', {
     })
     .notNull(),
   purchased_on: datetime('purchased_on', { mode: 'date' })
+    .default(sql`NOW()`)
+    .notNull(),
+});
+
+export const bannerJobsTable = mysqlTable('banner_jobs', {
+  id: bigint('id', {
+    unsigned: true,
+    mode: 'number',
+  })
+    .autoincrement()
+    .primaryKey(),
+  userId: mediumint('user_id', {
+    unsigned: true,
+  })
+    .references(() => userTable.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  username: varchar('username', {
+    length: 32,
+  }).notNull(),
+  flairPath: varchar('flair_path', {
+    length: 100,
+  }),
+  dragonsIncluded: json('dragons_included').$type<string[]>(),
+  dragonsOmitted: json('dragons_omitted').$type<string[]>(),
+  statGenTime: mediumint('stat_gen_time', { unsigned: true }),
+  dragonFetchTime: mediumint('dragon_fetch_time', { unsigned: true }),
+  dragonGenTime: mediumint('dragon_gen_time', { unsigned: true }),
+  frameGenTime: mediumint('frame_gen_time', { unsigned: true }),
+  gifGenTime: mediumint('gif_gen_time', { unsigned: true }),
+  totalTime: mediumint('total_time', { unsigned: true }),
+  error: text('error'),
+  createdAt: datetime('created_at', { mode: 'date' })
     .default(sql`NOW()`)
     .notNull(),
 });

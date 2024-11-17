@@ -130,6 +130,7 @@ export default NuxtAuthHandler({
         user_settings: { user_id, ...settings },
         items: flair,
       } = user;
+      session.user.id = users.id;
       session.user.username = users.username;
       session.user.money = users.money;
       session.user.role = users.role;

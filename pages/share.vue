@@ -122,6 +122,57 @@
             </div>
           </div>
         </div>
+
+        <div class="col-span-full text-center flex flex-col gap-2">
+          <img
+            class="self-center"
+            :src="animatedBanner327x61"
+            alt="animated 327x61 banner by Mu-Cephei"
+          />
+          <span class="italic text-sm">Mu-Cephei</span>
+
+          <div v-if="authData?.user" class="space-y-2">
+            <p
+              class="flex items-center bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose mx-auto text-sm"
+            >
+              The above banner is an example. Your banner will display any eggs
+              and hatchlings you currently have in the garden. If you have a
+              flair, it'll be shown alongside your username. It updates at a
+              minimum of every 30 minutes.
+            </p>
+
+            <div class="flex items-center gap-2">
+              <label for="animated-327x61-direct">Direct:</label>
+              <input
+                id="animated-327x61-direct"
+                type="text"
+                class="font-mono flex-1"
+                :value="animatedBanner327x61_yours"
+                readonly
+              />
+            </div>
+            <div class="flex items-center gap-2">
+              <label for="animated-327x61-html">HTML:</label>
+              <input
+                id="animated-327x61-html"
+                type="text"
+                class="font-mono flex-1"
+                :value="`<a href=&quot;${path}&quot;><img src=&quot;${animatedBanner327x61_yours}&quot; alt=&quot;Garden of Eden&quot; /></a>`"
+                readonly
+              />
+            </div>
+          </div>
+          <div v-else class="self-center space-y-2">
+            <p>Animated banners are only available to registered gardeners!</p>
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="signIn('dragcave')"
+            >
+              Login
+            </button>
+          </div>
+        </div>
       </div>
       <h2>Other resources</h2>
       <p>Resources by other people, you should check them out!</p>
@@ -143,6 +194,7 @@ useHead({
 });
 
 const { userSettings } = useUserSettings();
+const { data: authData, signIn } = useAuth();
 
 const config = useRuntimeConfig();
 const path = config.public.origin + config.public.baseUrl;
@@ -150,4 +202,6 @@ const banner90x35 = path + '/share/90x35.png';
 const banner294x30 = path + '/share/294x30.png';
 const banner90x51 = path + '/share/90x51.png';
 const banner88x63 = path + '/share/88x63.png';
+const animatedBanner327x61 = path + '/share/scroll/249648.gif';
+const animatedBanner327x61_yours = `${path}/share/scroll/${authData.value?.user.id}.gif`;
 </script>

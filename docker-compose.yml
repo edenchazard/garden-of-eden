@@ -5,6 +5,8 @@ services:
     command: node .output/server/index.mjs
     env_file:
       - .env
+    volumes:
+      - caches:/cache
     depends_on:
       - db
     healthcheck:
@@ -15,6 +17,8 @@ services:
       start_period: 60s
     labels:
       autoheal: true
+    ports:
+      - 3000:3000
     networks:
       - internal
       - dragcave
@@ -54,6 +58,7 @@ services:
 
 volumes:
   dbdata:
+  caches:
 
 networks:
   internal:
