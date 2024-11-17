@@ -102,7 +102,10 @@ export default defineNuxtConfig({
         'img-src': ["'self'", 'dragcave.net', 'data:;'],
       },
     },
-    csrf: true,
+    csrf: {
+      enabled: true,
+      encryptSecret: process.env.CSRF_SECRET,
+    },
   },
   routeRules: {
     // nuxt-auth has its own CSRF protection

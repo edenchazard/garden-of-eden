@@ -178,7 +178,7 @@ function trackClick(dragon: HatcheryDragon) {
     return;
   }
 
-  dragon.clicked_on = new Date();
+  dragon.clicked_on = new Date().toISOString();
 }
 
 function trackMouseClick(dragon: HatcheryDragon, event: MouseEvent) {

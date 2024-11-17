@@ -33,7 +33,7 @@ declare global {
 
   type HatcheryDragon = {
     id: string;
-    clicked_on: typeof clicksTable.$inferSelect.clicked_on | null;
+    clicked_on: string | null;
   };
 
   type UserSettings = Omit<
