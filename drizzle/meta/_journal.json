@@ -155,6 +155,13 @@
       "when": 1731710928029,
       "tag": "0025_aspiring_thundra",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1731831298322,
+      "tag": "0026_stiff_hydra",
+      "breakpoints": true
     }
   ]
 }
