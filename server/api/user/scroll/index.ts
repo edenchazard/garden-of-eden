@@ -4,6 +4,7 @@ import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
+import { isEgg, isHatchling } from '~/utils';
 import { isIncubated, isStunned } from '~/utils/calculations';
 
 async function fetchScroll(username: string, token: JWT) {
@@ -124,8 +125,12 @@ export default defineEventHandler(async (event) => {
       const hatcheryDragon = {
         in_garden: hatcheryData.in_garden,
         in_seed_tray: hatcheryData.in_seed_tray,
-        is_incubated: hatcheryData.is_incubated || isIncubated(apiDragon),
-        is_stunned: hatcheryData.is_stunned || isStunned(apiDragon),
+        is_incubated:
+          isEgg(apiDragon) &&
+          (hatcheryData.is_incubated || isIncubated(apiDragon)),
+        is_stunned:
+          isHatchling(apiDragon) &&
+          (hatcheryData.is_stunned || isStunned(apiDragon)),
       };
 
       return {
