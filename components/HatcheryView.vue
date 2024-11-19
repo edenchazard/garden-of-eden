@@ -146,7 +146,7 @@ const {
   data: hatchery,
   execute: fetchHatchery,
   status: hatcheryStatus,
-} = await useCsrfFetch('/api/hatchery', {
+} = await useFetch('/api/hatchery', {
   default: () => ({
     dragons: [],
     statistics: {
@@ -178,7 +178,7 @@ function trackClick(dragon: HatcheryDragon) {
     return;
   }
 
-  dragon.clicked_on = new Date();
+  dragon.clicked_on = new Date().toISOString();
 }
 
 function trackMouseClick(dragon: HatcheryDragon, event: MouseEvent) {

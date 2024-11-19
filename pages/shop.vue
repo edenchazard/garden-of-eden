@@ -182,7 +182,6 @@ async function purchase(item: Item) {
       'Csrf-token': useCsrf().csrf,
     },
     body: {},
-
     async onResponse({ response }) {
       if (!response.ok) {
         toast.error('Failed to purchase flair.');

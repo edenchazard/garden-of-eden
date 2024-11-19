@@ -20,6 +20,15 @@ At this point, you'll want to run the database migrations. Drizzle is used for m
 npm run dev:docker:migrate
 ```
 
+## Testing for production
+
+CSurf will cry. A lot. Tears o' plenty. If you don't add the following `env` vars to your `.env`:
+
+```bash
+NITRO_CSURF_HTTPS=false
+NITRO_CSURF_COOKIE_KEY=csrf
+```
+
 ## Useful links
 
 - [Drizzle](https://orm.drizzle.team/)

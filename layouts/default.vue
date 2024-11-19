@@ -210,7 +210,10 @@ const { data: authData, signIn, signOut } = useAuth();
 
 const { userSettings } = useUserSettings();
 
-const { execute: cleanUp } = useCsrfFetch('/api/hatchery', {
+const { execute: cleanUp } = useFetch('/api/hatchery', {
+  headers: computed(() => ({
+    'Csrf-token': useCsrf().csrf,
+  })),
   method: 'DELETE',
   immediate: false,
   body: {},

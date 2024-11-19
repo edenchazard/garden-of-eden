@@ -1,9 +1,10 @@
 import { getToken, getServerSession } from '#auth';
-import { and, eq, gt, inArray, notInArray, sql } from 'drizzle-orm';
+import { and, eq, gt, inArray, not, notInArray, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
+import { isEgg, isHatchling } from '~/utils';
 import { isIncubated, isStunned } from '~/utils/calculations';
 
 async function fetchScroll(username: string, token: JWT) {
@@ -62,8 +63,13 @@ export default defineEventHandler(async (event) => {
       // we should update its user id to reflect the change of ownership.
       await tx
         .update(hatcheryTable)
-        .set({ user_id: token.userId })
-        .where(inArray(hatcheryTable.id, alive));
+        .set({ user_id: token.userId, is_incubated: false, is_stunned: false })
+        .where(
+          and(
+            inArray(hatcheryTable.id, alive),
+            not(eq(hatcheryTable.user_id, token.userId))
+          )
+        );
 
       await tx
         .delete(hatcheryTable)
@@ -95,6 +101,8 @@ export default defineEventHandler(async (event) => {
           id: hatcheryTable.id,
           in_garden: hatcheryTable.in_garden,
           in_seed_tray: hatcheryTable.in_seed_tray,
+          is_incubated: hatcheryTable.is_incubated,
+          is_stunned: hatcheryTable.is_stunned,
         })
         .from(hatcheryTable)
         .where(eq(hatcheryTable.user_id, token.userId)),
@@ -104,22 +112,31 @@ export default defineEventHandler(async (event) => {
     details: {
       clicksToday,
     },
-    dragons: alive
-      .map<ScrollView>((id) => {
-        const hatcheryDragon = usersDragonsInHatchery.find(
-          (row) => row.id === id
-        );
+    dragons: alive.map<ScrollView>((id) => {
+      const apiDragon = scrollResponse.dragons[id];
+      const hatcheryData = {
+        in_garden: false,
+        in_seed_tray: false,
+        is_incubated: false,
+        is_stunned: false,
+        ...usersDragonsInHatchery.find((row) => row.id === id),
+      };
 
-        return {
-          ...scrollResponse.dragons[id],
-          in_garden: !!(hatcheryDragon?.in_garden ?? false),
-          in_seed_tray: !!(hatcheryDragon?.in_seed_tray ?? false),
-        };
-      })
-      .map((dragon) => ({
-        ...dragon,
-        incubated: isIncubated(dragon),
-        stunned: isStunned(dragon),
-      })),
+      const hatcheryDragon = {
+        in_garden: hatcheryData.in_garden,
+        in_seed_tray: hatcheryData.in_seed_tray,
+        is_incubated:
+          isEgg(apiDragon) &&
+          (hatcheryData.is_incubated || isIncubated(apiDragon)),
+        is_stunned:
+          isHatchling(apiDragon) &&
+          (hatcheryData.is_stunned || isStunned(apiDragon)),
+      };
+
+      return {
+        ...apiDragon,
+        ...hatcheryDragon,
+      };
+    }),
   };
 });

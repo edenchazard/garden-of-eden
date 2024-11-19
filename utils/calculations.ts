@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon';
+import { isEgg, isHatchling } from '.';
 
 export function predictedStartTimeFromHoursLeft(
-  scroll: ScrollView,
+  scroll: DragonData,
   offset: number = 0
 ) {
   const elapsedHours = 168 + offset - scroll.hoursleft;
@@ -13,9 +14,13 @@ export function predictedStartTimeFromHoursLeft(
   return now.minus({ hours: elapsedHours });
 }
 
-export function isIncubated(scroll: ScrollView) {
-  // no offset as eggs are weird
-  const predictedStartTime = predictedStartTimeFromHoursLeft(scroll);
+export function isIncubated(scroll: DragonData) {
+  if (!isEgg(scroll)) {
+    return false;
+  }
+
+  // -1 offset to account for minutes within hoursleft on start time
+  const predictedStartTime = predictedStartTimeFromHoursLeft(scroll, -1);
   const startDate = DateTime.fromFormat(scroll.start, 'yyyy/MM/dd', {
     zone: 'America/New_York',
   });
@@ -27,7 +32,11 @@ export function isIncubated(scroll: ScrollView) {
   return startDifference < 0;
 }
 
-export function isStunned(scroll: ScrollView) {
+export function isStunned(scroll: DragonData) {
+  if (!isHatchling(scroll)) {
+    return false;
+  }
+
   // +1 offset to account for minutes within hoursleft on hatch time
   const predictedStartTime = predictedStartTimeFromHoursLeft(scroll, 1);
   const hatchDate = DateTime.fromFormat(scroll.hatch, 'yyyy/MM/dd', {

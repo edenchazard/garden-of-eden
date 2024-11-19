@@ -4,6 +4,8 @@ import { hatcheryTable, recordingsTable } from '~/database/schema';
 import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
+import { isIncubated, isStunned } from '~/utils/calculations';
+
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
 
@@ -14,11 +16,15 @@ export async function cleanUp() {
       id: hatcheryTable.id,
       in_seed_tray: hatcheryTable.in_seed_tray,
       in_garden: hatcheryTable.in_garden,
+      is_incubated: hatcheryTable.is_incubated,
+      is_stunned: hatcheryTable.is_stunned,
     })
     .from(hatcheryTable);
 
   const removeFromSeedTray: string[] = [];
   const removeFromHatchery: string[] = [];
+  const updateIncubated: string[] = [];
+  const updateStunned: string[] = [];
   let hatchlings = 0;
   let eggs = 0;
   let adults = 0;
@@ -95,6 +101,22 @@ export async function cleanUp() {
             }
           }
         }
+
+        if (
+          hatcheryStatus?.is_incubated === false &&
+          !removeFromHatchery.includes(code) &&
+          isIncubated(dragon)
+        ) {
+          updateIncubated.push(code);
+        }
+
+        if (
+          hatcheryStatus?.is_stunned === false &&
+          !removeFromHatchery.includes(code) &&
+          isStunned(dragon)
+        ) {
+          updateStunned.push(code);
+        }
       }
     })
   );
@@ -117,6 +139,24 @@ export async function cleanUp() {
         .where(inArray(hatcheryTable.id, chunk));
       successfullyRemoved += affectedRows;
     })
+  );
+
+  await Promise.allSettled(
+    chunkArray(updateIncubated, 200).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ is_incubated: true })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
+
+  await Promise.allSettled(
+    chunkArray(updateStunned, 200).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ is_stunned: true })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
   );
 
   const end = new Date().getTime();

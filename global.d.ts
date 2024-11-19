@@ -1,8 +1,4 @@
-import type {
-  clicksTable,
-  userSettingsTable,
-  userTable,
-} from '~/database/schema';
+import type { userSettingsTable, userTable } from '~/database/schema';
 export {};
 
 declare global {
@@ -27,13 +23,13 @@ declare global {
   type ScrollView = DragonData & {
     in_garden: boolean;
     in_seed_tray: boolean;
-    incubated?: boolean;
-    stunned?: boolean;
+    is_incubated: boolean;
+    is_stunned: boolean;
   };
 
   type HatcheryDragon = {
     id: string;
-    clicked_on: typeof clicksTable.$inferSelect.clicked_on | null;
+    clicked_on: string | null;
   };
 
   type UserSettings = Omit<

@@ -105,7 +105,8 @@ async function getBannerBase(input) {
     // flair
     if (input.user.flairPath) {
         const flairPath = path.resolve('/src/resources/public', input.user.flairPath);
-        const flairImage = sharp(flairPath)
+        const { height: flairHeight } = await sharp(flairPath).png().metadata();
+        const flairShadow = await sharp(flairPath)
             .greyscale()
             .threshold(255)
             .composite([
@@ -119,15 +120,21 @@ async function getBannerBase(input) {
                 tile: true,
                 blend: 'dest-in',
             },
-            { input: flairPath, left: -1, top: -1 },
-            // todo: drop this
         ])
+            .extend({
+            top: 1,
+            left: 1,
+            extendWith: 'background',
+            background: 'transparent',
+        })
             .png();
-        const { height: flairHeight } = await flairImage.metadata();
+        const flairImage = await sharp(await flairShadow.toBuffer())
+            .composite([{ input: flairPath, left: 0, top: 0 }])
+            .png();
         composites.push({
             input: await flairImage.toBuffer(),
-            left: 122 + (usernameWidth ?? 0),
-            top: 17 - Math.floor((flairHeight ?? 0) / 2),
+            left: 121 + (usernameWidth ?? 0),
+            top: 16 - Math.floor((flairHeight ?? 0) / 2),
         });
     }
     const statText = (statName, statNumber) => textToPng(`

@@ -53,7 +53,9 @@ async function getDragons(
         )
       );
   } else {
-    query = db.select({ id: hatcheryTable.id }).from(hatcheryTable);
+    query = db
+      .select({ id: hatcheryTable.id, clicked_on: sql<null>`null` })
+      .from(hatcheryTable);
   }
 
   return query
