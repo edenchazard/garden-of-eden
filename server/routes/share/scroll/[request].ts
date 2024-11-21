@@ -136,11 +136,14 @@ async function sendJob(user: User, filePath: string) {
   );
 }
 
-function sendNotFound(event: H3Event) {
-  setHeader(event, 'Content-Type', 'image/gif');
+function sendNotFound(event: H3Event, extension: string) {
+  setResponseStatus(event, 404);
+
   return sendStream(
     event,
-    createReadStream(path.resolve('/src/resources/banner/not_found.gif'))
+    createReadStream(
+      path.resolve(`/src/resources/banner/not_found${extension}`)
+    )
   );
 }
 
@@ -170,7 +173,7 @@ export default defineEventHandler(async (event) => {
       ext,
     });
 
-  if (!params.data || !params.success) return sendNotFound(event);
+  if (!params.data || !params.success) return setResponseStatus(event, 404);
 
   const filePath = `/cache/scroll/${params.data.userId}${params.data.ext}`;
   const contentType = contentTypes[params.data.ext];
@@ -180,19 +183,16 @@ export default defineEventHandler(async (event) => {
     decodeURIComponent(params.data.username)
   );
 
-  if (!user) return sendNotFound(event);
+  setHeader(event, 'Content-Type', contentType);
+
+  if (!user) return sendNotFound(event, params.data.ext);
 
   await sendJob(user, filePath);
 
   if (await exists(filePath)) {
-    setHeaders(event, {
-      'Content-Type': contentType,
-      'Cache-Control': `public, max-age=1`,
-    });
+    setHeader(event, 'Cache-Control', `public, max-age=120`);
     return sendStream(event, createReadStream(filePath));
   }
-
-  setHeader(event, 'Content-Type', contentType);
 
   return sendStream(
     event,
