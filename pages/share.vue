@@ -202,6 +202,6 @@ const banner90x35 = path + '/share/90x35.png';
 const banner294x30 = path + '/share/294x30.png';
 const banner90x51 = path + '/share/90x51.png';
 const banner88x63 = path + '/share/88x63.png';
-const animatedBanner327x61 = path + '/share/scroll/42';
-const animatedBanner327x61_yours = `${path}/share/scroll/${authData.value?.user.username}`;
+const animatedBanner327x61 = path + '/share/scroll/249648-42';
+const animatedBanner327x61_yours = `${path}/share/scroll/${authData.value?.user.id}-${authData.value?.user.username}`;
 </script>
