@@ -64,8 +64,8 @@
             </p>
           </div>
         </div>
-        <template v-else
-          ><div
+        <template v-else>
+          <div
             v-if="!scroll.dragons.length"
             class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
           >
