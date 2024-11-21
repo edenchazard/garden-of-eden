@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { promises as fs, createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, param, sql } from 'drizzle-orm';
 import {
   itemsTable,
   userSettingsTable,
@@ -148,35 +148,36 @@ function sendNotFound(event: H3Event, extension: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  const { request } = getRouterParams(event);
+  const querySchema = z.object({
+    ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
+  });
+
+  const paramSchema = z.object({
+    userId: z.coerce.number().min(1),
+    username: z.string().min(2).max(30),
+  });
 
   const contentTypes = {
     '.gif': 'image/gif',
     '.webp': 'image/webp',
   };
 
-  const match = request.match(/^(\d+)-([\w\s-%]+)(\.\w+)?$/);
+  const match = getRouterParams(event).request.match(/^(\d+)-([\w\s-%.]+)$/);
+  const query = await querySchema.safeParseAsync(getQuery(event));
 
-  if (!match) return setResponseStatus(event, 404);
+  if (!match || !query.success) return setResponseStatus(event, 404);
 
-  const [, userId, username, ext] = match;
+  const [, userId, username] = match;
 
-  const params = await z
-    .object({
-      userId: z.coerce.number().min(1),
-      username: z.string().min(2).max(30),
-      ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
-    })
-    .safeParseAsync({
-      userId,
-      username,
-      ext,
-    });
+  const params = await paramSchema.safeParseAsync({
+    userId,
+    username,
+  });
 
   if (!params.data || !params.success) return setResponseStatus(event, 404);
 
-  const filePath = `/cache/scroll/${params.data.userId}${params.data.ext}`;
-  const contentType = contentTypes[params.data.ext];
+  const filePath = `/cache/scroll/${params.data.userId}${query.data.ext}`;
+  const contentType = contentTypes[query.data.ext];
 
   const user = await getUser(
     params.data.userId,
@@ -185,7 +186,7 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', contentType);
 
-  if (!user) return sendNotFound(event, params.data.ext);
+  if (!user) return sendNotFound(event, query.data.ext);
 
   await sendJob(user, filePath);
 
@@ -196,6 +197,6 @@ export default defineEventHandler(async (event) => {
 
   return sendStream(
     event,
-    createReadStream(`/src/resources/banner/in_progress${params.data.ext}`)
+    createReadStream(`/src/resources/banner/in_progress${query.data.ext}`)
   );
 });
