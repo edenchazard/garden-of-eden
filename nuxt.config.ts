@@ -141,7 +141,7 @@ export default defineNuxtConfig({
     esbuild: {
       options: {
         target: 'esnext',
-        drop: ['console'],
+        drop: process.env.NODE_ENV === 'production' ? ['console'] : [],
       },
     },
   },
