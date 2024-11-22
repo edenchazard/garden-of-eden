@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { promises as fs, createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
-import { and, eq, param, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import {
   itemsTable,
   userSettingsTable,
