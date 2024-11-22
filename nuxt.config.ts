@@ -101,11 +101,13 @@ export default defineNuxtConfig({
       referrerPolicy: false,
       contentSecurityPolicy: {
         'img-src': ["'self'", 'dragcave.net', 'data:;'],
+        'upgrade-insecure-requests': false,
       },
     },
     csrf: {
       enabled: true,
       encryptSecret: process.env.CSRF_SECRET,
+      methodsToProtect: ['POST', 'PUT', 'PATCH', 'DELETE'],
     },
   },
   image: {
