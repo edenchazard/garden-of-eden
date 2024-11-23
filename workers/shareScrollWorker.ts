@@ -39,27 +39,23 @@ interface DragCaveApiResponse<Data extends Record<string, unknown>> {
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   console.log(job.data);
 
-  let handler:
-    | null
-    | ((base: sharp.OverlayOptions[]) => Promise<sharp.OverlayOptions[]>) =
-    null;
-
-  if (job.data.stats === BannerType.dragons) {
-    const stats = await getScrollStats(job.data);
-
-    job.data.data = stats;
-    handler = (base) => getBannerBaseForDragons(base, job.data);
-  } else if (job.data.requestParameters.stats === BannerType.garden) {
-    handler = (base) => getBannerBaseForGarden(base, job.data);
-  }
+  const handler = await (async () => {
+    switch (job.data.stats) {
+      case BannerType.dragons:
+        job.data.data = await getScrollStats(job.data);
+        return getBannerBaseForDragons;
+      case BannerType.garden:
+        return getBannerBaseForGarden;
+      default:
+        throw new Error('Invalid handler');
+    }
+  })();
 
   console.log(job.data);
 
-  if (!handler) {
-    throw new Error('Invalid handler');
-  }
-
-  const perfData = await generateBannerToTemporary(job.data, handler);
+  const perfData = await generateBannerToTemporary(job.data, (base) =>
+    handler(base, job.data)
+  );
 
   if (perfData.error === 'API Timeout') throw new Error(perfData.error);
 

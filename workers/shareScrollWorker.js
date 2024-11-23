@@ -5,20 +5,19 @@ import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 export default async function bannerGen(job) {
     console.log(job.data);
-    let handler = null;
-    if (job.data.stats === "dragons" /* BannerType.dragons */) {
-        const stats = await getScrollStats(job.data);
-        job.data.data = stats;
-        handler = (base) => getBannerBaseForDragons(base, job.data);
-    }
-    else if (job.data.requestParameters.stats === "garden" /* BannerType.garden */) {
-        handler = (base) => getBannerBaseForGarden(base, job.data);
-    }
+    const handler = await (async () => {
+        switch (job.data.stats) {
+            case "dragons" /* BannerType.dragons */:
+                job.data.data = await getScrollStats(job.data);
+                return getBannerBaseForDragons;
+            case "garden" /* BannerType.garden */:
+                return getBannerBaseForGarden;
+            default:
+                throw new Error('Invalid handler');
+        }
+    })();
     console.log(job.data);
-    if (!handler) {
-        throw new Error('Invalid handler');
-    }
-    const perfData = await generateBannerToTemporary(job.data, handler);
+    const perfData = await generateBannerToTemporary(job.data, (base) => handler(base, job.data));
     if (perfData.error === 'API Timeout')
         throw new Error(perfData.error);
     return {
