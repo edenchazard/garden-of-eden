@@ -18,6 +18,7 @@ import {
   type BannerRequestParameters,
   type User,
 } from '~/workers/shareScrollWorkerTypes';
+import crypto from 'crypto';
 
 const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
@@ -99,13 +100,14 @@ async function exists(file: string) {
 }
 
 async function sendJob(
+  unique: string,
   user: User,
   filePath: string,
   requestParameters: BannerRequestParameters
 ) {
   const { bannerCacheExpiry, clientSecret } = useRuntimeConfig();
   const expires = bannerCacheExpiry * 1000;
-  const jobId = `banner-` + filePath.substring(filePath.lastIndexOf('/') + 1);
+  const jobId = `banner-${unique}`;
 
   // We don't want to rerun these queries if not enough time has passed.
   const existingJob = await shareScrollQueue.getJob(jobId);
@@ -184,7 +186,12 @@ export default defineEventHandler(async (event) => {
 
   if (!params.data || !params.success) return setResponseStatus(event, 404);
 
-  const filePath = `/cache/scroll/${params.data.userId}${query.data.ext}`;
+  const unique = crypto
+    .createHash('sha1')
+    .update(JSON.stringify(query.data))
+    .digest('hex');
+
+  const filePath = `/cache/scroll/${params.data.userId}-${unique}${query.data.ext}`;
   const contentType = contentTypes[query.data.ext];
 
   const user = await getUser(
@@ -196,7 +203,7 @@ export default defineEventHandler(async (event) => {
 
   if (!user) return sendNotFound(event, query.data.ext);
 
-  await sendJob(user, filePath, query.data);
+  await sendJob(unique, user, filePath, query.data);
 
   if (await exists(filePath)) {
     //setHeader(event, 'Cache-Control', `public, max-age=120`);
