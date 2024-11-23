@@ -99,12 +99,6 @@ async function generateBannerToTemporary(input, baser) {
     return perfData;
 }
 // bannergen steps
-function makeStatText(input, statName, statNumber) {
-    return textToPng(`
-      <tspan fill="#${input.requestParameters.labelColour}">${statName}:</tspan> 
-      <tspan fill="#${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
-    `, '8px Nokia Cellphone FC', '');
-}
 async function getBannerBaseComposite(input) {
     const composites = [
         {
@@ -328,7 +322,61 @@ async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) 
     }
     return Promise.all(framePromises);
 }
+async function getScrollStats(input) {
+    const { errors, dragons } = await ofetch('https://dragcave.net/api/v2/user', {
+        headers: { Authorization: `Bearer ${input.secret}` },
+        query: {
+            username: input.user.username,
+            limit: 100, // 99999,
+            filter: 'ALL',
+        },
+        retry: 3,
+        retryDelay: 1000,
+    });
+    const stats = {
+        female: 0,
+        male: 0,
+        eggs: 0,
+        hatch: 0,
+        adult: 0,
+        frozen: 0,
+        total: Object.keys(dragons).length,
+    };
+    for (const code in dragons) {
+        const dragon = dragons[code];
+        if (dragon.gender === 'Female') {
+            stats.female++;
+        }
+        else if (dragon.gender === 'Male') {
+            stats.male++;
+        }
+        if (dragon.grow !== '0') {
+            stats.adult++;
+        }
+        else if (dragon.hoursleft > -1) {
+            if (dragon.hatch !== '0') {
+                stats.hatch++;
+            }
+            else {
+                stats.eggs++;
+            }
+        }
+        if (dragon.hoursleft === -1 && dragon.grow === '0') {
+            stats.frozen++;
+        }
+    }
+    if (errors.length > 0) {
+        throw new Error('Errors getting stats: ' + errors);
+    }
+    return stats;
+}
 // utils
+function makeStatText(input, statName, statNumber) {
+    return textToPng(`
+      <tspan fill="#${input.requestParameters.labelColour}">${statName}:</tspan> 
+      <tspan fill="#${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
+    `, '8px Nokia Cellphone FC', '');
+}
 async function textToPng(text, font, // eg. "16px Alkhemikal"
 styles // eg: "fill: white; ..."
 ) {
@@ -421,52 +469,4 @@ async function fileExists(filePath) {
     catch {
         return false;
     }
-}
-async function getScrollStats(input) {
-    const { errors, dragons } = await ofetch('https://dragcave.net/api/v2/user', {
-        headers: { Authorization: `Bearer ${input.secret}` },
-        query: {
-            username: input.user.username,
-            limit: 100, // 99999,
-            filter: 'ALL',
-        },
-        retry: 3,
-        retryDelay: 1000,
-    });
-    const stats = {
-        female: 0,
-        male: 0,
-        eggs: 0,
-        hatch: 0,
-        adult: 0,
-        frozen: 0,
-        total: Object.keys(dragons).length,
-    };
-    for (const code in dragons) {
-        const dragon = dragons[code];
-        if (dragon.gender === 'Female') {
-            stats.female++;
-        }
-        else if (dragon.gender === 'Male') {
-            stats.male++;
-        }
-        if (dragon.grow !== '0') {
-            stats.adult++;
-        }
-        else if (dragon.hoursleft > -1) {
-            if (dragon.hatch !== '0') {
-                stats.hatch++;
-            }
-            else {
-                stats.eggs++;
-            }
-        }
-        if (dragon.hoursleft === -1 && dragon.grow === '0') {
-            stats.frozen++;
-        }
-    }
-    if (errors.length > 0) {
-        throw new Error('Errors getting stats: ' + errors);
-    }
-    return stats;
 }
