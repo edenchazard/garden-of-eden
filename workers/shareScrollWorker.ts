@@ -331,7 +331,7 @@ async function getBannerBaseForDragons(input: WorkerInput) {
     },
     {
       input: adults,
-      left: 262,
+      left: 240,
       top: 28,
     }
   );

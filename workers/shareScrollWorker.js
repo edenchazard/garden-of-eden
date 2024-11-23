@@ -223,7 +223,7 @@ async function getBannerBaseForDragons(input) {
         top: 40,
     }, {
         input: adults,
-        left: 262,
+        left: 240,
         top: 28,
     });
     return compositeImage.composite(composites).png().toBuffer();
