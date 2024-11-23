@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { promises as fs, createReadStream } from 'fs';
+import { promises as fs, createReadStream, stat } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
 import { and, eq, sql } from 'drizzle-orm';
@@ -13,7 +13,10 @@ import {
 import { DateTime } from 'luxon';
 import path from 'node:path';
 import type { H3Event } from 'h3';
-import type { User } from '~/workers/shareScrollWorkerTypes';
+import type {
+  BannerRequestParameters,
+  User,
+} from '~/workers/shareScrollWorkerTypes';
 
 const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
@@ -94,7 +97,11 @@ async function exists(file: string) {
   }
 }
 
-async function sendJob(user: User, filePath: string) {
+async function sendJob(
+  user: User,
+  filePath: string,
+  requestParameters: BannerRequestParameters
+) {
   const { bannerCacheExpiry, clientSecret } = useRuntimeConfig();
   const expires = bannerCacheExpiry * 1000;
   const jobId = `banner-` + filePath.substring(filePath.lastIndexOf('/') + 1);
@@ -117,17 +124,21 @@ async function sendJob(user: User, filePath: string) {
     {
       user,
       filePath,
-      weeklyClicks,
-      weeklyRank,
-      allTimeClicks,
-      allTimeRank,
       dragons,
-      clientSecret,
+      secret: clientSecret,
+      stats: requestParameters.stats,
+      requestParameters,
+      data: {
+        weeklyClicks,
+        weeklyRank,
+        allTimeClicks,
+        allTimeRank,
+      },
     },
     {
       removeOnFail: true,
       jobId,
-      attempts: 3,
+      attempts: 1,
       backoff: {
         type: 'fixed',
         delay: 10000,
@@ -150,6 +161,9 @@ function sendNotFound(event: H3Event, extension: string) {
 export default defineEventHandler(async (event) => {
   const querySchema = z.object({
     ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
+    stats: z
+      .union([z.literal('dragons'), z.literal('garden')])
+      .default('garden'),
   });
 
   const paramSchema = z.object({
@@ -188,10 +202,10 @@ export default defineEventHandler(async (event) => {
 
   if (!user) return sendNotFound(event, query.data.ext);
 
-  await sendJob(user, filePath);
+  await sendJob(user, filePath, query.data);
 
   if (await exists(filePath)) {
-    setHeader(event, 'Cache-Control', `public, max-age=120`);
+    //setHeader(event, 'Cache-Control', `public, max-age=120`);
     return sendStream(event, createReadStream(filePath));
   }
 

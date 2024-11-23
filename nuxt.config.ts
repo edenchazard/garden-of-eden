@@ -95,6 +95,7 @@ export default defineNuxtConfig({
     disallow: ['/api', '/view'],
   },
   security: {
+    removeLoggers: false,
     rateLimiter: false,
     headers: {
       crossOriginEmbedderPolicy: false,

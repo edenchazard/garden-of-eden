@@ -27,28 +27,25 @@ export type ScrollStats = {
 };
 
 export const enum BannerType {
-  gardenClicks = 'gardenClicks',
-  scrollStatistics = 'scrollStatistics',
+  garden = 'garden',
+  dragons = 'dragons',
 }
 
 export interface WorkerInput {
+  stats: BannerType;
   user: User;
   filePath: string;
   dragons: string[];
   secret: string;
-  bannerType: BannerType;
+  requestParameters: Required<BannerRequestParameters>;
+  data: Record<string, number>;
 }
 
-export interface BannerGardenClicks extends WorkerInput {
-  bannerType: BannerType.gardenClicks;
+export interface BannerDataGardenClicks {
   weeklyClicks: number;
   weeklyRank: number | null;
   allTimeClicks: number;
   allTimeRank: number | null;
-}
-
-export interface BannerScrollStatistics extends WorkerInput {
-  bannerType: BannerType.scrollStatistics;
 }
 
 export const enum WorkerResponseType {
@@ -64,10 +61,15 @@ export type WorkerResponse = {
 export interface WorkerFinished extends WorkerResponse {
   type: WorkerResponseType.jobFinished;
   performanceData: PerformanceData;
-  user: WorkerInput['user'];
+  user: User;
 }
 
 export interface WorkerError extends WorkerResponse {
   type: WorkerResponseType.error;
-  user: WorkerInput['user'];
+  user: User;
 }
+
+export type BannerRequestParameters = {
+  stats?: 'dragons' | 'garden';
+  ext?: '.gif' | '.webp';
+};

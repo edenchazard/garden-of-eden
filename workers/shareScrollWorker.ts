@@ -4,18 +4,59 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 import { WorkerResponseType } from './shareScrollWorkerTypes';
-import type {
-  BannerGardenClicks,
-  BannerScrollStatistics,
-  PerformanceData,
-  ScrollStats,
-  WorkerFinished,
-  WorkerInput,
+import {
+  BannerType,
+  type PerformanceData,
+  type ScrollStats,
+  type WorkerFinished,
+  type WorkerInput,
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
 
+type DragonData = {
+  id: string;
+  name: string | null;
+  owner: string | null;
+  start: string;
+  hatch: string;
+  grow: string;
+  death: string;
+  views: number;
+  unique: number;
+  clicks: number;
+  gender: 'Male' | 'Female' | '';
+  acceptaid: boolean;
+  hoursleft: number;
+  parent_f: string;
+  parent_m: string;
+};
+
+interface DragCaveApiResponse<Data extends Record<string, unknown>> {
+  errors: Array<[number, string]>;
+  data: Data;
+}
+
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
-  const perfData = await generateBannerToTemporary(job.data);
+  console.log(job.data);
+
+  let handler: null | (() => Promise<Buffer>) = null;
+
+  if (job.data.stats === BannerType.dragons) {
+    const stats = await getScrollStats(job.data);
+
+    job.data.data = stats;
+    handler = () => getBannerBaseForDragons(job.data);
+  } else if (job.data.requestParameters.stats === BannerType.garden) {
+    handler = () => getBannerBaseForGarden(job.data);
+  }
+
+  console.log(job.data);
+
+  if (!handler) {
+    throw new Error('Invalid handler');
+  }
+
+  const perfData = await generateBannerToTemporary(job.data, handler);
 
   if (perfData.error === 'API Timeout') throw new Error(perfData.error);
 
@@ -30,7 +71,10 @@ const baseBannerWidth = 327;
 const baseBannerHeight = 61;
 const baseCarouselWidth = 106;
 
-async function generateBannerToTemporary(input: WorkerInput) {
+async function generateBannerToTemporary(
+  input: WorkerInput,
+  baser: () => Promise<Buffer>
+) {
   const perfData: PerformanceData = {
     dragonsIncluded: null,
     dragonsOmitted: null,
@@ -53,7 +97,7 @@ async function generateBannerToTemporary(input: WorkerInput) {
     const totalStartTime = startTime;
 
     start();
-    const bannerBuffer = await getBannerBase(input);
+    const bannerBuffer = await baser();
     perfData.statGenTime = end();
 
     if (input.dragons.length > 0) {
@@ -111,8 +155,18 @@ async function generateBannerToTemporary(input: WorkerInput) {
 
 // bannergen steps
 
-async function getBannerBase(input: BannerGardenClicks) {
-  const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+function makeStatText(statName: string, statNumber: number) {
+  return textToPng(
+    `
+      <tspan fill="#dff6f5">${statName}:</tspan> 
+      <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
+    `,
+    '8px Nokia Cellphone FC',
+    ''
+  );
+}
+
+async function getBannerBaseComposite(input: WorkerInput) {
   const composites: sharp.OverlayOptions[] = [
     // base
     {
@@ -145,7 +199,7 @@ async function getBannerBase(input: BannerGardenClicks) {
     );
     const { height: flairHeight } = await sharp(flairPath).png().metadata();
 
-    const flairShadow = await sharp(flairPath)
+    const flairShadow = sharp(flairPath)
       .greyscale()
       .threshold(255)
       .composite([
@@ -168,7 +222,7 @@ async function getBannerBase(input: BannerGardenClicks) {
       })
       .png();
 
-    const flairImage = await sharp(await flairShadow.toBuffer())
+    const flairImage = sharp(await flairShadow.toBuffer())
       .composite([{ input: flairPath, left: 0, top: 0 }])
       .png();
 
@@ -179,15 +233,12 @@ async function getBannerBase(input: BannerGardenClicks) {
     });
   }
 
-  const statText = (statName: string, statNumber: number) =>
-    textToPng(
-      `
-        <tspan fill="#dff6f5">${statName}:</tspan> 
-        <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
-      `,
-      '8px Nokia Cellphone FC',
-      ''
-    );
+  return composites;
+}
+
+async function getBannerBaseForGarden(input: WorkerInput) {
+  const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+  const composites = await getBannerBaseComposite(input);
 
   const rankText = (rankNumber: number) =>
     textToPng(
@@ -206,10 +257,10 @@ async function getBannerBase(input: BannerGardenClicks) {
     compositeAllTimeClicks,
     compositeAllTimeRank,
   ] = await Promise.all([
-    statText('Weekly Clicks', input.weeklyClicks),
-    input.weeklyRank ? rankText(input.weeklyRank) : null,
-    statText('All-time Clicks', input.allTimeClicks),
-    input.allTimeRank ? rankText(input.allTimeRank) : null,
+    makeStatText('Weekly Clicks', input.data.weeklyClicks),
+    input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
+    makeStatText('All-time Clicks', input.data.allTimeClicks),
+    input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
   ]);
 
   composites.push(
@@ -240,6 +291,50 @@ async function getBannerBase(input: BannerGardenClicks) {
       top: 41,
     });
   }
+
+  return compositeImage.composite(composites).png().toBuffer();
+}
+
+async function getBannerBaseForDragons(input: WorkerInput) {
+  const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+  const composites = await getBannerBaseComposite(input);
+
+  // stats
+  const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
+    makeStatText('Total', input.data.total),
+    makeStatText('Frozen', input.data.frozen),
+    makeStatText('Eggs', input.data.eggs),
+    makeStatText('Hatch', input.data.hatch),
+    makeStatText('Adults', input.data.adult),
+  ]);
+
+  composites.push(
+    {
+      input: total,
+      left: 118,
+      top: 28,
+    },
+    {
+      input: frozen,
+      left: 118,
+      top: 40,
+    },
+    {
+      input: eggs,
+      left: 190,
+      top: 28,
+    },
+    {
+      input: hatchlings,
+      left: 190,
+      top: 40,
+    },
+    {
+      input: adults,
+      left: 262,
+      top: 28,
+    }
+  );
 
   return compositeImage.composite(composites).png().toBuffer();
 }
@@ -516,15 +611,18 @@ async function fileExists(filePath: string) {
   }
 }
 
-async function getScrollStats(
-  input: BannerScrollStatistics
-): Promise<ScrollStats> {
+async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
   const { errors, dragons } = await ofetch<
     DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
       dragons: Record<string, DragonData>;
     }
-  >('https://dragcave.net/api/v2/scroll', {
+  >('https://dragcave.net/api/v2/user', {
     headers: { Authorization: `Bearer ${input.secret}` },
+    query: {
+      username: input.user.username,
+      limit: 99999,
+      filter: 'ALL',
+    },
     retry: 3,
     retryDelay: 1000,
   });
@@ -550,10 +648,12 @@ async function getScrollStats(
 
     if (dragon.grow !== '0') {
       stats.adult++;
-    } else if (dragon.hatch !== '0') {
-      stats.hatch++;
-    } else {
-      stats.eggs++;
+    } else if (dragon.hoursleft > -1) {
+      if (dragon.hatch !== '0') {
+        stats.hatch++;
+      } else {
+        stats.eggs++;
+      }
     }
 
     if (dragon.hoursleft === -1 && dragon.grow === '0') {

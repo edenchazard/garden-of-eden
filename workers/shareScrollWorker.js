@@ -4,7 +4,21 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 export default async function bannerGen(job) {
-    const perfData = await generateBannerToTemporary(job.data);
+    console.log(job.data);
+    let handler = null;
+    if (job.data.stats === "dragons" /* BannerType.dragons */) {
+        const stats = await getScrollStats(job.data);
+        job.data.data = stats;
+        handler = () => getBannerBaseForDragons(job.data);
+    }
+    else if (job.data.requestParameters.stats === "garden" /* BannerType.garden */) {
+        handler = () => getBannerBaseForGarden(job.data);
+    }
+    console.log(job.data);
+    if (!handler) {
+        throw new Error('Invalid handler');
+    }
+    const perfData = await generateBannerToTemporary(job.data, handler);
     if (perfData.error === 'API Timeout')
         throw new Error(perfData.error);
     return {
@@ -16,7 +30,7 @@ export default async function bannerGen(job) {
 const baseBannerWidth = 327;
 const baseBannerHeight = 61;
 const baseCarouselWidth = 106;
-async function generateBannerToTemporary(input) {
+async function generateBannerToTemporary(input, baser) {
     const perfData = {
         dragonsIncluded: null,
         dragonsOmitted: null,
@@ -29,22 +43,18 @@ async function generateBannerToTemporary(input) {
         error: null,
     };
     let startTime = performance.now();
-    const start = () => {
-        return (startTime = performance.now());
-    };
-    const end = () => {
-        return performance.now() - startTime;
-    };
+    const start = () => (startTime = performance.now());
+    const end = () => performance.now() - startTime;
     try {
         const outputDir = path.dirname(input.filePath);
         await fs.mkdir(outputDir, { recursive: true });
         const totalStartTime = startTime;
         start();
-        const bannerBuffer = await getBannerBase(input);
+        const bannerBuffer = await baser();
         perfData.statGenTime = end();
         if (input.dragons.length > 0) {
             start();
-            const { dragonsIncluded, dragonsOmitted, dragonBuffers } = await getDragonBuffers(input.dragons, input.clientSecret);
+            const { dragonsIncluded, dragonsOmitted, dragonBuffers } = await getDragonBuffers(input.dragons, input.secret);
             perfData.dragonFetchTime = end();
             perfData.dragonsIncluded = dragonsIncluded;
             perfData.dragonsOmitted = dragonsOmitted;
@@ -85,15 +95,21 @@ async function generateBannerToTemporary(input) {
     return perfData;
 }
 // bannergen steps
-async function getBannerBase(input) {
-    const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-    const composites = [];
-    // base
-    composites.push({
-        input: path.resolve('/src/resources/', 'banner/base.webp'),
-        top: 0,
-        left: 0,
-    });
+function makeStatText(statName, statNumber) {
+    return textToPng(`
+      <tspan fill="#dff6f5">${statName}:</tspan> 
+      <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
+    `, '8px Nokia Cellphone FC', '');
+}
+async function getBannerBaseComposite(input) {
+    const composites = [
+        // base
+        {
+            input: path.resolve('/src/resources/', 'banner/base.webp'),
+            top: 0,
+            left: 0,
+        },
+    ];
     // scrollname
     const usernamePng = await textToPng(input.user.username, '16px Alkhemikal', 'fill: #dff6f5;');
     const { height: usernameHeight, width: usernameWidth } = await sharp(usernamePng).metadata();
@@ -106,7 +122,7 @@ async function getBannerBase(input) {
     if (input.user.flairPath) {
         const flairPath = path.resolve('/src/resources/public', input.user.flairPath);
         const { height: flairHeight } = await sharp(flairPath).png().metadata();
-        const flairShadow = await sharp(flairPath)
+        const flairShadow = sharp(flairPath)
             .greyscale()
             .threshold(255)
             .composite([
@@ -128,7 +144,7 @@ async function getBannerBase(input) {
             background: 'transparent',
         })
             .png();
-        const flairImage = await sharp(await flairShadow.toBuffer())
+        const flairImage = sharp(await flairShadow.toBuffer())
             .composite([{ input: flairPath, left: 0, top: 0 }])
             .png();
         composites.push({
@@ -137,20 +153,21 @@ async function getBannerBase(input) {
             top: 16 - Math.floor((flairHeight ?? 0) / 2),
         });
     }
-    const statText = (statName, statNumber) => textToPng(`
-        <tspan fill="#dff6f5">${statName}:</tspan> 
-        <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
-      `, '8px Nokia Cellphone FC', '');
+    return composites;
+}
+async function getBannerBaseForGarden(input) {
+    const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+    const composites = await getBannerBaseComposite(input);
     const rankText = (rankNumber) => textToPng(`
         <tspan fill="#dff6f5">Ranked</tspan> 
         <tspan fill="#f2bd59">#${rankNumber}</tspan>
       `, '8px Nokia Cellphone FC', '');
     // stats
     const [compositeWeeklyClicks, compositeWeeklyRank, compositeAllTimeClicks, compositeAllTimeRank,] = await Promise.all([
-        statText('Weekly Clicks', input.weeklyClicks),
-        input.weeklyRank ? rankText(input.weeklyRank) : null,
-        statText('All-time Clicks', input.allTimeClicks),
-        input.allTimeRank ? rankText(input.allTimeRank) : null,
+        makeStatText('Weekly Clicks', input.data.weeklyClicks),
+        input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
+        makeStatText('All-time Clicks', input.data.allTimeClicks),
+        input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
     ]);
     composites.push({
         input: compositeWeeklyClicks,
@@ -175,7 +192,41 @@ async function getBannerBase(input) {
             top: 41,
         });
     }
-    return await compositeImage.composite(composites).png().toBuffer();
+    return compositeImage.composite(composites).png().toBuffer();
+}
+async function getBannerBaseForDragons(input) {
+    const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
+    const composites = await getBannerBaseComposite(input);
+    // stats
+    const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
+        makeStatText('Total', input.data.total),
+        makeStatText('Frozen', input.data.frozen),
+        makeStatText('Eggs', input.data.eggs),
+        makeStatText('Hatch', input.data.hatch),
+        makeStatText('Adults', input.data.adult),
+    ]);
+    composites.push({
+        input: total,
+        left: 118,
+        top: 28,
+    }, {
+        input: frozen,
+        left: 118,
+        top: 40,
+    }, {
+        input: eggs,
+        left: 190,
+        top: 28,
+    }, {
+        input: hatchlings,
+        left: 190,
+        top: 40,
+    }, {
+        input: adults,
+        left: 262,
+        top: 28,
+    });
+    return compositeImage.composite(composites).png().toBuffer();
 }
 async function getDragonBuffers(dragonIds, clientSecret) {
     try {
@@ -192,25 +243,18 @@ async function getDragonBuffers(dragonIds, clientSecret) {
         if (errors.length > 0) {
             throw new Error('Errors getting bulk dragons: ' + errors);
         }
-        else {
-            Object.keys(dragons).forEach((key) => {
-                if ('hoursleft' in dragons[key] && dragons[key].hoursleft > 0) {
-                    dragonsIncluded.push(key);
-                }
-                else {
-                    dragonsOmitted.push(key);
-                }
-            });
-        }
-        const dragonBuffers = await Promise.all(dragonsIncluded.map(async (dragonId) => {
-            const dragonBuffer = await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
-                retry: 3,
-                retryDelay: 1000,
-                timeout,
-                responseType: 'arrayBuffer',
-            });
-            return Buffer.from(dragonBuffer);
-        }));
+        Object.keys(dragons).forEach((key) => {
+            const arr = 'hoursleft' in dragons[key] && dragons[key].hoursleft > 0
+                ? dragonsIncluded
+                : dragonsOmitted;
+            arr.push(key);
+        });
+        const dragonBuffers = await Promise.all(dragonsIncluded.map(async (dragonId) => Buffer.from(await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
+            retry: 3,
+            retryDelay: 1000,
+            timeout,
+            responseType: 'arrayBuffer',
+        }))));
         return {
             dragonsIncluded,
             dragonsOmitted,
@@ -227,10 +271,7 @@ async function getDragonBuffers(dragonIds, clientSecret) {
     }
 }
 async function getDragonStrip(dragonBuffers) {
-    const dragonMetadatas = await Promise.all(dragonBuffers.map((buf) => {
-        const img = sharp(buf);
-        return img.metadata();
-    }));
+    const dragonMetadatas = await Promise.all(dragonBuffers.map((buf) => sharp(buf).metadata()));
     const spacing = 2;
     // how much room between each thing
     const stripHeight = 49;
@@ -244,13 +285,13 @@ async function getDragonStrip(dragonBuffers) {
         const prevOffset = xOffsets[xOffsets.length - 1];
         xOffsets.push(prevOffset + (metadata.width ?? 0) + spacing);
     });
-    await Promise.all(dragonBuffers.map(async (dragonBuffer, index) => {
+    dragonBuffers.forEach(async (dragonBuffer, index) => {
         composites.push({
             input: dragonBuffer,
             top: stripHeight - (dragonMetadatas[index].height ?? 0),
             left: xOffsets[index],
         });
-    }));
+    });
     const stripBuffer = await compositeImage
         .composite(composites)
         .png()
@@ -264,8 +305,8 @@ async function getDragonStrip(dragonBuffers) {
 async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) {
     const framePromises = [];
     if (stripWidth < baseCarouselWidth) {
-        const frame = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-        const composites = [
+        const composedFrameBuffer = await createEmptyFrame(baseBannerWidth, baseBannerHeight)
+            .composite([
             {
                 input: bannerBuffer,
                 top: 0,
@@ -276,9 +317,7 @@ async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) 
                 top: 5,
                 left: Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
             },
-        ];
-        const composedFrameBuffer = await frame
-            .composite(composites)
+        ])
             .png()
             .toBuffer();
         framePromises.push(sharp(composedFrameBuffer));
@@ -304,7 +343,7 @@ styles // eg: "fill: white; ..."
     // (and sharp doesn't support the dominant-baseline property!)
     // and there's no way for a svg to grab its own children's dimensions,
     // so the purpose of this dummy is to provide the raw dimensions of the text.
-    const pngBuffer = await sharp(Buffer.from(`<svg width="${(width ?? 0) + 1}" height="${(height ?? 0) + 4}">
+    return sharp(Buffer.from(`<svg width="${(width ?? 0) + 1}" height="${(height ?? 0) + 4}">
         <style>
           .text {
             font: ${font};
@@ -319,7 +358,6 @@ styles // eg: "fill: white; ..."
     // the real deal is here. it uses the dummy-given dimensions
     // to push down the text into the viewport at an appropriate distance
     // and adds spacing to accomodate the text-shadow.
-    return pngBuffer;
 }
 function createEmptyFrame(width, height) {
     return sharp({
@@ -384,4 +422,52 @@ async function fileExists(filePath) {
     catch {
         return false;
     }
+}
+async function getScrollStats(input) {
+    const { errors, dragons } = await ofetch('https://dragcave.net/api/v2/user', {
+        headers: { Authorization: `Bearer ${input.secret}` },
+        query: {
+            username: input.user.username,
+            limit: 99999,
+            filter: 'ALL',
+        },
+        retry: 3,
+        retryDelay: 1000,
+    });
+    const stats = {
+        female: 0,
+        male: 0,
+        eggs: 0,
+        hatch: 0,
+        adult: 0,
+        frozen: 0,
+        total: Object.keys(dragons).length,
+    };
+    for (const code in dragons) {
+        const dragon = dragons[code];
+        if (dragon.gender === 'Female') {
+            stats.female++;
+        }
+        else if (dragon.gender === 'Male') {
+            stats.male++;
+        }
+        if (dragon.grow !== '0') {
+            stats.adult++;
+        }
+        else if (dragon.hoursleft > -1) {
+            if (dragon.hatch !== '0') {
+                stats.hatch++;
+            }
+            else {
+                stats.eggs++;
+            }
+        }
+        if (dragon.hoursleft === -1 && dragon.grow === '0') {
+            stats.frozen++;
+        }
+    }
+    if (errors.length > 0) {
+        throw new Error('Errors getting stats: ' + errors);
+    }
+    return stats;
 }
