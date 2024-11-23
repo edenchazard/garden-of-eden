@@ -514,9 +514,6 @@ const { data: personalStats } = await useFetch('/api/user/statistics', {
 
 const { data: stats } = await useFetch('/api/statistics', {
   watch: false,
-  headers: computed(() => ({
-    'Csrf-token': useCsrf().csrf,
-  })),
   default: () => ({
     clicksTotalAllTime: 0,
     clicksAllTimeLeaderboard: [],
@@ -534,9 +531,6 @@ const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
     start: computed(() => selectedWeek.value),
   },
   watch: [selectedWeek],
-  headers: computed(() => ({
-    'Csrf-token': useCsrf().csrf,
-  })),
   default: () => ({
     weekStart: '',
     weekEnd: '',

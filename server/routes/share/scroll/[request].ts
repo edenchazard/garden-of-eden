@@ -64,7 +64,7 @@ const getData = async (userId: number) => {
   };
 };
 
-const getUser = async (userId: number) => {
+const getUser = async (userId: number, username: string) => {
   const [user] = await db
     .select({
       id: userTable.id,
@@ -74,7 +74,7 @@ const getUser = async (userId: number) => {
     .from(userTable)
     .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
     .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
-    .where(eq(userTable.id, userId));
+    .where(and(eq(userTable.id, userId), eq(userTable.username, username)));
 
   if (!user) return null;
 
@@ -136,54 +136,67 @@ async function sendJob(user: User, filePath: string) {
   );
 }
 
-function sendNotFound(event: H3Event) {
-  setHeader(event, 'Content-Type', 'image/gif');
+function sendNotFound(event: H3Event, extension: string) {
+  setResponseStatus(event, 404);
+
   return sendStream(
     event,
-    createReadStream(path.resolve('/src/resources/banner/not_found.gif'))
+    createReadStream(
+      path.resolve(`/src/resources/banner/not_found${extension}`)
+    )
   );
 }
 
 export default defineEventHandler(async (event) => {
-  const { request } = getRouterParams(event);
+  const querySchema = z.object({
+    ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
+  });
+
+  const paramSchema = z.object({
+    userId: z.coerce.number().min(1),
+    username: z.string().min(2).max(30),
+  });
 
   const contentTypes = {
     '.gif': 'image/gif',
     '.webp': 'image/webp',
   };
 
-  const params = await z
-    .object({
-      id: z.string().min(1).pipe(z.coerce.number()),
-      ext: z.union([z.literal('.gif'), z.literal('.webp')]),
-    })
-    .safeParseAsync({
-      id: request.substring(0, request.lastIndexOf('.')),
-      ext: request.substring(request.lastIndexOf('.')),
-    });
+  const match = getRouterParams(event).request.match(/^(\d+)-([\w\s-%.]+)$/);
+  const query = await querySchema.safeParseAsync(getQuery(event));
 
-  if (!params.data || !params.success) return sendNotFound(event);
+  if (!match || !query.success) return setResponseStatus(event, 404);
 
-  const filePath = `/cache/scroll/${params.data.id}${params.data.ext}`;
-  const contentType = contentTypes[params.data.ext];
-  const user = await getUser(params.data.id);
+  const [, userId, username] = match;
 
-  if (!user) return sendNotFound(event);
+  const params = await paramSchema.safeParseAsync({
+    userId,
+    username,
+  });
+
+  if (!params.data || !params.success) return setResponseStatus(event, 404);
+
+  const filePath = `/cache/scroll/${params.data.userId}${query.data.ext}`;
+  const contentType = contentTypes[query.data.ext];
+
+  const user = await getUser(
+    params.data.userId,
+    decodeURIComponent(params.data.username)
+  );
+
+  setHeader(event, 'Content-Type', contentType);
+
+  if (!user) return sendNotFound(event, query.data.ext);
 
   await sendJob(user, filePath);
 
   if (await exists(filePath)) {
-    setHeaders(event, {
-      'Content-Type': contentType,
-      'Cache-Control': `public, max-age=120`,
-    });
+    setHeader(event, 'Cache-Control', `public, max-age=120`);
     return sendStream(event, createReadStream(filePath));
   }
 
-  setHeader(event, 'Content-Type', contentType);
-
   return sendStream(
     event,
-    createReadStream(`/src/resources/banner/in_progress${params.data.ext}`)
+    createReadStream(`/src/resources/banner/in_progress${query.data.ext}`)
   );
 });

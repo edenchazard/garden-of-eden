@@ -101,11 +101,13 @@ export default defineNuxtConfig({
       referrerPolicy: false,
       contentSecurityPolicy: {
         'img-src': ["'self'", 'dragcave.net', 'data:;'],
+        'upgrade-insecure-requests': false,
       },
     },
     csrf: {
       enabled: true,
       encryptSecret: process.env.CSRF_SECRET,
+      methodsToProtect: ['POST', 'PUT', 'PATCH', 'DELETE'],
     },
   },
   image: {
@@ -141,7 +143,7 @@ export default defineNuxtConfig({
     esbuild: {
       options: {
         target: 'esnext',
-        drop: ['console'],
+        drop: process.env.NODE_ENV === 'production' ? ['console'] : [],
       },
     },
   },

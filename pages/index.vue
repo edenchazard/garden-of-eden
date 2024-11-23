@@ -65,10 +65,25 @@
           </div>
         </div>
         <template v-else>
-          <p v-if="!scroll.dragons.length">
-            It looks like you've got no dragons! Time to hit up that cave and go
-            get some!
-          </p>
+          <div
+            v-if="!scroll.dragons.length"
+            class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
+          >
+            <NuxtImg
+              loading="lazy"
+              format="avif,webp"
+              src="/illustrations/lost-at-sea.png"
+              sizes="150px md:300px"
+              alt="Matthias fishing for eggs"
+            />
+            <div>
+              <span class="font-bold">It's a bit empty here.</span>
+              <p>
+                It looks like you've got no dragons! Time to hit up that cave
+                and go get some! Or, sit and fish with Matthias.
+              </p>
+            </div>
+          </div>
           <p>Hidden dragons are not shown and will be regularly removed.</p>
           <p class="text-sm">
             Your dragons have received
