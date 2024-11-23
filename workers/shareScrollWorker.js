@@ -118,7 +118,6 @@ async function getBannerBaseComposite(input) {
     // flair
     if (input.user.flairPath) {
         const flairPath = path.resolve('/src/resources/public', input.user.flairPath);
-        const { height: flairHeight } = await sharp(flairPath).png().metadata();
         const flairShadow = sharp(flairPath)
             .greyscale()
             .threshold(255)
@@ -141,11 +140,16 @@ async function getBannerBaseComposite(input) {
             background: 'transparent',
         })
             .png();
-        const flairImage = sharp(await flairShadow.toBuffer())
+        const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
+            sharp(flairPath).png().metadata(),
+            flairShadow.toBuffer(),
+        ]);
+        const flairImage = await sharp(flairShadowBuffer)
             .composite([{ input: flairPath, left: 0, top: 0 }])
-            .png();
+            .png()
+            .toBuffer();
         composites.push({
-            input: await flairImage.toBuffer(),
+            input: flairImage,
             left: 121 + (usernameWidth ?? 0),
             top: 16 - Math.floor((flairHeight ?? 0) / 2),
         });
