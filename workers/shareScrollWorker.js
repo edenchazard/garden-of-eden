@@ -4,7 +4,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 export default async function bannerGen(job) {
-    console.log(job.data);
     const handler = await (async () => {
         switch (job.data.stats) {
             case "dragons" /* BannerType.dragons */:
@@ -16,7 +15,6 @@ export default async function bannerGen(job) {
                 throw new Error('Invalid handler');
         }
     })();
-    console.log(job.data);
     const perfData = await generateBannerToTemporary(job.data, (base) => handler(base, job.data));
     if (perfData.error === 'API Timeout')
         throw new Error(perfData.error);
@@ -224,14 +222,17 @@ async function getBannerBaseForDragons(base, input) {
     });
     return base;
 }
-async function getDragonBuffers(dragonIds, clientSecret) {
+async function getDragonBuffers(dragonIds, secret) {
     try {
         const timeout = 10000;
         // change to 1 to force timeout
         const dragonsIncluded = [];
         const dragonsOmitted = [];
-        const { errors, dragons } = await ofetch(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
-            headers: { Authorization: `Bearer ${clientSecret}` },
+        const { errors, dragons } = await ofetch('https://dragcave.net/api/v2/dragons', {
+            headers: { Authorization: `Bearer ${secret}` },
+            query: {
+                ids: dragonIds.join(','),
+            },
             retry: 3,
             retryDelay: 1000,
             timeout,
@@ -330,7 +331,7 @@ async function getScrollStats(input) {
         headers: { Authorization: `Bearer ${input.secret}` },
         query: {
             username: input.user.username,
-            limit: 100, // 99999,
+            limit: 99999,
             filter: 'ALL',
         },
         retry: 3,

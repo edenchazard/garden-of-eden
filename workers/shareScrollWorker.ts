@@ -37,8 +37,6 @@ interface DragCaveApiResponse<Data extends Record<string, unknown>> {
 }
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
-  console.log(job.data);
-
   const handler = await (async () => {
     switch (job.data.stats) {
       case BannerType.dragons:
@@ -50,8 +48,6 @@ export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
         throw new Error('Invalid handler');
     }
   })();
-
-  console.log(job.data);
 
   const perfData = await generateBannerToTemporary(job.data, (base) =>
     handler(base, job.data)
@@ -337,7 +333,7 @@ async function getBannerBaseForDragons(
   return base;
 }
 
-async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
+async function getDragonBuffers(dragonIds: string[], secret: string) {
   try {
     const timeout = 10000;
     // change to 1 to force timeout
@@ -347,8 +343,11 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
     const { errors, dragons } = await ofetch<{
       errors: string[];
       dragons: Record<string, { hoursleft: number }>;
-    }>(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
-      headers: { Authorization: `Bearer ${clientSecret}` },
+    }>('https://dragcave.net/api/v2/dragons', {
+      headers: { Authorization: `Bearer ${secret}` },
+      query: {
+        ids: dragonIds.join(','),
+      },
       retry: 3,
       retryDelay: 1000,
       timeout,
@@ -495,7 +494,7 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
     headers: { Authorization: `Bearer ${input.secret}` },
     query: {
       username: input.user.username,
-      limit: 100, // 99999,
+      limit: 99999,
       filter: 'ALL',
     },
     retry: 3,
