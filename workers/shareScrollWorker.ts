@@ -155,11 +155,15 @@ async function generateBannerToTemporary(
 
 // bannergen steps
 
-function makeStatText(statName: string, statNumber: number) {
+function makeStatText(
+  input: WorkerInput,
+  statName: string,
+  statNumber: number
+) {
   return textToPng(
     `
-      <tspan fill="#dff6f5">${statName}:</tspan> 
-      <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
+      <tspan fill="#${input.requestParameters.labelColour}">${statName}:</tspan> 
+      <tspan fill="#${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
     `,
     '8px Nokia Cellphone FC',
     ''
@@ -168,9 +172,11 @@ function makeStatText(statName: string, statNumber: number) {
 
 async function getBannerBaseComposite(input: WorkerInput) {
   const composites: sharp.OverlayOptions[] = [
-    // base
     {
-      input: path.resolve('/src/resources/', 'banner/base.webp'),
+      input: path.resolve(
+        '/src/resources/banner/bases',
+        input.requestParameters.style + '.webp'
+      ),
       top: 0,
       left: 0,
     },
@@ -180,7 +186,7 @@ async function getBannerBaseComposite(input: WorkerInput) {
   const usernamePng = await textToPng(
     input.user.username,
     '16px Alkhemikal',
-    'fill: #dff6f5;'
+    `fill: #${input.requestParameters.usernameColour};`
   );
   const { height: usernameHeight, width: usernameWidth } =
     await sharp(usernamePng).metadata();
@@ -243,8 +249,8 @@ async function getBannerBaseForGarden(input: WorkerInput) {
   const rankText = (rankNumber: number) =>
     textToPng(
       `
-        <tspan fill="#dff6f5">Ranked</tspan> 
-        <tspan fill="#f2bd59">#${rankNumber}</tspan>
+        <tspan fill="#${input.requestParameters.labelColour}">Ranked</tspan> 
+        <tspan fill="#${input.requestParameters.valueColour}">#${rankNumber}</tspan>
       `,
       '8px Nokia Cellphone FC',
       ''
@@ -257,9 +263,9 @@ async function getBannerBaseForGarden(input: WorkerInput) {
     compositeAllTimeClicks,
     compositeAllTimeRank,
   ] = await Promise.all([
-    makeStatText('Weekly Clicks', input.data.weeklyClicks),
+    makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
     input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
-    makeStatText('All-time Clicks', input.data.allTimeClicks),
+    makeStatText(input, 'All-time Clicks', input.data.allTimeClicks),
     input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
   ]);
 
@@ -301,11 +307,11 @@ async function getBannerBaseForDragons(input: WorkerInput) {
 
   // stats
   const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
-    makeStatText('Total', input.data.total),
-    makeStatText('Frozen', input.data.frozen),
-    makeStatText('Eggs', input.data.eggs),
-    makeStatText('Hatch', input.data.hatch),
-    makeStatText('Adults', input.data.adult),
+    makeStatText(input, 'Total', input.data.total),
+    makeStatText(input, 'Frozen', input.data.frozen),
+    makeStatText(input, 'Eggs', input.data.eggs),
+    makeStatText(input, 'Hatch', input.data.hatch),
+    makeStatText(input, 'Adults', input.data.adult),
   ]);
 
   composites.push(
@@ -620,7 +626,7 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
     headers: { Authorization: `Bearer ${input.secret}` },
     query: {
       username: input.user.username,
-      limit: 99999,
+      limit: 100, // 99999,
       filter: 'ALL',
     },
     retry: 3,

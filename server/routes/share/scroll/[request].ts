@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { promises as fs, createReadStream, stat } from 'fs';
+import { promises as fs, createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
 import { and, eq, sql } from 'drizzle-orm';
@@ -13,9 +13,10 @@ import {
 import { DateTime } from 'luxon';
 import path from 'node:path';
 import type { H3Event } from 'h3';
-import type {
-  BannerRequestParameters,
-  User,
+import {
+  querySchema,
+  type BannerRequestParameters,
+  type User,
 } from '~/workers/shareScrollWorkerTypes';
 
 const getData = async (userId: number) => {
@@ -159,13 +160,6 @@ function sendNotFound(event: H3Event, extension: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  const querySchema = z.object({
-    ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
-    stats: z
-      .union([z.literal('dragons'), z.literal('garden')])
-      .default('garden'),
-  });
-
   const paramSchema = z.object({
     userId: z.coerce.number().min(1),
     username: z.string().min(2).max(30),

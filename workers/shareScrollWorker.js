@@ -95,23 +95,22 @@ async function generateBannerToTemporary(input, baser) {
     return perfData;
 }
 // bannergen steps
-function makeStatText(statName, statNumber) {
+function makeStatText(input, statName, statNumber) {
     return textToPng(`
-      <tspan fill="#dff6f5">${statName}:</tspan> 
-      <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
+      <tspan fill="#${input.requestParameters.labelColour}">${statName}:</tspan> 
+      <tspan fill="#${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
     `, '8px Nokia Cellphone FC', '');
 }
 async function getBannerBaseComposite(input) {
     const composites = [
-        // base
         {
-            input: path.resolve('/src/resources/', 'banner/base.webp'),
+            input: path.resolve('/src/resources/banner/bases', input.requestParameters.style + '.webp'),
             top: 0,
             left: 0,
         },
     ];
     // scrollname
-    const usernamePng = await textToPng(input.user.username, '16px Alkhemikal', 'fill: #dff6f5;');
+    const usernamePng = await textToPng(input.user.username, '16px Alkhemikal', `fill: #${input.requestParameters.usernameColour};`);
     const { height: usernameHeight, width: usernameWidth } = await sharp(usernamePng).metadata();
     composites.push({
         input: usernamePng,
@@ -159,14 +158,14 @@ async function getBannerBaseForGarden(input) {
     const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
     const composites = await getBannerBaseComposite(input);
     const rankText = (rankNumber) => textToPng(`
-        <tspan fill="#dff6f5">Ranked</tspan> 
-        <tspan fill="#f2bd59">#${rankNumber}</tspan>
+        <tspan fill="#${input.requestParameters.labelColour}">Ranked</tspan> 
+        <tspan fill="#${input.requestParameters.valueColour}">#${rankNumber}</tspan>
       `, '8px Nokia Cellphone FC', '');
     // stats
     const [compositeWeeklyClicks, compositeWeeklyRank, compositeAllTimeClicks, compositeAllTimeRank,] = await Promise.all([
-        makeStatText('Weekly Clicks', input.data.weeklyClicks),
+        makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
         input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
-        makeStatText('All-time Clicks', input.data.allTimeClicks),
+        makeStatText(input, 'All-time Clicks', input.data.allTimeClicks),
         input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
     ]);
     composites.push({
@@ -199,11 +198,11 @@ async function getBannerBaseForDragons(input) {
     const composites = await getBannerBaseComposite(input);
     // stats
     const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
-        makeStatText('Total', input.data.total),
-        makeStatText('Frozen', input.data.frozen),
-        makeStatText('Eggs', input.data.eggs),
-        makeStatText('Hatch', input.data.hatch),
-        makeStatText('Adults', input.data.adult),
+        makeStatText(input, 'Total', input.data.total),
+        makeStatText(input, 'Frozen', input.data.frozen),
+        makeStatText(input, 'Eggs', input.data.eggs),
+        makeStatText(input, 'Hatch', input.data.hatch),
+        makeStatText(input, 'Adults', input.data.adult),
     ]);
     composites.push({
         input: total,
@@ -428,7 +427,7 @@ async function getScrollStats(input) {
         headers: { Authorization: `Bearer ${input.secret}` },
         query: {
             username: input.user.username,
-            limit: 99999,
+            limit: 100, // 99999,
             filter: 'ALL',
         },
         retry: 3,
