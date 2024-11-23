@@ -11,7 +11,7 @@ const defaultPalette = {
         usernameColour: 'ffffff',
     },
 };
-const hexValue = z.string().length(6);
+const hexValue = z.string().regex(/^[0-9a-f]{6}$/);
 export const querySchema = z
     .object({
     ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
@@ -25,15 +25,7 @@ export const querySchema = z
     labelColour: hexValue.optional(),
     valueColour: hexValue.optional(),
 })
-    .transform((data) => {
-    if (data.labelColour === undefined) {
-        data.labelColour = defaultPalette[data.style].labelColour;
-    }
-    if (data.valueColour === undefined) {
-        data.valueColour = defaultPalette[data.style].valueColour;
-    }
-    if (data.usernameColour === undefined) {
-        data.usernameColour = defaultPalette[data.style].usernameColour;
-    }
-    return data;
-});
+    .transform((data) => ({
+    ...defaultPalette[data.style],
+    ...data,
+}));
