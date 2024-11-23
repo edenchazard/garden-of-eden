@@ -39,15 +39,18 @@ interface DragCaveApiResponse<Data extends Record<string, unknown>> {
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   console.log(job.data);
 
-  let handler: null | (() => Promise<Buffer>) = null;
+  let handler:
+    | null
+    | ((base: sharp.OverlayOptions[]) => Promise<sharp.OverlayOptions[]>) =
+    null;
 
   if (job.data.stats === BannerType.dragons) {
     const stats = await getScrollStats(job.data);
 
     job.data.data = stats;
-    handler = () => getBannerBaseForDragons(job.data);
+    handler = (base) => getBannerBaseForDragons(base, job.data);
   } else if (job.data.requestParameters.stats === BannerType.garden) {
-    handler = () => getBannerBaseForGarden(job.data);
+    handler = (base) => getBannerBaseForGarden(base, job.data);
   }
 
   console.log(job.data);
@@ -73,7 +76,7 @@ const baseCarouselWidth = 106;
 
 async function generateBannerToTemporary(
   input: WorkerInput,
-  baser: () => Promise<Buffer>
+  baser: (base: sharp.OverlayOptions[]) => Promise<sharp.OverlayOptions[]>
 ) {
   const perfData: PerformanceData = {
     dragonsIncluded: null,
@@ -97,7 +100,16 @@ async function generateBannerToTemporary(
     const totalStartTime = startTime;
 
     start();
-    const bannerBuffer = await baser();
+
+    const base = await getBannerBaseComposite(input);
+    const bannerBuffer = await createEmptyFrame(
+      baseBannerWidth,
+      baseBannerHeight
+    )
+      .composite(await baser(base))
+      .png()
+      .toBuffer();
+
     perfData.statGenTime = end();
 
     if (input.dragons.length > 0) {
@@ -242,10 +254,10 @@ async function getBannerBaseComposite(input: WorkerInput) {
   return composites;
 }
 
-async function getBannerBaseForGarden(input: WorkerInput) {
-  const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-  const composites = await getBannerBaseComposite(input);
-
+async function getBannerBaseForGarden(
+  base: Awaited<ReturnType<typeof getBannerBaseComposite>>,
+  input: WorkerInput
+) {
   const rankText = (rankNumber: number) =>
     textToPng(
       `
@@ -257,54 +269,49 @@ async function getBannerBaseForGarden(input: WorkerInput) {
     );
 
   // stats
-  const [
-    compositeWeeklyClicks,
-    compositeWeeklyRank,
-    compositeAllTimeClicks,
-    compositeAllTimeRank,
-  ] = await Promise.all([
-    makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
-    input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
-    makeStatText(input, 'All-time Clicks', input.data.allTimeClicks),
-    input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
-  ]);
+  const [weeklyClicks, weeklyRank, allTimeClicks, allTimeRank] =
+    await Promise.all([
+      makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
+      input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
+      makeStatText(input, 'All-time Clicks', input.data.allTimeClicks),
+      input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
+    ]);
 
-  composites.push(
+  base.push(
     {
-      input: compositeWeeklyClicks,
+      input: weeklyClicks,
       left: 118,
       top: 28,
     },
     {
-      input: compositeAllTimeClicks,
+      input: allTimeClicks,
       left: 118,
       top: 40,
     }
   );
 
-  if (compositeWeeklyRank) {
-    composites.push({
-      input: compositeWeeklyRank,
+  if (weeklyRank) {
+    base.push({
+      input: weeklyRank,
       left: 245,
       top: 29,
     });
   }
 
-  if (compositeAllTimeRank) {
-    composites.push({
-      input: compositeAllTimeRank,
+  if (allTimeRank) {
+    base.push({
+      input: allTimeRank,
       left: 245,
       top: 41,
     });
   }
-
-  return compositeImage.composite(composites).png().toBuffer();
+  return base;
 }
 
-async function getBannerBaseForDragons(input: WorkerInput) {
-  const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-  const composites = await getBannerBaseComposite(input);
-
+async function getBannerBaseForDragons(
+  base: Awaited<ReturnType<typeof getBannerBaseComposite>>,
+  input: WorkerInput
+) {
   // stats
   const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
     makeStatText(input, 'Total', input.data.total),
@@ -314,7 +321,7 @@ async function getBannerBaseForDragons(input: WorkerInput) {
     makeStatText(input, 'Adults', input.data.adult),
   ]);
 
-  composites.push(
+  base.push(
     {
       input: total,
       left: 118,
@@ -341,8 +348,7 @@ async function getBannerBaseForDragons(input: WorkerInput) {
       top: 28,
     }
   );
-
-  return compositeImage.composite(composites).png().toBuffer();
+  return base;
 }
 
 async function getDragonBuffers(dragonIds: string[], clientSecret: string) {

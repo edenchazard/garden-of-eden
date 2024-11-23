@@ -9,10 +9,10 @@ export default async function bannerGen(job) {
     if (job.data.stats === "dragons" /* BannerType.dragons */) {
         const stats = await getScrollStats(job.data);
         job.data.data = stats;
-        handler = () => getBannerBaseForDragons(job.data);
+        handler = (base) => getBannerBaseForDragons(base, job.data);
     }
     else if (job.data.requestParameters.stats === "garden" /* BannerType.garden */) {
-        handler = () => getBannerBaseForGarden(job.data);
+        handler = (base) => getBannerBaseForGarden(base, job.data);
     }
     console.log(job.data);
     if (!handler) {
@@ -50,7 +50,11 @@ async function generateBannerToTemporary(input, baser) {
         await fs.mkdir(outputDir, { recursive: true });
         const totalStartTime = startTime;
         start();
-        const bannerBuffer = await baser();
+        const base = await getBannerBaseComposite(input);
+        const bannerBuffer = await createEmptyFrame(baseBannerWidth, baseBannerHeight)
+            .composite(await baser(base))
+            .png()
+            .toBuffer();
         perfData.statGenTime = end();
         if (input.dragons.length > 0) {
             start();
@@ -154,48 +158,44 @@ async function getBannerBaseComposite(input) {
     }
     return composites;
 }
-async function getBannerBaseForGarden(input) {
-    const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-    const composites = await getBannerBaseComposite(input);
+async function getBannerBaseForGarden(base, input) {
     const rankText = (rankNumber) => textToPng(`
         <tspan fill="#${input.requestParameters.labelColour}">Ranked</tspan> 
         <tspan fill="#${input.requestParameters.valueColour}">#${rankNumber}</tspan>
       `, '8px Nokia Cellphone FC', '');
     // stats
-    const [compositeWeeklyClicks, compositeWeeklyRank, compositeAllTimeClicks, compositeAllTimeRank,] = await Promise.all([
+    const [weeklyClicks, weeklyRank, allTimeClicks, allTimeRank] = await Promise.all([
         makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
         input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
         makeStatText(input, 'All-time Clicks', input.data.allTimeClicks),
         input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
     ]);
-    composites.push({
-        input: compositeWeeklyClicks,
+    base.push({
+        input: weeklyClicks,
         left: 118,
         top: 28,
     }, {
-        input: compositeAllTimeClicks,
+        input: allTimeClicks,
         left: 118,
         top: 40,
     });
-    if (compositeWeeklyRank) {
-        composites.push({
-            input: compositeWeeklyRank,
+    if (weeklyRank) {
+        base.push({
+            input: weeklyRank,
             left: 245,
             top: 29,
         });
     }
-    if (compositeAllTimeRank) {
-        composites.push({
-            input: compositeAllTimeRank,
+    if (allTimeRank) {
+        base.push({
+            input: allTimeRank,
             left: 245,
             top: 41,
         });
     }
-    return compositeImage.composite(composites).png().toBuffer();
+    return base;
 }
-async function getBannerBaseForDragons(input) {
-    const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-    const composites = await getBannerBaseComposite(input);
+async function getBannerBaseForDragons(base, input) {
     // stats
     const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
         makeStatText(input, 'Total', input.data.total),
@@ -204,7 +204,7 @@ async function getBannerBaseForDragons(input) {
         makeStatText(input, 'Hatch', input.data.hatch),
         makeStatText(input, 'Adults', input.data.adult),
     ]);
-    composites.push({
+    base.push({
         input: total,
         left: 118,
         top: 28,
@@ -225,7 +225,7 @@ async function getBannerBaseForDragons(input) {
         left: 240,
         top: 28,
     });
-    return compositeImage.composite(composites).png().toBuffer();
+    return base;
 }
 async function getDragonBuffers(dragonIds, clientSecret) {
     try {
