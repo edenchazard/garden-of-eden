@@ -226,7 +226,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (await exists(filePath)) {
-    //setHeader(event, 'Cache-Control', `public, max-age=120`);
+    setHeader(event, 'Cache-Control', `public, max-age=120`);
     return sendStream(event, createReadStream(filePath));
   }
 
