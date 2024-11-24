@@ -1,4 +1,4 @@
-import { and, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, eq, gt, isNull, or, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable } from '~/database/schema';
 import { db } from '~/server/db';
@@ -31,7 +31,15 @@ export default defineEventHandler(async (event) => {
             eq(clicksTable.user_id, token.userId)
           )
         )
-        .where(isNull(clicksTable.user_id)),
+        .where(
+          and(
+            isNull(clicksTable.user_id),
+            or(
+              eq(hatcheryTable.in_garden, true),
+              eq(hatcheryTable.in_seed_tray, true)
+            )
+          )
+        ),
     ])
   )
     .flat()
