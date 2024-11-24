@@ -328,7 +328,7 @@ async function createFrames(bannerBuffer, stripBuffer, stripWidth, stripHeight) 
 }
 async function getScrollStats(input) {
     const { errors, dragons } = await ofetch('https://dragcave.net/api/v2/user', {
-        headers: { Authorization: `Bearer ${input.secret}` },
+        headers: { Authorization: `Bearer udhoE0KDsgpdS7uKFgpTvbvpsN31VvLpQ` },
         query: {
             username: input.user.username,
             limit: 99999,

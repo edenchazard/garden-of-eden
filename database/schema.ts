@@ -34,6 +34,9 @@ export const userTable = mysqlTable(
       .notNull(),
     last_activity: datetime('last_activity'),
     money: smallint('money').notNull().default(0),
+    accessToken: char('access_token', {
+      length: 129,
+    }),
   },
   (table) => {
     return {

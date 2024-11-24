@@ -16,6 +16,7 @@ export type User = {
   id: number;
   username: string;
   flairPath: string | null;
+  accessToken?: string | null;
 };
 
 export type ScrollStats = {

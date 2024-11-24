@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
       getServerSession(event),
       getToken({ event }),
     ]);
-
     if (!session || !token) {
       setResponseStatus(event, 401, 'Unauthorized');
       return 'Unauthorized';

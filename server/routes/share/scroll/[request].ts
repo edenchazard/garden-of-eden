@@ -14,11 +14,13 @@ import { DateTime } from 'luxon';
 import path from 'node:path';
 import type { H3Event } from 'h3';
 import {
+  BannerType,
   querySchema,
   type BannerRequestParameters,
   type User,
 } from '~/workers/shareScrollWorkerTypes';
 import crypto from 'crypto';
+import { decrypt } from '~/utils/accessTokenHandling';
 
 const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
@@ -74,6 +76,7 @@ const getUser = async (userId: number, username: string) => {
     .select({
       id: userTable.id,
       username: userTable.username,
+      accessToken: userTable.accessToken,
       flairPath: itemsTable.url,
     })
     .from(userTable)
@@ -105,7 +108,8 @@ async function sendJob(
   filePath: string,
   requestParameters: BannerRequestParameters
 ) {
-  const { bannerCacheExpiry, clientSecret } = useRuntimeConfig();
+  const { bannerCacheExpiry, clientSecret, accessTokenPassword } =
+    useRuntimeConfig();
   const expires = bannerCacheExpiry * 1000;
   const jobId = `banner-${unique}`;
 
@@ -118,9 +122,23 @@ async function sendJob(
   } else {
     existingJob?.remove();
   }
-
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(user.id);
+
+  const secret =
+    requestParameters.stats === BannerType.garden
+      ? clientSecret
+      : (function () {
+          try {
+            return decrypt(user.accessToken ?? '', accessTokenPassword);
+          } catch {
+            return null;
+          }
+        })();
+
+  if (!secret) {
+    return '';
+  }
 
   await shareScrollQueue.add(
     'shareScrollQueue',
@@ -128,7 +146,7 @@ async function sendJob(
       user,
       filePath,
       dragons,
-      secret: clientSecret,
+      secret,
       stats: requestParameters.stats,
       requestParameters,
       data: {
