@@ -5,7 +5,7 @@ import { exec } from 'child_process';
 export default defineNuxtModule({
   setup({ path }, nuxt) {
     exec(
-      `tsc ${path}/**.ts --module esnext --moduleResolution bundler --target esnext`,
+      `tsc ${path}/**/*.worker.ts --module esnext --moduleResolution bundler --target esnext`,
       (error, stdout, stderr) => {
         if (error) console.error(`Error: ${error.message}`);
         if (stderr) console.error(`stderr: ${stderr}`);

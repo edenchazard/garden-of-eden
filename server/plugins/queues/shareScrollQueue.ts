@@ -20,7 +20,7 @@ export default defineNitroPlugin(async () => {
   const createWorker = () =>
     new BullWorker<WorkerInput, WorkerFinished>(
       'shareScrollQueue',
-      pathToFileURL('./workers/shareScrollWorker.js'),
+      pathToFileURL('./workers/shareScroll.worker.js'),
       {
         useWorkerThreads: true,
         connection: {
@@ -33,7 +33,7 @@ export default defineNitroPlugin(async () => {
   let shareScrollWorker = createWorker();
 
   if (import.meta.dev) {
-    watch('./workers/shareScrollWorker.js', () => {
+    watch('./workers/shareScroll.worker.js', () => {
       shareScrollWorker.close();
       shareScrollWorker = createWorker();
       console.info('shareScrollWorker thread started');
