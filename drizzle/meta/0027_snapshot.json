@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "93b4163c-1016-4151-a069-0c16e4316c40",
+  "id": "83c69636-285d-4ede-8621-6aea2abbd67b",
   "prevId": "0c830e53-741f-40fd-849d-c885f991acc0",
   "tables": {
     "banner_jobs": {
@@ -105,6 +105,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "NOW()"
+        },
+        "request_params": {
+          "name": "request_params",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},

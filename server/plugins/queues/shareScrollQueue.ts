@@ -55,6 +55,7 @@ export default defineNitroPlugin(async () => {
             flairPath: job.data.user.flairPath,
             dragonsIncluded: job.data.dragons,
             error: job.failedReason,
+            requestParams: job.data.requestParameters,
           }),
         ];
 
@@ -84,9 +85,9 @@ export default defineNitroPlugin(async () => {
       );
 
       await db.insert(bannerJobsTable).values({
-        userId: job.returnvalue.user.id,
-        username: job.returnvalue.user.username,
-        flairPath: job.returnvalue.user.flairPath,
+        userId: job.data.user.id,
+        username: job.data.user.username,
+        flairPath: job.data.user.flairPath,
         dragonsIncluded: job.returnvalue.performanceData.dragonsIncluded,
         dragonsOmitted: job.returnvalue.performanceData.dragonsOmitted,
         statGenTime: round(job.returnvalue.performanceData.statGenTime),
@@ -96,6 +97,7 @@ export default defineNitroPlugin(async () => {
         gifGenTime: round(job.returnvalue.performanceData.gifGenTime),
         totalTime: round(job.returnvalue.performanceData.totalTime),
         error: JSON.stringify(job.returnvalue.performanceData.error),
+        requestParams: job.data.requestParameters,
       });
     });
 

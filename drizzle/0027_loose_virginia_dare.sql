@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `access_token` char(129);

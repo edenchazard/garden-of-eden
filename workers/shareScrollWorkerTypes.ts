@@ -57,19 +57,8 @@ export const enum WorkerResponseType {
   error = 'error',
 }
 
-export type WorkerResponse = {
-  type: WorkerResponseType;
-};
-
-export interface WorkerFinished extends WorkerResponse {
-  type: WorkerResponseType.jobFinished;
+export interface WorkerFinished {
   performanceData: PerformanceData;
-  user: User;
-}
-
-export interface WorkerError extends WorkerResponse {
-  type: WorkerResponseType.error;
-  user: User;
 }
 
 export const defaultPalette = {

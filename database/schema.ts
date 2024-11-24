@@ -15,6 +15,7 @@ import {
   text,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
+import { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
 
 export const userTable = mysqlTable(
   'users',
@@ -330,6 +331,7 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   createdAt: datetime('created_at', { mode: 'date' })
     .default(sql`NOW()`)
     .notNull(),
+  requestParams: json('request_params').$type<BannerRequestParameters>(),
 });
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {

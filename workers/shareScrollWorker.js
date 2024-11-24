@@ -21,8 +21,6 @@ export default async function bannerGen(job) {
     if (perfData.error === 'API Timeout')
         throw new Error(perfData.error);
     return {
-        type: "jobFinished" /* WorkerResponseType.jobFinished */,
-        user: job.data.user,
         performanceData: perfData,
     };
 }

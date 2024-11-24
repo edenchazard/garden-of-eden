@@ -3,7 +3,6 @@ import GIF from 'sharp-gif2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
-import { WorkerResponseType } from './shareScrollWorkerTypes';
 import {
   BannerType,
   type PerformanceData,
@@ -57,8 +56,6 @@ export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   if (perfData.error === 'API Timeout') throw new Error(perfData.error);
 
   return {
-    type: WorkerResponseType.jobFinished,
-    user: job.data.user,
     performanceData: perfData,
   };
 }
