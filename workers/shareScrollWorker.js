@@ -298,7 +298,7 @@ async function getDragonStrip(dragonBuffers) {
         const prevOffset = xOffsets[xOffsets.length - 1];
         xOffsets.push(prevOffset + (metadata.width ?? 0) + spacing);
     });
-    dragonBuffers.forEach(async (dragonBuffer, index) => {
+    dragonBuffers.forEach((dragonBuffer, index) => {
         composites.push({
             input: dragonBuffer,
             top: stripHeight - (dragonMetadatas[index].height ?? 0),
