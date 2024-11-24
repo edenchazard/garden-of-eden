@@ -33,32 +33,34 @@ export default defineCronHandler('everyFiveMinutes', async () => {
       );
 
     // Recalculate the weekly leaderboard
-    await tx.execute(sql`SET @rank:= 0`);
     await tx.execute(
       sql`INSERT INTO ${clicksLeaderboardTable}
-        (
-          ${clicksLeaderboardTable.user_id},
-          ${clicksLeaderboardTable.leaderboard},
-          ${clicksLeaderboardTable.rank},
-          ${clicksLeaderboardTable.clicks_given},
-          ${clicksLeaderboardTable.start}
-        )
-      SELECT
-        leaderboard.user_id,
-        'weekly',
-        (@rank := @rank + 1),
-        leaderboard.clicks_given, 
-        ${weekStart.toSQL({ includeOffset: false })}
+      (
+        ${clicksLeaderboardTable.user_id},
+        ${clicksLeaderboardTable.leaderboard},
+        ${clicksLeaderboardTable.rank},
+        ${clicksLeaderboardTable.clicks_given},
+        ${clicksLeaderboardTable.start}
+      )
+      WITH cte AS (
+        SELECT
+          leaderboard.user_id,
+          @rank := IF(@prev_clicks = leaderboard.clicks_given, @rank, @rank + 1) AS rank,
+          leaderboard.clicks_given, 
+          @prev_clicks := leaderboard.clicks_given
         FROM (
-          SELECT
-            ${clicksTable.user_id},
-            COUNT(*) AS clicks_given
+          SELECT ${clicksTable.user_id}, COUNT(*) AS clicks_given
           FROM ${clicksTable}
           WHERE ${clicksTable.clicked_on} >= ${weekStart.toSQL({ includeOffset: false })}
           AND ${clicksTable.clicked_on} < ${weekEnd.toSQL({ includeOffset: false })}
           GROUP BY ${clicksTable.user_id}
           ORDER BY clicks_given DESC
-        ) AS leaderboard`
+        ) AS leaderboard,
+        (SELECT @rank := 0, @prev_clicks := NULL) AS vars
+      )
+      SELECT user_id, "weekly", rank, clicks_given, ${weekStart.toSQL({ includeOffset: false })}
+      FROM cte;
+      `
     );
 
     // Recalculate the all-time leaderboard by summing the weekly leaderboards
