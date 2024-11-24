@@ -44,9 +44,3 @@ function generateInitializationVector(password: string, key: string) {
     .digest('hex');
 }
 
-/* 
-['token test'
-].forEach((accessToken) => {
-  const encrypted = encrypt(accessToken, accessTokenPassword);
-  console.log(encrypted, decrypt(encrypted, accessTokenPassword));
-});  */
