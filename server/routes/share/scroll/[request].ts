@@ -159,7 +159,7 @@ async function sendJob(
     {
       removeOnFail: true,
       jobId,
-      attempts: 1,
+      attempts: 3,
       backoff: {
         type: 'fixed',
         delay: 10000,
