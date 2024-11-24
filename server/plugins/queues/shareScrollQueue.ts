@@ -47,20 +47,28 @@ export default defineNitroPlugin(async () => {
       console.error(`Bannergen job failed: `, job.failedReason);
       console.error(job.stacktrace.join('\n'));
 
-      await db.insert(bannerJobsTable).values({
-        userId: job.data.user.id,
-        username: job.data.user.username,
-        flairPath: job.data.user.flairPath,
-        dragonsIncluded: job.data.dragons,
-        error: job.failedReason,
-      });
+      await db.transaction(async (tx) => {
+        const promises: Promise<unknown>[] = [
+          tx.insert(bannerJobsTable).values({
+            userId: job.data.user.id,
+            username: job.data.user.username,
+            flairPath: job.data.user.flairPath,
+            dragonsIncluded: job.data.dragons,
+            error: job.failedReason,
+          }),
+        ];
 
-      if (job.failedReason.endsWith('401 Unauthorized')) {
-        await db
-          .update(userTable)
-          .set({ accessToken: null })
-          .where(eq(userTable.username, job.data.user.username));
-      }
+        if (job.failedReason.endsWith('401 Unauthorized')) {
+          promises.push(
+            tx
+              .update(userTable)
+              .set({ accessToken: null })
+              .where(eq(userTable.id, job.data.user.id))
+          );
+        }
+
+        await Promise.all(promises);
+      });
     })
     .on('completed', async (job) => {
       if (!job.returnvalue) {
