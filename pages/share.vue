@@ -128,7 +128,7 @@
           <div
             class="self-center flex flex-col items-center lg:flex-row lg:items-start text-center gap-4"
           >
-            <div class="flex flex-col space-y-2">
+            <div class="flex flex-col space-y-4">
               <img
                 :src="animatedBanner327x61Garden"
                 alt="animated 327x61 banner by Mu-Cephei"
