@@ -491,7 +491,7 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
       dragons: Record<string, DragonData>;
     }
   >('https://dragcave.net/api/v2/user', {
-    headers: { Authorization: `Bearer udhoE0KDsgpdS7uKFgpTvbvpsN31VvLpQ` },
+    headers: { Authorization: `Bearer ${input.secret}` },
     query: {
       username: input.user.username,
       limit: 99999,
