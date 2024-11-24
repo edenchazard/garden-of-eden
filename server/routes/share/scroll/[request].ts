@@ -137,7 +137,7 @@ async function sendJob(
         })();
 
   if (!secret) {
-    return '';
+    return false;
   }
 
   await shareScrollQueue.add(
@@ -166,6 +166,8 @@ async function sendJob(
       },
     }
   );
+
+  return true;
 }
 
 function sendNotFound(event: H3Event, extension: string) {
@@ -219,9 +221,9 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', contentType);
 
-  if (!user) return sendNotFound(event, query.data.ext);
-
-  await sendJob(unique, user, filePath, query.data);
+  if (!user || !(await sendJob(unique, user, filePath, query.data))) {
+    return sendNotFound(event, query.data.ext);
+  }
 
   if (await exists(filePath)) {
     //setHeader(event, 'Cache-Control', `public, max-age=120`);
