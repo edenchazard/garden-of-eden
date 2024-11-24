@@ -122,7 +122,6 @@ export default NuxtAuthHandler({
       return token;
     },
     async session({ session, token }) {
-      console.log('token', token);
       const userId = token.userId;
       const [user] = await db
         .select({

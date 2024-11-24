@@ -137,7 +137,7 @@ async function sendJob(
         })();
 
   if (!secret) {
-    return false;
+    return null;
   }
 
   await shareScrollQueue.add(
@@ -221,7 +221,7 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', contentType);
 
-  if (!user || !(await sendJob(unique, user, filePath, query.data))) {
+  if (!user || (await sendJob(unique, user, filePath, query.data)) === null) {
     return sendNotFound(event, query.data.ext);
   }
 

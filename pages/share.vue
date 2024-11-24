@@ -123,31 +123,135 @@
           </div>
         </div>
 
-        <div class="col-span-full text-center flex flex-col gap-2">
-          <img
-            class="self-center"
-            :src="animatedBanner327x61"
-            alt="animated 327x61 banner by Mu-Cephei"
-          />
-          <span class="italic text-sm">Mu-Cephei</span>
+        <div class="col-span-full flex flex-col space-y-6">
+          <h2>Animated banner</h2>
+          <div
+            class="self-center flex flex-col items-center lg:flex-row lg:items-start text-center gap-4"
+          >
+            <div class="flex flex-col space-y-2">
+              <img
+                :src="animatedBanner327x61Garden"
+                alt="animated 327x61 banner by Mu-Cephei"
+              />
+              <img
+                :src="animatedBanner327x61Dragons"
+                alt="animated 327x61 banner by Mu-Cephei"
+              />
+              <span class="italic text-sm">Mu-Cephei</span>
+            </div>
+            <p
+              class="bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose text-sm"
+            >
+              These banners are examples. Your banner will display any eggs and
+              hatchlings you currently have in the garden. If you have a flair,
+              it'll be shown alongside your username. It updates at a minimum of
+              every 30 minutes.
+            </p>
+          </div>
+
+          <div
+            class="flex flex-col min-[840px]:flex-row gap-4 items-start justify-around"
+          >
+            <div
+              class="self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
+            >
+              <img
+                src="/share/scroll/default.webp"
+                class="max-md:col-span-full"
+              />
+              <input
+                id="animated-default"
+                v-model="animatedBannerOptions.style"
+                value="default"
+                type="radio"
+                name="animated-banner"
+              />
+              <label for="animated-default">Default</label>
+
+              <img
+                src="/share/scroll/christmas.webp"
+                class="max-md:col-span-full"
+              />
+              <input
+                id="animated-christmas"
+                v-model="animatedBannerOptions.style"
+                value="christmas"
+                type="radio"
+                name="animated-banner"
+              />
+              <label for="animated-christmas">Christmas</label>
+            </div>
+
+            <div
+              class="self-stretch bg-green-500 dark:bg-neutral-800 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
+            >
+              <fieldset>
+                <legend class="font-bold">Colours</legend>
+                <div class="mt-1 grid grid-cols-[auto_1fr] gap-2 items-center">
+                  <input
+                    id="animated-username-colour"
+                    v-model="animatedBannerOptions.usernameColour"
+                    :disabled="useDefaultPalette"
+                    type="color"
+                  />
+                  <label for="animated-username-colour">Username</label>
+                  <input
+                    id="animated-label-colour"
+                    v-model="animatedBannerOptions.labelColour"
+                    :disabled="useDefaultPalette"
+                    type="color"
+                  />
+                  <label for="animated-label-colour">Label</label>
+                  <input
+                    id="animated-value-colour"
+                    v-model="animatedBannerOptions.valueColour"
+                    :disabled="useDefaultPalette"
+                    type="color"
+                  />
+                  <label for="animated-value-colour">Value</label>
+                  <input
+                    id="animated-use-default=palette"
+                    v-model="useDefaultPalette"
+                    type="checkbox"
+                  />
+                  <label for="animated-use-default=palette"
+                    >Use default palette</label
+                  >
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend class="font-bold">Type of statistic</legend>
+                <div class="mt-1 grid grid-cols-[auto_1fr] gap-2 items-center">
+                  <input
+                    id="animated-stat-dragons"
+                    v-model="animatedBannerOptions.stats"
+                    value="dragons"
+                    type="radio"
+                    name="animated-stat"
+                  />
+                  <label for="animated-stat-dragons">Dragons</label>
+                  <input
+                    id="animated-stat-garden"
+                    v-model="animatedBannerOptions.stats"
+                    value="garden"
+                    type="radio"
+                    name="animated-stat"
+                  />
+                  <label for="animated-stat-garden">Garden</label>
+                </div>
+              </fieldset>
+            </div>
+          </div>
 
           <div v-if="authData?.user" class="space-y-2">
-            <p
-              class="flex items-center bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose mx-auto text-sm"
-            >
-              The above banner is an example. Your banner will display any eggs
-              and hatchlings you currently have in the garden. If you have a
-              flair, it'll be shown alongside your username. It updates at a
-              minimum of every 30 minutes.
-            </p>
-
             <div class="flex items-center gap-2">
               <label for="animated-327x61-direct">Direct:</label>
               <input
                 id="animated-327x61-direct"
                 type="text"
                 class="font-mono flex-1"
-                :value="animatedBanner327x61_yours"
+                :value="animatedBannerUrl"
                 readonly
               />
             </div>
@@ -157,7 +261,7 @@
                 id="animated-327x61-html"
                 type="text"
                 class="font-mono flex-1"
-                :value="`<a href=&quot;${path}&quot;><img src=&quot;${animatedBanner327x61_yours}&quot; alt=&quot;Garden of Eden&quot; /></a>`"
+                :value="`<a href=&quot;${path}&quot;><img src=&quot;${animatedBannerUrl}&quot; alt=&quot;Garden of Eden&quot; /></a>`"
                 readonly
               />
             </div>
@@ -189,6 +293,11 @@
 </template>
 
 <script setup lang="ts">
+import {
+  defaultPalette,
+  type BannerRequestParameters,
+} from '~/workers/shareScrollWorkerTypes';
+
 useHead({
   title: 'Share',
 });
@@ -202,6 +311,58 @@ const banner90x35 = path + '/share/90x35.png';
 const banner294x30 = path + '/share/294x30.png';
 const banner90x51 = path + '/share/90x51.png';
 const banner88x63 = path + '/share/88x63.png';
-const animatedBanner327x61 = path + '/share/scroll/249648-42';
-const animatedBanner327x61_yours = `${path}/share/scroll/${authData.value?.user.id}-${authData.value?.user.username}`;
+const animatedBanner327x61Garden = path + '/share/scroll/249648-42';
+const animatedBanner327x61Dragons =
+  path + '/share/scroll/249648-42?stats=dragons';
+
+const useDefaultPalette = ref(true);
+
+const animatedBannerOptions = ref<BannerRequestParameters>({
+  style: 'default',
+  stats: 'garden',
+  ...defaultPalette.default,
+  ext: '.gif',
+});
+
+watch(
+  () => animatedBannerOptions.value.style,
+  () => {
+    if (useDefaultPalette.value && animatedBannerOptions.value.style) {
+      const palette = defaultPalette[animatedBannerOptions.value.style];
+      animatedBannerOptions.value.usernameColour = palette.usernameColour;
+      animatedBannerOptions.value.labelColour = palette.labelColour;
+      animatedBannerOptions.value.valueColour = palette.valueColour;
+    }
+  }
+);
+
+const animatedBannerUrl = computed(() => {
+  const params = new URLSearchParams(
+    animatedBannerOptions.value satisfies Record<string, string>
+  );
+
+  if (useDefaultPalette.value) {
+    params.delete('usernameColour');
+    params.delete('labelColour');
+    params.delete('valueColour');
+  }
+
+  if (animatedBannerOptions.value.style === 'default') {
+    params.delete('style');
+  }
+
+  if (animatedBannerOptions.value.stats === 'garden') {
+    params.delete('stats');
+  }
+
+  // Hide for now.
+  params.delete('ext');
+
+  const url = new URL(
+    `${path}/share/scroll/${authData.value?.user.id}-${authData.value?.user.username}`
+  );
+
+  url.search = params.toString();
+  return url.toString();
+});
 </script>

@@ -164,7 +164,7 @@ async function getBannerBaseComposite(input: WorkerInput) {
   const composites: sharp.OverlayOptions[] = [
     {
       input: path.resolve(
-        '/src/resources/banner/bases',
+        '/src/resources/public/share/scroll/',
         input.requestParameters.style + '.webp'
       ),
       top: 0,
@@ -176,7 +176,7 @@ async function getBannerBaseComposite(input: WorkerInput) {
   const usernamePng = await textToPng(
     input.user.username,
     '16px Alkhemikal',
-    `fill: #${input.requestParameters.usernameColour};`
+    `fill: ${input.requestParameters.usernameColour};`
   );
   const { height: usernameHeight, width: usernameWidth } =
     await sharp(usernamePng).metadata();
@@ -261,8 +261,8 @@ async function getBannerBaseForGarden(
   const rankText = (rankNumber: number) =>
     textToPng(
       `
-        <tspan fill="#${input.requestParameters.labelColour}">Ranked</tspan> 
-        <tspan fill="#${input.requestParameters.valueColour}">#${rankNumber}</tspan>
+        <tspan fill="${input.requestParameters.labelColour}">Ranked</tspan> 
+        <tspan fill="${input.requestParameters.valueColour}">#${rankNumber}</tspan>
       `,
       '8px Nokia Cellphone FC',
       ''
@@ -569,8 +569,8 @@ function makeStatText(
 ) {
   return textToPng(
     `
-      <tspan fill="#${input.requestParameters.labelColour}">${statName}:</tspan> 
-      <tspan fill="#${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
+      <tspan fill="${input.requestParameters.labelColour}">${statName}:</tspan> 
+      <tspan fill="${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
     `,
     '8px Nokia Cellphone FC',
     ''

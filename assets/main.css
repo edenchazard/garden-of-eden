@@ -68,8 +68,15 @@ input[type='checkbox'] {
   @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
 }
 
+input[type='color'] {
+  @apply appearance-none border-none size-8 !p-0.5;
+}
+
 [disabled] {
-  @apply cursor-not-allowed opacity-40;
+  @apply cursor-not-allowed;
+  &:not([type='color']) {
+    @apply opacity-40;
+  }
 }
 
 option {

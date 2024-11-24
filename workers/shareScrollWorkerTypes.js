@@ -1,17 +1,17 @@
 import { z } from 'zod';
-const defaultPalette = {
+export const defaultPalette = {
     default: {
-        labelColour: 'dff6f5',
-        valueColour: 'f2bd59',
-        usernameColour: 'dff6f5',
+        labelColour: '#dff6f5',
+        valueColour: '#f2bd59',
+        usernameColour: '#dff6f5',
     },
     christmas: {
-        labelColour: 'ffffff',
-        valueColour: '17d9ff',
-        usernameColour: 'ffffff',
+        labelColour: '#ffffff',
+        valueColour: '#94edff',
+        usernameColour: '#ffffff',
     },
 };
-const hexValue = z.string().regex(/^[0-9a-f]{6}$/);
+const hexValue = z.string().regex(/^#[0-9a-f]{6}$/);
 export const querySchema = z
     .object({
     ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),

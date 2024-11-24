@@ -101,13 +101,13 @@ async function generateBannerToTemporary(input, baser) {
 async function getBannerBaseComposite(input) {
     const composites = [
         {
-            input: path.resolve('/src/resources/banner/bases', input.requestParameters.style + '.webp'),
+            input: path.resolve('/src/resources/public/share/scroll/', input.requestParameters.style + '.webp'),
             top: 0,
             left: 0,
         },
     ];
     // scrollname
-    const usernamePng = await textToPng(input.user.username, '16px Alkhemikal', `fill: #${input.requestParameters.usernameColour};`);
+    const usernamePng = await textToPng(input.user.username, '16px Alkhemikal', `fill: ${input.requestParameters.usernameColour};`);
     const { height: usernameHeight, width: usernameWidth } = await sharp(usernamePng).metadata();
     composites.push({
         input: usernamePng,
@@ -171,8 +171,8 @@ async function getBannerBaseComposite(input) {
 }
 async function getBannerBaseForGarden(base, input) {
     const rankText = (rankNumber) => textToPng(`
-        <tspan fill="#${input.requestParameters.labelColour}">Ranked</tspan> 
-        <tspan fill="#${input.requestParameters.valueColour}">#${rankNumber}</tspan>
+        <tspan fill="${input.requestParameters.labelColour}">Ranked</tspan> 
+        <tspan fill="${input.requestParameters.valueColour}">#${rankNumber}</tspan>
       `, '8px Nokia Cellphone FC', '');
     // stats
     const [weeklyClicks, weeklyRank, allTimeClicks, allTimeRank] = await Promise.all([
@@ -393,8 +393,8 @@ async function getScrollStats(input) {
 // utils
 function makeStatText(input, statName, statNumber) {
     return textToPng(`
-      <tspan fill="#${input.requestParameters.labelColour}">${statName}:</tspan> 
-      <tspan fill="#${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
+      <tspan fill="${input.requestParameters.labelColour}">${statName}:</tspan> 
+      <tspan fill="${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
     `, '8px Nokia Cellphone FC', '');
 }
 async function textToPng(text, font, // eg. "16px Alkhemikal"
