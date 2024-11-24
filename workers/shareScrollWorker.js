@@ -16,6 +16,8 @@ export default async function bannerGen(job) {
         }
     })();
     const perfData = await generateBannerToTemporary(job.data, (base) => handler(base, job.data));
+    if (perfData.error)
+        console.error(perfData.error);
     if (perfData.error === 'API Timeout')
         throw new Error(perfData.error);
     return {
@@ -113,43 +115,57 @@ async function getBannerBaseComposite(input) {
         left: 118,
     });
     // flair
+    // console.log('CHOSEN FLAIR: ', input.user.flairPath); // flair debugging
     if (input.user.flairPath) {
-        const flairPath = path.resolve('/src/resources/public', input.user.flairPath);
-        const flairShadow = sharp(flairPath)
-            .greyscale()
-            .threshold(255)
-            .composite([
-            {
-                input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
-                raw: {
-                    width: 1,
-                    height: 1,
-                    channels: 4,
+        const shadowPath = path.resolve('/src/resources/public/', input.user.flairPath.replace('items', 'items/shadows'));
+        if (await fileExists(shadowPath)) {
+            console.log('using existing shadowed flair');
+            const { height } = await sharp(shadowPath).png().metadata();
+            composites.push({
+                input: await sharp(shadowPath).toBuffer(),
+                left: 121 + (usernameWidth ?? 0),
+                top: 16 - Math.floor((height ?? 0) / 2),
+            });
+        }
+        else {
+            console.log('generating shadowed flair');
+            const flairPath = path.resolve('/src/resources/public/', input.user.flairPath);
+            const flairShadow = sharp(flairPath)
+                .greyscale()
+                .threshold(255)
+                .composite([
+                {
+                    input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
+                    raw: {
+                        width: 1,
+                        height: 1,
+                        channels: 4,
+                    },
+                    tile: true,
+                    blend: 'dest-in',
                 },
-                tile: true,
-                blend: 'dest-in',
-            },
-        ])
-            .extend({
-            top: 1,
-            left: 1,
-            extendWith: 'background',
-            background: 'transparent',
-        })
-            .png();
-        const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
-            sharp(flairPath).png().metadata(),
-            flairShadow.toBuffer(),
-        ]);
-        const flairImage = await sharp(flairShadowBuffer)
-            .composite([{ input: flairPath, left: 0, top: 0 }])
-            .png()
-            .toBuffer();
-        composites.push({
-            input: flairImage,
-            left: 121 + (usernameWidth ?? 0),
-            top: 16 - Math.floor((flairHeight ?? 0) / 2),
-        });
+            ])
+                .extend({
+                top: 1,
+                left: 1,
+                extendWith: 'background',
+                background: 'transparent',
+            })
+                .png();
+            const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
+                sharp(flairPath).png().metadata(),
+                flairShadow.toBuffer(),
+            ]);
+            const flairImage = await sharp(flairShadowBuffer)
+                .composite([{ input: flairPath, left: 0, top: 0 }])
+                .png();
+            await flairImage.toFile(shadowPath);
+            composites.push({
+                input: await flairImage.toBuffer(),
+                left: 121 + (usernameWidth ?? 0),
+                top: 16 - Math.floor((flairHeight ?? 0) / 2),
+            });
+        }
     }
     return composites;
 }
