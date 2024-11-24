@@ -84,7 +84,7 @@ const getUser = async (userId: number, username: string) => {
     .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
     .where(and(eq(userTable.id, userId), eq(userTable.username, username)));
 
-  if (!user) return null;
+  if (!user || !user.accessToken) return null;
 
   if (user.flairPath) {
     user.flairPath = `items/${user.flairPath}`;

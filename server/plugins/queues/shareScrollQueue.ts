@@ -1,12 +1,13 @@
 import { Worker as BullWorker } from 'bullmq';
 import { watch } from 'fs';
 import { db } from '~/server/db';
-import { bannerJobsTable } from '~/database/schema';
+import { bannerJobsTable, userTable } from '~/database/schema';
 import type {
   WorkerFinished,
   WorkerInput,
 } from '~/workers/shareScrollWorkerTypes';
 import { pathToFileURL } from 'url';
+import { eq } from 'drizzle-orm';
 
 const {
   redis: { host, port },
@@ -53,6 +54,13 @@ export default defineNitroPlugin(async () => {
         dragonsIncluded: job.data.dragons,
         error: job.failedReason,
       });
+
+      if (job.failedReason.endsWith('401 Unauthorized')) {
+        await db
+          .update(userTable)
+          .set({ accessToken: null })
+          .where(eq(userTable.username, job.data.user.username));
+      }
     })
     .on('completed', async (job) => {
       if (!job.returnvalue) {
