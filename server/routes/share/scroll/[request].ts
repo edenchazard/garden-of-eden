@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { promises as fs, createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, sql, or } from 'drizzle-orm';
 import {
   itemsTable,
   userSettingsTable,
@@ -59,7 +59,15 @@ const getData = async (userId: number) => {
         code: hatcheryTable.id,
       })
       .from(hatcheryTable)
-      .where(eq(hatcheryTable.user_id, userId)),
+      .where(
+        and(
+          eq(hatcheryTable.user_id, userId),
+          or(
+            eq(hatcheryTable.in_seed_tray, 1),
+            eq(hatcheryTable.in_garden, 1)
+          )
+        )
+      ),
   ]);
 
   return {
