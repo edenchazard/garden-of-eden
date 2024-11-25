@@ -27,3 +27,4 @@ logs
 /server/workers/*.js
 
 /resources/public
+/resources/flair-shadows/*

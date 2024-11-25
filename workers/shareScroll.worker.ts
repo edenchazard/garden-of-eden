@@ -188,8 +188,8 @@ async function getBannerBaseComposite(input: WorkerInput) {
   // console.log('CHOSEN FLAIR: ', input.user.flairPath); // flair debugging
   if (input.user.flairPath) {
     const shadowPath = path.resolve(
-      '/src/resources/public/',
-      input.user.flairPath.replace('items', 'items/shadows')
+      '/src/resources/',
+      input.user.flairPath.replace('items', 'flair-shadows')
     );
     if (await fileExists(shadowPath)) {
       console.log('using existing shadowed flair');
