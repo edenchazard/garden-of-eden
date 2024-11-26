@@ -130,11 +130,11 @@
           >
             <div class="flex flex-col space-y-4">
               <img
-                :src="animatedBanner327x61Garden"
+                :src="`scroll/249648-42`"
                 alt="animated 327x61 banner by Mu-Cephei"
               />
               <img
-                :src="animatedBanner327x61Dragons"
+                :src="`scroll/249648-42?stats=dragons`"
                 alt="animated 327x61 banner by Mu-Cephei"
               />
               <span class="italic text-sm">Mu-Cephei</span>
@@ -311,10 +311,6 @@ const banner90x35 = path + '/share/90x35.png';
 const banner294x30 = path + '/share/294x30.png';
 const banner90x51 = path + '/share/90x51.png';
 const banner88x63 = path + '/share/88x63.png';
-const animatedBanner327x61Garden = path + '/share/scroll/249648-42';
-const animatedBanner327x61Dragons =
-  path + '/share/scroll/249648-42?stats=dragons';
-
 const useDefaultPalette = ref(true);
 
 const animatedBannerOptions = ref<BannerRequestParameters>({
