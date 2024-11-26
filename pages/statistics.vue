@@ -816,7 +816,7 @@ function createPoints() {
     small: number = 0
   ) => {
     if (typeof context.parsed === 'undefined') {
-      return {};
+      return 0;
     }
     const resolvedDesktopSize =
       DateTime.fromMillis(context.parsed.x).minute === 0 ? threshold : 0;
