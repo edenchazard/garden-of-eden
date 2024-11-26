@@ -43,4 +43,3 @@ function generateInitializationVector(password: string, key: string) {
     .update(password + key)
     .digest('hex');
 }
-

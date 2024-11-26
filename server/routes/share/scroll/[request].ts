@@ -62,10 +62,7 @@ const getData = async (userId: number) => {
       .where(
         and(
           eq(hatcheryTable.user_id, userId),
-          or(
-            eq(hatcheryTable.in_seed_tray, 1),
-            eq(hatcheryTable.in_garden, 1)
-          )
+          or(eq(hatcheryTable.in_seed_tray, 1), eq(hatcheryTable.in_garden, 1))
         )
       ),
   ]);

@@ -15,7 +15,7 @@ import {
   text,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
-import { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
+import type { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
 
 export const userTable = mysqlTable(
   'users',
