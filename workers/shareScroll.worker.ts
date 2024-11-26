@@ -3,12 +3,11 @@ import GIF from 'sharp-gif2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
-import {
-  BannerType,
-  type PerformanceData,
-  type ScrollStats,
-  type WorkerFinished,
-  type WorkerInput,
+import type {
+  PerformanceData,
+  ScrollStats,
+  WorkerFinished,
+  WorkerInput,
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
 
@@ -38,10 +37,10 @@ interface DragCaveApiResponse<Data extends Record<string, unknown>> {
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   const handler = await (async () => {
     switch (job.data.stats) {
-      case BannerType.dragons:
+      case 'dragons':
         job.data.data = await getScrollStats(job.data);
         return getBannerBaseForDragons;
-      case BannerType.garden:
+      case 'garden':
         return getBannerBaseForGarden;
       default:
         throw new Error('Invalid handler');
