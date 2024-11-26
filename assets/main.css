@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Alkhemikal';
+  src: url('/public/fonts/Alkhemikal.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nokia Cellphone FC';
+  src: url('/public/fonts/nokiafc22.ttf') format('truetype');
+  size-adjust: 80%;
+}
+
 html {
   @apply h-full;
 }

@@ -155,9 +155,9 @@
             <div
               class="self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
             >
-              <img
-                src="/share/scroll/default.webp"
-                class="max-md:col-span-full"
+              <ShareScrollBannerPreview
+                :params="animatedBannerOptions"
+                banner="/share/scroll/default.webp"
               />
               <input
                 id="animated-default"
@@ -167,10 +167,9 @@
                 name="animated-banner"
               />
               <label for="animated-default">Default</label>
-
-              <img
-                src="/share/scroll/christmas.webp"
-                class="max-md:col-span-full"
+              <ShareScrollBannerPreview
+                :params="animatedBannerOptions"
+                banner="/share/scroll/christmas.webp"
               />
               <input
                 id="animated-christmas"

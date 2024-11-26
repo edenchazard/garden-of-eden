@@ -32,7 +32,6 @@ COPY --from=build /src/.output .output
 COPY --from=build /src/package*.json . 
 
 # Required hacks for working animated banners in prod.
-COPY resources/fonts /usr/share/fonts/
 COPY resources/banner resources/banner
 COPY workers/*.js workers/
 COPY --from=build /src/node_modules/bullmq/dist/cjs dist/cjs 
