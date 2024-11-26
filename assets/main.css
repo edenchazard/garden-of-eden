@@ -69,14 +69,11 @@ input[type='checkbox'] {
 }
 
 input[type='color'] {
-  @apply appearance-none border-none size-8 !p-0.5;
+  @apply appearance-none shadow-none border-none size-8 !p-0 bg-transparent;
 }
 
 [disabled] {
-  @apply cursor-not-allowed;
-  &:not([type='color']) {
-    @apply opacity-40;
-  }
+  @apply cursor-not-allowed opacity-40;
 }
 
 option {
