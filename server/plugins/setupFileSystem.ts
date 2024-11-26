@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 export default defineNitroPlugin(async () => {
   // Setup scroll banner cache.
   await fs.mkdir('/cache/scroll', { recursive: true });
+  await fs.mkdir('/src/resources/flair-shadows', { recursive: true });
 
   // Cheeky link to give resources access to public.
   // Recreated every start up.
