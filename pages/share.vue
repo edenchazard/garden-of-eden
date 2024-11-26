@@ -130,11 +130,11 @@
           >
             <div class="flex flex-col space-y-4">
               <img
-                :src="`scroll/249648-42`"
+                :src="`${config.public.baseUrl}/share/scroll/249648-42`"
                 alt="animated 327x61 banner by Mu-Cephei"
               />
               <img
-                :src="`scroll/249648-42?stats=dragons`"
+                :src="`${config.public.baseUrl}/share/scroll/249648-42?stats=dragons`"
                 alt="animated 327x61 banner by Mu-Cephei"
               />
               <span class="italic text-sm">Mu-Cephei</span>
@@ -157,7 +157,7 @@
             >
               <ShareScrollBannerPreview
                 :params="animatedBannerOptions"
-                banner="/share/scroll/default.webp"
+                :banner="`${config.public.baseUrl}/share/scroll/default.webp`"
               />
               <input
                 id="animated-default"
@@ -169,7 +169,7 @@
               <label for="animated-default">Default</label>
               <ShareScrollBannerPreview
                 :params="animatedBannerOptions"
-                banner="/share/scroll/christmas.webp"
+                :banner="`${config.public.baseUrl}/share/scroll/christmas.webp`"
               />
               <input
                 id="animated-christmas"
@@ -265,7 +265,7 @@
               />
             </div>
           </div>
-          <div v-else class="self-center space-y-2">
+          <div v-else class="self-center space-y-2 text-center">
             <p>Animated banners are only available to registered gardeners!</p>
             <button
               type="button"

@@ -191,7 +191,6 @@ async function getBannerBaseComposite(input: WorkerInput) {
       input.user.flairPath.replace('items', 'flair-shadows')
     );
     if (await fileExists(shadowPath)) {
-      console.log('using existing shadowed flair');
       const { height } = await sharp(shadowPath).png().metadata();
       composites.push({
         input: await sharp(shadowPath).toBuffer(),
@@ -199,7 +198,6 @@ async function getBannerBaseComposite(input: WorkerInput) {
         top: 16 - Math.floor((height ?? 0) / 2),
       });
     } else {
-      console.log('generating shadowed flair');
       const flairPath = path.resolve(
         '/src/resources/public/',
         input.user.flairPath
