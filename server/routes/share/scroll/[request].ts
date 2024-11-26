@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { promises as fs, createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, sql, or } from 'drizzle-orm';
 import {
   itemsTable,
   userSettingsTable,
@@ -13,7 +13,14 @@ import {
 import { DateTime } from 'luxon';
 import path from 'node:path';
 import type { H3Event } from 'h3';
-import type { User } from '~/workers/shareScrollWorkerTypes';
+import {
+  BannerType,
+  querySchema,
+  type BannerRequestParameters,
+  type User,
+} from '~/workers/shareScrollWorkerTypes';
+import crypto from 'crypto';
+import { decrypt } from '~/utils/accessTokenHandling';
 
 const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
@@ -52,7 +59,15 @@ const getData = async (userId: number) => {
         code: hatcheryTable.id,
       })
       .from(hatcheryTable)
-      .where(eq(hatcheryTable.user_id, userId)),
+      .where(
+        and(
+          eq(hatcheryTable.user_id, userId),
+          or(
+            eq(hatcheryTable.in_seed_tray, true),
+            eq(hatcheryTable.in_garden, true)
+          )
+        )
+      ),
   ]);
 
   return {
@@ -69,6 +84,7 @@ const getUser = async (userId: number, username: string) => {
     .select({
       id: userTable.id,
       username: userTable.username,
+      accessToken: userTable.accessToken,
       flairPath: itemsTable.url,
     })
     .from(userTable)
@@ -76,7 +92,7 @@ const getUser = async (userId: number, username: string) => {
     .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
     .where(and(eq(userTable.id, userId), eq(userTable.username, username)));
 
-  if (!user) return null;
+  if (!user?.accessToken) return null;
 
   if (user.flairPath) {
     user.flairPath = `items/${user.flairPath}`;
@@ -94,10 +110,16 @@ async function exists(file: string) {
   }
 }
 
-async function sendJob(user: User, filePath: string) {
-  const { bannerCacheExpiry, clientSecret } = useRuntimeConfig();
+async function sendJob(
+  unique: string,
+  user: User,
+  filePath: string,
+  requestParameters: BannerRequestParameters
+) {
+  const { bannerCacheExpiry, clientSecret, accessTokenPassword } =
+    useRuntimeConfig();
   const expires = bannerCacheExpiry * 1000;
-  const jobId = `banner-` + filePath.substring(filePath.lastIndexOf('/') + 1);
+  const jobId = `banner-${unique}`;
 
   // We don't want to rerun these queries if not enough time has passed.
   const existingJob = await shareScrollQueue.getJob(jobId);
@@ -108,21 +130,39 @@ async function sendJob(user: User, filePath: string) {
   } else {
     existingJob?.remove();
   }
-
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(user.id);
+
+  const secret =
+    requestParameters.stats === BannerType.garden
+      ? clientSecret
+      : (function () {
+          try {
+            return decrypt(user.accessToken ?? '', accessTokenPassword);
+          } catch {
+            return null;
+          }
+        })();
+
+  if (!secret) {
+    return null;
+  }
 
   await shareScrollQueue.add(
     'shareScrollQueue',
     {
       user,
       filePath,
-      weeklyClicks,
-      weeklyRank,
-      allTimeClicks,
-      allTimeRank,
       dragons,
-      clientSecret,
+      secret,
+      stats: requestParameters.stats,
+      requestParameters,
+      data: {
+        weeklyClicks,
+        weeklyRank,
+        allTimeClicks,
+        allTimeRank,
+      },
     },
     {
       removeOnFail: true,
@@ -134,6 +174,8 @@ async function sendJob(user: User, filePath: string) {
       },
     }
   );
+
+  return true;
 }
 
 function sendNotFound(event: H3Event, extension: string) {
@@ -148,10 +190,6 @@ function sendNotFound(event: H3Event, extension: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  const querySchema = z.object({
-    ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
-  });
-
   const paramSchema = z.object({
     userId: z.coerce.number().min(1),
     username: z.string().min(2).max(30),
@@ -176,7 +214,12 @@ export default defineEventHandler(async (event) => {
 
   if (!params.data || !params.success) return setResponseStatus(event, 404);
 
-  const filePath = `/cache/scroll/${params.data.userId}${query.data.ext}`;
+  const unique = crypto
+    .createHash('sha1')
+    .update(JSON.stringify(query.data))
+    .digest('hex');
+
+  const filePath = `/cache/scroll/${params.data.userId}-${unique}${query.data.ext}`;
   const contentType = contentTypes[query.data.ext];
 
   const user = await getUser(
@@ -186,9 +229,9 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', contentType);
 
-  if (!user) return sendNotFound(event, query.data.ext);
-
-  await sendJob(user, filePath);
+  if (!user || (await sendJob(unique, user, filePath, query.data)) === null) {
+    return sendNotFound(event, query.data.ext);
+  }
 
   if (await exists(filePath)) {
     setHeader(event, 'Cache-Control', `public, max-age=120`);

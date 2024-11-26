@@ -24,6 +24,7 @@ logs
 !.env.example
 
 # Worker js files
-/server/workers/*.js
+/workers/**/*.js
 
 /resources/public
+/resources/flair-shadows/*

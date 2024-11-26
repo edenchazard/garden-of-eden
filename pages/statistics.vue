@@ -815,6 +815,9 @@ function createPoints() {
     threshold: number,
     small: number = 0
   ) => {
+    if (typeof context.parsed === 'undefined') {
+      return 0;
+    }
     const resolvedDesktopSize =
       DateTime.fromMillis(context.parsed.x).minute === 0 ? threshold : 0;
     return context.chart.width > 615 ? resolvedDesktopSize : small;

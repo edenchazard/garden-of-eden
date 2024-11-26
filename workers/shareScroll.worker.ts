@@ -3,22 +3,58 @@ import GIF from 'sharp-gif2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
-import {
-  WorkerResponseType,
-  type PerformanceData,
-  type WorkerFinished,
-  type WorkerInput,
+import type {
+  PerformanceData,
+  ScrollStats,
+  WorkerFinished,
+  WorkerInput,
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
 
-export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
-  const perfData: PerformanceData = await generateBannerToTemporary(job.data);
+type DragonData = {
+  id: string;
+  name: string | null;
+  owner: string | null;
+  start: string;
+  hatch: string;
+  grow: string;
+  death: string;
+  views: number;
+  unique: number;
+  clicks: number;
+  gender: 'Male' | 'Female' | '';
+  acceptaid: boolean;
+  hoursleft: number;
+  parent_f: string;
+  parent_m: string;
+};
 
+interface DragCaveApiResponse<Data extends Record<string, unknown>> {
+  errors: Array<[number, string]>;
+  data: Data;
+}
+
+export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
+  const handler = await (async () => {
+    switch (job.data.stats) {
+      case 'dragons':
+        job.data.data = await getScrollStats(job.data);
+        return getBannerBaseForDragons;
+      case 'garden':
+        return getBannerBaseForGarden;
+      default:
+        throw new Error('Invalid handler');
+    }
+  })();
+
+  const perfData = await generateBannerToTemporary(job.data, (base) =>
+    handler(base, job.data)
+  );
+
+  if (perfData.error) console.error(perfData.error);
   if (perfData.error === 'API Timeout') throw new Error(perfData.error);
 
   return {
-    type: WorkerResponseType.jobFinished,
-    user: job.data.user,
     performanceData: perfData,
   };
 }
@@ -27,7 +63,10 @@ const baseBannerWidth = 327;
 const baseBannerHeight = 61;
 const baseCarouselWidth = 106;
 
-async function generateBannerToTemporary(input: WorkerInput) {
+async function generateBannerToTemporary(
+  input: WorkerInput,
+  baser: (base: sharp.OverlayOptions[]) => Promise<sharp.OverlayOptions[]>
+) {
   const perfData: PerformanceData = {
     dragonsIncluded: null,
     dragonsOmitted: null,
@@ -41,12 +80,8 @@ async function generateBannerToTemporary(input: WorkerInput) {
   };
 
   let startTime = performance.now();
-  const start = () => {
-    return (startTime = performance.now());
-  };
-  const end = () => {
-    return performance.now() - startTime;
-  };
+  const start = () => (startTime = performance.now());
+  const end = () => performance.now() - startTime;
 
   try {
     const outputDir = path.dirname(input.filePath);
@@ -54,13 +89,22 @@ async function generateBannerToTemporary(input: WorkerInput) {
     const totalStartTime = startTime;
 
     start();
-    const bannerBuffer = await getBannerBase(input);
+
+    const base = await getBannerBaseComposite(input);
+    const bannerBuffer = await createEmptyFrame(
+      baseBannerWidth,
+      baseBannerHeight
+    )
+      .composite(await baser(base))
+      .png()
+      .toBuffer();
+
     perfData.statGenTime = end();
 
     if (input.dragons.length > 0) {
       start();
       const { dragonsIncluded, dragonsOmitted, dragonBuffers } =
-        await getDragonBuffers(input.dragons, input.clientSecret);
+        await getDragonBuffers(input.dragons, input.secret);
       perfData.dragonFetchTime = end();
       perfData.dragonsIncluded = dragonsIncluded;
       perfData.dragonsOmitted = dragonsOmitted;
@@ -112,22 +156,23 @@ async function generateBannerToTemporary(input: WorkerInput) {
 
 // bannergen steps
 
-async function getBannerBase(input: WorkerInput) {
-  const compositeImage = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-  const composites: sharp.OverlayOptions[] = [];
-
-  // base
-  composites.push({
-    input: path.resolve('/src/resources/', 'banner/base.webp'),
-    top: 0,
-    left: 0,
-  });
+async function getBannerBaseComposite(input: WorkerInput) {
+  const composites: sharp.OverlayOptions[] = [
+    {
+      input: path.resolve(
+        '/src/resources/public/share/scroll/',
+        input.requestParameters.style + '.webp'
+      ),
+      top: 0,
+      left: 0,
+    },
+  ];
 
   // scrollname
   const usernamePng = await textToPng(
     input.user.username,
     '16px Alkhemikal',
-    'fill: #dff6f5;'
+    `fill: ${input.requestParameters.usernameColour};`
   );
   const { height: usernameHeight, width: usernameWidth } =
     await sharp(usernamePng).metadata();
@@ -139,113 +184,168 @@ async function getBannerBase(input: WorkerInput) {
   });
 
   // flair
+  // console.log('CHOSEN FLAIR: ', input.user.flairPath); // flair debugging
   if (input.user.flairPath) {
-    const flairPath = path.resolve(
-      '/src/resources/public',
-      input.user.flairPath
+    const shadowPath = path.resolve(
+      '/src/resources/',
+      input.user.flairPath.replace('items', 'flair-shadows')
     );
-    const { height: flairHeight } = await sharp(flairPath).png().metadata();
+    if (await fileExists(shadowPath)) {
+      const { height } = await sharp(shadowPath).png().metadata();
+      composites.push({
+        input: await sharp(shadowPath).toBuffer(),
+        left: 121 + (usernameWidth ?? 0),
+        top: 16 - Math.floor((height ?? 0) / 2),
+      });
+    } else {
+      const flairPath = path.resolve(
+        '/src/resources/public/',
+        input.user.flairPath
+      );
 
-    const flairShadow = await sharp(flairPath)
-      .greyscale()
-      .threshold(255)
-      .composite([
-        {
-          input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
-          raw: {
-            width: 1,
-            height: 1,
-            channels: 4,
+      const flairShadow = sharp(flairPath)
+        .greyscale()
+        .threshold(255)
+        .composite([
+          {
+            input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
+            raw: {
+              width: 1,
+              height: 1,
+              channels: 4,
+            },
+            tile: true,
+            blend: 'dest-in',
           },
-          tile: true,
-          blend: 'dest-in',
-        },
-      ])
-      .extend({
-        top: 1,
-        left: 1,
-        extendWith: 'background',
-        background: 'transparent',
-      })
-      .png();
+        ])
+        .extend({
+          top: 1,
+          left: 1,
+          extendWith: 'background',
+          background: 'transparent',
+        })
+        .png();
 
-    const flairImage = await sharp(await flairShadow.toBuffer())
-      .composite([{ input: flairPath, left: 0, top: 0 }])
-      .png();
+      const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
+        sharp(flairPath).png().metadata(),
+        flairShadow.toBuffer(),
+      ]);
 
-    composites.push({
-      input: await flairImage.toBuffer(),
-      left: 121 + (usernameWidth ?? 0),
-      top: 16 - Math.floor((flairHeight ?? 0) / 2),
-    });
+      const flairImage = await sharp(flairShadowBuffer)
+        .composite([{ input: flairPath, left: 0, top: 0 }])
+        .png();
+
+      await flairImage.toFile(shadowPath);
+
+      composites.push({
+        input: await flairImage.toBuffer(),
+        left: 121 + (usernameWidth ?? 0),
+        top: 16 - Math.floor((flairHeight ?? 0) / 2),
+      });
+    }
   }
 
-  const statText = (statName: string, statNumber: number) =>
-    textToPng(
-      `
-        <tspan fill="#dff6f5">${statName}:</tspan> 
-        <tspan fill="#f2bd59">${Intl.NumberFormat().format(statNumber)}</tspan>
-      `,
-      '8px Nokia Cellphone FC',
-      ''
-    );
+  return composites;
+}
 
+async function getBannerBaseForGarden(
+  base: Awaited<ReturnType<typeof getBannerBaseComposite>>,
+  input: WorkerInput
+) {
   const rankText = (rankNumber: number) =>
     textToPng(
       `
-        <tspan fill="#dff6f5">Ranked</tspan> 
-        <tspan fill="#f2bd59">#${rankNumber}</tspan>
+        <tspan fill="${input.requestParameters.labelColour}">Ranked</tspan> 
+        <tspan fill="${input.requestParameters.valueColour}">#${rankNumber}</tspan>
       `,
       '8px Nokia Cellphone FC',
       ''
     );
 
   // stats
-  const [
-    compositeWeeklyClicks,
-    compositeWeeklyRank,
-    compositeAllTimeClicks,
-    compositeAllTimeRank,
-  ] = await Promise.all([
-    statText('Weekly Clicks', input.weeklyClicks),
-    input.weeklyRank ? rankText(input.weeklyRank) : null,
-    statText('All-time Clicks', input.allTimeClicks),
-    input.allTimeRank ? rankText(input.allTimeRank) : null,
-  ]);
+  const [weeklyClicks, weeklyRank, allTimeClicks, allTimeRank] =
+    await Promise.all([
+      makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
+      input.data.weeklyRank ? rankText(input.data.weeklyRank) : null,
+      makeStatText(input, 'All-time Clicks', input.data.allTimeClicks),
+      input.data.allTimeRank ? rankText(input.data.allTimeRank) : null,
+    ]);
 
-  composites.push(
+  base.push(
     {
-      input: compositeWeeklyClicks,
+      input: weeklyClicks,
       left: 118,
       top: 28,
     },
     {
-      input: compositeAllTimeClicks,
+      input: allTimeClicks,
       left: 118,
       top: 40,
     }
   );
 
-  if (compositeWeeklyRank) {
-    composites.push({
-      input: compositeWeeklyRank,
+  if (weeklyRank) {
+    base.push({
+      input: weeklyRank,
       left: 245,
       top: 29,
     });
   }
 
-  if (compositeAllTimeRank) {
-    composites.push({
-      input: compositeAllTimeRank,
+  if (allTimeRank) {
+    base.push({
+      input: allTimeRank,
       left: 245,
       top: 41,
     });
   }
-
-  return await compositeImage.composite(composites).png().toBuffer();
+  return base;
 }
 
-async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
+async function getBannerBaseForDragons(
+  base: Awaited<ReturnType<typeof getBannerBaseComposite>>,
+  input: WorkerInput
+) {
+  // stats
+  const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
+    makeStatText(input, 'Total', input.data.total),
+    makeStatText(input, 'Frozen', input.data.frozen),
+    makeStatText(input, 'Eggs', input.data.eggs),
+    makeStatText(input, 'Hatch', input.data.hatch),
+    makeStatText(input, 'Adults', input.data.adult),
+  ]);
+
+  base.push(
+    {
+      input: total,
+      left: 118,
+      top: 28,
+    },
+    {
+      input: frozen,
+      left: 118,
+      top: 40,
+    },
+    {
+      input: eggs,
+      left: 190,
+      top: 28,
+    },
+    {
+      input: hatchlings,
+      left: 190,
+      top: 40,
+    },
+    {
+      input: adults,
+      left: 240,
+      top: 28,
+    }
+  );
+  return base;
+}
+
+async function getDragonBuffers(dragonIds: string[], secret: string) {
   try {
     const timeout = 10000;
     // change to 1 to force timeout
@@ -255,8 +355,11 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
     const { errors, dragons } = await ofetch<{
       errors: string[];
       dragons: Record<string, { hoursleft: number }>;
-    }>(`https://dragcave.net/api/v2/dragons?ids=${dragonIds.join(',')}`, {
-      headers: { Authorization: `Bearer ${clientSecret}` },
+    }>('https://dragcave.net/api/v2/dragons', {
+      headers: { Authorization: `Bearer ${secret}` },
+      query: {
+        ids: dragonIds.join(','),
+      },
       retry: 3,
       retryDelay: 1000,
       timeout,
@@ -264,29 +367,27 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
 
     if (errors.length > 0) {
       throw new Error('Errors getting bulk dragons: ' + errors);
-    } else {
-      Object.keys(dragons).forEach((key) => {
-        if ('hoursleft' in dragons[key] && dragons[key].hoursleft > 0) {
-          dragonsIncluded.push(key);
-        } else {
-          dragonsOmitted.push(key);
-        }
-      });
     }
 
+    Object.keys(dragons).forEach((key) => {
+      const arr =
+        'hoursleft' in dragons[key] && dragons[key].hoursleft > 0
+          ? dragonsIncluded
+          : dragonsOmitted;
+      arr.push(key);
+    });
+
     const dragonBuffers = await Promise.all(
-      dragonsIncluded.map(async (dragonId) => {
-        const dragonBuffer = await ofetch(
-          `https://dragcave.net/image/${dragonId}.gif`,
-          {
+      dragonsIncluded.map(async (dragonId) =>
+        Buffer.from(
+          await ofetch(`https://dragcave.net/image/${dragonId}.gif`, {
             retry: 3,
             retryDelay: 1000,
             timeout,
             responseType: 'arrayBuffer',
-          }
-        );
-        return Buffer.from(dragonBuffer);
-      })
+          })
+        )
+      )
     );
     return {
       dragonsIncluded,
@@ -304,10 +405,7 @@ async function getDragonBuffers(dragonIds: string[], clientSecret: string) {
 
 async function getDragonStrip(dragonBuffers: Buffer[]) {
   const dragonMetadatas = await Promise.all(
-    dragonBuffers.map((buf) => {
-      const img = sharp(buf);
-      return img.metadata();
-    })
+    dragonBuffers.map((buf) => sharp(buf).metadata())
   );
 
   const spacing = 2;
@@ -330,15 +428,13 @@ async function getDragonStrip(dragonBuffers: Buffer[]) {
     xOffsets.push(prevOffset + (metadata.width ?? 0) + spacing);
   });
 
-  await Promise.all(
-    dragonBuffers.map(async (dragonBuffer, index) => {
-      composites.push({
-        input: dragonBuffer,
-        top: stripHeight - (dragonMetadatas[index].height ?? 0),
-        left: xOffsets[index],
-      });
-    })
-  );
+  dragonBuffers.forEach((dragonBuffer, index) => {
+    composites.push({
+      input: dragonBuffer,
+      top: stripHeight - (dragonMetadatas[index].height ?? 0),
+      left: xOffsets[index],
+    });
+  });
 
   const stripBuffer = await compositeImage
     .composite(composites)
@@ -361,22 +457,23 @@ async function createFrames(
   const framePromises = [];
 
   if (stripWidth < baseCarouselWidth) {
-    const frame = createEmptyFrame(baseBannerWidth, baseBannerHeight);
-    const composites: sharp.OverlayOptions[] = [
-      {
-        input: bannerBuffer,
-        top: 0,
-        left: 0,
-      },
-      {
-        input: stripBuffer,
-        top: 5,
-        left:
-          Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
-      },
-    ];
-    const composedFrameBuffer = await frame
-      .composite(composites)
+    const composedFrameBuffer = await createEmptyFrame(
+      baseBannerWidth,
+      baseBannerHeight
+    )
+      .composite([
+        {
+          input: bannerBuffer,
+          top: 0,
+          left: 0,
+        },
+        {
+          input: stripBuffer,
+          top: 5,
+          left:
+            Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
+        },
+      ])
       .png()
       .toBuffer();
     framePromises.push(sharp(composedFrameBuffer));
@@ -400,7 +497,79 @@ async function createFrames(
   return Promise.all(framePromises);
 }
 
+async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
+  const { errors, dragons } = await ofetch<
+    DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
+      dragons: Record<string, DragonData>;
+    }
+  >('https://dragcave.net/api/v2/user', {
+    headers: { Authorization: `Bearer ${input.secret}` },
+    query: {
+      username: input.user.username,
+      limit: 99999,
+      filter: 'ALL',
+    },
+    retry: 3,
+    retryDelay: 1000,
+  });
+
+  const stats: ScrollStats = {
+    female: 0,
+    male: 0,
+    eggs: 0,
+    hatch: 0,
+    adult: 0,
+    frozen: 0,
+    total: Object.keys(dragons).length,
+  };
+
+  for (const code in dragons) {
+    const dragon = dragons[code];
+
+    if (dragon.gender === 'Female') {
+      stats.female++;
+    } else if (dragon.gender === 'Male') {
+      stats.male++;
+    }
+
+    if (dragon.grow !== '0') {
+      stats.adult++;
+    } else if (dragon.hoursleft > -1) {
+      if (dragon.hatch !== '0') {
+        stats.hatch++;
+      } else {
+        stats.eggs++;
+      }
+    }
+
+    if (dragon.hoursleft === -1 && dragon.grow === '0') {
+      stats.frozen++;
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error('Errors getting stats: ' + errors);
+  }
+
+  return stats;
+}
+
 // utils
+
+function makeStatText(
+  input: WorkerInput,
+  statName: string,
+  statNumber: number
+) {
+  return textToPng(
+    `
+      <tspan fill="${input.requestParameters.labelColour}">${statName}:</tspan> 
+      <tspan fill="${input.requestParameters.valueColour}">${Intl.NumberFormat().format(statNumber)}</tspan>
+    `,
+    '8px Nokia Cellphone FC',
+    ''
+  );
+}
 
 async function textToPng(
   text: string,
@@ -422,7 +591,7 @@ async function textToPng(
   // and there's no way for a svg to grab its own children's dimensions,
   // so the purpose of this dummy is to provide the raw dimensions of the text.
 
-  const pngBuffer = await sharp(
+  return sharp(
     Buffer.from(
       `<svg width="${(width ?? 0) + 1}" height="${(height ?? 0) + 4}">
         <style>
@@ -441,11 +610,9 @@ async function textToPng(
   // the real deal is here. it uses the dummy-given dimensions
   // to push down the text into the viewport at an appropriate distance
   // and adds spacing to accomodate the text-shadow.
-
-  return pngBuffer;
 }
 
-function createEmptyFrame(width: number, height: number): sharp.Sharp {
+function createEmptyFrame(width: number, height: number) {
   return sharp({
     create: {
       width,

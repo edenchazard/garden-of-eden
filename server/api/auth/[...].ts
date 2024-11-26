@@ -3,12 +3,14 @@ import type { TokenSet } from 'next-auth';
 import { db } from '~/server/db';
 import { itemsTable, userSettingsTable, userTable } from '~/database/schema';
 import { eq, getTableColumns } from 'drizzle-orm';
+import { encrypt } from '~/utils/accessTokenHandling';
 
 const {
   clientSecret,
   clientId,
   nextAuthSecret,
   public: { origin, baseUrl },
+  accessTokenPassword,
 } = useRuntimeConfig();
 
 export default NuxtAuthHandler({
@@ -59,7 +61,7 @@ export default NuxtAuthHandler({
         },
       },
       userinfo: 'https://dragcave.net/api/v2/me',
-      profile({ _, data: profile }) {
+      profile({ data: profile }) {
         return {
           id: profile.user_id,
           username: profile.username,
@@ -67,6 +69,20 @@ export default NuxtAuthHandler({
       },
     },
   ],
+  events: {
+    async signIn({ user, account }) {
+      // Update the user's access token.
+      await db
+        .update(userTable)
+        .set({
+          accessToken: encrypt(
+            account?.access_token ?? '',
+            accessTokenPassword
+          ),
+        })
+        .where(eq(userTable.id, parseInt(user.id + '')));
+    },
+  },
   callbacks: {
     async jwt({ token, user, account }) {
       if (account) {
@@ -124,6 +140,17 @@ export default NuxtAuthHandler({
           eq(userTable.id, userSettingsTable.user_id)
         )
         .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id));
+
+      // Access tokens were not stored originally, so this is here to provide backwards
+      // compatibility for users who have not logged in since this feature was added.
+      if (!user.users.accessToken && token.sessionToken) {
+        await db
+          .update(userTable)
+          .set({
+            accessToken: encrypt(token.sessionToken, accessTokenPassword),
+          })
+          .where(eq(userTable.id, userId));
+      }
 
       const {
         users,

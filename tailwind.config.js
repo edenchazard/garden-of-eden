@@ -10,7 +10,12 @@ export default {
     './error.vue',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        alkhemikal: ['Alkhemikal'],
+        nokiafc22: ['Nokia Cellphone FC'],
+      },
+    },
   },
   plugins: [],
 };

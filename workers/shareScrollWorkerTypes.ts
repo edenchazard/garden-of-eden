@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type PerformanceData = {
   dragonsIncluded: string[] | null;
   dragonsOmitted: string[] | null;
@@ -14,18 +16,40 @@ export type User = {
   id: number;
   username: string;
   flairPath: string | null;
+  accessToken?: string | null;
 };
 
-export type WorkerInput = {
+export type ScrollStats = {
+  female: number;
+  male: number;
+  adult: number;
+  eggs: number;
+  hatch: number;
+  frozen: number;
+  total: number;
+};
+
+export const enum BannerType {
+  garden = 'garden',
+  dragons = 'dragons',
+}
+
+export interface WorkerInput {
+  stats: BannerType;
   user: User;
   filePath: string;
+  dragons: string[];
+  secret: string;
+  requestParameters: Required<BannerRequestParameters>;
+  data: Record<string, number>;
+}
+
+export interface BannerDataGardenClicks {
   weeklyClicks: number;
   weeklyRank: number | null;
   allTimeClicks: number;
   allTimeRank: number | null;
-  dragons: string[];
-  clientSecret: string;
-};
+}
 
 export const enum WorkerResponseType {
   jobStarted = 'jobStarted',
@@ -33,17 +57,41 @@ export const enum WorkerResponseType {
   error = 'error',
 }
 
-export type WorkerResponse = {
-  type: WorkerResponseType;
+export interface WorkerFinished {
+  performanceData: PerformanceData;
+}
+
+export const defaultPalette = {
+  default: {
+    labelColour: '#dff6f5',
+    valueColour: '#f2bd59',
+    usernameColour: '#dff6f5',
+  },
+  christmas: {
+    labelColour: '#ffffff',
+    valueColour: '#94edff',
+    usernameColour: '#ffffff',
+  },
 };
 
-export interface WorkerFinished extends WorkerResponse {
-  type: WorkerResponseType.jobFinished;
-  performanceData: PerformanceData;
-  user: WorkerInput['user'];
-}
+const hexValue = z.string().regex(/^#[0-9a-f]{6}$/);
 
-export interface WorkerError extends WorkerResponse {
-  type: WorkerResponseType.error;
-  user: WorkerInput['user'];
-}
+export const querySchema = z
+  .object({
+    ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
+    stats: z
+      .union([z.literal('dragons'), z.literal('garden')])
+      .default('garden'),
+    style: z
+      .union([z.literal('default'), z.literal('christmas')])
+      .default('default'),
+    usernameColour: hexValue.optional(),
+    labelColour: hexValue.optional(),
+    valueColour: hexValue.optional(),
+  })
+  .transform((data) => ({
+    ...defaultPalette[data.style],
+    ...data,
+  }));
+
+export type BannerRequestParameters = z.infer<typeof querySchema>;

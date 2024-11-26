@@ -1,12 +1,13 @@
 import { Worker as BullWorker } from 'bullmq';
 import { watch } from 'fs';
 import { db } from '~/server/db';
-import { bannerJobsTable } from '~/database/schema';
+import { bannerJobsTable, userTable } from '~/database/schema';
 import type {
   WorkerFinished,
   WorkerInput,
 } from '~/workers/shareScrollWorkerTypes';
 import { pathToFileURL } from 'url';
+import { eq } from 'drizzle-orm';
 
 const {
   redis: { host, port },
@@ -19,7 +20,7 @@ export default defineNitroPlugin(async () => {
   const createWorker = () =>
     new BullWorker<WorkerInput, WorkerFinished>(
       'shareScrollQueue',
-      pathToFileURL('./workers/shareScrollWorker.js'),
+      pathToFileURL('./workers/shareScroll.worker.js'),
       {
         useWorkerThreads: true,
         connection: {
@@ -32,7 +33,7 @@ export default defineNitroPlugin(async () => {
   let shareScrollWorker = createWorker();
 
   if (import.meta.dev) {
-    watch('./workers/shareScrollWorker.js', () => {
+    watch('./workers/shareScroll.worker.js', () => {
       shareScrollWorker.close();
       shareScrollWorker = createWorker();
       console.info('shareScrollWorker thread started');
@@ -46,12 +47,28 @@ export default defineNitroPlugin(async () => {
       console.error(`Bannergen job failed: `, job.failedReason);
       console.error(job.stacktrace.join('\n'));
 
-      await db.insert(bannerJobsTable).values({
-        userId: job.data.user.id,
-        username: job.data.user.username,
-        flairPath: job.data.user.flairPath,
-        dragonsIncluded: job.data.dragons,
-        error: job.failedReason,
+      await db.transaction(async (tx) => {
+        const promises: Promise<unknown>[] = [
+          tx.insert(bannerJobsTable).values({
+            userId: job.data.user.id,
+            username: job.data.user.username,
+            flairPath: job.data.user.flairPath,
+            dragonsIncluded: job.data.dragons,
+            error: job.failedReason,
+            requestParams: job.data.requestParameters,
+          }),
+        ];
+
+        if (job.failedReason.endsWith('401 Unauthorized')) {
+          promises.push(
+            tx
+              .update(userTable)
+              .set({ accessToken: null })
+              .where(eq(userTable.id, job.data.user.id))
+          );
+        }
+
+        await Promise.all(promises);
       });
     })
     .on('completed', async (job) => {
@@ -68,9 +85,9 @@ export default defineNitroPlugin(async () => {
       );
 
       await db.insert(bannerJobsTable).values({
-        userId: job.returnvalue.user.id,
-        username: job.returnvalue.user.username,
-        flairPath: job.returnvalue.user.flairPath,
+        userId: job.data.user.id,
+        username: job.data.user.username,
+        flairPath: job.data.user.flairPath,
         dragonsIncluded: job.returnvalue.performanceData.dragonsIncluded,
         dragonsOmitted: job.returnvalue.performanceData.dragonsOmitted,
         statGenTime: round(job.returnvalue.performanceData.statGenTime),
@@ -80,6 +97,7 @@ export default defineNitroPlugin(async () => {
         gifGenTime: round(job.returnvalue.performanceData.gifGenTime),
         totalTime: round(job.returnvalue.performanceData.totalTime),
         error: JSON.stringify(job.returnvalue.performanceData.error),
+        requestParams: job.data.requestParameters,
       });
     });
 
