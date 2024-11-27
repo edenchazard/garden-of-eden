@@ -184,65 +184,50 @@ async function getBannerBaseComposite(input: WorkerInput) {
   });
 
   // flair
-  // console.log('CHOSEN FLAIR: ', input.user.flairPath); // flair debugging
   if (input.user.flairPath) {
-    const shadowPath = path.resolve(
-      '/src/resources/',
-      input.user.flairPath.replace('items', 'flair-shadows')
+    const flairPath = path.resolve(
+      '/src/resources/public',
+      input.user.flairPath
     );
-    if (await fileExists(shadowPath)) {
-      const { height } = await sharp(shadowPath).png().metadata();
-      composites.push({
-        input: await sharp(shadowPath).toBuffer(),
-        left: 121 + (usernameWidth ?? 0),
-        top: 16 - Math.floor((height ?? 0) / 2),
-      });
-    } else {
-      const flairPath = path.resolve(
-        '/src/resources/public/',
-        input.user.flairPath
-      );
 
-      const flairShadow = sharp(flairPath)
-        .greyscale()
-        .threshold(255)
-        .composite([
-          {
-            input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
-            raw: {
-              width: 1,
-              height: 1,
-              channels: 4,
-            },
-            tile: true,
-            blend: 'dest-in',
+    const flairShadow = sharp(flairPath)
+      .greyscale()
+      .threshold(255)
+      .composite([
+        {
+          input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
+          raw: {
+            width: 1,
+            height: 1,
+            channels: 4,
           },
-        ])
-        .extend({
-          top: 1,
-          left: 1,
-          extendWith: 'background',
-          background: 'transparent',
-        })
-        .png();
+          tile: true,
+          blend: 'dest-in',
+        },
+      ])
+      .extend({
+        top: 1,
+        left: 1,
+        extendWith: 'background',
+        background: 'transparent',
+      })
+      .png();
 
-      const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
-        sharp(flairPath).png().metadata(),
-        flairShadow.toBuffer(),
-      ]);
+    const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
+      sharp(flairPath).png().metadata(),
+      flairShadow.toBuffer(),
+    ]);
 
-      const flairImage = await sharp(flairShadowBuffer)
-        .composite([{ input: flairPath, left: 0, top: 0 }])
-        .png();
+    const flairImage = await sharp(flairShadowBuffer)
+      .composite([{ input: flairPath, left: 0, top: 0 }])
+      .png()
+      .toBuffer();
 
-      await flairImage.toFile(shadowPath);
-
-      composites.push({
-        input: await flairImage.toBuffer(),
-        left: 121 + (usernameWidth ?? 0),
-        top: 16 - Math.floor((flairHeight ?? 0) / 2),
-      });
-    }
+    composites.push({
+      input: flairImage,
+      left: 121 + (usernameWidth ?? 0),
+      top: 16 - Math.floor((flairHeight ?? 0) / 2),
+    });
   }
 
   return composites;

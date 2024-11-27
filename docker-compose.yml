@@ -42,6 +42,18 @@ services:
     networks:
       - internal
 
+  bullboard:
+    image: venatum/bull-board:latest
+    restart: unless-stopped
+    ports:
+      - 55556:3000
+    networks:
+      - internal
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      USER_LOGIN: ${BULLBOARD_USER}
+      USER_PASSWORD: ${BULLBOARD_PASSWORD}
+
   autoheal:
     deploy:
       replicas: 1

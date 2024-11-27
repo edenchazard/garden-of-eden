@@ -64,5 +64,8 @@
     "tsx": "^4.16.2",
     "vitest": "^2.0.5",
     "vue-tsc": "^2.1.4"
+  },
+  "overrides": {
+    "sharp": "$sharp"
   }
 }

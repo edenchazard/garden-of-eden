@@ -15,10 +15,21 @@ export default defineEventHandler(async (event) => {
   ]);
 
   if (token) {
-    await clickRecordQueue.add('clickRecordQueue', {
-      hatcheryId: params.id,
-      userId: token.userId,
-    });
+    await clickRecordQueue.add(
+      'clickRecordQueue',
+      {
+        hatcheryId: params.id,
+        userId: token.userId,
+      },
+      {
+        removeOnComplete: {
+          age: 1000 * 60 * 60 * 24 * 3,
+        },
+        removeOnFail: {
+          age: 1000 * 60 * 60 * 24 * 3,
+        },
+      }
+    );
   }
 
   return sendRedirect(event, `https://dragcave.net/view/${params.id}`);

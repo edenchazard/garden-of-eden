@@ -1,15 +1,4 @@
 import { z } from 'zod';
-export var BannerType;
-(function (BannerType) {
-    BannerType["garden"] = "garden";
-    BannerType["dragons"] = "dragons";
-})(BannerType || (BannerType = {}));
-export var WorkerResponseType;
-(function (WorkerResponseType) {
-    WorkerResponseType["jobStarted"] = "jobStarted";
-    WorkerResponseType["jobFinished"] = "jobFinished";
-    WorkerResponseType["error"] = "error";
-})(WorkerResponseType || (WorkerResponseType = {}));
 export const defaultPalette = {
     default: {
         labelColour: '#dff6f5',

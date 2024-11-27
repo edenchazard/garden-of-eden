@@ -128,6 +128,7 @@ async function sendJob(
     console.log('not met expiry threshold yet.');
     return;
   } else {
+    existingJob?.discard();
     existingJob?.remove();
   }
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
@@ -167,11 +168,6 @@ async function sendJob(
     {
       removeOnFail: true,
       jobId,
-      attempts: 3,
-      backoff: {
-        type: 'fixed',
-        delay: 10000,
-      },
     }
   );
 

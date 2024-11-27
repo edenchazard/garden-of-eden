@@ -27,6 +27,7 @@ export default defineNitroPlugin(async () => {
           host,
           port: Number(port),
         },
+        concurrency: 10,
       }
     );
 
