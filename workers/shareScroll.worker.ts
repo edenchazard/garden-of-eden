@@ -527,7 +527,11 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
       }
     }
 
-    if (dragon.hoursleft === -1 && dragon.grow === '0') {
+    if (
+      dragon.hoursleft === -1 &&
+      dragon.grow === '0' &&
+      dragon.start !== '0' // Check for hidden
+    ) {
       stats.frozen++;
     }
   }
