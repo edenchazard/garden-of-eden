@@ -119,7 +119,7 @@ async function sendJob(
   const { bannerCacheExpiry, clientSecret, accessTokenPassword } =
     useRuntimeConfig();
   const expires = bannerCacheExpiry * 1000;
-  const jobId = `banner-${unique}`;
+  const jobId = `${user.id}-${unique}`;
 
   // We don't want to rerun these queries if not enough time has passed.
   const existingJob = await shareScrollQueue.getJob(jobId);
