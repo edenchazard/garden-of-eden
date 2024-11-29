@@ -3,31 +3,16 @@ import GIF from 'sharp-gif2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
-import type {
-  PerformanceData,
-  ScrollStats,
-  WorkerFinished,
-  WorkerInput,
+import {
+  BannerType,
+  type PerformanceData,
+  type ScrollStats,
+  type WorkerFinished,
+  type WorkerInput,
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
-
-type DragonData = {
-  id: string;
-  name: string | null;
-  owner: string | null;
-  start: string;
-  hatch: string;
-  grow: string;
-  death: string;
-  views: number;
-  unique: number;
-  clicks: number;
-  gender: 'Male' | 'Female' | '';
-  acceptaid: boolean;
-  hoursleft: number;
-  parent_f: string;
-  parent_m: string;
-};
+import type { DragonData } from '~/types/DragonTypes';
+import { attributes, phase } from '~/utils/dragons';
 
 interface DragCaveApiResponse<Data extends Record<string, unknown>> {
   errors: Array<[number, string]>;
@@ -37,10 +22,10 @@ interface DragCaveApiResponse<Data extends Record<string, unknown>> {
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   const handler = await (async () => {
     switch (job.data.stats) {
-      case 'dragons':
+      case BannerType.dragons:
         job.data.data = await getScrollStats(job.data);
         return getBannerBaseForDragons;
-      case 'garden':
+      case BannerType.garden:
         return getBannerBaseForGarden;
       default:
         throw new Error('Invalid handler');
@@ -505,7 +490,7 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
     hatch: 0,
     adult: 0,
     frozen: 0,
-    total: Object.keys(dragons).length,
+    total: 0,
   };
 
   for (const code in dragons) {
@@ -517,22 +502,25 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
       stats.male++;
     }
 
-    if (dragon.grow !== '0') {
-      stats.adult++;
-    } else if (dragon.hoursleft > -1) {
-      if (dragon.hatch !== '0') {
-        stats.hatch++;
-      } else {
-        stats.eggs++;
-      }
+    const stage = phase(dragon);
+    const attrs = attributes(dragon);
+
+    stats.total++;
+
+    if (attrs.hidden) {
+      continue;
     }
 
-    if (
-      dragon.hoursleft === -1 &&
-      dragon.grow === '0' &&
-      dragon.start !== '0' // Check for hidden
-    ) {
+    if (attrs.frozen) {
       stats.frozen++;
+    } else {
+      if (stage === 'Adult') {
+        stats.adult++;
+      } else if (stage === 'Hatchling' && !attrs.dead) {
+        stats.hatch++;
+      } else if (stage === 'Egg' && !attrs.dead) {
+        stats.eggs++;
+      }
     }
   }
 

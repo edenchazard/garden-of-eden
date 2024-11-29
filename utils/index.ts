@@ -45,15 +45,6 @@ export function filterSelectAll(settings: UserSettings) {
     return false;
   };
 }
-
 export function pluralise(word: string, count: number) {
   return count === 1 ? word : `${word}s`;
-}
-
-export function isEgg(dragon: DragonData) {
-  return dragon.hatch === '0' && dragon.grow === '0';
-}
-
-export function isHatchling(dragon: DragonData) {
-  return dragon.hatch !== '0' && dragon.grow === '0';
 }

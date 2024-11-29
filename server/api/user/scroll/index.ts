@@ -4,8 +4,9 @@ import type { JWT } from 'next-auth/jwt';
 import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
-import { isEgg, isHatchling } from '~/utils';
 import { isIncubated, isStunned } from '~/utils/calculations';
+import type { DragonData } from '~/types/DragonTypes';
+import { phase } from '~/utils/dragons';
 
 async function fetchScroll(username: string, token: JWT) {
   return dragCaveFetch()<
@@ -121,15 +122,15 @@ export default defineEventHandler(async (event) => {
         is_stunned: false,
         ...usersDragonsInHatchery.find((row) => row.id === id),
       };
-
+      const stage = phase(apiDragon);
       const hatcheryDragon = {
         in_garden: hatcheryData.in_garden,
         in_seed_tray: hatcheryData.in_seed_tray,
         is_incubated:
-          isEgg(apiDragon) &&
+          stage === 'Egg' &&
           (hatcheryData.is_incubated || isIncubated(apiDragon)),
         is_stunned:
-          isHatchling(apiDragon) &&
+          stage === 'Hatchling' &&
           (hatcheryData.is_stunned || isStunned(apiDragon)),
       };
 

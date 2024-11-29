@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
-import { isEgg, isHatchling } from '.';
+import type { DragonData } from '~/types/DragonTypes';
+import { phase } from '~/utils/dragons';
 
 export function predictedStartTimeFromHoursLeft(
   scroll: DragonData,
@@ -15,7 +16,7 @@ export function predictedStartTimeFromHoursLeft(
 }
 
 export function isIncubated(scroll: DragonData) {
-  if (!isEgg(scroll)) {
+  if (phase(scroll) !== 'Egg') {
     return false;
   }
 
@@ -33,7 +34,7 @@ export function isIncubated(scroll: DragonData) {
 }
 
 export function isStunned(scroll: DragonData) {
-  if (!isHatchling(scroll)) {
+  if (phase(scroll) !== 'Hatchling') {
     return false;
   }
 

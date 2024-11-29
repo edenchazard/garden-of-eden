@@ -5,7 +5,7 @@ import { exec } from 'child_process';
 export default defineNuxtModule({
   setup({ path }, nuxt) {
     exec(
-      `tsc ${path}/**.ts --skipLibCheck --module esnext --moduleResolution bundler --target esnext`,
+      `npx esbuild ${path}/*.worker.ts --outdir=${path} --bundle --platform=node --format=esm --minify`,
       (error, stdout, stderr) => {
         if (error) console.error(`Error: ${error.message}`);
         if (stderr) console.error(`stderr: ${stderr}`);
@@ -20,9 +20,11 @@ export default defineNuxtModule({
       });
 
       watcher.on('change', (path) => {
+        const file = path.substring(0, path.lastIndexOf('.'));
+        console.log(file);
         console.log(`File changed: ${path}. Re-compiling...`);
         exec(
-          `tsc ${path} --module esnext --moduleResolution bundler --isolatedModules --skipLibCheck --target esnext`,
+          `npx esbuild ${path} --outfile=${file}.js --bundle --platform=node --format=esm --minify --external:zod`,
           (error, stdout, stderr) => {
             if (error) console.error(`Error: ${error.message}`);
             if (stderr) console.error(`stderr: ${stderr}`);
