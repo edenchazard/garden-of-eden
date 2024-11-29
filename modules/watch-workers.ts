@@ -5,7 +5,7 @@ import { exec } from 'child_process';
 export default defineNuxtModule({
   setup({ path }, nuxt) {
     exec(
-      `npx esbuild ${path}/*.worker.ts --outdir=${path} --bundle --platform=node --format=esm --minify`,
+      `npx esbuild ${path}/*.worker.ts --outdir=${path} --bundle --platform=node --format=cjs --minify --out-extension:.js=.cjs`,
       (error, stdout, stderr) => {
         if (error) console.error(`Error: ${error.message}`);
         if (stderr) console.error(`stderr: ${stderr}`);
@@ -24,7 +24,7 @@ export default defineNuxtModule({
         console.log(file);
         console.log(`File changed: ${path}. Re-compiling...`);
         exec(
-          `npx esbuild ${path} --outfile=${file}.js --bundle --platform=node --format=esm --minify --external:zod`,
+          `npx esbuild ${path} --bundle --platform=node --outfile=${file}.cjs --format=cjs --minify`,
           (error, stdout, stderr) => {
             if (error) console.error(`Error: ${error.message}`);
             if (stderr) console.error(`stderr: ${stderr}`);

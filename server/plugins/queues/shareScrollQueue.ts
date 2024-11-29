@@ -7,7 +7,7 @@ import type {
   WorkerInput,
 } from '~/workers/shareScrollWorkerTypes';
 import { eq } from 'drizzle-orm';
-import processorFile from '~/workers/shareScroll.worker';
+import { pathToFileURL } from 'url';
 
 const {
   redis: { host, port },
@@ -20,7 +20,7 @@ export default defineNitroPlugin(async () => {
   const createWorker = () =>
     new BullWorker<WorkerInput, WorkerFinished>(
       'shareScrollQueue',
-      processorFile,
+      pathToFileURL('./workers/shareScroll.worker.cjs'),
       {
         useWorkerThreads: true,
         connection: {
@@ -34,7 +34,7 @@ export default defineNitroPlugin(async () => {
   let shareScrollWorker = createWorker();
 
   if (import.meta.dev) {
-    watch('./workers/shareScroll.worker.js', () => {
+    watch('./workers/shareScroll.worker.cjs', () => {
       shareScrollWorker.close();
       shareScrollWorker = createWorker();
       console.info('shareScrollWorker thread started');
