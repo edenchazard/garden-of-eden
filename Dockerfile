@@ -36,7 +36,6 @@ COPY resources/banner resources/banner
 COPY workers/*.js workers/
 COPY --from=build /src/node_modules/bullmq/dist/cjs dist/cjs 
 COPY --from=build /src/node_modules/bullmq/package.json dist/package.json
-RUN npm i sharp sharp-gif2 ofetch
 
 CMD [ "node", ".output/server/index.mjs" ]
 
