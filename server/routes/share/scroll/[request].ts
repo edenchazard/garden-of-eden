@@ -134,7 +134,7 @@ async function sendJob(
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(user.id);
 
-  /*   const secret =
+  const secret =
     requestParameters.stats === BannerType.garden
       ? clientSecret
       : (function () {
@@ -143,8 +143,8 @@ async function sendJob(
           } catch {
             return null;
           }
-        })(); */
-  const secret = clientSecret;
+        })();
+
   if (!secret) {
     return null;
   }
