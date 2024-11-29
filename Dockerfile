@@ -28,14 +28,10 @@ RUN apt-get update && apt-get install curl -y
 ENV PORT=$PORT
 
 WORKDIR /src
-COPY --from=build /src/.output .output
-COPY --from=build /src/package*.json . 
+COPY --from=build /src/.output .output 
 
 # Required hacks for working animated banners in prod.
 COPY resources/banner resources/banner
-COPY workers/*.js workers/
-COPY --from=build /src/node_modules/bullmq/dist/cjs dist/cjs 
-COPY --from=build /src/node_modules/bullmq/package.json dist/package.json
 
 CMD [ "node", ".output/server/index.mjs" ]
 
