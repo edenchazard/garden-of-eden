@@ -1,41 +1,40 @@
 import { defineNuxtModule } from '@nuxt/kit';
-import chokidar from 'chokidar';
-import { exec } from 'child_process';
+import * as esbuild from 'esbuild';
+import { watch } from 'fs';
 
 export default defineNuxtModule({
-  setup({ path }, nuxt) {
-    exec(
-      `npx esbuild ${path}/*.worker.ts --outdir=${path} --bundle --platform=node --format=cjs --minify --out-extension:.js=.cjs`,
-      (error, stdout, stderr) => {
-        if (error) console.error(`Error: ${error.message}`);
-        if (stderr) console.error(`stderr: ${stderr}`);
-        if (stdout) console.log(stdout);
-        if (!error && !stderr) console.log('Initial compilation successful');
+  async setup({ path }, nuxt) {
+    const ctx = await esbuild.context({
+      entryPoints: [`${path}/*.worker.ts`],
+      outdir: path,
+      bundle: true,
+      platform: 'node',
+      format: 'cjs',
+      minify: true,
+      outExtension: { '.js': '.cjs' },
+    });
+
+    const watcher = watch(
+      path,
+      async (eventType: string, filename: string | null = null) => {
+        if (eventType !== 'change' || !filename?.endsWith('.worker.ts')) {
+          return;
+        }
+
+        console.info(`${filename}: Compiling worker...`);
+        await ctx.rebuild();
       }
     );
 
-    nuxt.hook('build:before', () => {
-      const watcher = chokidar.watch(`${path}/**/*.ts`, {
-        ignoreInitial: true,
-      });
+    console.info(`${path}: Watching worker directory.`);
 
-      watcher.on('change', (path) => {
-        const file = path.substring(0, path.lastIndexOf('.'));
-        console.log(file);
-        console.log(`File changed: ${path}. Re-compiling...`);
-        exec(
-          `npx esbuild ${path} --bundle --platform=node --outfile=${file}.cjs --format=cjs --minify`,
-          (error, stdout, stderr) => {
-            if (error) console.error(`Error: ${error.message}`);
-            if (stderr) console.error(`stderr: ${stderr}`);
-            if (stdout) console.log(stdout);
-            if (!error && !stderr) console.log('Compilation successful');
-          }
-        );
-      });
+    ctx.rebuild();
 
-      // Stop watcher on Nuxt close
-      nuxt.hook('close', () => watcher.close());
+    console.info(`${path}: Initial worker compilation complete.`);
+
+    nuxt.hook('close', async () => {
+      watcher.close();
+      await ctx.dispose();
     });
   },
 });
