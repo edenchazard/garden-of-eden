@@ -149,7 +149,6 @@ async function getBannerBaseComposite(input: WorkerInput) {
     },
   ];
 
-  // scrollname
   const usernamePng = await textToPng(
     input.user.username,
     '16px Alkhemikal',
@@ -164,7 +163,6 @@ async function getBannerBaseComposite(input: WorkerInput) {
     left: 118,
   });
 
-  // flair
   if (input.user.flairPath) {
     const flairPath = path.resolve(
       '/src/resources/public',
@@ -228,7 +226,6 @@ async function getBannerBaseForGarden(
       ''
     );
 
-  // stats
   const [weeklyClicks, weeklyRank, allTimeClicks, allTimeRank] =
     await Promise.all([
       makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
@@ -272,7 +269,6 @@ async function getBannerBaseForDragons(
   base: Awaited<ReturnType<typeof getBannerBaseComposite>>,
   input: WorkerInput
 ) {
-  // stats
   const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
     makeStatText(input, 'Total', input.data.total),
     makeStatText(input, 'Frozen', input.data.frozen),
@@ -318,10 +314,14 @@ async function getDragonBuffers(dragonIds: string[], secret: string) {
     const dragonsIncluded: string[] = [];
     const dragonsOmitted: string[] = [];
 
-    const { errors, dragons } = await ofetch<{
-      errors: string[];
-      dragons: Record<string, { hoursleft: number }>;
-    }>('https://dragcave.net/api/v2/dragons', {
+    const { errors, dragons } = await ofetch<
+      DragCaveApiResponse<{
+        hasNextPage: boolean;
+        endCursor: null | number;
+      }> & {
+        dragons: Record<string, DragonData>;
+      }
+    >('https://dragcave.net/api/v2/dragons', {
       headers: { Authorization: `Bearer ${secret}` },
       query: {
         ids: dragonIds.join(','),
@@ -336,10 +336,7 @@ async function getDragonBuffers(dragonIds: string[], secret: string) {
     }
 
     Object.keys(dragons).forEach((key) => {
-      const arr =
-        'hoursleft' in dragons[key] && dragons[key].hoursleft > 0
-          ? dragonsIncluded
-          : dragonsOmitted;
+      const arr = dragons[key].hoursleft > 0 ? dragonsIncluded : dragonsOmitted;
       arr.push(key);
     });
 
