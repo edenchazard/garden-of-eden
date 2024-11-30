@@ -15,7 +15,7 @@ export default defineNuxtModule({
       external: ['sharp'],
     });
 
-    await fs.mkdir('/src/workers', { recursive: true });
+    await fs.mkdir(path, { recursive: true });
 
     const watcher = watch(
       path,
