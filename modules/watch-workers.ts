@@ -12,6 +12,7 @@ export default defineNuxtModule({
       format: 'cjs',
       minify: true,
       outExtension: { '.js': '.cjs' },
+      external: ['sharp'],
     });
 
     const watcher = watch(
@@ -28,7 +29,7 @@ export default defineNuxtModule({
 
     console.info(`${path}: Watching worker directory.`);
 
-    ctx.rebuild();
+    await ctx.rebuild();
 
     console.info(`${path}: Initial worker compilation complete.`);
 
