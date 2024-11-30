@@ -1,6 +1,6 @@
 import { defineNuxtModule } from '@nuxt/kit';
 import * as esbuild from 'esbuild';
-import { watch } from 'fs';
+import { promises as fs, watch } from 'fs';
 
 export default defineNuxtModule({
   async setup({ path }, nuxt) {
@@ -14,6 +14,8 @@ export default defineNuxtModule({
       outExtension: { '.js': '.cjs' },
       external: ['sharp'],
     });
+
+    await fs.mkdir('/src/workers', { recursive: true });
 
     const watcher = watch(
       path,

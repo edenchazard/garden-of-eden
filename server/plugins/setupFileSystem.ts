@@ -5,8 +5,6 @@ export default defineNitroPlugin(async () => {
   await fs.mkdir('/cache/scroll', { recursive: true });
   await fs.mkdir('/src/resources/flair-shadows', { recursive: true });
 
-  // Other.
-  await fs.mkdir('/src/workers', { recursive: true });
   const publicPath = import.meta.dev ? '/src/public' : '/src/.output/public';
 
   try {
