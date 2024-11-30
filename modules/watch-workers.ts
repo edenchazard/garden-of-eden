@@ -1,6 +1,6 @@
 import { defineNuxtModule } from '@nuxt/kit';
 import * as esbuild from 'esbuild';
-import { watch } from 'fs';
+import { watch, type WatchEventType } from 'fs';
 import fsExists from '~/server/utils/fsExists';
 
 export default defineNuxtModule({
@@ -22,7 +22,7 @@ export default defineNuxtModule({
 
     const watcher = watch(
       path,
-      async (eventType: string, filename: string | null = null) => {
+      async (eventType: WatchEventType, filename: string | null = null) => {
         if (eventType !== 'change' || !filename?.endsWith('.worker.ts')) {
           return;
         }
