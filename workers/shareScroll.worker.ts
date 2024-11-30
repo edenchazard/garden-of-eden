@@ -3,44 +3,25 @@ import GIF from 'sharp-gif2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
-import type {
-  PerformanceData,
-  ScrollStats,
-  WorkerFinished,
-  WorkerInput,
+import {
+  BannerType,
+  type PerformanceData,
+  type ScrollStats,
+  type WorkerFinished,
+  type WorkerInput,
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
-
-type DragonData = {
-  id: string;
-  name: string | null;
-  owner: string | null;
-  start: string;
-  hatch: string;
-  grow: string;
-  death: string;
-  views: number;
-  unique: number;
-  clicks: number;
-  gender: 'Male' | 'Female' | '';
-  acceptaid: boolean;
-  hoursleft: number;
-  parent_f: string;
-  parent_m: string;
-};
-
-interface DragCaveApiResponse<Data extends Record<string, unknown>> {
-  errors: Array<[number, string]>;
-  data: Data;
-}
+import type { DragonData } from '~/types/DragonTypes';
+import { attributes, phase } from '~/utils/dragons';
+import fsExists from '~/server/utils/fsExists';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   const handler = await (async () => {
     switch (job.data.stats) {
-      case 'dragons':
+      case BannerType.dragons:
         job.data.data = await getScrollStats(job.data);
         return getBannerBaseForDragons;
-      case 'garden':
+      case BannerType.garden:
         return getBannerBaseForGarden;
       default:
         throw new Error('Invalid handler');
@@ -168,7 +149,6 @@ async function getBannerBaseComposite(input: WorkerInput) {
     },
   ];
 
-  // scrollname
   const usernamePng = await textToPng(
     input.user.username,
     '16px Alkhemikal',
@@ -183,7 +163,6 @@ async function getBannerBaseComposite(input: WorkerInput) {
     left: 118,
   });
 
-  // flair
   if (input.user.flairPath) {
     const flairPath = path.resolve(
       '/src/resources/public',
@@ -247,7 +226,6 @@ async function getBannerBaseForGarden(
       ''
     );
 
-  // stats
   const [weeklyClicks, weeklyRank, allTimeClicks, allTimeRank] =
     await Promise.all([
       makeStatText(input, 'Weekly Clicks', input.data.weeklyClicks),
@@ -291,7 +269,6 @@ async function getBannerBaseForDragons(
   base: Awaited<ReturnType<typeof getBannerBaseComposite>>,
   input: WorkerInput
 ) {
-  // stats
   const [total, frozen, eggs, hatchlings, adults] = await Promise.all([
     makeStatText(input, 'Total', input.data.total),
     makeStatText(input, 'Frozen', input.data.frozen),
@@ -337,10 +314,14 @@ async function getDragonBuffers(dragonIds: string[], secret: string) {
     const dragonsIncluded: string[] = [];
     const dragonsOmitted: string[] = [];
 
-    const { errors, dragons } = await ofetch<{
-      errors: string[];
-      dragons: Record<string, { hoursleft: number }>;
-    }>('https://dragcave.net/api/v2/dragons', {
+    const { errors, dragons } = await ofetch<
+      DragCaveApiResponse<{
+        hasNextPage: boolean;
+        endCursor: null | number;
+      }> & {
+        dragons: Record<string, DragonData>;
+      }
+    >('https://dragcave.net/api/v2/dragons', {
       headers: { Authorization: `Bearer ${secret}` },
       query: {
         ids: dragonIds.join(','),
@@ -355,10 +336,7 @@ async function getDragonBuffers(dragonIds: string[], secret: string) {
     }
 
     Object.keys(dragons).forEach((key) => {
-      const arr =
-        'hoursleft' in dragons[key] && dragons[key].hoursleft > 0
-          ? dragonsIncluded
-          : dragonsOmitted;
+      const arr = dragons[key].hoursleft > 0 ? dragonsIncluded : dragonsOmitted;
       arr.push(key);
     });
 
@@ -505,7 +483,7 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
     hatch: 0,
     adult: 0,
     frozen: 0,
-    total: Object.keys(dragons).length,
+    total: 0,
   };
 
   for (const code in dragons) {
@@ -517,22 +495,25 @@ async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
       stats.male++;
     }
 
-    if (dragon.grow !== '0') {
-      stats.adult++;
-    } else if (dragon.hoursleft > -1) {
-      if (dragon.hatch !== '0') {
-        stats.hatch++;
-      } else {
-        stats.eggs++;
-      }
+    const stage = phase(dragon);
+    const attrs = attributes(dragon);
+
+    stats.total++;
+
+    if (attrs.hidden) {
+      continue;
     }
 
-    if (
-      dragon.hoursleft === -1 &&
-      dragon.grow === '0' &&
-      dragon.start !== '0' // Check for hidden
-    ) {
+    if (attrs.frozen) {
       stats.frozen++;
+    } else {
+      if (stage === 'Adult') {
+        stats.adult++;
+      } else if (stage === 'Hatchling' && !attrs.dead) {
+        stats.hatch++;
+      } else if (stage === 'Egg' && !attrs.dead) {
+        stats.eggs++;
+      }
     }
   }
 
@@ -666,17 +647,8 @@ async function createFrame(
 }
 
 async function moveBannerFromTemporary(filePath: string) {
-  if (await fileExists(filePath)) {
+  if (await fsExists(filePath)) {
     await fs.unlink(filePath);
   }
   await fs.rename(`${filePath}.tmp`, filePath);
-}
-
-async function fileExists(filePath: string) {
-  try {
-    await fs.stat(filePath);
-    return true;
-  } catch {
-    return false;
-  }
 }

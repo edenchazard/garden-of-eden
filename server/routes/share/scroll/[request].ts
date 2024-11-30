@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { promises as fs, createReadStream } from 'fs';
+import fsExists from '~/server/utils/fsExists';
+import { createReadStream } from 'fs';
 import { shareScrollQueue } from '~/server/queue';
 import { db } from '~/server/db';
 import { and, eq, sql, or } from 'drizzle-orm';
@@ -100,15 +101,6 @@ const getUser = async (userId: number, username: string) => {
 
   return user;
 };
-
-async function exists(file: string) {
-  try {
-    await fs.stat(file);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 async function sendJob(
   unique: string,
@@ -229,7 +221,7 @@ export default defineEventHandler(async (event) => {
     return sendNotFound(event, query.data.ext);
   }
 
-  if (await exists(filePath)) {
+  if (await fsExists(filePath)) {
     setHeader(event, 'Cache-Control', `public, max-age=120`);
     return sendStream(event, createReadStream(filePath));
   }

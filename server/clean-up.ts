@@ -5,6 +5,7 @@ import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 import { isIncubated, isStunned } from '~/utils/calculations';
+import type { DragonData } from '~/types/DragonTypes';
 
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();

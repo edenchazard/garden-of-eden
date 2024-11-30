@@ -1,25 +1,8 @@
 import type { userSettingsTable, userTable } from '~/database/schema';
+import type { DragonData } from './types/DragonTypes';
 export {};
 
 declare global {
-  type DragonData = {
-    id: string;
-    name: string | null;
-    owner: string | null;
-    start: string;
-    hatch: string;
-    grow: string;
-    death: string;
-    views: number;
-    unique: number;
-    clicks: number;
-    gender: 'Male' | 'Female' | '';
-    acceptaid: boolean;
-    hoursleft: number;
-    parent_f: string;
-    parent_m: string;
-  };
-
   type ScrollView = DragonData & {
     in_garden: boolean;
     in_seed_tray: boolean;

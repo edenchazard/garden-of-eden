@@ -1,39 +1,46 @@
 import { defineNuxtModule } from '@nuxt/kit';
-import chokidar from 'chokidar';
-import { exec } from 'child_process';
+import * as esbuild from 'esbuild';
+import { watch, type WatchEventType } from 'fs';
+import fsExists from '~/server/utils/fsExists';
 
 export default defineNuxtModule({
-  setup({ path }, nuxt) {
-    exec(
-      `tsc ${path}/**.ts --skipLibCheck --module esnext --moduleResolution bundler --target esnext`,
-      (error, stdout, stderr) => {
-        if (error) console.error(`Error: ${error.message}`);
-        if (stderr) console.error(`stderr: ${stderr}`);
-        if (stdout) console.log(stdout);
-        if (!error && !stderr) console.log('Initial compilation successful');
+  async setup({ path }, nuxt) {
+    if (!(await fsExists(path))) {
+      return;
+    }
+
+    const ctx = await esbuild.context({
+      entryPoints: [`${path}/*.worker.ts`],
+      outdir: path,
+      bundle: true,
+      platform: 'node',
+      format: 'cjs',
+      minify: true,
+      outExtension: { '.js': '.cjs' },
+      external: ['sharp', 'zod'],
+    });
+
+    const watcher = watch(
+      path,
+      async (eventType: WatchEventType, filename: string | null = null) => {
+        if (eventType !== 'change' || !filename?.endsWith('.worker.ts')) {
+          return;
+        }
+
+        console.info(`${filename}: Compiling worker...`);
+        await ctx.rebuild();
       }
     );
 
-    nuxt.hook('build:before', () => {
-      const watcher = chokidar.watch(`${path}/**/*.ts`, {
-        ignoreInitial: true,
-      });
+    console.info(`${path}: Watching worker directory.`);
 
-      watcher.on('change', (path) => {
-        console.log(`File changed: ${path}. Re-compiling...`);
-        exec(
-          `tsc ${path} --module esnext --moduleResolution bundler --isolatedModules --skipLibCheck --target esnext`,
-          (error, stdout, stderr) => {
-            if (error) console.error(`Error: ${error.message}`);
-            if (stderr) console.error(`stderr: ${stderr}`);
-            if (stdout) console.log(stdout);
-            if (!error && !stderr) console.log('Compilation successful');
-          }
-        );
-      });
+    await ctx.rebuild();
 
-      // Stop watcher on Nuxt close
-      nuxt.hook('close', () => watcher.close());
+    console.info(`${path}: Initial worker compilation complete.`);
+
+    nuxt.hook('close', async () => {
+      watcher.close();
+      await ctx.dispose();
     });
   },
 });
