@@ -15,11 +15,6 @@ import type { DragonData } from '~/types/DragonTypes';
 import { attributes, phase } from '~/utils/dragons';
 import fsExists from '~/server/utils/fsExists';
 
-interface DragCaveApiResponse<Data extends Record<string, unknown>> {
-  errors: Array<[number, string]>;
-  data: Data;
-}
-
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   const handler = await (async () => {
     switch (job.data.stats) {
