@@ -17,7 +17,7 @@ export default defineNuxtModule({
       format: 'cjs',
       minify: true,
       outExtension: { '.js': '.cjs' },
-      external: ['sharp'],
+      external: ['sharp', 'zod'],
     });
 
     const watcher = watch(
