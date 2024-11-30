@@ -13,6 +13,7 @@ import {
 import type { Job } from 'bullmq';
 import type { DragonData } from '~/types/DragonTypes';
 import { attributes, phase } from '~/utils/dragons';
+import fsExists from '~/server/utils/fsExists';
 
 interface DragCaveApiResponse<Data extends Record<string, unknown>> {
   errors: Array<[number, string]>;
@@ -654,17 +655,8 @@ async function createFrame(
 }
 
 async function moveBannerFromTemporary(filePath: string) {
-  if (await fileExists(filePath)) {
+  if (await fsExists(filePath)) {
     await fs.unlink(filePath);
   }
   await fs.rename(`${filePath}.tmp`, filePath);
-}
-
-async function fileExists(filePath: string) {
-  try {
-    await fs.stat(filePath);
-    return true;
-  } catch {
-    return false;
-  }
 }
