@@ -1,9 +1,14 @@
 import { defineNuxtModule } from '@nuxt/kit';
 import * as esbuild from 'esbuild';
-import { promises as fs, watch } from 'fs';
+import { watch } from 'fs';
+import fsExists from '~/server/utils/fsExists';
 
 export default defineNuxtModule({
   async setup({ path }, nuxt) {
+    if (!(await fsExists(path))) {
+      return;
+    }
+
     const ctx = await esbuild.context({
       entryPoints: [`${path}/*.worker.ts`],
       outdir: path,
@@ -14,8 +19,6 @@ export default defineNuxtModule({
       outExtension: { '.js': '.cjs' },
       external: ['sharp'],
     });
-
-    await fs.mkdir(path, { recursive: true });
 
     const watcher = watch(
       path,
