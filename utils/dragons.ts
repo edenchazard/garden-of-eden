@@ -11,10 +11,15 @@ export function phase(dragon: DragonData) {
 }
 
 export function attributes(dragon: DragonData): DragonAttributes {
-  const hidden = dragon.start === '0';
   const dead = dragon.hoursleft === -2;
-  const frozen =
-    !hidden && dragon.hoursleft === -1 && phase(dragon) !== 'Adult';
+
+  const hidden =
+    dragon.start === '0' &&
+    dragon.hatch === '0' &&
+    dragon.grow === '0' &&
+    dragon.hoursleft === -1;
+
+  const frozen = dragon.grow === '0' && dragon.hoursleft === -1;
 
   return {
     dead,
