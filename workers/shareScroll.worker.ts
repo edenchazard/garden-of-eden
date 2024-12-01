@@ -11,9 +11,9 @@ import {
   type WorkerInput,
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
-import type { DragonData } from '~/types/DragonTypes';
-import { attributes, phase } from '~/utils/dragons';
-import fsExists from '~/server/utils/fsExists';
+import type { DragonData } from '../types/DragonTypes';
+import { attributes, phase } from '../utils/dragons';
+import fsExists from '../server/utils/fsExists';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   const handler = await (async () => {

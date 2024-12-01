@@ -34,11 +34,11 @@
           </span>
         </p>
       </div>
-      <NuxtImg
+      <NuxtPicture
         loading="lazy"
         format="avif,webp"
         src="/illustrations/backwards-binoculars.png"
-        sizes="100px md:200px"
+        sizes="100px md:350px"
         alt="Mint looking through the gates"
       />
     </div>
@@ -49,7 +49,7 @@
           v-if="fetchScrollError"
           class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
         >
-          <NuxtImg
+          <NuxtPicture
             loading="lazy"
             format="avif,webp"
             src="/illustrations/tinkering-in-the-garden.png"
@@ -69,7 +69,7 @@
             v-if="!scroll.dragons.length"
             class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
           >
-            <NuxtImg
+            <NuxtPicture
               loading="lazy"
               format="avif,webp"
               src="/illustrations/lost-at-sea.png"

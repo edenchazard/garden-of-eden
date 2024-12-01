@@ -140,7 +140,7 @@
               </li>
             </ul>
           </div>
-          <NuxtImg
+          <NuxtPicture
             class="self-center sm:self-start"
             loading="lazy"
             format="avif,webp"
