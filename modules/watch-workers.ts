@@ -9,38 +9,40 @@ export default defineNuxtModule({
       return;
     }
 
-    const ctx = await esbuild.context({
-      entryPoints: [`${path}/*.worker.ts`],
-      outdir: path,
-      bundle: true,
-      platform: 'node',
-      format: 'cjs',
-      minify: true,
-      outExtension: { '.js': '.cjs' },
-      external: ['sharp', 'zod'],
-    });
+    nuxt.hook('build:done', async () => {
+      const ctx = await esbuild.context({
+        entryPoints: [`${path}/*.worker.ts`],
+        outdir: path,
+        bundle: true,
+        platform: 'node',
+        format: 'cjs',
+        minify: true,
+        outExtension: { '.js': '.cjs' },
+        external: ['sharp', 'zod'],
+      });
 
-    const watcher = watch(
-      path,
-      async (eventType: WatchEventType, filename: string | null = null) => {
-        if (eventType !== 'change' || !filename?.endsWith('.worker.ts')) {
-          return;
+      const watcher = watch(
+        path,
+        async (eventType: WatchEventType, filename: string | null = null) => {
+          if (eventType !== 'change' || !filename?.endsWith('.worker.ts')) {
+            return;
+          }
+
+          console.info(`${filename}: Compiling worker...`);
+          await ctx.rebuild();
         }
+      );
 
-        console.info(`${filename}: Compiling worker...`);
-        await ctx.rebuild();
-      }
-    );
+      console.info(`${path}: Watching worker directory.`);
 
-    console.info(`${path}: Watching worker directory.`);
+      await ctx.rebuild();
 
-    await ctx.rebuild();
+      console.info(`${path}: Initial worker compilation complete.`);
 
-    console.info(`${path}: Initial worker compilation complete.`);
-
-    nuxt.hook('close', async () => {
-      watcher.close();
-      await ctx.dispose();
+      nuxt.hook('close', async () => {
+        watcher.close();
+        await ctx.dispose();
+      });
     });
   },
 });

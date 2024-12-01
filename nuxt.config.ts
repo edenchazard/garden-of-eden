@@ -113,8 +113,11 @@ export default defineNuxtConfig({
     },
   },
   image: {
-    format: ['avif', 'webp'],
     formats: ['avif', 'webp'],
+    provider: 'ipx',
+    ipx: {
+      maxAge: 60 * 60 * 24 * 30,
+    },
   },
   routeRules: {
     // nuxt-auth has its own CSRF protection

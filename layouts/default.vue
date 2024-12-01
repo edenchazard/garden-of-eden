@@ -67,7 +67,7 @@
                     DateTime.fromISO(`${DateTime.now().year}-11-07T00:00:00Z`)
                   ).contains(DateTime.utc())
                 "
-                src="/npc/ghost_of_eden.png"
+                src="/npc/ghost_of_eden.webp"
                 alt=""
                 class="ghost-of-eden absolute -z-10 left-5"
               />

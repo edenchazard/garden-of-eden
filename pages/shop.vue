@@ -50,7 +50,7 @@
           You can acquire Dragon Dollars by clicking on dragons in the site and
           may have a maximum of 500 Dragon Dollars at any time.
         </p>
-        <img src="/public/other/dragon-dollar.png" width="17" height="10" />
+        <img src="/public/other/dragon-dollar.webp" width="17" height="10" />
         <p>You have {{ authData?.user.money ?? 0 }} Dragon Dollars.</p>
         <template v-if="data.currentFlair">
           <img :src="userFlair(data.currentFlair.url)" alt="" />
@@ -197,7 +197,7 @@ async function purchase(item: Item) {
 
 const config = useRuntimeConfig();
 const path = config.public.origin + config.public.baseUrl;
-const matthias = `${path}/npc/matthias.gif`;
+const matthias = `${path}/npc/matthias.webp`;
 </script>
 
 <style scoped>
