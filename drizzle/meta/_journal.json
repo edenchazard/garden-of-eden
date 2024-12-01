@@ -155,6 +155,13 @@
       "when": 1733075827173,
       "tag": "0028_update_item_seeds",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1733089757958,
+      "tag": "0029_add_christmas_flairs",
+      "breakpoints": true
     }
   ]
 }
