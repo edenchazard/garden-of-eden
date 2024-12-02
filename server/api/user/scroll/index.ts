@@ -32,7 +32,8 @@ async function syncScrollName(token: JWT) {
     },
   });
 
-  db.update(userTable)
+  await db
+    .update(userTable)
     .set({ username: updated.data.username })
     .where(eq(userTable.id, token.userId));
 
