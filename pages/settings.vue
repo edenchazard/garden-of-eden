@@ -12,8 +12,8 @@
           Eggs and hatchlings that don't meet these restrictions will be ignored
           by select all. They can still be manually added.
         </p>
-        <ul class="divide-y *:py-4">
-          <li>
+        <ul class="*:py-4">
+          <li class="flex items-baseline">
             <span class="inline-flex flex-col mx-2">
               <input
                 v-model.number="newSettings.hatchlingMinAge"
@@ -27,7 +27,7 @@
             Exclude hatchlings that aren't at least
             {{ formatHoursLeft(168 - newSettings.hatchlingMinAge) }} old.
           </li>
-          <li>
+          <li class="flex items-baseline">
             <span class="inline-flex flex-col mx-2">
               <input
                 v-model.number="newSettings.eggMinAge"
@@ -59,8 +59,8 @@
       <fieldset>
         <legend>Scroll view</legend>
         <p>Customise the scroll view interface.</p>
-        <ul class="divide-y *:py-4">
-          <li class="flex items-center gap-x-2">
+        <ul class="*:py-4">
+          <li class="flex items-center gap-2">
             <input
               id="hide-scroll-ratio"
               v-model="newSettings.showScrollRatio"
@@ -72,7 +72,7 @@
               Show views to unique views ratio.</label
             >
           </li>
-          <li class="flex items-center gap-x-2">
+          <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
             <select id="section-order" v-model="newSettings.sectionOrder">
               <option value="hatchlings,eggs">Hatchlings, then eggs</option>
               <option value="eggs,hatchlings">Eggs, then hatchlings</option>
@@ -109,7 +109,7 @@
         <legend>Fun things 🎩</legend>
         <p>Fun? In my garden? It's more likely than you think.</p>
         <ul class="divide-y *:py-4">
-          <li class="flex items-center gap-x-2">
+          <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
             <select id="site-name" v-model="newSettings.siteName">
               <option value="Eden">Garden of Eden</option>
               <option value="Elena">Garden of Elena</option>
