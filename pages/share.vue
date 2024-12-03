@@ -137,7 +137,6 @@
                 :src="`${config.public.baseUrl}/share/scroll/249648-42?stats=dragons`"
                 alt="animated 327x61 banner by Mu-Cephei"
               />
-              <span class="italic text-sm">Mu-Cephei</span>
             </div>
             <p
               class="bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose text-sm"
@@ -167,6 +166,9 @@
                 name="animated-banner"
               />
               <label for="animated-default">Default</label>
+              <span class="italic text-sm col-span-full text-center"
+                >Mu-Cephei</span
+              >
               <ShareScrollBannerPreview
                 :params="animatedBannerOptions"
                 :banner="`${config.public.baseUrl}/share/scroll/christmas.webp`"
@@ -179,6 +181,7 @@
                 name="animated-banner"
               />
               <label for="animated-christmas">Christmas</label>
+              <span class="italic text-sm col-span-full text-center">Arcy</span>
             </div>
 
             <div
