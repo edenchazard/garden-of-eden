@@ -38,6 +38,7 @@
       </div>
 
       <div
+        v-if="authData?.user"
         class="p-4 bg-orange-200 text-black dark:bg-sky-900 dark:text-white max-w-prose mx-auto rounded-lg grid items-center gap-2 grid-cols-[auto_1fr] data-center"
       >
         <p class="col-span-full">
@@ -72,6 +73,20 @@
           </p>
         </template>
         <p v-else class="col-span-full">You have no flair currently.</p>
+      </div>
+      <div v-else class="text-center space-y-2 max-w-prose mx-auto">
+        <p>
+          Matthias will sell you <strong>flairs</strong> to display alongside
+          your username in exchange for Dragon Dollars, earned by clicking. You
+          must be logged in.
+        </p>
+        <button
+          type="button"
+          class="btn btn-primary"
+          @click="signIn('dragcave')"
+        >
+          Login
+        </button>
       </div>
     </section>
 
@@ -156,15 +171,11 @@
 import { userFlair } from '#imports';
 import { DateTime } from 'luxon';
 
-definePageMeta({
-  middleware: 'auth',
-});
-
 useHead({
   title: "Matthias' Shop",
 });
 
-const { data: authData, getSession } = useAuth();
+const { data: authData, getSession, signIn } = useAuth();
 await getSession();
 const { data } = await useFetch('/api/shop', {
   immediate: true,
