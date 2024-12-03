@@ -14,6 +14,7 @@ import type { Job } from 'bullmq';
 import type { DragonData } from '../types/DragonTypes';
 import { attributes, phase } from '../utils/dragons';
 import fsExists from '../server/utils/fsExists';
+import WebP from 'node-webpmux';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   const handler = await (async () => {
@@ -102,17 +103,32 @@ async function generateBannerToTemporary(
         stripWidth,
         stripHeight
       );
+
       perfData.frameGenTime = end();
 
       start();
-      const gif = await GIF.createGif({
-        delay: 100,
-        repeat: 0,
-        format: 'rgb444',
-      })
-        .addFrame(frames)
-        .toSharp();
-      await gif.toFile(`${input.filePath}.tmp`);
+      const image = await WebP.Image.getEmptyImage();
+      image.convertToAnim();
+
+      for (let index = 0; index < frames.length; index++) {
+        const buffer = await sharp(frames[index])
+          .webp({ nearLossless: true, quality: 90 })
+          .toBuffer();
+
+        image.frames[index] = await WebP.Image.generateFrame({
+          buffer,
+        });
+      }
+
+      const saved = await image.save(null, {
+        width: baseBannerWidth,
+        height: baseBannerHeight,
+      });
+
+      await sharp(saved, { animated: true })
+        .webp({ nearLossless: true, quality: 90 })
+        .toFile(`${input.filePath}.tmp`);
+
       perfData.gifGenTime = end();
     } else {
       perfData.dragonsIncluded = [];
@@ -439,7 +455,7 @@ async function createFrames(
       ])
       .png()
       .toBuffer();
-    framePromises.push(sharp(composedFrameBuffer));
+    framePromises.push(composedFrameBuffer);
   } else {
     for (
       let scrollPosition = 0;
@@ -643,7 +659,7 @@ async function createFrame(
     });
   }
 
-  return sharp(await frame.composite(composites).png().toBuffer());
+  return await frame.composite(composites).png().toBuffer();
 }
 
 async function moveBannerFromTemporary(filePath: string) {
