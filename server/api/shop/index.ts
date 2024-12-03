@@ -17,26 +17,24 @@ export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
   const session = await getServerSession(event);
 
-  const [items, [currentFlair]] = await Promise.all([
-    db
-      .select()
-      .from(itemsTable)
-      .where(
-        and(
-          isNotNull(itemsTable.cost),
-          or(
-            isNull(itemsTable.availableFrom),
-            between(
-              sql`NOW()`,
-              itemsTable.availableFrom,
-              itemsTable.availableTo
-            )
-          )
+  const getAvailableItems = db
+    .select()
+    .from(itemsTable)
+    .where(
+      and(
+        isNotNull(itemsTable.cost),
+        or(
+          isNull(itemsTable.availableFrom),
+          between(sql`NOW()`, itemsTable.availableFrom, itemsTable.availableTo)
         )
       )
-      .orderBy(itemsTable.name),
+    )
+    .orderBy(itemsTable.name);
 
-    db
+  const getCurrentFlair = async () => {
+    if (!session) return [null];
+
+    return db
       .select({
         url: itemsTable.url,
         purchasedOn: purchasesTable.purchased_on,
@@ -50,7 +48,12 @@ export default defineEventHandler(async (event) => {
           eq(purchasesTable.item_id, session?.user.flair?.id)
         )
       )
-      .orderBy(desc(purchasesTable.purchased_on)),
+      .orderBy(desc(purchasesTable.purchased_on));
+  };
+
+  const [items, [currentFlair]] = await Promise.all([
+    getAvailableItems,
+    getCurrentFlair(),
   ]);
 
   return {

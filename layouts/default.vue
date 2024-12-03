@@ -108,26 +108,25 @@
               }"
               >&bull;</span
             >
-            <template v-if="authData?.user">
-              <NuxtLink class="text-white dark:text-stone-200" to="/shop"
-                >Shop</NuxtLink
-              >
-              <span
-                :class="{
-                  'hidden min-[360px]:inline': authData?.user,
-                }"
-                >&bull;</span
-              >
-              <button
-                class="underline-offset-4 underline !px-0 !shadow-none"
-                type="button"
-                @click="signOut()"
-              >
-                <font-awesome-icon
-                  :icon="['fas', 'arrow-right-from-bracket']"
-                />Sign out
-              </button>
-            </template>
+            <NuxtLink class="text-white dark:text-stone-200" to="/shop"
+              >Shop</NuxtLink
+            >
+            <span
+              :class="{
+                'hidden min-[360px]:inline': authData?.user,
+              }"
+              >&bull;</span
+            >
+            <button
+              v-if="authData?.user"
+              class="underline-offset-4 underline !px-0 !shadow-none"
+              type="button"
+              @click="signOut()"
+            >
+              <font-awesome-icon
+                :icon="['fas', 'arrow-right-from-bracket']"
+              />Sign out
+            </button>
             <button
               v-else
               class="underline-offset-4 underline !px-0 !shadow-none"
