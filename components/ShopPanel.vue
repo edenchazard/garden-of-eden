@@ -6,13 +6,13 @@
     :style="{
       gridTemplateRows: '1fr auto',
     }"
-    class="grid grid-cols-[auto_1fr] gap-4 bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 relative"
+    class="grid grid-cols-[7rem_1fr] gap-4 bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 relative"
   >
     <div class="flex flex-col items-center gap-y-2 row-span-2">
       <span class="size-6 flex items-center justify-center">
         <img :src="userFlair(item.url)" alt="" loading="lazy" />
       </span>
-      <b class="text-base font-semibold">{{ item.name }}</b>
+      <b class="text-base font-semibold text-center">{{ item.name }}</b>
       <button
         v-if="item.cost && authData?.user"
         class="btn-primary"
