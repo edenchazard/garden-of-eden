@@ -102,6 +102,7 @@ export default defineEventHandler(async (event) => {
           url: itemsTable.url,
           name: itemsTable.name,
           description: itemsTable.description,
+          artist: itemsTable.artist,
         },
       })
       .from(clicksLeaderboardTable)
