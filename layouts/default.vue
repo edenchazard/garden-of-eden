@@ -84,39 +84,20 @@
             >
           </div>
           <nav
-            class="justify-items-center min-[360px]:flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
-            :class="{
-              'grid grid-cols-2': authData?.user,
-              flex: !authData?.user,
-            }"
+            class="grid grid-cols-2 justify-items-center min-[360px]:flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
           >
             <NuxtLink class="text-white dark:text-stone-200" to="/statistics"
               >Statistics</NuxtLink
             >
-            <span
-              :class="{
-                'hidden min-[360px]:inline': authData?.user,
-              }"
-              >&bull;</span
-            >
+            <span class="hidden min-[360px]:inline">&bull;</span>
             <NuxtLink class="text-white dark:text-stone-200" to="/share"
               >Share</NuxtLink
             >
-            <span
-              :class="{
-                'hidden min-[360px]:inline': authData?.user,
-              }"
-              >&bull;</span
-            >
+            <span class="hidden min-[360px]:inline">&bull;</span>
             <NuxtLink class="text-white dark:text-stone-200" to="/shop"
               >Shop</NuxtLink
             >
-            <span
-              :class="{
-                'hidden min-[360px]:inline': authData?.user,
-              }"
-              >&bull;</span
-            >
+            <span class="hidden min-[360px]:inline">&bull;</span>
             <button
               v-if="authData?.user"
               class="underline-offset-4 underline !px-0 !shadow-none"
