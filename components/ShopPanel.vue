@@ -15,10 +15,13 @@
       <b class="text-base font-semibold">{{ item.name }}</b>
       <button
         v-if="item.cost && authData?.user"
+        type="button"
         class="btn-primary"
         :disabled="item.cost > authData?.user.money"
         :title="
-          item.cost > authData?.user.money ? 'You cannot afford this item.' : ''
+          item.cost > authData?.user.money
+            ? 'You cannot afford this item.'
+            : undefined
         "
         @click="emit('purchase', item)"
       >
