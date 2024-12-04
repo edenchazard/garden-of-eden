@@ -102,6 +102,7 @@
       rel="nofollow"
       @onclick="trackClick(dragon)"
       @mouseup="trackMouseClick(dragon, $event)"
+      @keydown.enter="trackClick(dragon)"
     >
       <ClientOnly>
         <img
@@ -176,6 +177,20 @@ const {
 );
 
 function trackClick(dragon: HatcheryDragon) {
+  if (props.bubblewrap) {
+    const bubbles = Array.from(
+      document.querySelectorAll<HTMLAudioElement>('.bubblewrap')
+    );
+    const bubble = bubbles[Math.floor(Math.random() * bubbles.length)];
+
+    try {
+      bubble.currentTime = 0;
+      bubble.play();
+    } catch {
+      // Ignore
+    }
+  }
+
   if (dragon.clicked_on || !authData?.value?.user) {
     return;
   }
@@ -186,20 +201,6 @@ function trackClick(dragon: HatcheryDragon) {
 function trackMouseClick(dragon: HatcheryDragon, event: MouseEvent) {
   if ([0, 1].includes(event.button)) {
     trackClick(dragon);
-  }
-
-  if (!props.bubblewrap) return;
-
-  const bubbles = Array.from(
-    document.querySelectorAll<HTMLAudioElement>('.bubblewrap')
-  );
-  const bubble = bubbles[Math.floor(Math.random() * bubbles.length)];
-
-  try {
-    bubble.currentTime = 0;
-    bubble.play();
-  } catch {
-    // Ignore
   }
 }
 </script>
