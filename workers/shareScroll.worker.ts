@@ -13,6 +13,7 @@ import type { Job } from 'bullmq';
 import type { DragonData } from '../types/DragonTypes';
 import { attributes, phase } from '../utils/dragons';
 import fsExists from '../server/utils/fsExists';
+// @ts-expect-error Unfortunately there are no types.
 import WebP from 'node-webpmux';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
