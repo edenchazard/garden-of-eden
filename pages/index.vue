@@ -119,6 +119,12 @@
         </template>
       </div>
 
+      <template v-if="userSettings.bubblewrap">
+        <audio class="bubblewrap hidden" src="/audio/bubblewrap-1.mp3" />
+        <audio class="bubblewrap hidden" src="/audio/bubblewrap-2.mp3" />
+        <audio class="bubblewrap hidden" src="/audio/bubblewrap-3.mp3" />
+      </template>
+
       <fieldset
         v-if="hatchlings.length"
         class="transition-opacity pt-2"
@@ -205,6 +211,7 @@
         v-model:frequency="userSettings.seedTrayFrequency"
         v-model:per-page="userSettings.seedTrayPerPage"
         :highlight-clicked-dragons="userSettings.highlightClickedDragons"
+        :bubblewrap="userSettings.bubblewrap"
         label="seed-tray"
         :query="{ area: 'seed_tray' }"
         cache-bust
@@ -249,6 +256,7 @@
         v-model:frequency="userSettings.gardenFrequency"
         v-model:per-page="userSettings.gardenPerPage"
         :highlight-clicked-dragons="userSettings.highlightClickedDragons"
+        :bubblewrap="userSettings.bubblewrap"
         label="garden"
         :query="{ area: 'garden' }"
       >

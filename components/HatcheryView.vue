@@ -127,10 +127,12 @@ const props = withDefaults(
     cacheBust?: boolean;
     label: string;
     highlightClickedDragons?: boolean;
+    bubblewrap?: boolean;
   }>(),
   {
     cacheBust: false,
     highlightClickedDragons: false,
+    bubblewrap: false,
   }
 );
 
@@ -184,6 +186,20 @@ function trackClick(dragon: HatcheryDragon) {
 function trackMouseClick(dragon: HatcheryDragon, event: MouseEvent) {
   if ([0, 1].includes(event.button)) {
     trackClick(dragon);
+  }
+
+  if (!props.bubblewrap) return;
+
+  const bubbles = Array.from(
+    document.querySelectorAll<HTMLAudioElement>('.bubblewrap')
+  );
+  const bubble = bubbles[Math.floor(Math.random() * bubbles.length)];
+
+  try {
+    bubble.currentTime = 0;
+    bubble.play();
+  } catch {
+    // Ignore
   }
 }
 </script>
