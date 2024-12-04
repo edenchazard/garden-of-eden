@@ -256,7 +256,7 @@ export const itemsTable = mysqlTable('items', {
   }),
   category: varchar('category', {
     length: 24,
-    enum: ['flair'],
+    enum: ['flair', 'trophy'],
   }).notNull(),
   availableFrom: datetime('available_from', {
     mode: 'string',
@@ -332,6 +332,24 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
     .default(sql`NOW()`)
     .notNull(),
   requestParams: json('request_params').$type<BannerRequestParameters>(),
+});
+
+export const userTrophiesTable = mysqlTable('users_trophies', {
+  user_id: mediumint('user_id', {
+    unsigned: true,
+  })
+    .references(() => userTable.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  item_id: tinyint('item_id', {
+    unsigned: true,
+  })
+    .references(() => itemsTable.id, {
+      onDelete: 'restrict',
+    })
+    .notNull(),
+  awarded_on: datetime('awarded_on', { mode: 'date' }).notNull(),
 });
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {

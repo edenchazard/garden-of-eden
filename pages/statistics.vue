@@ -70,6 +70,7 @@
               :end="weeklyLeaderboard.weekEnd"
               :leaderboard="weeklyLeaderboard.results"
               :total="weeklyLeaderboard.clicksGiven"
+              show-trophies
             />
             <div class="text-xs italic text-right">
               <figure id="daily-totals-for-week">
