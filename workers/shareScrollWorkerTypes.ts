@@ -78,7 +78,7 @@ const hexValue = z.string().regex(/^#[0-9a-f]{6}$/);
 
 export const querySchema = z
   .object({
-    ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.gif'),
+    ext: z.union([z.literal('.gif'), z.literal('.webp')]).default('.webp'),
     stats: z
       .union([z.literal('dragons'), z.literal('garden')])
       .default('garden'),

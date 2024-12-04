@@ -193,6 +193,10 @@ export default defineEventHandler(async (event) => {
 
   if (!match || !query.success) return setResponseStatus(event, 404);
 
+  // Don't support gif anymore. But we're keeping this code
+  // in case we want to support it or other formats in the future.
+  query.data.ext = '.webp';
+
   const [, userId, username] = match;
 
   const params = await paramSchema.safeParseAsync({

@@ -1,5 +1,4 @@
 import sharp from 'sharp';
-import GIF from 'sharp-gif2';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
@@ -14,6 +13,8 @@ import type { Job } from 'bullmq';
 import type { DragonData } from '../types/DragonTypes';
 import { attributes, phase } from '../utils/dragons';
 import fsExists from '../server/utils/fsExists';
+// @ts-expect-error Unfortunately there are no types.
+import WebP from 'node-webpmux';
 
 export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   const handler = await (async () => {
@@ -77,7 +78,7 @@ async function generateBannerToTemporary(
       baseBannerHeight
     )
       .composite(await baser(base))
-      .png()
+      .webp({ nearLossless: true, quality: 90 })
       .toBuffer();
 
     perfData.statGenTime = end();
@@ -102,17 +103,33 @@ async function generateBannerToTemporary(
         stripWidth,
         stripHeight
       );
+
       perfData.frameGenTime = end();
 
       start();
-      const gif = await GIF.createGif({
-        delay: 100,
-        repeat: 0,
-        format: 'rgb444',
-      })
-        .addFrame(frames)
-        .toSharp();
-      await gif.toFile(`${input.filePath}.tmp`);
+      const image = await WebP.Image.getEmptyImage();
+      image.convertToAnim();
+
+      Object.assign(
+        image.frames,
+        await Promise.all(
+          frames.map((frame) =>
+            WebP.Image.generateFrame({
+              buffer: frame,
+            })
+          )
+        )
+      );
+
+      const saved = await image.save(null, {
+        width: baseBannerWidth,
+        height: baseBannerHeight,
+      });
+
+      await sharp(saved, { animated: true })
+        .webp({ nearLossless: true, quality: 90 })
+        .toFile(`${input.filePath}.tmp`);
+
       perfData.gifGenTime = end();
     } else {
       perfData.dragonsIncluded = [];
@@ -122,7 +139,11 @@ async function generateBannerToTemporary(
       perfData.frameGenTime = 0;
 
       start();
-      await sharp(bannerBuffer).gif().toFile(`${input.filePath}.tmp`);
+
+      await sharp(bannerBuffer)
+        .webp({ nearLossless: true, quality: 90 })
+        .toFile(`${input.filePath}.tmp`);
+
       perfData.gifGenTime = end();
     }
 
@@ -190,16 +211,15 @@ async function getBannerBaseComposite(input: WorkerInput) {
         extendWith: 'background',
         background: 'transparent',
       })
-      .png();
+      .webp({ nearLossless: true, quality: 90 });
 
     const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
-      sharp(flairPath).png().metadata(),
+      sharp(flairPath).metadata(),
       flairShadow.toBuffer(),
     ]);
 
     const flairImage = await sharp(flairShadowBuffer)
       .composite([{ input: flairPath, left: 0, top: 0 }])
-      .png()
       .toBuffer();
 
     composites.push({
@@ -417,29 +437,27 @@ async function createFrames(
   stripWidth: number,
   stripHeight: number
 ) {
-  const framePromises = [];
+  const framePromises: Array<Promise<sharp.Sharp> | sharp.Sharp> = [];
 
   if (stripWidth < baseCarouselWidth) {
-    const composedFrameBuffer = await createEmptyFrame(
+    const composedFrameBuffer = createEmptyFrame(
       baseBannerWidth,
       baseBannerHeight
-    )
-      .composite([
-        {
-          input: bannerBuffer,
-          top: 0,
-          left: 0,
-        },
-        {
-          input: stripBuffer,
-          top: 5,
-          left:
-            Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
-        },
-      ])
-      .png()
-      .toBuffer();
-    framePromises.push(sharp(composedFrameBuffer));
+    ).composite([
+      {
+        input: bannerBuffer,
+        top: 0,
+        left: 0,
+      },
+      {
+        input: stripBuffer,
+        top: 5,
+        left:
+          Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
+      },
+    ]);
+
+    framePromises.push(composedFrameBuffer);
   } else {
     for (
       let scrollPosition = 0;
@@ -457,7 +475,11 @@ async function createFrames(
       );
     }
   }
-  return Promise.all(framePromises);
+  return Promise.all(
+    framePromises.map(async (frame) =>
+      (await frame).webp({ nearLossless: true, quality: 90 }).toBuffer()
+    )
+  );
 }
 
 async function getScrollStats(input: WorkerInput): Promise<ScrollStats> {
@@ -579,7 +601,7 @@ async function textToPng(
     .toBuffer();
   // the real deal is here. it uses the dummy-given dimensions
   // to push down the text into the viewport at an appropriate distance
-  // and adds spacing to accomodate the text-shadow.
+  // and adds spacing to accommodate the text-shadow.
 }
 
 function createEmptyFrame(width: number, height: number) {
@@ -643,7 +665,7 @@ async function createFrame(
     });
   }
 
-  return sharp(await frame.composite(composites).png().toBuffer());
+  return frame.composite(composites);
 }
 
 async function moveBannerFromTemporary(filePath: string) {
