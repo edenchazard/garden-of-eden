@@ -45,7 +45,6 @@
     "nuxt-security": "^2.1.1",
     "ofetch": "^1.4.1",
     "sharp": "^0.33.5",
-    "sharp-gif2": "^0.1.3",
     "vue": "latest",
     "vue-chartjs": "^5.3.1",
     "vue3-toastify": "^0.2.2",
