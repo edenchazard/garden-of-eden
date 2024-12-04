@@ -120,11 +120,16 @@
       </div>
 
       <template v-if="userSettings.bubblewrap">
-        <audio class="bubblewrap hidden" src="/audio/bubblewrap-1.mp3" />
-        <audio class="bubblewrap hidden" src="/audio/bubblewrap-2.mp3" />
-        <audio class="bubblewrap hidden" src="/audio/bubblewrap-3.mp3" />
+        <audio class="bubblewrap hidden">
+          <source src="/audio/bubblewrap-1.mp3" type="audio/mpeg" />
+        </audio>
+        <audio class="bubblewrap hidden">
+          <source src="/audio/bubblewrap-2.mp3" type="audio/mpeg" />
+        </audio>
+        <audio class="bubblewrap hidden">
+          <source src="/audio/bubblewrap-3.mp3" type="audio/mpeg" />
+        </audio>
       </template>
-
       <fieldset
         v-if="hatchlings.length"
         class="transition-opacity pt-2"
