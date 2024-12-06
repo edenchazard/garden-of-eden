@@ -90,6 +90,28 @@
       </div>
     </section>
 
+    <section v-if="data.limited.length > 0" id="limited">
+      <h3>Limited stock</h3>
+      <q class="max-w-prose"
+        >These won't be around for long, so make sure to use them while you
+        can.</q
+      >
+      <ul
+        class="grid gap-6 mt-4 justify-center"
+        :style="{
+          gridTemplateColumns: `repeat(auto-fit, 19rem)`,
+        }"
+      >
+        <ShopPanel
+          v-for="item in data.limited"
+          :key="item.id"
+          :item="item"
+          as="li"
+          @purchase="purchase"
+        />
+      </ul>
+    </section>
+
     <section id="regular">
       <h3>Regular stock</h3>
       <q class="max-w-prose"
@@ -110,37 +132,6 @@
           @purchase="purchase"
         />
       </ul>
-    </section>
-
-    <section id="limited">
-      <h3>Limited stock</h3>
-      <template v-if="data.limited.length === 0">
-        <q class="max-w-prose"
-          >I currently don't have anything limited right now, so please check
-          back later.</q
-        >
-      </template>
-
-      <template v-else>
-        <q class="max-w-prose"
-          >In addition to these regular items, I also have a few seasonal
-          stock.</q
-        >
-        <ul
-          class="grid gap-6 mt-4 justify-center"
-          :style="{
-            gridTemplateColumns: `repeat(auto-fit, 19rem)`,
-          }"
-        >
-          <ShopPanel
-            v-for="item in data.limited"
-            :key="item.id"
-            :item="item"
-            as="li"
-            @purchase="purchase"
-          />
-        </ul>
-      </template>
     </section>
 
     <section id="policy" class="max-w-prose">
