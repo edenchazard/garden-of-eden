@@ -44,7 +44,7 @@
         <p class="col-span-full">
           Matthias will sell you <strong>flairs</strong> to display alongside
           your username in return for <strong>Dragon Dollars</strong>. You can
-          display one flair but it can be changed at any time. Flowers wilt, so
+          display one flair but it can be changed at any time. Flairs expire, so
           after 7 days it will disappear.
         </p>
         <p class="col-span-full">
