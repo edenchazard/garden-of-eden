@@ -176,6 +176,20 @@
       "when": 1733495042537,
       "tag": "0031_add_more_christmas_flairs",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1733590280117,
+      "tag": "0032_create_trophies_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1733590283700,
+      "tag": "0033_insert_trophies",
+      "breakpoints": true
     }
   ]
 }
