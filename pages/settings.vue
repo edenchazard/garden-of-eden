@@ -90,7 +90,7 @@
       <fieldset>
         <legend>Hatchery</legend>
         <p>Customise the hatchery.</p>
-        <ul class="divide-y *:py-4">
+        <ul class="*:py-4">
           <li class="flex items-center gap-x-2">
             <input
               id="highlight-clicked"
@@ -103,12 +103,24 @@
               Highlight dragons you've clicked.</label
             >
           </li>
+          <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
+            <input
+              id="bubblewrap"
+              v-model="newSettings.bubblewrap"
+              class="shrink-0"
+              type="checkbox"
+              :checked="newSettings.bubblewrap"
+            />
+            <label for="bubblewrap"
+              >Play a bubblewrap-like sound when I click dragons.</label
+            >
+          </li>
         </ul>
       </fieldset>
       <fieldset>
         <legend>Fun things 🎩</legend>
         <p>Fun? In my garden? It's more likely than you think.</p>
-        <ul class="divide-y *:py-4">
+        <ul class="*:py-4">
           <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
             <select id="site-name" v-model="newSettings.siteName">
               <option value="Eden">Garden of Eden</option>

@@ -1,0 +1,1 @@
+ALTER TABLE `user_settings` ADD `bubblewrap` boolean DEFAULT false NOT NULL;

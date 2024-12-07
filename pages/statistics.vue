@@ -219,10 +219,11 @@
                   content: `Gardener of all time`,
                   triggers: ['hover', 'click'],
                 }"
+                class="mr-1"
                 title=""
                 >GOAT</abbr
               >
-              🐐.
+              <img alt="A goat." class="inline" src="/other/goat.webp" />.
             </p>
           </div>
           <div class="md:col-start-2 md:row-start-2">

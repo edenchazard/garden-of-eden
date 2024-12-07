@@ -102,6 +102,7 @@
       rel="nofollow"
       @onclick="trackClick(dragon)"
       @mouseup="trackMouseClick(dragon, $event)"
+      @keydown.enter="trackClick(dragon)"
     >
       <ClientOnly>
         <img
@@ -127,10 +128,12 @@ const props = withDefaults(
     cacheBust?: boolean;
     label: string;
     highlightClickedDragons?: boolean;
+    bubblewrap?: boolean;
   }>(),
   {
     cacheBust: false,
     highlightClickedDragons: false,
+    bubblewrap: false,
   }
 );
 
@@ -174,6 +177,20 @@ const {
 );
 
 function trackClick(dragon: HatcheryDragon) {
+  if (props.bubblewrap) {
+    const bubbles = Array.from(
+      document.querySelectorAll<HTMLAudioElement>('.bubblewrap')
+    );
+    const bubble = bubbles[Math.floor(Math.random() * bubbles.length)];
+
+    try {
+      bubble.currentTime = 0;
+      bubble.play();
+    } catch {
+      // Ignore
+    }
+  }
+
   if (dragon.clicked_on || !authData?.value?.user) {
     return;
   }
