@@ -1,7 +1,12 @@
 import { defineCronHandler } from '#nuxt/cron';
 import { db } from '../db';
-import { clicksLeaderboardTable, clicksTable } from '~/database/schema';
-import { and, eq, sql } from 'drizzle-orm';
+import {
+  clicksLeaderboardTable,
+  clicksTable,
+  itemsTable,
+  userTrophiesTable,
+} from '~/database/schema';
+import { and, between, eq, like, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 
 export default defineCronHandler('everyFiveMinutes', async () => {
@@ -91,6 +96,40 @@ export default defineCronHandler('everyFiveMinutes', async () => {
         GROUP BY ${clicksLeaderboardTable.user_id}
         ORDER BY clicks_given DESC
       ) AS leaderboard`);
+
+    if (newWeek) {
+      const top10 = await tx
+        .select({
+          item_id: itemsTable.id,
+          user_id: clicksLeaderboardTable.user_id,
+        })
+        .from(clicksLeaderboardTable)
+        .innerJoin(
+          itemsTable,
+          and(
+            eq(itemsTable.category, 'trophy'),
+            like(
+              itemsTable.url,
+              sql`CONCAT('trophies/', ${clicksLeaderboardTable.rank}, '.%')`
+            )
+          )
+        )
+        .where(
+          and(
+            eq(clicksLeaderboardTable.leaderboard, 'weekly'),
+            eq(clicksLeaderboardTable.start, weekStart.toJSDate()),
+            between(clicksLeaderboardTable.rank, 1, 10)
+          )
+        );
+
+      await tx.insert(userTrophiesTable).values(
+        top10.map((row) => ({
+          itemId: row.item_id,
+          userId: row.user_id,
+          awardedOn: weekEnd.toJSDate(),
+        }))
+      );
+    }
   });
 
   // Clear cached totals

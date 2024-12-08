@@ -21,7 +21,7 @@
             <span v-if="authData.user.flair" class="ml-1 w-[19px]">
               <img
                 class="shrink-0"
-                :src="userFlair(authData.user.flair.url)"
+                :src="itemUrl(authData.user.flair.url)"
                 :alt="authData.user.flair.name"
               />
             </span>
@@ -176,7 +176,7 @@
 
 <script lang="ts" setup>
 import { DateTime, Interval } from 'luxon';
-import userFlair from '~/utils/userFlair';
+import itemUrl from '~/utils/itemUrl';
 
 useHead({
   titleTemplate(titleChunk) {

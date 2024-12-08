@@ -10,7 +10,7 @@
   >
     <div class="flex flex-col items-center gap-y-2 row-span-2">
       <span class="size-6 flex items-center justify-center">
-        <img :src="userFlair(item.url)" alt="" loading="lazy" />
+        <img :src="itemUrl(item.url)" alt="" loading="lazy" />
       </span>
       <b class="text-base font-semibold text-center">{{ item.name }}</b>
       <button
@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { userFlair } from '#imports';
+import { itemUrl } from '#imports';
 import { DateTime } from 'luxon';
 
 const emit = defineEmits<{

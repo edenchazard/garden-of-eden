@@ -54,7 +54,7 @@
         <img src="/public/other/dragon-dollar.webp" width="17" height="10" />
         <p>You have {{ authData?.user.money ?? 0 }} Dragon Dollars.</p>
         <template v-if="data.currentFlair">
-          <img :src="userFlair(data.currentFlair.url)" alt="" />
+          <img :src="itemUrl(data.currentFlair.url)" alt="" />
           <p v-if="data.currentFlair">
             You currently have the
             <strong>{{ data.currentFlair.name }}</strong> flair. It will wilt on
@@ -159,7 +159,7 @@
 </template>
 
 <script lang="ts" setup>
-import { userFlair } from '#imports';
+import { itemUrl } from '#imports';
 import { DateTime } from 'luxon';
 
 useHead({

@@ -60,7 +60,9 @@
           <div>
             <h3 class="mt-4 font-bold">This week's top clickers</h3>
             <p class="max-w-prose">
-              Be the envy of your fellow gardeners by making it to the top!
+              Be the envy of your fellow gardeners by making it to the top! Each
+              week, you can earn yourself a special badge.
+              <NuxtLink to="/badges">See your badges</NuxtLink>.
             </p>
           </div>
 
@@ -70,6 +72,7 @@
               :end="weeklyLeaderboard.weekEnd"
               :leaderboard="weeklyLeaderboard.results"
               :total="weeklyLeaderboard.clicksGiven"
+              show-trophies
             />
             <div class="text-xs italic text-right">
               <figure id="daily-totals-for-week">
@@ -222,7 +225,11 @@
                 title=""
                 >GOAT</abbr
               >
-              <img alt="A goat." class="inline" src="/other/goat.webp" />.
+              <img
+                alt="A goat."
+                class="inline"
+                src="/public/other/goat.webp"
+              />.
             </p>
           </div>
           <div class="md:col-start-2 md:row-start-2">

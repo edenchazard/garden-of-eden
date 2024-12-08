@@ -254,10 +254,10 @@ export const itemsTable = mysqlTable('items', {
   }).notNull(),
   url: varchar('url', {
     length: 24,
-  }),
+  }).notNull(),
   category: varchar('category', {
     length: 24,
-    enum: ['flair'],
+    enum: ['flair', 'trophy'],
   }).notNull(),
   availableFrom: datetime('available_from', {
     mode: 'string',
@@ -335,6 +335,38 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
     .notNull(),
   requestParams: json('request_params').$type<BannerRequestParameters>(),
 });
+
+export const userTrophiesTable = mysqlTable(
+  'users_trophies',
+  {
+    id: bigint('id', { unsigned: true, mode: 'number' })
+      .autoincrement()
+      .primaryKey(),
+    userId: mediumint('user_id', {
+      unsigned: true,
+    })
+      .references(() => userTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    itemId: tinyint('item_id', {
+      unsigned: true,
+    })
+      .references(() => itemsTable.id, {
+        onDelete: 'restrict',
+      })
+      .notNull(),
+    awardedOn: datetime('awarded_on', { mode: 'date' }).notNull(),
+  },
+  (table) => {
+    return {
+      user_id_awarded_onIdx: index('user_id_awarded_on_idx').on(
+        table.userId,
+        table.awardedOn
+      ),
+    };
+  }
+);
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   gardenFrequency: (schema) =>
