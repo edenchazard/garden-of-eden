@@ -36,7 +36,7 @@
             <span v-if="['-1', '-2'].includes(user.username)" class="italic">
               (anonymous)
             </span>
-            <template v-else> {{ user.username }} </template>
+            <template v-else>{{ user.username }}</template>
             <ItemPanel
               v-if="user.flair"
               :aria-id="`${user.rank}-${start}-flair`"

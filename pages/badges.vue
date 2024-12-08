@@ -11,13 +11,7 @@
         :key="badge.id"
         class="grid grid-cols-[auto_1fr] gap-x-4"
       >
-        <img
-          width="23"
-          :src="itemUrl(badge.url)"
-          alt=""
-          class="self-center row-span-2"
-          loading="lazy"
-        />
+        <ItemPanel width="23" :item="badge" class="self-center row-span-2" />
         <span class="font-bold">{{ badge.name }}</span>
         <p>
           {{ badge.description }}
@@ -41,7 +35,7 @@
 
 <script lang="ts" setup>
 import { DateTime } from 'luxon';
-import itemUrl from '~/utils/itemUrl';
+import ItemPanel from '~/components/ItemPanel.vue';
 
 definePageMeta({
   middleware: 'auth',

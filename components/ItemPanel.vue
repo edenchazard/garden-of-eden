@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
   <VDropdown :triggers="['hover']" class="shrink-0">
-    <img class="inline ml-1" :src="itemUrl(item.url)" :alt="item.name" />
+    <img class="inline ml-1" :src="itemUrl(item.url)" :alt="item.name" :width />
     <template #popper>
       <div class="w-full max-w-56 p-2">
         <b class="font-bold">{{ item.name }}</b>
@@ -17,5 +17,6 @@ import itemUrl from '~/utils/itemUrl';
 
 defineProps<{
   item: Item;
+  width?: string;
 }>();
 </script>

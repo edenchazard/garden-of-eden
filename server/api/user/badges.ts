@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
       description: itemsTable.description,
       name: itemsTable.name,
       awardedOn: userTrophiesTable.awardedOn,
+      artist: itemsTable.artist,
     })
     .from(userTrophiesTable)
     .innerJoin(itemsTable, eq(userTrophiesTable.itemId, itemsTable.id))
