@@ -6,7 +6,7 @@ import {
   itemsTable,
   userTrophiesTable,
 } from '~/database/schema';
-import { and, asc, between, eq, like, sql } from 'drizzle-orm';
+import { and, between, eq, like, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 
 export default defineCronHandler('everyFiveMinutes', async () => {
@@ -117,16 +117,16 @@ export default defineCronHandler('everyFiveMinutes', async () => {
         .where(
           and(
             eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-            eq(clicksLeaderboardTable.start, previousWeekStart.toJSDate()),
+            eq(clicksLeaderboardTable.start, weekStart.toJSDate()),
             between(clicksLeaderboardTable.rank, 1, 10)
           )
         );
 
       await tx.insert(userTrophiesTable).values(
         top10.map((row) => ({
-          item_id: row.item_id,
-          user_id: row.user_id,
-          awarded_on: previousWeekStart.toJSDate(),
+          itemId: row.item_id,
+          userId: row.user_id,
+          awardedOn: weekEnd.toJSDate(),
         }))
       );
     }

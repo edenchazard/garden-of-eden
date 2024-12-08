@@ -12,7 +12,7 @@
       <img
         v-if="authData?.user?.flair"
         class="ml-1"
-        :src="userFlair(authData.user.flair.url)"
+        :src="itemUrl(authData.user.flair.url)"
         :alt="authData.user.flair.name"
       />
     </div>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import userFlair from '~/utils/userFlair';
+import itemUrl from '~/utils/itemUrl';
 import type { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
 
 defineProps<{

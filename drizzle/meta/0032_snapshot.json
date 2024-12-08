@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "b235b1b0-e559-4353-b894-b2324b7c0149",
+  "id": "95e1cf90-f67d-4f50-932b-2e21f928f00d",
   "prevId": "d06c4936-3d12-4dc1-bf27-f9d7c8917a94",
   "tables": {
     "banner_jobs": {
@@ -399,7 +399,7 @@
           "name": "url",
           "type": "varchar(24)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "category": {
@@ -831,6 +831,13 @@
     "users_trophies": {
       "name": "users_trophies",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
         "user_id": {
           "name": "user_id",
           "type": "mediumint unsigned",
@@ -853,7 +860,16 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "user_id_awarded_on_idx": {
+          "name": "user_id_awarded_on_idx",
+          "columns": [
+            "user_id",
+            "awarded_on"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "users_trophies_user_id_users_id_fk": {
           "name": "users_trophies_user_id_users_id_fk",
@@ -882,7 +898,14 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "users_trophies_id": {
+          "name": "users_trophies_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     }
   },

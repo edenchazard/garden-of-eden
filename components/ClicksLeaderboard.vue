@@ -20,10 +20,11 @@
         }"
       >
         <td class="w-20">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 h-[21px]">
             <span class="flex-1 text-right">#{{ user.rank }}</span>
             <img
               v-if="showTrophies && user.rank <= 10"
+              class="max-h-full w-[13px] ml-1"
               :alt="`Trophy #{{ user.rank }}`"
               :src="`/items/trophies/${user.rank}.webp`"
             />
@@ -75,7 +76,7 @@ withDefaults(
       flair: Pick<Item, 'url' | 'name' | 'description'> | null;
     }>;
     total: number;
-    showTrophies: boolean;
+    showTrophies?: boolean;
   }>(),
   {
     start: 'all-time',
