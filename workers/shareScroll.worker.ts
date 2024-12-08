@@ -487,7 +487,7 @@ async function createFrames(
     );
   } else {
     let msElapsed = 0;
-    let currentPos = 0;
+    let currentFlairFrame = 0;
     for (
       let scrollPosition = 0;
       scrollPosition < stripWidth;
@@ -496,18 +496,17 @@ async function createFrames(
       framePromises.push(
         createFrame(
           scrollPosition,
-          bannerFrames[currentPos],
+          bannerFrames[currentFlairFrame],
           stripBuffer,
           stripWidth,
           stripHeight
         )
       );
       msElapsed += 100;
-      const leftover = msElapsed % delays[currentPos];
-      if (leftover === 0) {
+      if (msElapsed % delays[currentFlairFrame] === 0) {
         msElapsed = 0;
-        currentPos++;
-        if (delays.length <= currentPos) currentPos = 0;
+        currentFlairFrame++;
+        if (delays.length <= currentFlairFrame) currentFlairFrame = 0;
       }
     }
   }
