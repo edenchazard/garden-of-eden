@@ -88,6 +88,7 @@ async function generateBannerToTemporary(
     let flairDelays: number[] = [0];
 
     if (input.user.flairPath) {
+      start();
       const { frames, delays } = await placeFlairOnBanner(
         input,
         bannerBuffer,
@@ -108,10 +109,12 @@ async function generateBannerToTemporary(
       perfData.dragonsIncluded = dragonsIncluded;
       perfData.dragonsOmitted = dragonsOmitted;
 
+      start();
       const { stripBuffer, stripWidth, stripHeight } =
         await getDragonStrip(dragonBuffers);
       perfData.dragonGenTime = end();
 
+      start();
       bannerFrames = await createFrames(
         bannerFrames,
         flairDelays,
@@ -119,6 +122,7 @@ async function generateBannerToTemporary(
         stripWidth,
         stripHeight
       );
+      perfData.frameGenTime = end();
     } else {
       perfData.dragonsIncluded = [];
       perfData.dragonsOmitted = [];
@@ -127,6 +131,7 @@ async function generateBannerToTemporary(
       perfData.frameGenTime = 0;
     }
 
+    start();
     const image = await WebP.Image.getEmptyImage();
     image.convertToAnim();
 
