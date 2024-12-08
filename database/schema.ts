@@ -323,6 +323,7 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   dragonsIncluded: json('dragons_included').$type<string[]>(),
   dragonsOmitted: json('dragons_omitted').$type<string[]>(),
   statGenTime: mediumint('stat_gen_time', { unsigned: true }),
+  flairGenTime: mediumint('flair_gen_time', { unsigned: true }),
   dragonFetchTime: mediumint('dragon_fetch_time', { unsigned: true }),
   dragonGenTime: mediumint('dragon_gen_time', { unsigned: true }),
   frameGenTime: mediumint('frame_gen_time', { unsigned: true }),

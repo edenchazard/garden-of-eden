@@ -53,6 +53,7 @@ async function generateBannerToTemporary(
     dragonsIncluded: null,
     dragonsOmitted: null,
     statGenTime: null,
+    flairGenTime: null,
     dragonFetchTime: null,
     dragonGenTime: null,
     frameGenTime: null,
@@ -72,7 +73,8 @@ async function generateBannerToTemporary(
 
     start();
 
-    const base = await getBannerBaseComposite(input);
+    const { composites: base, usernameWidth } =
+      await getBannerBaseComposite(input);
     const bannerBuffer = await createEmptyFrame(
       baseBannerWidth,
       baseBannerHeight
@@ -80,8 +82,21 @@ async function generateBannerToTemporary(
       .composite(await baser(base))
       .webp({ nearLossless: true, quality: 90 })
       .toBuffer();
-
     perfData.statGenTime = end();
+
+    let bannerFrames: Buffer[] = [bannerBuffer];
+    let flairDelays: number[] = [0];
+
+    if (input.user.flairPath) {
+      const { frames, delays } = await placeFlairOnBanner(
+        input,
+        bannerBuffer,
+        usernameWidth
+      );
+      bannerFrames = frames;
+      flairDelays = delays;
+      perfData.flairGenTime = end();
+    }
 
     if (input.dragons.length > 0) {
       start();
@@ -91,61 +106,53 @@ async function generateBannerToTemporary(
       perfData.dragonsIncluded = dragonsIncluded;
       perfData.dragonsOmitted = dragonsOmitted;
 
-      start();
       const { stripBuffer, stripWidth, stripHeight } =
         await getDragonStrip(dragonBuffers);
       perfData.dragonGenTime = end();
 
-      start();
-      const frames = await createFrames(
-        bannerBuffer,
+      bannerFrames = await createFrames(
+        bannerFrames,
+        flairDelays,
         stripBuffer,
         stripWidth,
         stripHeight
       );
-
-      perfData.frameGenTime = end();
-
-      start();
-      const image = await WebP.Image.getEmptyImage();
-      image.convertToAnim();
-
-      Object.assign(
-        image.frames,
-        await Promise.all(
-          frames.map((frame) =>
-            WebP.Image.generateFrame({
-              buffer: frame,
-            })
-          )
-        )
-      );
-
-      const saved = await image.save(null, {
-        width: baseBannerWidth,
-        height: baseBannerHeight,
-      });
-
-      await sharp(saved, { animated: true })
-        .webp({ nearLossless: true, quality: 90 })
-        .toFile(`${input.filePath}.tmp`);
-
-      perfData.gifGenTime = end();
     } else {
       perfData.dragonsIncluded = [];
       perfData.dragonsOmitted = [];
       perfData.dragonFetchTime = 0;
       perfData.dragonGenTime = 0;
       perfData.frameGenTime = 0;
-
-      start();
-
-      await sharp(bannerBuffer)
-        .webp({ nearLossless: true, quality: 90 })
-        .toFile(`${input.filePath}.tmp`);
-
-      perfData.gifGenTime = end();
     }
+
+    const image = await WebP.Image.getEmptyImage();
+    image.convertToAnim();
+
+    Object.assign(
+      image.frames,
+      await Promise.all(
+        bannerFrames.map((buffer, index) =>
+          WebP.Image.generateFrame({
+            buffer,
+            delay:
+              bannerFrames.length === flairDelays.length
+                ? flairDelays[index]
+                : 100,
+          })
+        )
+      )
+    );
+
+    const saved = await image.save(null, {
+      width: baseBannerWidth,
+      height: baseBannerHeight,
+    });
+
+    await sharp(saved, { animated: true })
+      .webp({ nearLossless: true, quality: 90 })
+      .toFile(`${input.filePath}.tmp`);
+
+    perfData.gifGenTime = end();
 
     perfData.totalTime = performance.now() - totalStartTime;
     await moveBannerFromTemporary(input.filePath);
@@ -184,52 +191,71 @@ async function getBannerBaseComposite(input: WorkerInput) {
     left: 118,
   });
 
-  if (input.user.flairPath) {
-    const flairPath = path.resolve(
-      '/src/resources/public',
-      input.user.flairPath
-    );
+  return { composites, usernameWidth };
+}
 
-    const flairShadow = sharp(flairPath)
-      .greyscale()
-      .threshold(255)
-      .composite([
-        {
-          input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
-          raw: {
-            width: 1,
-            height: 1,
-            channels: 4,
+async function placeFlairOnBanner(
+  input: WorkerInput,
+  bannerBuffer: Awaited<ReturnType<typeof getBannerBaseComposite>>,
+  usernameWidth: number
+) {
+  const frames: Buffer[] = [];
+
+  const flairPath = path.resolve('/src/resources/public', input.user.flairPath);
+  const { delay } = await sharp(flairPath).metadata();
+  const delays = delay ?? [0];
+
+  await Promise.all(
+    delays.map(async (_delayTime, page) => {
+      const flairFrameBuffer = await sharp(flairPath, { page, pages: 1 })
+        .png()
+        .toBuffer();
+      const flairFrameShadow = sharp(flairFrameBuffer)
+        .greyscale()
+        .threshold(255)
+        .composite([
+          {
+            input: Buffer.from([255, 255, 255, Math.ceil(255 / 5)]),
+            raw: {
+              width: 1,
+              height: 1,
+              channels: 4,
+            },
+            tile: true,
+            blend: 'dest-in',
           },
-          tile: true,
-          blend: 'dest-in',
-        },
-      ])
-      .extend({
-        top: 1,
-        left: 1,
-        extendWith: 'background',
-        background: 'transparent',
-      })
-      .webp({ nearLossless: true, quality: 90 });
+        ])
+        .extend({
+          top: 1,
+          left: 1,
+          extendWith: 'background',
+          background: 'transparent',
+        })
+        .webp({ nearLossless: true, quality: 90 });
 
-    const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
-      sharp(flairPath).metadata(),
-      flairShadow.toBuffer(),
-    ]);
+      const [{ height: flairHeight }, flairShadowBuffer] = await Promise.all([
+        sharp(flairPath).metadata(),
+        flairFrameShadow.toBuffer(),
+      ]);
 
-    const flairImage = await sharp(flairShadowBuffer)
-      .composite([{ input: flairPath, left: 0, top: 0 }])
-      .toBuffer();
+      const flairFrameImage = await sharp(flairShadowBuffer)
+        .composite([{ input: flairFrameBuffer, left: 0, top: 0 }])
+        .toBuffer();
 
-    composites.push({
-      input: flairImage,
-      left: 121 + (usernameWidth ?? 0),
-      top: 16 - Math.floor((flairHeight ?? 0) / 2),
-    });
-  }
-
-  return composites;
+      frames[page] = await createEmptyFrame(baseBannerWidth, baseBannerHeight)
+        .composite([
+          { input: bannerBuffer, top: 0, left: 0 },
+          {
+            input: flairFrameImage,
+            left: 121 + (usernameWidth ?? 0),
+            top: 16 - Math.floor((flairHeight ?? 0) / 2),
+          },
+        ])
+        .webp({ nearLossLess: true, quality: 90 })
+        .toBuffer();
+    })
+  );
+  return { frames, delays };
 }
 
 async function getBannerBaseForGarden(
@@ -432,33 +458,36 @@ async function getDragonStrip(dragonBuffers: Buffer[]) {
 }
 
 async function createFrames(
-  bannerBuffer: Buffer,
+  bannerFrames: Buffer[],
+  delays: number[],
   stripBuffer: Buffer,
   stripWidth: number,
   stripHeight: number
 ) {
   const framePromises: Array<Promise<sharp.Sharp> | sharp.Sharp> = [];
-
   if (stripWidth < baseCarouselWidth) {
-    const composedFrameBuffer = createEmptyFrame(
-      baseBannerWidth,
-      baseBannerHeight
-    ).composite([
-      {
-        input: bannerBuffer,
-        top: 0,
-        left: 0,
-      },
-      {
-        input: stripBuffer,
-        top: 5,
-        left:
-          Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
-      },
-    ]);
-
-    framePromises.push(composedFrameBuffer);
+    await Promise.all(
+      bannerFrames.map((buffer) => {
+        const composedFrameBuffer = createEmptyFrame(
+          baseBannerWidth,
+          baseBannerHeight
+        ).composite([
+          { input: buffer, top: 0, left: 0 },
+          {
+            input: stripBuffer,
+            top: 5,
+            left:
+              Math.floor(baseCarouselWidth / 2) -
+              Math.floor(stripWidth / 2) +
+              5,
+          },
+        ]);
+        framePromises.push(composedFrameBuffer);
+      })
+    );
   } else {
+    let msElapsed = 0;
+    let currentPos = 0;
     for (
       let scrollPosition = 0;
       scrollPosition < stripWidth;
@@ -467,14 +496,22 @@ async function createFrames(
       framePromises.push(
         createFrame(
           scrollPosition,
-          bannerBuffer,
+          bannerFrames[currentPos],
           stripBuffer,
           stripWidth,
           stripHeight
         )
       );
+      msElapsed += 100;
+      const leftover = msElapsed % delays[currentPos];
+      if (leftover === 0) {
+        msElapsed = 0;
+        currentPos++;
+        if (delays.length <= currentPos) currentPos = 0;
+      }
     }
   }
+
   return Promise.all(
     framePromises.map(async (frame) =>
       (await frame).webp({ nearLossless: true, quality: 90 }).toBuffer()

@@ -176,6 +176,13 @@
       "when": 1733495042537,
       "tag": "0031_add_more_christmas_flairs",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1733600840549,
+      "tag": "0032_whole_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

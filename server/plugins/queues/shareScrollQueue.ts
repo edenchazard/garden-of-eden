@@ -92,6 +92,7 @@ export default defineNitroPlugin(async () => {
         dragonsIncluded: job.returnvalue.performanceData.dragonsIncluded,
         dragonsOmitted: job.returnvalue.performanceData.dragonsOmitted,
         statGenTime: round(job.returnvalue.performanceData.statGenTime),
+        flairGenTime: round(job.returnvalue.performanceData.flairGenTime),
         dragonFetchTime: round(job.returnvalue.performanceData.dragonFetchTime),
         dragonGenTime: round(job.returnvalue.performanceData.dragonGenTime),
         frameGenTime: round(job.returnvalue.performanceData.frameGenTime),

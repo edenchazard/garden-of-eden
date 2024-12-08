@@ -4,6 +4,7 @@ export type PerformanceData = {
   dragonsIncluded: string[] | null;
   dragonsOmitted: string[] | null;
   statGenTime: number | null; // placing numbers on the base
+  flairGenTime: number | null; // placing flair on base and generating frames from it
   dragonFetchTime: number | null; // fetching dragon imgs from server
   dragonGenTime: number | null; // placing dragon imgs on a strip
   frameGenTime: number | null; // generating frames for carousel
