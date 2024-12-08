@@ -183,6 +183,13 @@
       "when": 1733656268971,
       "tag": "0032_create_trophies_table",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1733682086109,
+      "tag": "0033_add_flair_gen_column",
+      "breakpoints": true
     }
   ]
 }
