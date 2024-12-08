@@ -96,6 +96,8 @@ async function generateBannerToTemporary(
       bannerFrames = frames;
       flairDelays = delays;
       perfData.flairGenTime = end();
+    } else {
+      perfData.flairGenTime = 0;
     }
 
     if (input.dragons.length > 0) {
