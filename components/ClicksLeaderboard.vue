@@ -28,7 +28,7 @@
               :alt="`Trophy #${user.rank}`"
               :src="itemUrl(`trophies/${user.rank}.webp`)"
             />
-            <span v-else-if="showTrophies" class="w-[23px]"></span>
+            <span v-else-if="showTrophies" class="w-[13px] ml-1"></span>
           </div>
         </td>
         <td>
