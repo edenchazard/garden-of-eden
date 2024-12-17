@@ -35,15 +35,71 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'en',
       },
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/png',
+          href: '/dc/hatchery/favicon-96x96.png',
+          sizes: '96x96',
+        },
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          href: `${process.env.BASE_URL}/favicon.svg`,
+        },
+        {
+          rel: 'shortcut icon',
+          href: `${process.env.BASE_URL}/favicon.ico`,
+        },
+        {
+          rel: 'apple-touch-icon',
+          href: `${process.env.BASE_URL}/apple-touch-icon.png`,
+          sizes: '180x180',
+        },
+        {
+          rel: 'manifest',
+          href: `${process.env.BASE_URL}/site.webmanifest`,
+        },
+      ],
       meta: [
         {
           name: 'description',
-          content: "View and click other people's dragons.",
+          content:
+            "A Dragon Cave hatchery with a minty theme. Help yours and other people's dragons flourish in the Garden of Eden.",
         },
         {
           name: 'keywords',
           content:
-            'dragcave, dragons, dragon cave, hatchery, garden, eden, hatchery, nursery, eggs, hatchlings',
+            'dragcave, dragons, dragon cave, hatchery, garden, eden, hatchery, nursery, eggs, hatchlings, clicks',
+        },
+        {
+          property: 'og:title',
+          content: 'Garden of Eden',
+        },
+        {
+          property: 'og:type',
+          content: 'website',
+        },
+        {
+          property: 'og:url',
+          content: `${process.env.ORIGIN}${process.env.BASE_URL}/`,
+        },
+        {
+          property: 'og:image',
+          content: `${process.env.ORIGIN}${process.env.BASE_URL}/open-graph.png`,
+        },
+        {
+          property: 'og:description',
+          content:
+            "A Dragon Cave hatchery with a minty theme. Help yours and other people's dragons flourish in the Garden of Eden.",
+        },
+        {
+          property: 'theme-color',
+          content: '#7cf3a0',
+        },
+        {
+          name: 'apple-mobile-web-app-title',
+          content: 'Garden',
         },
       ],
     },
