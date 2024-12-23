@@ -42,4 +42,13 @@ INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `
 	(37, '7th Place', 'trophies/7.webp', 'trophy', NULL, NULL, 'Awarded for a seventh place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
 	(38, '8th Place', 'trophies/8.webp', 'trophy', NULL, NULL, 'Awarded for an eighth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
 	(39, '9th Place', 'trophies/9.webp', 'trophy', NULL, NULL, 'Awarded for a ninth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
-	(40, '10th Place', 'trophies/10.webp', 'trophy', NULL, NULL, 'Awarded for a tenth place finish in a weekly clicks leaderboard.', NULL, 'Arcy');
+	(40, '10th Place', 'trophies/10.webp', 'trophy', NULL, NULL, 'Awarded for a tenth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(41, 'Christmas Tree (blue)', 'christmas-tree-blue.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "A blue Christmas tree. It's not a sad tree, it's just blue.", 150, "Inghelene"),
+	(42, 'Poinsettia', 'poinsettia.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "It's nearly midnight and I can't think of any poinsettia jokes so you'll have to make your own.", 100, "Inghelene"),
+	(43, 'Poinsettia (white)', 'poinsettia-white.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "It's the poinsettia you all know and love, but in white.", 100, "Inghelene"),
+	(44, "Bauble (blue)", "bauble-blue.webp", 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "You can hang it on your leetle tree.", 50, "Inghelene"),
+	(45, "Bauble (green)", "bauble-green.webp", 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "You can hang it on your wreath.", 50, "Inghelene"),
+	(46, "Bauble (red)", "bauble-red.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "You don't have to hang it on your tree, it can also serve as a cat toy.", 50, "Inghelene"),
+	(47, "Wreath (white)", "wreath-white.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "'Tis the season.", 125, "Inghelene"),
+	(48, "Wreath (multicolour)", "wreath-multicolour.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "It's a wreath with gamer RGB lighting!", 125, "Inghelene");
+	
