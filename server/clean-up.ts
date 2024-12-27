@@ -40,6 +40,8 @@ export async function cleanUp() {
 
   const promises = await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
+      const ids = chunk.map((dragon) => dragon.id);
+
       const apiResponse = await dragCaveFetch()<{
         errors: unknown[];
         dragons: Record<string, DragonData>;
@@ -53,12 +55,20 @@ export async function cleanUp() {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          ids: chunk.map((dragon) => dragon.id).join(','),
+          ids: ids.join(','),
         }),
       });
 
-      for (const code in apiResponse.dragons) {
+      for (const code of ids) {
+        // If it didn't come back in the response, we can assume they blocked the Garden.
+        // Sucks for them. We'll remove it.
+        if (code in apiResponse.dragons === false) {
+          removeFromHatchery.push(code);
+          continue;
+        }
+
         const dragon = apiResponse.dragons[code];
+
         const hatcheryStatus = hatcheryDragons.find((d) => d.id === dragon.id);
 
         if (hatcheryStatus?.in_seed_tray && dragon.hoursleft > 96) {
