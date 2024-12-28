@@ -35,7 +35,11 @@
       Reload
     </button>
 
-    <button type="submit" class="btn-primary" @click="emit('submit')">
+    <button
+      type="submit"
+      class="btn- bg-amber-700 dark:bg-indigo-900"
+      @click="emit('submit')"
+    >
       <LoadingIcon v-if="saveScrollStatus === 'pending'" class="ml-1 size-4" />
       <font-awesome-icon v-else :icon="['fas', 'dragon']" class="ml-1 size-4" />
       Submit
