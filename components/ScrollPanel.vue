@@ -32,11 +32,14 @@
             />
           </ClientOnly>
         </NuxtLink>
-        <div class="text-left w-full">
-          <span :id="`dragon-${dragon.id}`" class="block truncate font-bold">
-            <span v-if="dragon.hatch !== '0'" :aria-hidden="!dragon.name">{{
-              dragon.name ?? 'Unnamed'
-            }}</span>
+        <div class="text-left max-w-full overflow-hidden">
+          <span :id="`dragon-${dragon.id}`" class="font-bold block">
+            <span
+              v-if="dragon.hatch !== '0'"
+              class="truncate w-full block"
+              :aria-hidden="!dragon.name"
+              >{{ dragon.name ?? 'Unnamed' }}</span
+            >
             <span class="sr-only" :aria-hidden="!!dragon.name"
               >({{ dragon.id }})</span
             >
