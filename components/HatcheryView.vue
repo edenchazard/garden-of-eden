@@ -31,31 +31,8 @@
     </select>
     <ClientOnly>
       <button
-        v-if="refreshing"
         type="button"
-        class="btn- col-span-full sm:col-span-2 md:col-auto bg-rose-900 text-white"
-        @click="pause()"
-      >
-        <font-awesome-icon :icon="['fas', 'pause']" />
-        Pause
-      </button>
-      <button
-        v-else
-        type="button"
-        class="btn- col-span-full sm:col-span-2 md:col-auto bg-emerald-900 text-white motion-safe:animate-pulse"
-        @click="
-          () => {
-            resume();
-            fetchHatchery();
-          }
-        "
-      >
-        <font-awesome-icon :icon="['fas', 'play']" />
-        Continue
-      </button>
-      <button
-        type="button"
-        class="col-span-full sm:col-span-2 md:col-auto btn-primary"
+        class="col-span-full sm:col-span-2 md:col-auto btn-secondary"
         @click="
           () => {
             if (refreshing) {
@@ -79,6 +56,29 @@
         />
         <font-awesome-icon v-else class="mr-1" :icon="['fas', 'rotate']" />
         Reload
+      </button>
+      <button
+        v-if="refreshing"
+        type="button"
+        class="btn-primary col-span-full sm:col-span-2 md:col-auto"
+        @click="pause()"
+      >
+        <font-awesome-icon :icon="['fas', 'pause']" />
+        Pause
+      </button>
+      <button
+        v-else
+        type="button"
+        class="btn-primary col-span-full sm:col-span-2 md:col-auto motion-safe:animate-pulse"
+        @click="
+          () => {
+            resume();
+            fetchHatchery();
+          }
+        "
+      >
+        <font-awesome-icon :icon="['fas', 'play']" />
+        Continue
       </button>
     </ClientOnly>
   </div>
