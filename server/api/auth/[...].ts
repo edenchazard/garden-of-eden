@@ -161,6 +161,7 @@ export default NuxtAuthHandler({
       session.user.username = users.username;
       session.user.money = users.money;
       session.user.role = users.role;
+      session.user.apiBlocked = users.apiBlocked;
       session.user.settings = settings;
       session.user.flair = flair ?? null;
       return session;

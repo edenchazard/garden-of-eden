@@ -1,5 +1,7 @@
 <template>
   <div class="w-full max-w-screen-lg space-y-4 pt-2.5 pb-4">
+    <WarningApiBlock v-if="authData?.user?.apiBlocked" />
+
     <div class="flex flex-col rounded-md">
       <header
         class="px-2 lg:px-0 space-y-2 sm:space-y-0 pb-2 justify-between items-center"

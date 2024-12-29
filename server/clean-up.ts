@@ -1,6 +1,6 @@
 import chunkArray from '~/utils/chunkArray';
 import { db } from '~/server/db';
-import { hatcheryTable, recordingsTable } from '~/database/schema';
+import { hatcheryTable, recordingsTable, userTable } from '~/database/schema';
 import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
@@ -15,6 +15,7 @@ export async function cleanUp() {
   const hatcheryDragons = await db
     .select({
       id: hatcheryTable.id,
+      userId: hatcheryTable.user_id,
       in_seed_tray: hatcheryTable.in_seed_tray,
       in_garden: hatcheryTable.in_garden,
       is_incubated: hatcheryTable.is_incubated,
@@ -26,6 +27,7 @@ export async function cleanUp() {
   const removeFromHatchery: string[] = [];
   const updateIncubated: string[] = [];
   const updateStunned: string[] = [];
+  const apiBlocked: Set<number> = new Set();
   let hatchlings = 0;
   let eggs = 0;
   let adults = 0;
@@ -40,8 +42,6 @@ export async function cleanUp() {
 
   const promises = await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
-      const ids = chunk.map((dragon) => dragon.id);
-
       const apiResponse = await dragCaveFetch()<{
         errors: unknown[];
         dragons: Record<string, DragonData>;
@@ -55,57 +55,58 @@ export async function cleanUp() {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          ids: ids.join(','),
+          ids: chunk.map((dragon) => dragon.id).join(','),
         }),
       });
 
-      for (const code of ids) {
+      for (const hatcheryDragon of chunk) {
+        const { id: code } = hatcheryDragon;
+
         // If it didn't come back in the response, we can assume they blocked the Garden.
-        // Sucks for them. We'll remove it.
+        // Sucks for them. We'll remove it, and add a note to the user.
         if (code in apiResponse.dragons === false) {
           removeFromHatchery.push(code);
+          apiBlocked.add(hatcheryDragon.userId);
           continue;
         }
 
-        const dragon = apiResponse.dragons[code];
+        const apiDragon = apiResponse.dragons[code];
 
-        const hatcheryStatus = hatcheryDragons.find((d) => d.id === dragon.id);
-
-        if (hatcheryStatus?.in_seed_tray && dragon.hoursleft > 96) {
-          hatcheryStatus.in_seed_tray = false;
+        if (hatcheryDragon.in_seed_tray && apiDragon.hoursleft > 96) {
+          hatcheryDragon.in_seed_tray = false;
           removeFromSeedTray.push(code);
         }
 
         if (
-          dragon.hoursleft < 0 ||
-          (!hatcheryStatus?.in_seed_tray && !hatcheryStatus?.in_garden)
+          apiDragon.hoursleft < 0 ||
+          (!hatcheryDragon.in_seed_tray && !hatcheryDragon.in_garden)
         ) {
           removeFromHatchery.push(code);
         }
 
-        if (dragon.grow !== '0') {
+        if (apiDragon.grow !== '0') {
           adults++;
-        } else if (dragon.death === '0' && dragon.hatch !== '0') {
+        } else if (apiDragon.death === '0' && apiDragon.hatch !== '0') {
           hatchlings++;
-        } else if (dragon.death === '0') {
+        } else if (apiDragon.death === '0') {
           eggs++;
-        } else if (dragon.death !== '0') {
+        } else if (apiDragon.death !== '0') {
           dead++;
         }
 
         // not hidden, frozen, adult or dead.
-        if (dragon.hoursleft > -1) {
-          if (dragon.parent_f || dragon.parent_m) {
+        if (apiDragon.hoursleft > -1) {
+          if (apiDragon.parent_f || apiDragon.parent_m) {
             lineaged++;
           } else {
             caveborn++;
           }
 
           // filter to only record hatchlings
-          if (dragon.grow === '0' && dragon.hatch !== '0') {
-            if (dragon.gender === 'Female') {
+          if (apiDragon.grow === '0' && apiDragon.hatch !== '0') {
+            if (apiDragon.gender === 'Female') {
               female++;
-            } else if (dragon.gender === 'Male') {
+            } else if (apiDragon.gender === 'Male') {
               male++;
             } else {
               ungendered++;
@@ -114,17 +115,17 @@ export async function cleanUp() {
         }
 
         if (
-          hatcheryStatus?.is_incubated === false &&
+          hatcheryDragon.is_incubated === false &&
           !removeFromHatchery.includes(code) &&
-          isIncubated(dragon)
+          isIncubated(apiDragon)
         ) {
           updateIncubated.push(code);
         }
 
         if (
-          hatcheryStatus?.is_stunned === false &&
+          hatcheryDragon.is_stunned === false &&
           !removeFromHatchery.includes(code) &&
-          isStunned(dragon)
+          isStunned(apiDragon)
         ) {
           updateStunned.push(code);
         }
@@ -167,6 +168,15 @@ export async function cleanUp() {
         .update(hatcheryTable)
         .set({ is_stunned: true })
         .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
+
+  await Promise.allSettled(
+    chunkArray(Array.from(apiBlocked), 200).map(async (chunk) =>
+      db
+        .update(userTable)
+        .set({ apiBlocked: true })
+        .where(inArray(userTable.id, chunk))
     )
   );
 
