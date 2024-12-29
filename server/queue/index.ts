@@ -17,3 +17,10 @@ export const shareScrollQueue = new Queue('shareScrollQueue', {
     port: Number(port),
   },
 });
+
+export const blockedApiQueue = new Queue('blockedApiQueue', {
+  connection: {
+    host,
+    port: Number(port),
+  },
+});

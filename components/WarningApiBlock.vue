@@ -44,7 +44,7 @@ async function checkApiBlock() {
   }
 
   working.value = true;
-  const blocked = await $fetch<true | false>('/api/user/scroll/check');
+  const blocked = await $fetch<true | false>('/api/checks/blocked');
 
   if (!blocked) {
     reloadNuxtApp();
