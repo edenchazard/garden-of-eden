@@ -43,7 +43,11 @@
       />
     </div>
 
-    <form v-else class="flex flex-col space-y-4" @submit.prevent="saveScroll()">
+    <form
+      v-else-if="!authData.user.apiBlocked"
+      class="flex flex-col space-y-4"
+      @submit.prevent="saveScroll()"
+    >
       <div class="*:max-w-prose order-1">
         <div
           v-if="fetchScrollError"

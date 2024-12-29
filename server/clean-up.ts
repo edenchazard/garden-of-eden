@@ -1,11 +1,12 @@
 import chunkArray from '~/utils/chunkArray';
 import { db } from '~/server/db';
-import { hatcheryTable, recordingsTable, userTable } from '~/database/schema';
+import { hatcheryTable, recordingsTable } from '~/database/schema';
 import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 import { isIncubated, isStunned } from '~/utils/calculations';
 import type { DragonData } from '~/types/DragonTypes';
+import { blockedApiQueue } from './queue';
 
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
@@ -27,7 +28,7 @@ export async function cleanUp() {
   const removeFromHatchery: string[] = [];
   const updateIncubated: string[] = [];
   const updateStunned: string[] = [];
-  const apiBlocked: Set<number> = new Set();
+  const apiBlockedTest: Set<number> = new Set();
   let hatchlings = 0;
   let eggs = 0;
   let adults = 0;
@@ -66,7 +67,7 @@ export async function cleanUp() {
         // Sucks for them. We'll remove it, and add a note to the user.
         if (code in apiResponse.dragons === false) {
           removeFromHatchery.push(code);
-          apiBlocked.add(hatcheryDragon.userId);
+          apiBlockedTest.add(hatcheryDragon.userId);
           continue;
         }
 
@@ -171,14 +172,27 @@ export async function cleanUp() {
     )
   );
 
-  await Promise.allSettled(
-    chunkArray(Array.from(apiBlocked), 200).map(async (chunk) =>
-      db
-        .update(userTable)
-        .set({ apiBlocked: true })
-        .where(inArray(userTable.id, chunk))
-    )
-  );
+  // We can't totally be sure that just because we couldn't find one of their dragons
+  // that they're blocking us. For example, maybe they transferred it to an account
+  // that does have the Garden blocked. To be thorough, we'll find something
+  // on their scroll and check against that.
+  for (const userId of apiBlockedTest) {
+    console.log('Adding to blockedApiQueue', userId);
+    await blockedApiQueue.add(
+      'blockedApiQueue',
+      {
+        userId,
+      },
+      {
+        removeOnComplete: {
+          age: 1000 * 60 * 60 * 24 * 7,
+        },
+        removeOnFail: {
+          age: 1000 * 60 * 60 * 24 * 14,
+        },
+      }
+    );
+  }
 
   const end = new Date().getTime();
 
