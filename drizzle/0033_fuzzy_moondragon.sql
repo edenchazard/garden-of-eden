@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `api_blocked` boolean DEFAULT false NOT NULL;

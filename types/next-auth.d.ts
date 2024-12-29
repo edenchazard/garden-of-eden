@@ -20,6 +20,7 @@ declare module 'next-auth' {
       settings: UserSettings;
       money: typeof userTable.$inferSelect.money;
       flair: Pick<Item, 'id' | 'name' | 'url'> | null;
+      apiBlocked: typeof userTable.$inferSelect.apiBlocked;
     };
   }
 

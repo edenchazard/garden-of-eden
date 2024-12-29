@@ -183,6 +183,13 @@
       "when": 1733656268971,
       "tag": "0032_create_trophies_table",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1735477982073,
+      "tag": "0033_fuzzy_moondragon",
+      "breakpoints": true
     }
   ]
 }
