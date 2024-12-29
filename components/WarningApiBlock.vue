@@ -1,7 +1,7 @@
 <template>
   <div class="bg-yellow-900 p-4 space-y-2" role="alert">
     <p class="font-bold">
-      :( It seems you've blocked the Garden of Eden from accessing your dragons.
+      😔 It seems you've blocked the Garden of Eden from accessing your dragons.
     </p>
     <p>While blocked, any dragons you add will be periodically removed.</p>
     <p>
