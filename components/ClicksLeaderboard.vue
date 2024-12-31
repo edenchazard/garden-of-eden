@@ -25,10 +25,10 @@
             <img
               v-if="showTrophies && user.rank <= 10"
               class="max-h-full w-[13px] ml-1"
-              :alt="`Trophy #{{ user.rank }}`"
-              :src="`/items/trophies/${user.rank}.webp`"
+              :alt="`Trophy #${user.rank}`"
+              :src="itemUrl(`trophies/${user.rank}.webp`)"
             />
-            <span v-else-if="showTrophies" class="w-[23px]"></span>
+            <span v-else-if="showTrophies" class="w-[13px] ml-1"></span>
           </div>
         </td>
         <td>
@@ -65,6 +65,7 @@
 
 <script setup lang="ts">
 import ItemPanel from './ItemPanel.vue';
+import itemUrl from '~/utils/itemUrl';
 
 withDefaults(
   defineProps<{

@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 import { isIncubated, isStunned } from '~/utils/calculations';
 import type { DragonData } from '~/types/DragonTypes';
+import { blockedApiQueue } from './queue';
 
 export async function cleanUp() {
   const { clientSecret } = useRuntimeConfig();
@@ -15,6 +16,7 @@ export async function cleanUp() {
   const hatcheryDragons = await db
     .select({
       id: hatcheryTable.id,
+      userId: hatcheryTable.user_id,
       in_seed_tray: hatcheryTable.in_seed_tray,
       in_garden: hatcheryTable.in_garden,
       is_incubated: hatcheryTable.is_incubated,
@@ -26,6 +28,7 @@ export async function cleanUp() {
   const removeFromHatchery: string[] = [];
   const updateIncubated: string[] = [];
   const updateStunned: string[] = [];
+  const apiBlockedTest: Set<number> = new Set();
   let hatchlings = 0;
   let eggs = 0;
   let adults = 0;
@@ -57,45 +60,54 @@ export async function cleanUp() {
         }),
       });
 
-      for (const code in apiResponse.dragons) {
-        const dragon = apiResponse.dragons[code];
-        const hatcheryStatus = hatcheryDragons.find((d) => d.id === dragon.id);
+      for (const hatcheryDragon of chunk) {
+        const { id: code } = hatcheryDragon;
 
-        if (hatcheryStatus?.in_seed_tray && dragon.hoursleft > 96) {
-          hatcheryStatus.in_seed_tray = false;
+        // If it didn't come back in the response, we can assume they blocked the Garden.
+        // Sucks for them. We'll remove it, and add a note to the user.
+        if (code in apiResponse.dragons === false) {
+          removeFromHatchery.push(code);
+          apiBlockedTest.add(hatcheryDragon.userId);
+          continue;
+        }
+
+        const apiDragon = apiResponse.dragons[code];
+
+        if (hatcheryDragon.in_seed_tray && apiDragon.hoursleft > 96) {
+          hatcheryDragon.in_seed_tray = false;
           removeFromSeedTray.push(code);
         }
 
         if (
-          dragon.hoursleft < 0 ||
-          (!hatcheryStatus?.in_seed_tray && !hatcheryStatus?.in_garden)
+          apiDragon.hoursleft < 0 ||
+          (!hatcheryDragon.in_seed_tray && !hatcheryDragon.in_garden)
         ) {
           removeFromHatchery.push(code);
         }
 
-        if (dragon.grow !== '0') {
+        if (apiDragon.grow !== '0') {
           adults++;
-        } else if (dragon.death === '0' && dragon.hatch !== '0') {
+        } else if (apiDragon.death === '0' && apiDragon.hatch !== '0') {
           hatchlings++;
-        } else if (dragon.death === '0') {
+        } else if (apiDragon.death === '0') {
           eggs++;
-        } else if (dragon.death !== '0') {
+        } else if (apiDragon.death !== '0') {
           dead++;
         }
 
         // not hidden, frozen, adult or dead.
-        if (dragon.hoursleft > -1) {
-          if (dragon.parent_f || dragon.parent_m) {
+        if (apiDragon.hoursleft > -1) {
+          if (apiDragon.parent_f || apiDragon.parent_m) {
             lineaged++;
           } else {
             caveborn++;
           }
 
           // filter to only record hatchlings
-          if (dragon.grow === '0' && dragon.hatch !== '0') {
-            if (dragon.gender === 'Female') {
+          if (apiDragon.grow === '0' && apiDragon.hatch !== '0') {
+            if (apiDragon.gender === 'Female') {
               female++;
-            } else if (dragon.gender === 'Male') {
+            } else if (apiDragon.gender === 'Male') {
               male++;
             } else {
               ungendered++;
@@ -104,17 +116,17 @@ export async function cleanUp() {
         }
 
         if (
-          hatcheryStatus?.is_incubated === false &&
+          hatcheryDragon.is_incubated === false &&
           !removeFromHatchery.includes(code) &&
-          isIncubated(dragon)
+          isIncubated(apiDragon)
         ) {
           updateIncubated.push(code);
         }
 
         if (
-          hatcheryStatus?.is_stunned === false &&
+          hatcheryDragon.is_stunned === false &&
           !removeFromHatchery.includes(code) &&
-          isStunned(dragon)
+          isStunned(apiDragon)
         ) {
           updateStunned.push(code);
         }
@@ -159,6 +171,28 @@ export async function cleanUp() {
         .where(inArray(hatcheryTable.id, chunk))
     )
   );
+
+  // We can't totally be sure that just because we couldn't find one of their dragons
+  // that they're blocking us. For example, maybe they transferred it to an account
+  // that does have the Garden blocked. To be thorough, we'll find something
+  // on their scroll and check against that.
+  for (const userId of apiBlockedTest) {
+    console.log('Adding to blockedApiQueue', userId);
+    await blockedApiQueue.add(
+      'blockedApiQueue',
+      {
+        userId,
+      },
+      {
+        removeOnComplete: {
+          age: 1000 * 60 * 60 * 24 * 7,
+        },
+        removeOnFail: {
+          age: 1000 * 60 * 60 * 24 * 14,
+        },
+      }
+    );
+  }
 
   const end = new Date().getTime();
 

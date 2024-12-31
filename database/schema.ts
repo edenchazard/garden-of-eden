@@ -38,6 +38,7 @@ export const userTable = mysqlTable(
     accessToken: char('access_token', {
       length: 129,
     }),
+    apiBlocked: boolean('api_blocked').notNull().default(false),
   },
   (table) => {
     return {

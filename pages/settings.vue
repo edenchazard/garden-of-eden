@@ -103,7 +103,7 @@
               Highlight dragons you've clicked.</label
             >
           </li>
-          <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
+          <li class="flex items-center gap-x-2">
             <input
               id="bubblewrap"
               v-model="newSettings.bubblewrap"

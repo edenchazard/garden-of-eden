@@ -1,7 +1,8 @@
 -- Custom SQL migration file, put you code below! --
 
--- Dumping data for table hatchery.items: ~25 rows (approximately)
-INSERT INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `available_to`, `description`, `cost`, `artist`) VALUES
+
+-- Dumping data for table hatchery.items: ~40 rows (approximately)
+INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `available_to`, `description`, `cost`, `artist`) VALUES
 	(1, 'Anthurium', 'anthurium.webp', 'flair', NULL, NULL, 'The "flower" on an Anthurium is actually a spathe. The name comes from Greek origins, meaning "flower tail."', 150, '04uni'),
 	(2, 'Blackrose', 'blackrose.webp', 'flair', NULL, NULL, 'Black roses don\'t exist... so just how did Matthias obtain them?', 300, 'Arcy'),
 	(3, 'Broccoli', 'broccoli.webp', 'flair', NULL, NULL, 'Use it as decoration, or as part of a tasty meal.', NULL, 'Arcy'),
@@ -22,9 +23,32 @@ INSERT INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `availab
 	(18, 'Glowshroom', 'glowshroom.webp', 'flar', '2024-10-01 00:00:00', '2024-11-07 00:00:00', 'Unsafe for consumption as determined by the Food Standards Agency.', 100, 'Arcy'),
 	(19, 'Reimu Myrtle', 'reimu-myrtle.webp', 'flair', NULL, NULL, '<q class="italic">Aah! The cat turned into a cat!</q>', 500, '04uni'),
 	(20, 'Gracidea', 'gracidea.webp', 'flair', NULL, NULL, 'A flower commonly used to express gratitude.', 500, '04uni'),
-	(21, 'Forget-me-not', 'forget-me-not.webp', 'flair', NULL, NULL, 'There was something to remember but you can\'t recall.', 125, 'inghelene'),
+	(21, 'Forget-me-not', 'forget-me-not.webp', 'flair', NULL, NULL, 'There was something to remember but you can\'t recall.', 125, 'Inghelene'),
 	(22, 'Glaze Lily', 'glaze-lily.webp', 'flair', NULL, NULL, '<q class="italic">Taking a moment to slow down and enjoy the finer things in life is always beneficial to your body and soul.</q>', 500, '04uni'),
-	(23, 'Lupin', 'lupin.webp', 'flair', NULL, NULL, 'You\'re driving me around the lupin.', 150, 'inghelene'),
-	(24, 'Buddleia', 'buddleia.webp', 'flair', NULL, NULL, 'I can\'t believe it\'s not butter-fly.', 150, 'inghelene'),
-	(25, 'Violet', 'violet.webp', 'flair', NULL, NULL, 'A popular flower, violets symbolise innocence, modesty and everlasting love.', 250, '04uni');
-
+	(23, 'Lupin', 'lupin.webp', 'flair', NULL, NULL, 'You\'re driving me around the lupin.', 150, 'Inghelene'),
+	(24, 'Buddleia', 'buddleia.webp', 'flair', NULL, NULL, 'I can\'t believe it\'s not butter-fly.', 150, 'Inghelene'),
+	(25, 'Violet', 'violet.webp', 'flair', NULL, NULL, 'A popular flower, violets symbolise innocence, modesty and everlasting love.', 250, '04uni'),
+	(26, 'Pinecone', 'pinecone.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', 'Pining for the perfect Christmas present.', 100, 'Arcy'),
+	(27, 'Christmas Tree', 'christmas-tree.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', 'It\'s even smaller than a leetle tree, so does that make this a leetle leetle tree?', 150, 'Inghelene'),
+	(28, 'Holly', 'holly.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', 'Not all holly is spiky. They adjust their spikes in response to their environment.', 125, 'Inghelene'),
+	(29, 'Snowglobe', 'snowglobe.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', 'A tiny snowman in a tiny snowglobe.', 125, 'Inghelene'),
+	(30, 'Mistletoe', 'mistletoe.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', 'If mistletoe is so good then why isn\'t there mistlefinger?', 75, 'Inghelene'),
+	(31, '1st Place', 'trophies/1.webp', 'trophy', NULL, NULL, 'Awarded for a first place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(32, '2nd Place', 'trophies/2.webp', 'trophy', NULL, NULL, 'Awarded for a second place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(33, '3rd Place', 'trophies/3.webp', 'trophy', NULL, NULL, 'Awarded for a third place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(34, '4th Place', 'trophies/4.webp', 'trophy', NULL, NULL, 'Awarded for a fourth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(35, '5th Place', 'trophies/5.webp', 'trophy', NULL, NULL, 'Awarded for a fifth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(36, '6th Place', 'trophies/6.webp', 'trophy', NULL, NULL, 'Awarded for a sixth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(37, '7th Place', 'trophies/7.webp', 'trophy', NULL, NULL, 'Awarded for a seventh place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(38, '8th Place', 'trophies/8.webp', 'trophy', NULL, NULL, 'Awarded for an eighth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(39, '9th Place', 'trophies/9.webp', 'trophy', NULL, NULL, 'Awarded for a ninth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(40, '10th Place', 'trophies/10.webp', 'trophy', NULL, NULL, 'Awarded for a tenth place finish in a weekly clicks leaderboard.', NULL, 'Arcy'),
+	(41, 'Christmas Tree (blue)', 'christmas-tree-blue.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "A blue Christmas tree. It's not a sad tree, it's just blue.", 150, "Inghelene"),
+	(42, 'Poinsettia', 'poinsettia.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "It's nearly midnight and I can't think of any poinsettia jokes so you'll have to make your own.", 100, "Inghelene"),
+	(43, 'Poinsettia (white)', 'poinsettia-white.webp', 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "It's the poinsettia you all know and love, but in white.", 100, "Inghelene"),
+	(44, "Bauble (blue)", "bauble-blue.webp", 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "You can hang it on your leetle tree.", 50, "Inghelene"),
+	(45, "Bauble (green)", "bauble-green.webp", 'flair', '2024-12-01 00:00:00', '2025-01-07 00:00:00', "You can hang it on your wreath.", 50, "Inghelene"),
+	(46, "Bauble (red)", "bauble-red.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "You don't have to hang it on your tree, it can also serve as a cat toy.", 50, "Inghelene"),
+	(47, "Wreath (white)", "wreath-white.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "'Tis the season.", 125, "Inghelene"),
+	(48, "Wreath (multicolour)", "wreath-multicolour.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "It's a wreath with gamer RGB lighting!", 125, "Inghelene");
+	

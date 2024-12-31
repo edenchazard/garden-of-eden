@@ -3,18 +3,18 @@
 ARG NODE_VERSION=20.16.0
 ARG PORT=3000
 
-FROM node:${NODE_VERSION}-slim as base
+FROM node:${NODE_VERSION}-slim AS base
 ENV NODE_ENV=production
 WORKDIR /src
 
 # Cached layer for required node modules.
-FROM base as required-packages
+FROM base AS required-packages
 WORKDIR /src
 COPY package.json package-lock.json ./
 RUN npm i bullmq sharp --os=linux --cpu=x64
 
 # Build
-FROM base as build
+FROM base AS build
 COPY --link package.json package-lock.json ./
 RUN npm install --production=false
 COPY --link . .
