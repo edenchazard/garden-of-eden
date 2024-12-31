@@ -72,11 +72,13 @@ export default defineEventHandler(async (event) => {
       })
       .where(eq(userTable.id, token.userId));
 
-    await tx
-      .update(userSettingsTable)
-      .set({
-        flair_id: params.id,
-      })
-      .where(eq(userSettingsTable.user_id, token.userId));
+    if (item.category === 'flair') {
+      await tx
+        .update(userSettingsTable)
+        .set({
+          flair_id: params.id,
+        })
+        .where(eq(userSettingsTable.user_id, token.userId));
+    }
   });
 });

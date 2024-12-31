@@ -258,7 +258,7 @@ export const itemsTable = mysqlTable('items', {
   }).notNull(),
   category: varchar('category', {
     length: 24,
-    enum: ['flair', 'trophy'],
+    enum: ['flair', 'trophy', 'consumable'],
   }).notNull(),
   availableFrom: datetime('available_from', {
     mode: 'string',
