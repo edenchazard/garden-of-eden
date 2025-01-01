@@ -175,7 +175,9 @@
         {{
           Array.from(
             new Set(
-              [...data.limited, ...data.regular].map((item) => item.artist)
+              [...data.limited, ...data.regular, ...data.consumables].map(
+                (item) => item.artist
+              )
             )
           ).join(', ')
         }}
