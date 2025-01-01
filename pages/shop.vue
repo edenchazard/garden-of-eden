@@ -179,7 +179,9 @@
                 (item) => item.artist
               )
             )
-          ).join(', ')
+          )
+            .sort()
+            .join(', ')
         }}
       </p>
     </section>

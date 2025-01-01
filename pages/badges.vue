@@ -30,6 +30,18 @@
     </ul>
 
     <div v-else class="col-span-full">You have no badges currently! :(</div>
+
+    <section v-if="data.length > 0" id="credits">
+      <h2>Art credits</h2>
+      <p>
+        Art by:
+        {{
+          Array.from(new Set(data.map((item) => item.artist)))
+            .sort()
+            .join(', ')
+        }}
+      </p>
+    </section>
   </div>
 </template>
 
