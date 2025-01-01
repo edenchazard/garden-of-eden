@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4 *:space-y-4">
-    <DialogFortuneCookie ref="fortuneDialog" :fortune />
+    <DialogFortuneCookie ref="fortuneDialog" :fortune :reward />
 
     <section>
       <h1>Matthias' Shop</h1>
@@ -198,6 +198,7 @@ const config = useRuntimeConfig();
 const path = config.public.origin + config.public.baseUrl;
 const fortuneDialog = useTemplateRef('fortuneDialog');
 const fortune = ref<string | undefined>();
+const reward = ref<Item | undefined>();
 
 await getSession();
 
@@ -212,7 +213,7 @@ const { data } = await useFetch('/api/shop', {
 });
 
 async function purchase(item: Item) {
-  $fetch(`/api/shop/${item.id}`, {
+  const response = await $fetch(`/api/shop/${item.id}`, {
     method: 'POST',
     headers: {
       'Csrf-token': useCsrf().csrf,
@@ -237,9 +238,14 @@ async function purchase(item: Item) {
       }
     },
   });
+
+  reward.value = response.reward;
 }
 
 async function handleItem(item: Item) {
+  reward.value = undefined;
+  fortune.value = undefined;
+
   await purchase(item);
 
   if (item.name === 'Fortune Cookie') {

@@ -3,11 +3,12 @@ import {
   purchasesTable,
   userSettingsTable,
   userTable,
+  userTrophiesTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
 import { getToken } from '#auth';
 import type { JWT } from 'next-auth/jwt';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { DateTime, Interval } from 'luxon';
 import { z } from 'zod';
 
@@ -59,7 +60,7 @@ export default defineEventHandler(async (event) => {
     return setResponseStatus(event, 404);
   }
 
-  await db.transaction(async (tx) => {
+  const reward = await db.transaction(async (tx) => {
     await db.insert(purchasesTable).values({
       item_id: params.id,
       user_id: token.userId,
@@ -80,5 +81,39 @@ export default defineEventHandler(async (event) => {
         })
         .where(eq(userSettingsTable.user_id, token.userId));
     }
+
+    // New Year 2025 badge.
+    if (item.name === 'Fortune Cookie' && now.getFullYear() === 2025) {
+      const [badge] = await tx
+        .select()
+        .from(itemsTable)
+        .where(eq(itemsTable.id, 50));
+
+      // Check they don't already have the badge.
+      const hasBadge = await tx
+        .select({
+          id: userTrophiesTable.id,
+        })
+        .from(userTrophiesTable)
+        .where(
+          and(
+            eq(userTrophiesTable.itemId, badge.id),
+            eq(userTrophiesTable.userId, token.userId)
+          )
+        )
+        .limit(1);
+
+      if (!hasBadge.length) {
+        await tx.insert(userTrophiesTable).values({
+          itemId: badge.id,
+          userId: token.userId,
+          awardedOn: now,
+        });
+
+        return badge;
+      }
+    }
   });
+
+  return { reward };
 });

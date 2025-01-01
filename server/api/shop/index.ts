@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     .orderBy(itemsTable.name);
 
   const getCurrentFlair = async () => {
-    if (!session) return [null];
+    if (!session?.user?.flair) return [null];
 
     return db
       .select({

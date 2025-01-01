@@ -29,15 +29,27 @@
         Open the cookie
       </button>
 
-      <div v-else class="overflow-hidden fortune relative">
-        <div
-          class="w-full absolute right-0 h-full fortune-cover bg-green-100 dark:bg-stone-200"
-        ></div>
-        <q
-          class="block px-4 py-2 bg-orange-300 text-black italic text-center sm:px-8"
-          >{{ fortune }}</q
-        >
-      </div>
+      <template v-else>
+        <div class="overflow-hidden fortune relative">
+          <div
+            class="w-full absolute right-0 h-full fortune-cover bg-green-100 dark:bg-stone-200"
+          />
+          <q
+            class="block px-4 py-2 bg-orange-300 text-black italic text-center sm:px-8"
+            >{{ fortune }}</q
+          >
+        </div>
+
+        <template v-if="reward">
+          <p class="flex items-center gap-2">
+            <img :src="itemUrl(reward.url)" :alt="reward.name" />
+            <template v-if="reward.category === 'trophy'">
+              You also got a badge!
+              <NuxtLink to="/badges">See your badges.</NuxtLink>
+            </template>
+          </p>
+        </template>
+      </template>
     </main>
 
     <footer>
@@ -55,8 +67,11 @@
 </template>
 
 <script lang="ts" setup>
+import { itemUrl } from '#imports';
+
 defineProps<{
   fortune?: string;
+  reward?: Item;
 }>();
 
 const config = useRuntimeConfig();
