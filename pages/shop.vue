@@ -177,7 +177,9 @@
             new Set(
               [...data.limited, ...data.regular].map((item) => item.artist)
             )
-          ).join(', ')
+          )
+            .sort()
+            .join(', ')
         }}
       </p>
     </section>
