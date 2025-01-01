@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     .orderBy(itemsTable.name);
 
   const getCurrentFlair = async () => {
-    if (!session) return [null];
+    if (!session?.user?.flair) return [null];
 
     return db
       .select({
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           eq(purchasesTable.user_id, token.userId),
-          eq(purchasesTable.item_id, session?.user.flair?.id)
+          eq(purchasesTable.item_id, session?.user?.flair?.id)
         )
       )
       .orderBy(desc(purchasesTable.purchased_on));
@@ -58,7 +58,12 @@ export default defineEventHandler(async (event) => {
 
   return {
     currentFlair,
-    regular: items.filter((item) => item.availableFrom === null),
-    limited: items.filter((item) => item.availableFrom !== null),
+    regular: items.filter(
+      (item) => item.category === 'flair' && item.availableFrom === null
+    ),
+    limited: items.filter(
+      (item) => item.category === 'flair' && item.availableFrom !== null
+    ),
+    consumables: items.filter((item) => item.category === 'consumable'),
   };
 });

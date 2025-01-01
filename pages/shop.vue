@@ -1,5 +1,7 @@
 <template>
   <div class="space-y-4 *:space-y-4">
+    <DialogFortuneCookie ref="fortuneDialog" :fortune :reward />
+
     <section>
       <h1>Matthias' Shop</h1>
       <div class="max-w-prose space-y-4 relative overflow-hidden">
@@ -16,7 +18,7 @@
           front of you, propped up against the counter.
         </p>
         <img
-          :src="matthias"
+          :src="`${path}/npc/matthias.webp`"
           alt="Matthias the mint dragon"
           class="matthias opacity-0"
           height="34"
@@ -90,6 +92,30 @@
       </div>
     </section>
 
+    <section
+      v-if="data.consumables.length > 0"
+      id="consumables"
+      class="*:space-y-4"
+    >
+      <template v-for="item in data.consumables" :key="item.id">
+        <div v-if="item.name === 'Fortune Cookie'">
+          <h3>Happy new year!</h3>
+          <div class="flex flex-col md:flex-row gap-4 md:items-start">
+            <q class="max-w-prose"
+              >Happy new year everyone! Please purchase a fortune cookie to
+              reveal your fortune for the new year. Good luck.
+            </q>
+            <ShopPanel
+              class="max-w-[19rem]"
+              :item="item"
+              as="div"
+              @purchase="handleItem(item)"
+            />
+          </div>
+        </div>
+      </template>
+    </section>
+
     <section v-if="data.limited.length > 0" id="limited">
       <h3>Limited stock</h3>
       <q class="max-w-prose"
@@ -107,7 +133,7 @@
           :key="item.id"
           :item="item"
           as="li"
-          @purchase="purchase"
+          @purchase="handleItem(item)"
         />
       </ul>
     </section>
@@ -129,7 +155,7 @@
           :key="item.id"
           :item="item"
           as="li"
-          @purchase="purchase"
+          @purchase="handleItem(item)"
         />
       </ul>
     </section>
@@ -161,24 +187,33 @@
 <script lang="ts" setup>
 import { itemUrl } from '#imports';
 import { DateTime } from 'luxon';
+import DialogFortuneCookie from '~/components/DialogFortuneCookie.vue';
 
 useHead({
   title: "Matthias' Shop",
 });
 
 const { data: authData, getSession, signIn } = useAuth();
+const config = useRuntimeConfig();
+const path = config.public.origin + config.public.baseUrl;
+const fortuneDialog = useTemplateRef('fortuneDialog');
+const fortune = ref<string | undefined>();
+const reward = ref<Item | undefined>();
+
 await getSession();
+
 const { data } = await useFetch('/api/shop', {
   immediate: true,
   default: () => ({
     currentFlair: null,
     regular: [],
     limited: [],
+    consumables: [],
   }),
 });
 
 async function purchase(item: Item) {
-  $fetch(`/api/shop/${item.id}`, {
+  const response = await $fetch(`/api/shop/${item.id}`, {
     method: 'POST',
     headers: {
       'Csrf-token': useCsrf().csrf,
@@ -186,20 +221,111 @@ async function purchase(item: Item) {
     body: {},
     async onResponse({ response }) {
       if (!response.ok) {
-        toast.error('Failed to purchase flair.');
+        toast.error('Failed to purchase. :(');
         return;
       }
 
       await getSession();
-      toast.success('Flair updated!');
-      return;
+
+      if (item.category === 'flair') {
+        data.value.currentFlair = {
+          name: item.name,
+          url: item.url,
+          purchasedOn: DateTime.now().toISO(),
+        };
+        toast.success('Flair purchased!');
+        return;
+      }
     },
   });
+
+  reward.value = response.reward;
 }
 
-const config = useRuntimeConfig();
-const path = config.public.origin + config.public.baseUrl;
-const matthias = `${path}/npc/matthias.webp`;
+async function handleItem(item: Item) {
+  reward.value = undefined;
+  fortune.value = undefined;
+
+  await purchase(item);
+
+  if (item.name === 'Fortune Cookie') {
+    const fortunes = [
+      'Terrible luck. You might as well take this year off.',
+      'Great fortune is upon you! You shall surely succeed…surely.',
+      'You will open at least one fortune cookie this year.',
+      'Thank you for freeing me! But your fortune is in another cookie!',
+      'Clicking on {{random_breed}}s will give you good luck today.',
+      'The next time you block a mixup, block high (or low).',
+      'This fortune is blank.',
+      'Today will be a good day! Or night.',
+      'You are capable of doing tremendous good today.',
+      "Your luck is so-so, but although your luck may be unremarkable, you don't have to be.",
+      'No Harkfrost scatters only a single snowflake.',
+      'Someone is in need of your kind words today.',
+      'You appear to be forgetting something.',
+      'https://youtu.be/p7YXXieghto',
+      'https://youtu.be/dQw4w9WgXcQ',
+      'https://youtu.be/9MYQVa2wA5Q',
+      'You seem to be stuck in an infinite loop.',
+      'Your luck is reasonable, but it may be unwise to try it.',
+      'You are dearly missed by a certain friend.',
+      'Try to be a better person than you were yesterday.',
+      'The most important step to fixing a problem is identifying it.',
+      "Live for tomorrow's version of you, not today's.",
+      'Did you forget a semicolon?',
+      "Your reading the wrong yores in you're fortune.",
+      'Fruit requires only time to ripen.',
+      'Compliment someone today.',
+      'A chance is better than a missed opportunity.',
+      'You are not illiterate.',
+      'You are now {{price}} dragon dollars poorer.',
+      'You are about to finish reading a fortune.',
+      'You may see at least one Staterae in the cave this week.',
+    ];
+
+    const randomCookie = fortunes[Math.floor(Math.random() * fortunes.length)];
+    fortune.value = formatItemText(item)(randomCookie);
+
+    await nextTick();
+
+    if (fortuneDialog.value) {
+      fortuneDialog.value.showModal();
+    }
+  }
+}
+
+function formatItemText(item: Item) {
+  const formatters: Record<string, (text: string) => string> = {
+    'Fortune Cookie': function (text) {
+      return text.replace(/{{(.*?)}}/g, (_, key) => {
+        if (key === 'random_breed') {
+          const breeds = [
+            'Mint',
+            'Aria',
+            'Xol',
+            'Black',
+            'White',
+            'Brimstone',
+            'Wisteria',
+            'Waterhorse',
+            'Xenowyrm',
+            'Ridgewing',
+            'Lotaan',
+            'Geode',
+          ];
+          return breeds[Math.floor(Math.random() * breeds.length)];
+        }
+        if (key === 'price') {
+          return item.cost?.toString() ?? '42';
+        }
+
+        return key;
+      });
+    },
+  };
+
+  return formatters[item.name] ?? ((text: string) => text);
+}
 </script>
 
 <style scoped>

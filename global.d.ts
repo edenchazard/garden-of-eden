@@ -1,4 +1,8 @@
-import type { userSettingsTable, userTable } from '~/database/schema';
+import type {
+  userSettingsTable,
+  userTable,
+  itemsTable,
+} from '~/database/schema';
 import type { DragonData } from './types/DragonTypes';
 export {};
 

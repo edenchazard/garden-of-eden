@@ -251,14 +251,14 @@ export const itemsTable = mysqlTable('items', {
     .autoincrement()
     .primaryKey(),
   name: varchar('name', {
-    length: 24,
+    length: 48,
   }).notNull(),
   url: varchar('url', {
-    length: 24,
+    length: 64,
   }).notNull(),
   category: varchar('category', {
     length: 24,
-    enum: ['flair', 'trophy'],
+    enum: ['flair', 'trophy', 'consumable'],
   }).notNull(),
   availableFrom: datetime('available_from', {
     mode: 'string',
