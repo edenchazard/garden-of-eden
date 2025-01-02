@@ -1,7 +1,7 @@
 <template>
   <dialog
     ref="fortuneDialog"
-    class="p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 shadow-xl"
+    class="dialog p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 shadow-xl"
     @close="unveiledCookie = false"
   >
     <header>
@@ -39,7 +39,6 @@
             >{{ fortune }}</q
           >
         </div>
-
         <template v-if="reward">
           <p class="flex items-center gap-2">
             <img :src="itemUrl(reward.url)" :alt="reward.name" />
@@ -87,8 +86,12 @@ defineExpose({
 </script>
 
 <style scoped>
-dialog[open] {
+.dialog[open] {
   animation: fade-in 0.5s ease-in-out;
+}
+
+.dialog a {
+  @apply text-green-950;
 }
 
 .fortune-cover {
