@@ -104,9 +104,13 @@ defineExpose({
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .fortune-cover {
+    animation: none;
+    width: 0%;
+  }
+
   .fortune-cover,
   .glow {
-    animation: none;
     opacity: 1;
   }
 }
