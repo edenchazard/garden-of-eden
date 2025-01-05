@@ -112,3 +112,6 @@ h3 {
 abbr {
   @apply decoration-dotted underline-offset-4 decoration-white;
 }
+main {
+  @apply overflow-x-hidden;
+}
