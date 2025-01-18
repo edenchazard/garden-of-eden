@@ -100,15 +100,7 @@
               </p>
             </div>
           </div>
-          <p>Hidden dragons are not shown and will be regularly removed.</p>
-          <p class="text-sm">
-            Your dragons have received
-            <b class="font-bold">{{
-              Intl.NumberFormat().format(scroll.details.clicksToday)
-            }}</b>
-            clicks in the last 24 hours from other gardeners.
-          </p>
-          <div class="text-sm">
+          <div class="text-sm space-y-1">
             <p v-if="eggClosestToHatching">
               <template v-if="eggClosestToHatching.hoursleft <= 96">
                 Next egg can hatch now.
@@ -118,6 +110,7 @@
                 {{ eggClosestToHatching.hoursleft - 96 }}
                 {{ pluralise('hour', eggClosestToHatching.hoursleft - 96) }}.
               </template>
+              <NuxtLink to="#eggs" class="underline">[Jump]</NuxtLink>
             </p>
             <p v-if="hatchlingClosestToGrowing">
               <template v-if="hatchlingClosestToGrowing.hoursleft <= 96">
@@ -129,8 +122,19 @@
                 {{
                   pluralise('hour', hatchlingClosestToGrowing.hoursleft - 96)
                 }}.
+                <NuxtLink to="#hatchlings" class="underline">[Jump]</NuxtLink>
               </template>
             </p>
+            <p class="text-xs">
+              Hidden dragons are not shown and will be regularly removed.
+            </p>
+            <aside class="text-xs">
+              Your dragons have received
+              <b class="font-bold">{{
+                Intl.NumberFormat().format(scroll.details.clicksToday)
+              }}</b>
+              clicks in the last 24 hours from other gardeners.
+            </aside>
           </div>
         </template>
       </div>
@@ -146,7 +150,7 @@
             'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
           }"
         >
-          <legend class="text-sm font-bold">Hatchlings</legend>
+          <legend id="hatchlings" class="text-sm font-bold">Hatchlings</legend>
           <div
             class="grid gap-6 pr-2"
             :style="{
@@ -178,7 +182,7 @@
             'order-2': userSettings.sectionOrder === 'eggs,hatchlings',
           }"
         >
-          <legend class="text-sm font-bold">Eggs</legend>
+          <legend id="eggs" class="text-sm font-bold">Eggs</legend>
           <div
             class="grid gap-6 pr-2"
             :style="{
@@ -220,15 +224,27 @@
             #default="{ hiddenColumns }"
           >
             <ScrollTableTbody
+              id="hatchlings"
               :dragons="hatchlings"
               header="Hatchlings"
               :hidden-columns
             />
-            <ScrollTableTbody :dragons="eggs" header="Eggs" :hidden-columns />
+            <ScrollTableTbody
+              id="eggs"
+              :dragons="eggs"
+              header="Eggs"
+              :hidden-columns
+            />
           </template>
           <template v-else #default="{ hiddenColumns }">
-            <ScrollTableTbody :dragons="eggs" header="Eggs" :hidden-columns />
             <ScrollTableTbody
+              id="eggs"
+              :dragons="eggs"
+              header="Eggs"
+              :hidden-columns
+            />
+            <ScrollTableTbody
+              id="hatchlings"
               :dragons="hatchlings"
               header="Hatchlings"
               :hidden-columns
