@@ -1,5 +1,17 @@
 <template>
-  <div class="w-full space-y-4">
+  <div class="w-full space-y-4 *:mx-4">
+    <template v-if="userSettings.bubblewrap">
+      <audio class="bubblewrap hidden">
+        <source src="/audio/bubblewrap-1.mp3" type="audio/mpeg" />
+      </audio>
+      <audio class="bubblewrap hidden">
+        <source src="/audio/bubblewrap-2.mp3" type="audio/mpeg" />
+      </audio>
+      <audio class="bubblewrap hidden">
+        <source src="/audio/bubblewrap-3.mp3" type="audio/mpeg" />
+      </audio>
+    </template>
+
     <div
       v-if="!authData?.user"
       class="mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
@@ -46,9 +58,12 @@
     <form
       v-else-if="!authData.user.apiBlocked"
       class="flex flex-col gap-y-4"
+      :class="{
+        '!mx-0': layout === 'table',
+      }"
       @submit.prevent="saveScroll()"
     >
-      <div class="*:max-w-prose order-1">
+      <div class="*:max-w-prose order-1 px-4">
         <div
           v-if="fetchScrollError"
           class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
@@ -122,18 +137,6 @@
           </div>
         </template>
       </div>
-
-      <template v-if="userSettings.bubblewrap">
-        <audio class="bubblewrap hidden">
-          <source src="/audio/bubblewrap-1.mp3" type="audio/mpeg" />
-        </audio>
-        <audio class="bubblewrap hidden">
-          <source src="/audio/bubblewrap-2.mp3" type="audio/mpeg" />
-        </audio>
-        <audio class="bubblewrap hidden">
-          <source src="/audio/bubblewrap-3.mp3" type="audio/mpeg" />
-        </audio>
-      </template>
 
       <template v-if="layout === 'card'">
         <fieldset
