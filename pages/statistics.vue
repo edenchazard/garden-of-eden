@@ -1,5 +1,5 @@
 <template>
-  <div class="px-4 space-y-4 max-w-full">
+  <div class="px-4 space-y-4 overflow-hidden">
     <h1>Statistics</h1>
     <section class="max-w-prose">
       <p>

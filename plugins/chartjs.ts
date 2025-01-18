@@ -52,6 +52,8 @@ export default defineNuxtPlugin(() => {
         const { ctx } = chart;
         const { top, bottom, left, right } = chart.chartArea;
         // @ts-expect-error I ain't dealing with that
+        if (!chart.corsair) return;
+        // @ts-expect-error I ain't dealing with that
         const { x, y, draw } = chart.corsair;
         if (!draw) return;
 
