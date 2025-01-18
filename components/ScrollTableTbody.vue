@@ -71,14 +71,16 @@
         </div>
       </td>
       <td>
-        <font-awesome-icon
-          v-if="dragon.gender === 'Male'"
-          :icon="['fas', 'mars']"
-        />
-        <font-awesome-icon
-          v-else-if="dragon.gender === 'Female'"
-          :icon="['fas', 'venus']"
-        />
+        <span v-if="dragon.gender" v-tooltip="dragon.gender">
+          <font-awesome-icon
+            v-if="dragon.gender === 'Male'"
+            :icon="['fas', 'mars']"
+          />
+          <font-awesome-icon
+            v-else-if="dragon.gender === 'Female'"
+            :icon="['fas', 'venus']"
+          />
+        </span>
       </td>
       <td>{{ formatHoursLeft(dragon.hoursleft) }}</td>
       <td>
