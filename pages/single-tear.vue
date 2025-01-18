@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center">
+  <div class="text-center px-4">
     <span
       :style="{
         fontSize: '10rem',

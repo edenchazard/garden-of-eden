@@ -1,5 +1,17 @@
 <template>
-  <div class="space-y-4">
+  <div class="w-full space-y-4 *:mx-4">
+    <template v-if="userSettings.bubblewrap">
+      <audio class="bubblewrap hidden">
+        <source src="/audio/bubblewrap-1.mp3" type="audio/mpeg" />
+      </audio>
+      <audio class="bubblewrap hidden">
+        <source src="/audio/bubblewrap-2.mp3" type="audio/mpeg" />
+      </audio>
+      <audio class="bubblewrap hidden">
+        <source src="/audio/bubblewrap-3.mp3" type="audio/mpeg" />
+      </audio>
+    </template>
+
     <div
       v-if="!authData?.user"
       class="mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
@@ -45,7 +57,7 @@
 
     <form
       v-else-if="!authData.user.apiBlocked"
-      class="flex flex-col space-y-4"
+      class="flex flex-col gap-y-4 *:mx-4 !mx-0"
       @submit.prevent="saveScroll()"
     >
       <div class="*:max-w-prose order-1">
@@ -123,83 +135,107 @@
         </template>
       </div>
 
-      <template v-if="userSettings.bubblewrap">
-        <audio class="bubblewrap hidden">
-          <source src="/audio/bubblewrap-1.mp3" type="audio/mpeg" />
-        </audio>
-        <audio class="bubblewrap hidden">
-          <source src="/audio/bubblewrap-2.mp3" type="audio/mpeg" />
-        </audio>
-        <audio class="bubblewrap hidden">
-          <source src="/audio/bubblewrap-3.mp3" type="audio/mpeg" />
-        </audio>
+      <template v-if="userSettings.scrollLayout === 'card'">
+        <fieldset
+          v-if="hatchlings.length"
+          class="transition-opacity pt-2 box-border flex flex-col"
+          :disabled="isProcessing"
+          :class="{
+            'opacity-50': isProcessing,
+            'order-2': userSettings.sectionOrder === 'hatchlings,eggs',
+            'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
+          }"
+        >
+          <legend class="text-sm font-bold">Hatchlings</legend>
+          <div
+            class="grid gap-6 pr-2"
+            :style="{
+              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+            }"
+          >
+            <ScrollPanel
+              v-for="(hatchling, i) in hatchlings"
+              :key="hatchling.id"
+              v-model="hatchlings[i]"
+              :settings="userSettings"
+              :recently-added
+              @click="
+                () => {
+                  if (!isProcessing) {
+                    hatchling.in_garden = !hatchling.in_garden;
+                  }
+                }
+              "
+            />
+          </div>
+        </fieldset>
+        <fieldset
+          class="transition-opacity pt-2 flex-1"
+          :disabled="isProcessing"
+          :class="{
+            'opacity-50': isProcessing,
+            'order-3': userSettings.sectionOrder === 'hatchlings,eggs',
+            'order-2': userSettings.sectionOrder === 'eggs,hatchlings',
+          }"
+        >
+          <legend class="text-sm font-bold">Eggs</legend>
+          <div
+            class="grid gap-6 pr-2"
+            :style="{
+              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+            }"
+          >
+            <ScrollPanel
+              v-for="(egg, i) in eggs"
+              :key="egg.id"
+              v-model="eggs[i]"
+              :settings="userSettings"
+              :recently-added
+              @click="
+                () => {
+                  if (!isProcessing) {
+                    egg.in_garden = !egg.in_garden;
+                  }
+                }
+              "
+            />
+          </div>
+        </fieldset>
       </template>
-      <fieldset
-        v-if="hatchlings.length"
-        class="transition-opacity pt-2"
-        :disabled="isProcessing"
-        :class="{
-          'opacity-50': isProcessing,
-          'order-2': userSettings.sectionOrder === 'hatchlings,eggs',
-          'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
-        }"
-      >
-        <legend class="text-sm font-bold">Hatchlings</legend>
-        <div
-          class="grid gap-6 pr-2"
-          :style="{
-            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
-          }"
+
+      <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
+        <ScrollTable
+          class="w-full"
+          :hidden-columns="[
+            !userSettings.showScrollRatio ? 'V:UV' : '',
+            scroll.dragons.some(
+              (dragon) => dragon.hoursleft <= 96 || dragon.in_seed_tray
+            )
+              ? ''
+              : 'Seed Tray',
+          ]"
         >
-          <ScrollPanel
-            v-for="(hatchling, i) in hatchlings"
-            :key="hatchling.id"
-            v-model="hatchlings[i]"
-            :settings="userSettings"
-            :recently-added
-            @click="
-              () => {
-                if (!isProcessing) {
-                  hatchling.in_garden = !hatchling.in_garden;
-                }
-              }
-            "
-          />
-        </div>
-      </fieldset>
-      <fieldset
-        v-if="eggs.length"
-        class="transition-opacity pt-2"
-        :disabled="isProcessing"
-        :class="{
-          'opacity-50': isProcessing,
-          'order-3': userSettings.sectionOrder === 'hatchlings,eggs',
-          'order-2': userSettings.sectionOrder === 'eggs,hatchlings',
-        }"
-      >
-        <legend class="text-sm font-bold">Eggs</legend>
-        <div
-          class="grid gap-6 pr-2"
-          :style="{
-            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
-          }"
-        >
-          <ScrollPanel
-            v-for="(egg, i) in eggs"
-            :key="egg.id"
-            v-model="eggs[i]"
-            :settings="userSettings"
-            :recently-added
-            @click="
-              () => {
-                if (!isProcessing) {
-                  egg.in_garden = !egg.in_garden;
-                }
-              }
-            "
-          />
-        </div>
-      </fieldset>
+          <template
+            v-if="userSettings.sectionOrder === 'hatchlings,eggs'"
+            #default="{ hiddenColumns }"
+          >
+            <ScrollTableTbody
+              :dragons="hatchlings"
+              header="Hatchlings"
+              :hidden-columns
+            />
+            <ScrollTableTbody :dragons="eggs" header="Eggs" :hidden-columns />
+          </template>
+          <template v-else #default="{ hiddenColumns }">
+            <ScrollTableTbody :dragons="eggs" header="Eggs" :hidden-columns />
+            <ScrollTableTbody
+              :dragons="hatchlings"
+              header="Hatchlings"
+              :hidden-columns
+            />
+          </template>
+        </ScrollTable>
+      </div>
 
       <ScrollToolbar
         id="scroll-toolbar"
@@ -302,6 +338,7 @@
 
 <script lang="ts" setup>
 import { pluralise } from '#imports';
+import ScrollTable from '~/components/ScrollTable.vue';
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 

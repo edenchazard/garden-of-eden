@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-screen-lg space-y-4 pt-2.5 pb-4">
+  <div class="max-w-screen-lg space-y-4 pt-2.5 pb-4 w-full">
     <WarningApiBlock v-if="authData?.user?.apiBlocked" />
 
     <div class="flex flex-col rounded-md">
@@ -124,7 +124,7 @@
         </div>
       </header>
       <main
-        class="lg:rounded-t-md bg-green-600/80 dark:bg-neutral-900 p-4 space-y-4 shadow-lg shadow-black/20 dark:shadow-black/50"
+        class="lg:rounded-t-md bg-green-600/80 dark:bg-neutral-900 py-4 space-y-4 shadow-lg shadow-black/20 dark:shadow-black/50"
       >
         <slot />
       </main>

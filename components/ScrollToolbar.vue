@@ -2,9 +2,9 @@
   <div
     class="grid sm:grid-cols-2 md:grid-cols-[1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
   >
-    <div class="flex col-span-full sm:col-auto">
+    <div class="flex col-span-full sm:col-auto *:flex-1 gap-4">
       <label :for="`${id}-sort`" class="mr-1 sr-only"> Sort by: </label>
-      <select :id="`${id}-sort`" v-model="sort" class="w-full md:max-w-60">
+      <select :id="`${id}-sort`" v-model="sort" class="md:max-w-60">
         <option value="Oldest First">Oldest First</option>
         <option value="Youngest First">Youngest First</option>
       </select>
@@ -48,7 +48,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { PropType } from 'vue';
 import { filterSelectAll } from '#imports';
 
 const emit = defineEmits(['reload', 'toggle-all', 'submit']);
@@ -61,8 +60,7 @@ defineProps<{
   settings: UserSettings;
 }>();
 
-const sort = defineModel('sort', {
-  type: String as PropType<UserSettings['sort']>,
+const sort = defineModel<UserSettings['sort']>('sort', {
   default: 'Oldest First',
 });
 </script>

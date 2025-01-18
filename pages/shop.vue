@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 *:space-y-4">
+  <div class="px-4 space-y-4 *:space-y-4">
     <DialogFortuneCookie ref="fortuneDialog" :fortune :reward />
 
     <section>

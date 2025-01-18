@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 px-4">
     <h1>Settings</h1>
     <p>These settings will persist across your devices.</p>
     <form
@@ -84,6 +84,18 @@
                   : 'Show me hatchlings first, then eggs underneath.'
               }}
             </label>
+          </li>
+          <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
+            <ButtonToggleGroup
+              v-model="newSettings.scrollLayout"
+              :buttons="[
+                { icon: ['fas', 'table-list'], label: 'Table', value: 'table' },
+                { icon: ['fas', 'square'], label: 'Card', value: 'card' },
+              ]"
+            />
+            <p>
+              Show scroll overview in the {{ newSettings.scrollLayout }} view.
+            </p>
           </li>
         </ul>
       </fieldset>
@@ -191,6 +203,10 @@ const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings(
 );
 
 const newSettings = useState(() => ({ ...userSettings.value }));
+
+onBeforeUnmount(() => {
+  newSettings.value = { ...userSettings.value };
+});
 
 const invalid = computed(() => {
   try {
