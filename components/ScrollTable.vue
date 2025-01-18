@@ -8,7 +8,7 @@
   >
     <thead>
       <tr
-        class="*:text-center *:px-3 *:py-2 *:whitespace-nowrap bg-green-700 dark:bg-neutral-950"
+        class="*: border-b-2 *:text-center *:px-3 *:py-2 *:whitespace-nowrap bg-green-700 dark:bg-neutral-950"
       >
         <th>G</th>
         <th v-if="!hiddenColumns.includes('Seed Tray')">ST</th>
