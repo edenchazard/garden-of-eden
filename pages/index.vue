@@ -135,80 +135,91 @@
         </audio>
       </template>
 
-      <fieldset
-        v-if="hatchlings.length"
-        class="transition-opacity pt-2 box-border flex flex-col contain-inline-size overflow-x-auto"
-        :disabled="isProcessing"
-        :class="{
-          'opacity-50': isProcessing,
-          'order-2': userSettings.sectionOrder === 'hatchlings,eggs',
-          'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
-        }"
-      >
-        <legend class="text-sm font-bold">Hatchlings</legend>
-        <ScrollTable v-if="true" :dragons="hatchlings" />
-        <div
-          v-else
-          class="grid gap-6 pr-2"
-          :style="{
-            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+      <template v-if="layout === 'card'">
+        <fieldset
+          v-if="hatchlings.length"
+          class="transition-opacity pt-2 box-border flex flex-col"
+          :disabled="isProcessing"
+          :class="{
+            'opacity-50': isProcessing,
+            'order-2': userSettings.sectionOrder === 'hatchlings,eggs',
+            'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
           }"
         >
-          <ScrollPanel
-            v-for="(hatchling, i) in hatchlings"
-            :key="hatchling.id"
-            v-model="hatchlings[i]"
-            :settings="userSettings"
-            :recently-added
-            @click="
-              () => {
-                if (!isProcessing) {
-                  hatchling.in_garden = !hatchling.in_garden;
+          <legend class="text-sm font-bold">Hatchlings</legend>
+          <div
+            class="grid gap-6 pr-2"
+            :style="{
+              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+            }"
+          >
+            <ScrollPanel
+              v-for="(hatchling, i) in hatchlings"
+              :key="hatchling.id"
+              v-model="hatchlings[i]"
+              :settings="userSettings"
+              :recently-added
+              @click="
+                () => {
+                  if (!isProcessing) {
+                    hatchling.in_garden = !hatchling.in_garden;
+                  }
                 }
-              }
-            "
-          />
-        </div>
-      </fieldset>
-      <fieldset
-        v-if="false /*eggs.length*/"
-        class="transition-opacity pt-2 overflow-x-auto flex-1"
-        :disabled="isProcessing"
-        :class="{
-          'opacity-50': isProcessing,
-          'order-3': userSettings.sectionOrder === 'hatchlings,eggs',
-          'order-2': userSettings.sectionOrder === 'eggs,hatchlings',
-        }"
-      >
-        <legend class="text-sm font-bold">Eggs</legend>
-        <ScrollTable v-if="true" :dragons="eggs" />
-        <div
-          v-else
-          class="grid gap-6 pr-2"
-          :style="{
-            gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+              "
+            />
+          </div>
+        </fieldset>
+        <fieldset
+          class="transition-opacity pt-2 flex-1"
+          :disabled="isProcessing"
+          :class="{
+            'opacity-50': isProcessing,
+            'order-3': userSettings.sectionOrder === 'hatchlings,eggs',
+            'order-2': userSettings.sectionOrder === 'eggs,hatchlings',
           }"
         >
-          <ScrollPanel
-            v-for="(egg, i) in eggs"
-            :key="egg.id"
-            v-model="eggs[i]"
-            :settings="userSettings"
-            :recently-added
-            @click="
-              () => {
-                if (!isProcessing) {
-                  egg.in_garden = !egg.in_garden;
+          <legend class="text-sm font-bold">Eggs</legend>
+          <div
+            class="grid gap-6 pr-2"
+            :style="{
+              gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
+            }"
+          >
+            <ScrollPanel
+              v-for="(egg, i) in eggs"
+              :key="egg.id"
+              v-model="eggs[i]"
+              :settings="userSettings"
+              :recently-added
+              @click="
+                () => {
+                  if (!isProcessing) {
+                    egg.in_garden = !egg.in_garden;
+                  }
                 }
-              }
-            "
-          />
-        </div>
-      </fieldset>
+              "
+            />
+          </div>
+        </fieldset>
+      </template>
+
+      <div v-else class="order-2 contain-inline-size overflow-x-auto">
+        <ScrollTable class="w-full">
+          <template v-if="userSettings.sectionOrder === 'hatchlings,eggs'">
+            <ScrollTableTbody :dragons="hatchlings" header="Hatchlings" />
+            <ScrollTableTbody :dragons="eggs" header="Eggs" />
+          </template>
+          <template v-else>
+            <ScrollTableTbody :dragons="eggs" header="Eggs" />
+            <ScrollTableTbody :dragons="hatchlings" header="Hatchlings" />
+          </template>
+        </ScrollTable>
+      </div>
 
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
+        v-model:layout="layout"
         class="!mt-6 order-4"
         :dragons="scroll.dragons"
         :settings="userSettings"
@@ -307,6 +318,7 @@
 
 <script lang="ts" setup>
 import { pluralise } from '#imports';
+import ScrollTable from '~/components/ScrollTable.vue';
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
@@ -332,6 +344,8 @@ const {
     };
   },
 });
+
+const layout = ref('table');
 
 const {
   data: recentlyAdded,

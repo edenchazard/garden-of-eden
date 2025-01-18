@@ -20,6 +20,8 @@ import {
   faBoltLightning,
   faFire,
   faMinus,
+  faTableList,
+  faSquare,
 } from '@fortawesome/free-solid-svg-icons';
 
 // This is important, we are going to let Nuxt worry about the CSS
@@ -45,7 +47,9 @@ library.add(
   faEgg,
   faBoltLightning,
   faFire,
-  faMinus
+  faMinus,
+  faTableList,
+  faSquare
 );
 
 export default defineNuxtPlugin((nuxtApp) => {

@@ -8,6 +8,15 @@
         <option value="Oldest First">Oldest First</option>
         <option value="Youngest First">Youngest First</option>
       </select>
+
+      <ButtonToggleGroup
+        v-model="layout"
+        class="mt-1"
+        :buttons="[
+          { icon: ['fas', 'table-list'], label: 'Table', value: 'table' },
+          { icon: ['fas', 'square'], label: 'Card', value: 'card' },
+        ]"
+      />
     </div>
 
     <div class="col-span-full items-center flex gap-x-2 sm:col-auto">
@@ -48,7 +57,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { PropType } from 'vue';
 import { filterSelectAll } from '#imports';
 
 const emit = defineEmits(['reload', 'toggle-all', 'submit']);
@@ -61,8 +69,11 @@ defineProps<{
   settings: UserSettings;
 }>();
 
-const sort = defineModel('sort', {
-  type: String as PropType<UserSettings['sort']>,
+const sort = defineModel<UserSettings['sort']>('sort', {
   default: 'Oldest First',
+});
+
+const layout = defineModel<UserSettings['layout']>('layout', {
+  default: 'table',
 });
 </script>
