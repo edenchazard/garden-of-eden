@@ -21,7 +21,7 @@
         <th>Views</th>
         <th>Unique</th>
         <th>Clicks</th>
-        <th v-if="!hiddenColumns.includes('U:V')">U:V</th>
+        <th v-if="!hiddenColumns.includes('V:UV')">V:UV</th>
       </tr>
     </thead>
 

@@ -93,7 +93,7 @@
       <td>{{ formatNumber(dragon.views) }}</td>
       <td>{{ formatNumber(dragon.unique) }}</td>
       <td>{{ formatNumber(dragon.clicks) }}</td>
-      <td v-if="!hiddenColumns.includes('U:V')">
+      <td v-if="!hiddenColumns.includes('V:UV')">
         {{ formatRatio(dragon.views, dragon.unique) }}
       </td>
     </tr>

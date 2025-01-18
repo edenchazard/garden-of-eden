@@ -206,7 +206,7 @@
       <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
         <ScrollTable
           class="w-full"
-          :hidden-columns="[!userSettings.showScrollRatio ? 'U:V' : '']"
+          :hidden-columns="[!userSettings.showScrollRatio ? 'V:UV' : '']"
         >
           <template
             v-if="userSettings.sectionOrder === 'hatchlings,eggs'"
