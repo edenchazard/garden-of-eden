@@ -45,7 +45,7 @@
               />
             </ClientOnly>
           </NuxtLink>
-          <div>
+          <div class="flex flex-col justify-center">
             <div
               :id="`dragon-${dragon.id}`"
               class="font-bold max-w-24 md:max-w-none *:truncate"
