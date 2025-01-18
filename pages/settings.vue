@@ -204,6 +204,10 @@ const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings(
 
 const newSettings = useState(() => ({ ...userSettings.value }));
 
+onBeforeUnmount(() => {
+  newSettings.value = { ...userSettings.value };
+});
+
 const invalid = computed(() => {
   try {
     userSettingsSchema.parse(newSettings.value);
