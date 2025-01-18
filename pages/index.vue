@@ -57,13 +57,10 @@
 
     <form
       v-else-if="!authData.user.apiBlocked"
-      class="flex flex-col gap-y-4"
-      :class="{
-        '!mx-0': layout === 'table',
-      }"
+      class="flex flex-col gap-y-4 *:mx-4 !mx-0"
       @submit.prevent="saveScroll()"
     >
-      <div class="*:max-w-prose order-1 px-4">
+      <div class="*:max-w-prose order-1">
         <div
           v-if="fetchScrollError"
           class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
@@ -206,7 +203,7 @@
         </fieldset>
       </template>
 
-      <div v-else class="order-2 contain-inline-size overflow-x-auto">
+      <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
         <ScrollTable class="w-full">
           <template v-if="userSettings.sectionOrder === 'hatchlings,eggs'">
             <ScrollTableTbody :dragons="hatchlings" header="Hatchlings" />
