@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 px-4">
     <h1>Settings</h1>
     <p>These settings will persist across your devices.</p>
     <form

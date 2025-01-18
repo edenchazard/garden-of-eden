@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 *:space-y-4">
+  <div class="space-y-4 *:space-y-4 px-4">
     <h1>Badges</h1>
     <p class="max-w-prose">
       Below are the badges you've earned in the Garden. Some badges, such as
