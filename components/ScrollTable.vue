@@ -19,15 +19,20 @@
         <th>Views</th>
         <th>Unique</th>
         <th>Clicks</th>
+        <th v-if="!hiddenColumns.includes('U:V')">U:V</th>
       </tr>
     </thead>
 
-    <slot />
+    <slot :hidden-columns="hiddenColumns" />
   </table>
 </template>
 
 <script lang="ts" setup>
 import { useScroll } from '@vueuse/core';
+
+withDefaults(defineProps<{ hiddenColumns?: string[] }>(), {
+  hiddenColumns: () => [],
+});
 
 const table = useTemplateRef('table');
 const seedTrayColumn = useTemplateRef('seedTrayColumn');

@@ -1,12 +1,11 @@
 <template>
   <tbody>
     <tr class="*:bg-green-600 *:dark:bg-neutral-900">
-      <td colspan="3" class="sticky left-0">
+      <td colspan="100" class="sticky left-0">
         <div class="pinned-dragon-column my-2 text-sm font-bold ml-3">
           {{ header }}
         </div>
       </td>
-      <td colspan="6">&nbsp;</td>
     </tr>
     <tr
       v-for="dragon in dragons"
@@ -93,15 +92,24 @@
       <td>{{ formatNumber(dragon.views) }}</td>
       <td>{{ formatNumber(dragon.unique) }}</td>
       <td class="!border-r-0">{{ formatNumber(dragon.clicks) }}</td>
+      <td v-if="!hiddenColumns.includes('U:V')">
+        {{ formatRatio(dragon.views, dragon.unique) }}
+      </td>
     </tr>
   </tbody>
 </template>
 
 <script lang="ts" setup>
-import { formatHoursLeft, formatNumber } from '~/utils';
+import { formatHoursLeft, formatNumber, formatRatio } from '~/utils';
 
-defineProps<{
-  dragons: ScrollView[];
-  header: string;
-}>();
+withDefaults(
+  defineProps<{
+    dragons: ScrollView[];
+    header: string;
+    hiddenColumns?: string[];
+  }>(),
+  {
+    hiddenColumns: () => [],
+  }
+);
 </script>

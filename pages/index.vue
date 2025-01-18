@@ -204,14 +204,28 @@
       </template>
 
       <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
-        <ScrollTable class="w-full">
-          <template v-if="userSettings.sectionOrder === 'hatchlings,eggs'">
-            <ScrollTableTbody :dragons="hatchlings" header="Hatchlings" />
-            <ScrollTableTbody :dragons="eggs" header="Eggs" />
+        <ScrollTable
+          class="w-full"
+          :hidden-columns="[!userSettings.showScrollRatio ? 'U:V' : '']"
+        >
+          <template
+            v-if="userSettings.sectionOrder === 'hatchlings,eggs'"
+            #default="{ hiddenColumns }"
+          >
+            <ScrollTableTbody
+              :dragons="hatchlings"
+              header="Hatchlings"
+              :hidden-columns
+            />
+            <ScrollTableTbody :dragons="eggs" header="Eggs" :hidden-columns />
           </template>
-          <template v-else>
-            <ScrollTableTbody :dragons="eggs" header="Eggs" />
-            <ScrollTableTbody :dragons="hatchlings" header="Hatchlings" />
+          <template v-else #default="{ hiddenColumns }">
+            <ScrollTableTbody :dragons="eggs" header="Eggs" :hidden-columns />
+            <ScrollTableTbody
+              :dragons="hatchlings"
+              header="Hatchlings"
+              :hidden-columns
+            />
           </template>
         </ScrollTable>
       </div>
@@ -219,7 +233,6 @@
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
-        v-model:layout="layout"
         class="!mt-6 order-4"
         :dragons="scroll.dragons"
         :settings="userSettings"
