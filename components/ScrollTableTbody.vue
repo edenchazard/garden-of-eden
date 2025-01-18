@@ -1,16 +1,17 @@
 <template>
   <tbody>
-    <tr class="bg-neutral-900">
+    <tr class="*:bg-green-600 *:dark:bg-neutral-900">
       <td colspan="3" class="sticky left-0">
         <div class="pinned-dragon-column my-2 text-sm font-bold ml-3">
           {{ header }}
         </div>
       </td>
+      <td colspan="6">&nbsp;</td>
     </tr>
     <tr
       v-for="dragon in dragons"
       :key="dragon.id"
-      class="*:py-2 *:px-3 *:text-center even:bg-neutral-800 odd:bg-neutral-900"
+      class="*:py-2 *:px-3 *:text-center even:bg-green-500 odd:bg-green-600 dark:even:bg-neutral-800 dark:odd:bg-neutral-900"
     >
       <td class="!border-l-0">
         <input

@@ -8,7 +8,7 @@
   >
     <thead>
       <tr
-        class="*:text-center *:px-3 *:pb-0 *:whitespace-nowrap bg-neutral-900"
+        class="*:text-center *:px-3 *:pb-0 *:whitespace-nowrap *:border-b-2 bg-green-700 dark:bg-neutral-950"
       >
         <th>G</th>
         <th ref="seedTrayColumn">S</th>
@@ -52,7 +52,7 @@ useScroll(
 
 <style>
 .pinned-dragon-column {
-  @apply !p-0;
+  @apply !p-0 bg-inherit;
 
   & > div {
     @apply py-2 px-3;
@@ -60,8 +60,6 @@ useScroll(
 }
 
 .has-pinned-scroll .pinned-dragon-column {
-  @apply bg-white dark:bg-inherit;
-
   & > div {
     @apply border-r-8 border-black/40;
   }
