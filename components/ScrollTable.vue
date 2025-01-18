@@ -8,13 +8,11 @@
   >
     <thead>
       <tr
-        class="*:text-center *:px-3 *:pb-0 *:whitespace-nowrap divide-x divide-emerald-900/30 dark:divide-stone-600/30 bg-green-700 dark:bg-neutral-950"
+        class="*:text-center *:px-3 *:py-2 *:whitespace-nowrap divide-x divide-emerald-900/30 dark:divide-stone-600/30 bg-green-700 dark:bg-neutral-950"
       >
         <th>G</th>
         <th ref="seedTrayColumn">S</th>
-        <th class="pinned-dragon-column">
-          <div>Dragon</div>
-        </th>
+        <th class="pinned-dragon-column">Dragon</th>
         <th>Gender</th>
         <th>Time Left</th>
         <th>BSA</th>
