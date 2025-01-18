@@ -11,8 +11,8 @@
         class="*:text-center *:px-3 *:py-2 *:whitespace-nowrap divide-x divide-emerald-900/30 dark:divide-stone-600/30 bg-green-700 dark:bg-neutral-950"
       >
         <th>G</th>
-        <th ref="seedTrayColumn">S</th>
-        <th class="pinned-dragon-column">Dragon</th>
+        <th v-if="!hiddenColumns.includes('Seed Tray')">ST</th>
+        <th ref="dragonColumn" class="pinned-dragon-column">Dragon</th>
         <th>Gender</th>
         <th>Time Left</th>
         <th>BSA</th>
@@ -35,7 +35,7 @@ withDefaults(defineProps<{ hiddenColumns?: string[] }>(), {
 });
 
 const table = useTemplateRef('table');
-const seedTrayColumn = useTemplateRef('seedTrayColumn');
+const dragonColumn = useTemplateRef('dragonColumn');
 const hasScrolled = ref(false);
 
 // set hasScrolled to true if the table has been scroll further than the right edge of the seedTrayColumn
@@ -43,13 +43,13 @@ useScroll(
   computed(() => table.value?.parentElement),
   {
     onScroll() {
-      if (!seedTrayColumn.value || !table.value) {
+      if (!dragonColumn.value || !table.value) {
         return;
       }
 
       hasScrolled.value =
         table.value.scrollLeft >=
-        seedTrayColumn.value.getBoundingClientRect().right;
+        dragonColumn.value.getBoundingClientRect().left;
     },
   }
 );

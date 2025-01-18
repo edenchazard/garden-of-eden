@@ -206,7 +206,14 @@
       <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
         <ScrollTable
           class="w-full"
-          :hidden-columns="[!userSettings.showScrollRatio ? 'V:UV' : '']"
+          :hidden-columns="[
+            !userSettings.showScrollRatio ? 'V:UV' : '',
+            scroll.dragons.some(
+              (dragon) => dragon.hoursleft <= 96 || dragon.in_seed_tray
+            )
+              ? ''
+              : 'Seed Tray',
+          ]"
         >
           <template
             v-if="userSettings.sectionOrder === 'hatchlings,eggs'"

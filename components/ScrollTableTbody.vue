@@ -19,8 +19,9 @@
           :aria-labelledby="`dragon-${dragon.id}`"
         />
       </td>
-      <td>
+      <td v-if="!hiddenColumns.includes('Seed Tray')">
         <input
+          v-if="dragon.hoursleft <= 96 || dragon.in_seed_tray"
           :id="`dragon-check-${dragon.id}`"
           v-model="dragon.in_seed_tray"
           type="checkbox"
