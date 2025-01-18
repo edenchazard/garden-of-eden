@@ -77,6 +77,12 @@ export const userSettingsTable = mysqlTable('user_settings', {
   })
     .notNull()
     .default('Youngest First'),
+  scrollLayout: varchar('scroll_layout', {
+    length: 10,
+    enum: ['table', 'card'],
+  })
+    .notNull()
+    .default('card'),
   hatchlingMinAge: tinyint('hatchlingMinAge').notNull().default(0),
   eggMinAge: tinyint('eggMinAge').notNull().default(0),
   showScrollRatio: boolean('showScrollRatio').notNull().default(false),
@@ -377,6 +383,7 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   seedTrayPerPage: (schema) =>
     schema.seedTrayPerPage.min(10).max(500).default(200),
   sort: (schema) => schema.sort.default('Youngest First'),
+  scrollLayout: (schema) => schema.scrollLayout.default('card'),
   hatchlingMinAge: (schema) => schema.hatchlingMinAge.max(72).min(0).default(0),
   eggMinAge: (schema) => schema.eggMinAge.max(72).min(0).default(0),
   showScrollRatio: (schema) => schema.showScrollRatio.default(true),

@@ -2,21 +2,12 @@
   <div
     class="grid sm:grid-cols-2 md:grid-cols-[1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
   >
-    <div class="flex col-span-full sm:col-auto">
+    <div class="flex col-span-full sm:col-auto *:flex-1 gap-4">
       <label :for="`${id}-sort`" class="mr-1 sr-only"> Sort by: </label>
-      <select :id="`${id}-sort`" v-model="sort" class="w-full md:max-w-60">
+      <select :id="`${id}-sort`" v-model="sort" class="md:max-w-60">
         <option value="Oldest First">Oldest First</option>
         <option value="Youngest First">Youngest First</option>
       </select>
-
-      <ButtonToggleGroup
-        v-model="layout"
-        class="mt-1"
-        :buttons="[
-          { icon: ['fas', 'table-list'], label: 'Table', value: 'table' },
-          { icon: ['fas', 'square'], label: 'Card', value: 'card' },
-        ]"
-      />
     </div>
 
     <div class="col-span-full items-center flex gap-x-2 sm:col-auto">
@@ -71,9 +62,5 @@ defineProps<{
 
 const sort = defineModel<UserSettings['sort']>('sort', {
   default: 'Oldest First',
-});
-
-const layout = defineModel<UserSettings['layout']>('layout', {
-  default: 'table',
 });
 </script>

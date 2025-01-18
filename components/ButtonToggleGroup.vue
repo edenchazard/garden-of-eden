@@ -1,7 +1,7 @@
 <template>
   <div
     role="radiogroup"
-    class="isolate inline-flex rounded-md shadow-sm overflow-hidden"
+    class="isolate flex rounded-md shadow-sm overflow-hidden ring-1 ring-white"
   >
     <button
       v-for="button in buttons"
@@ -9,9 +9,9 @@
       type="button"
       :aria-checked="model === button.value"
       role="radio"
-      class="rounded-none inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      class="flex-1 bg-white text-black rounded-none text-sm font-semibold whitespace-nowrap"
       :class="{
-        'bg-stone-700': model === button.value,
+        'bg-emerald-600 !text-white dark:bg-rose-900': model === button.value,
       }"
       @click="model = button.value"
     >
@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 defineProps<{
   buttons: Array<{
-    icon?: null | [string, string];
+    icon?: [string, string];
     label: string;
     value: string;
   }>;

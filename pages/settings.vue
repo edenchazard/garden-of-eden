@@ -85,6 +85,18 @@
               }}
             </label>
           </li>
+          <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
+            <ButtonToggleGroup
+              v-model="newSettings.scrollLayout"
+              :buttons="[
+                { icon: ['fas', 'table-list'], label: 'Table', value: 'table' },
+                { icon: ['fas', 'square'], label: 'Card', value: 'card' },
+              ]"
+            />
+            <p>
+              Show scroll overview in the {{ newSettings.scrollLayout }} view.
+            </p>
+          </li>
         </ul>
       </fieldset>
       <fieldset>

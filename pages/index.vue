@@ -135,7 +135,7 @@
         </template>
       </div>
 
-      <template v-if="layout === 'card'">
+      <template v-if="userSettings.scrollLayout === 'card'">
         <fieldset
           v-if="hatchlings.length"
           class="transition-opacity pt-2 box-border flex flex-col"
@@ -344,8 +344,6 @@ const {
     };
   },
 });
-
-const layout = ref('table');
 
 const {
   data: recentlyAdded,
