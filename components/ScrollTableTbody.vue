@@ -9,7 +9,7 @@
     <tr
       v-for="dragon in dragons"
       :key="dragon.id"
-      class="divide-x divide-emerald-900/30 dark:divide-stone-600/30 *:py-2 *:px-3 *:text-center even:bg-green-500 odd:bg-green-600 dark:even:bg-neutral-800 dark:odd:bg-neutral-900"
+      class="divide-x divide-emerald-900/30 dark:divide-stone-500/30 *:py-2 *:px-3 *:text-center even:bg-green-500 odd:bg-green-600 dark:even:bg-neutral-800 dark:odd:bg-neutral-900"
     >
       <td class="!border-none">
         <input
