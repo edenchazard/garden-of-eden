@@ -9,9 +9,10 @@
       type="button"
       :aria-checked="model === button.value"
       role="radio"
-      class="flex-1 bg-white text-black rounded-none text-sm font-semibold whitespace-nowrap"
+      class="flex-1 rounded-none text-sm font-semibold whitespace-nowrap"
       :class="{
-        'bg-emerald-600 !text-white dark:bg-rose-900': model === button.value,
+        'bg-emerald-600 text-white dark:bg-rose-900': model === button.value,
+        'bg-white text-black': model !== button.value,
       }"
       @click="model = button.value"
     >
