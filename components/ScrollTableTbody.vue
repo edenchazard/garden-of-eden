@@ -11,7 +11,7 @@
       :key="dragon.id"
       class="divide-x divide-emerald-900/30 dark:divide-stone-600/30 *:py-2 *:px-3 *:text-center even:bg-green-500 odd:bg-green-600 dark:even:bg-neutral-800 dark:odd:bg-neutral-900"
     >
-      <td>
+      <td class="!border-none">
         <input
           :id="`dragon-check-${dragon.id}`"
           v-model="dragon.in_garden"
@@ -19,7 +19,7 @@
           :aria-labelledby="`dragon-${dragon.id}`"
         />
       </td>
-      <td v-if="!hiddenColumns.includes('Seed Tray')">
+      <td v-if="!hiddenColumns.includes('Seed Tray')" class="!border-none">
         <input
           v-if="dragon.hoursleft <= 96 || dragon.in_seed_tray"
           :id="`dragon-check-${dragon.id}`"
@@ -28,7 +28,7 @@
           :aria-labelledby="`dragon-${dragon.id}`"
         />
       </td>
-      <td class="pinned-dragon-column">
+      <td class="pinned-dragon-column !border-l-0">
         <div class="flex gap-2">
           <NuxtLink
             :to="`https://dragcave.net/view/${dragon.id}`"
