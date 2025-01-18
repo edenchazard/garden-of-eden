@@ -8,11 +8,13 @@
   >
     <thead>
       <tr
-        class="*:text-center *:px-3 *:pb-0 *:whitespace-nowrap *:border-b-2 bg-green-700 dark:bg-neutral-950"
+        class="*:text-center *:px-3 *:pb-0 *:whitespace-nowrap divide-x divide-emerald-900/30 dark:divide-stone-600/30 bg-green-700 dark:bg-neutral-950"
       >
         <th>G</th>
         <th ref="seedTrayColumn">S</th>
-        <th class="pinned-dragon-column sticky left-0"><div>Dragon</div></th>
+        <th class="pinned-dragon-column">
+          <div>Dragon</div>
+        </th>
         <th>Gender</th>
         <th>Time Left</th>
         <th>BSA</th>
@@ -57,7 +59,11 @@ useScroll(
 
 <style>
 .pinned-dragon-column {
-  @apply !p-0 bg-inherit;
+  @apply bg-inherit -left-[1px] sticky;
+
+  &:not(.is-header) {
+    @apply !p-0;
+  }
 
   & > div {
     @apply py-2 px-3;
