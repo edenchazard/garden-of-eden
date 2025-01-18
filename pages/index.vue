@@ -45,7 +45,7 @@
 
     <form
       v-else-if="!authData.user.apiBlocked"
-      class="flex-col space-y-4 *:flex-1"
+      class="flex flex-col gap-y-4"
       @submit.prevent="saveScroll()"
     >
       <div class="*:max-w-prose order-1">
@@ -137,7 +137,7 @@
 
       <fieldset
         v-if="hatchlings.length"
-        class="transition-opacity pt-2 box-border flex flex-col"
+        class="transition-opacity pt-2 box-border flex flex-col contain-inline-size overflow-x-auto"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
@@ -145,9 +145,8 @@
           'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
         }"
       >
-        <ScrollTable :dragons="hatchlings" />
         <legend class="text-sm font-bold">Hatchlings</legend>
-        <div v-if="true" class=" "></div>
+        <ScrollTable v-if="true" :dragons="hatchlings" />
         <div
           v-else
           class="grid gap-6 pr-2"
