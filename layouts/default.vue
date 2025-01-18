@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-screen-lg space-y-4 pt-2.5 pb-4">
+  <div class="max-w-screen-lg space-y-4 pt-2.5 pb-4 w-full">
     <WarningApiBlock v-if="authData?.user?.apiBlocked" />
 
     <div class="flex flex-col rounded-md">

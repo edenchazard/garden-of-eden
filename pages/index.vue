@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="w-full space-y-4">
     <div
       v-if="!authData?.user"
       class="mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
@@ -45,7 +45,7 @@
 
     <form
       v-else-if="!authData.user.apiBlocked"
-      class="flex flex-col space-y-4"
+      class="flex-col space-y-4 *:flex-1"
       @submit.prevent="saveScroll()"
     >
       <div class="*:max-w-prose order-1">
@@ -134,9 +134,10 @@
           <source src="/audio/bubblewrap-3.mp3" type="audio/mpeg" />
         </audio>
       </template>
+
       <fieldset
         v-if="hatchlings.length"
-        class="transition-opacity pt-2"
+        class="transition-opacity pt-2 box-border flex flex-col"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
@@ -144,8 +145,11 @@
           'order-3': userSettings.sectionOrder === 'eggs,hatchlings',
         }"
       >
+        <ScrollTable :dragons="hatchlings" />
         <legend class="text-sm font-bold">Hatchlings</legend>
+        <div v-if="true" class=" "></div>
         <div
+          v-else
           class="grid gap-6 pr-2"
           :style="{
             gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
@@ -168,8 +172,8 @@
         </div>
       </fieldset>
       <fieldset
-        v-if="eggs.length"
-        class="transition-opacity pt-2"
+        v-if="false /*eggs.length*/"
+        class="transition-opacity pt-2 overflow-x-auto flex-1"
         :disabled="isProcessing"
         :class="{
           'opacity-50': isProcessing,
@@ -178,7 +182,9 @@
         }"
       >
         <legend class="text-sm font-bold">Eggs</legend>
+        <ScrollTable v-if="true" :dragons="eggs" />
         <div
+          v-else
           class="grid gap-6 pr-2"
           :style="{
             gridTemplateColumns: `repeat(auto-fill, minmax(17rem, 1fr))`,
