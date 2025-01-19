@@ -70,7 +70,14 @@
           </div>
         </div>
       </td>
-      <td>{{ formatHoursLeft(dragon.hoursleft) }}</td>
+      <td
+        :class="{
+          'text-orange-300 dark:text-red-500 ':
+            dragon.hoursleft <= 96 || dragon.in_seed_tray,
+        }"
+      >
+        {{ formatHoursLeft(dragon.hoursleft) }}
+      </td>
       <td>
         <span v-if="dragon.gender" v-tooltip="dragon.gender">
           <font-awesome-icon
