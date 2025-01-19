@@ -70,6 +70,7 @@
           </div>
         </div>
       </td>
+      <td>{{ formatHoursLeft(dragon.hoursleft) }}</td>
       <td>
         <span v-if="dragon.gender" v-tooltip="dragon.gender">
           <font-awesome-icon
@@ -82,7 +83,6 @@
           />
         </span>
       </td>
-      <td>{{ formatHoursLeft(dragon.hoursleft) }}</td>
       <td>
         <span v-if="dragon.is_stunned" v-tooltip.bottom="`Stunned`">
           <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
