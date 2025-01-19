@@ -14,7 +14,7 @@
 
     <div
       v-if="!authData?.user"
-      class="mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
+      class="!mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
     >
       <div class="flex flex-col gap-y-4 items-center justify-center">
         <p>
