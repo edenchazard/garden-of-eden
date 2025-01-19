@@ -17,6 +17,7 @@
           v-model="dragon.in_garden"
           type="checkbox"
           :aria-labelledby="`dragon-${dragon.id}`"
+          :disabled
         />
       </td>
       <td v-if="!hiddenColumns.includes('Seed Tray')" class="!border-none">
@@ -26,6 +27,7 @@
           v-model="dragon.in_seed_tray"
           type="checkbox"
           :aria-labelledby="`dragon-${dragon.id}`"
+          :disabled
         />
       </td>
       <td class="pinned-dragon-column !border-l-0">
@@ -116,9 +118,11 @@ withDefaults(
     dragons: ScrollView[];
     header: string;
     hiddenColumns?: string[];
+    disabled?: boolean;
   }>(),
   {
     hiddenColumns: () => [],
+    disabled: false,
   }
 );
 </script>
