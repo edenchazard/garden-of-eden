@@ -170,6 +170,7 @@
                   }
                 }
               "
+              @glow-finished="recentlyAdded = []"
             />
           </div>
         </fieldset>
@@ -401,12 +402,11 @@ const {
     }))
   ),
   onResponse({ response }) {
+    console.log(response);
     if (!response.ok) {
       toast.error('Failed to save your scroll. Please try again.');
       return;
     }
-
-    setTimeout(() => (recentlyAdded.value = []), 1000);
 
     const seedTray = scroll.value.dragons.filter(
       (dragon) => dragon.in_seed_tray

@@ -3,9 +3,9 @@
     <div
       class="rounded-md"
       :class="{
-        'shadow-[0px_0px_15px_1px] shadow-yellow-200 dark:shadow-sky-800':
-          recentlyAdded.includes(dragon.id),
+        glow: recentlyAdded.includes(dragon.id),
       }"
+      @animationend="$emit('glowFinished')"
     >
       <div
         class="rounded-md grid grid-cols-[45px_1fr] gap-x-3 gap-y-2 p-2 pb-4 items-center border content-border justify-items-start overflow-hidden"
@@ -125,6 +125,10 @@
 <script lang="ts" setup>
 import { formatHoursLeft, formatNumber, formatRatio } from '#imports';
 
+defineEmits<{
+  (e: 'glowFinished'): void;
+}>();
+
 defineProps<{
   recentlyAdded: string[];
   settings: UserSettings;
@@ -132,3 +136,36 @@ defineProps<{
 
 const dragon = defineModel<ScrollView>({ required: true });
 </script>
+
+<style scoped>
+.glow {
+  animation: glow 1s ease-in-out forwards;
+  --colour1: rgba(0, 0, 0, 0.2);
+  --colour2: rgba(254, 240, 138, 0.8);
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 0 0 var(--colour1);
+  }
+  50% {
+    box-shadow: 0px 0px 8px 1px var(--colour2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--colour1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    animation: none;
+  }
+}
+</style>
+
+<style>
+.dark .glow {
+  --colour1: rgba(7, 89, 133, 0.2);
+  --colour2: rgba(7, 89, 133, 0.8);
+}
+</style>
