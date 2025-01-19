@@ -65,6 +65,8 @@ export default defineEventHandler(async (event) => {
           ]),
         });
     }
-    return dragons.map((dragon) => dragon.id);
+    return dragons
+      .filter((dragon) => dragon.in_garden || dragon.in_seed_tray)
+      .map((dragon) => dragon.id);
   });
 });
