@@ -210,7 +210,10 @@
 
       <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
         <ScrollTable
-          class="w-full"
+          class="transition-opacity w-full"
+          :class="{
+            'opacity-50': isProcessing,
+          }"
           :hidden-columns="[
             !userSettings.showScrollRatio ? 'V:UV' : '',
             scroll.dragons.some(
@@ -219,36 +222,41 @@
               ? ''
               : 'Seed Tray',
           ]"
+          :disabled="isProcessing"
         >
           <template
             v-if="userSettings.sectionOrder === 'hatchlings,eggs'"
-            #default="{ hiddenColumns }"
+            #default="{ hiddenColumns, disabled }"
           >
             <ScrollTableTbody
               id="hatchlings"
               :dragons="hatchlings"
               header="Hatchlings"
               :hidden-columns
+              :disabled
             />
             <ScrollTableTbody
               id="eggs"
               :dragons="eggs"
               header="Eggs"
               :hidden-columns
+              :disabled
             />
           </template>
-          <template v-else #default="{ hiddenColumns }">
+          <template v-else #default="{ hiddenColumns, disabled }">
             <ScrollTableTbody
               id="eggs"
               :dragons="eggs"
               header="Eggs"
               :hidden-columns
+              :disabled
             />
             <ScrollTableTbody
               id="hatchlings"
               :dragons="hatchlings"
               header="Hatchlings"
               :hidden-columns
+              :disabled
             />
           </template>
         </ScrollTable>

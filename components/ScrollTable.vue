@@ -4,6 +4,7 @@
     class="relative text-sm"
     :class="{
       'has-pinned-scroll': hasScrolled,
+      'cursor-not-allowed': disabled,
     }"
   >
     <thead>
@@ -25,16 +26,23 @@
       </tr>
     </thead>
 
-    <slot :hidden-columns="hiddenColumns" />
+    <slot :hidden-columns="hiddenColumns" :disabled="disabled" />
   </table>
 </template>
 
 <script lang="ts" setup>
 import { useScroll } from '@vueuse/core';
 
-withDefaults(defineProps<{ hiddenColumns?: string[] }>(), {
-  hiddenColumns: () => [],
-});
+withDefaults(
+  defineProps<{
+    hiddenColumns?: string[];
+    disabled?: boolean;
+  }>(),
+  {
+    hiddenColumns: () => [],
+    disabled: false,
+  }
+);
 
 const table = useTemplateRef('table');
 const dragonColumn = useTemplateRef('dragonColumn');
