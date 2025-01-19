@@ -213,14 +213,7 @@
           :class="{
             'opacity-50': isProcessing,
           }"
-          :hidden-columns="[
-            !userSettings.showScrollRatio ? 'V:UV' : '',
-            scroll.dragons.some(
-              (dragon) => dragon.hoursleft <= 96 || dragon.in_seed_tray
-            )
-              ? ''
-              : 'Seed Tray',
-          ]"
+          :hidden-columns="hiddenTableColumns"
           :disabled="isProcessing"
         >
           <template
@@ -434,6 +427,23 @@ const {
     toast.success('Scroll updated! You have ' + texts.join(' and ') + '.');
     return;
   },
+});
+
+const hiddenTableColumns = computed(() => {
+  const hidden: string[] = [];
+
+  if (!userSettings.value.showScrollRatio) {
+    hidden.push('V:UV');
+  }
+
+  if (
+    !scroll.value.dragons.some(
+      (dragon) => dragon.hoursleft <= 96 || dragon.in_seed_tray
+    )
+  ) {
+    hidden.push('Seed Tray');
+  }
+  return hidden;
 });
 
 const isProcessing = computed(() =>
