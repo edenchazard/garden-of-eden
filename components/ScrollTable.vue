@@ -15,8 +15,8 @@
         <th ref="dragonColumn" class="pinned-dragon-column">
           <div>Dragon</div>
         </th>
-        <th>Gender</th>
         <th>Time Left</th>
+        <th>Gender</th>
         <th>BSA</th>
         <th>Views</th>
         <th>Unique</th>
