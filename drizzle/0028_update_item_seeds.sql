@@ -52,4 +52,6 @@ INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `
 	(47, "Wreath (white)", "wreath-white.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "'Tis the season.", 125, "Inghelene"),
 	(48, "Wreath (multicolour)", "wreath-multicolour.webp", 'flair', '2024-12-01 00:00:00', "2025-01-07 00:00:00", "It's a wreath with gamer RGB lighting!", 125, "Inghelene"),
 	(49, "Fortune Cookie", "fortune-cookie.webp", "consumable", "2025-01-01 00:00:00", "2025-01-14 00:00:00", "Even if you get a bad fortune, at least you can eat the cookie.", 100, "Hourai"),
-	(50, 'New Year 2025', 'badges/new-year-2025.webp', 'trophy', NULL, NULL, 'You had your 2025 fortune revealed by Matthias!', NULL, 'Hourai');
+	(50, 'New Year 2025', 'badges/new-year-2025.webp', 'trophy', NULL, NULL, 'You had your 2025 fortune revealed by Matthias!', NULL, 'Hourai'),
+	(51, "Garnet", 'garnet.webp', 'flair', "2025-01-01 00:00:00",  "2025-02-01 00:00:00", "January's entry for the rock garden.", 100, "Luci"),
+	(52, "Snapdragon", "snapdragon.webp", "flair", NULL, NULL, "Snap, dragon and pop.", 50, "Inghelene");
