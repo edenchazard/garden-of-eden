@@ -54,4 +54,6 @@ INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `
 	(49, "Fortune Cookie", "fortune-cookie.webp", "consumable", "2025-01-01 00:00:00", "2025-01-14 00:00:00", "Even if you get a bad fortune, at least you can eat the cookie.", 100, "Hourai"),
 	(50, 'New Year 2025', 'badges/new-year-2025.webp', 'trophy', NULL, NULL, 'You had your 2025 fortune revealed by Matthias!', NULL, 'Hourai'),
 	(51, "Garnet", 'garnet.webp', 'flair', "2025-01-01 00:00:00",  "2025-02-01 00:00:00", "January's entry for the rock garden.", 100, "Luci"),
-	(52, "Snapdragon", "snapdragon.webp", "flair", NULL, NULL, "Snap, dragon and pop.", 50, "Inghelene");
+	(52, "Snapdragon", "snapdragon.webp", "flair", NULL, NULL, "Snap, dragon and pop.", 50, "Inghelene"),
+	(53, "Amethyst", "amethyst.webp", "flair", "2025-02-01 00:00:00", "2025-03-01 00:00:00", "February's entry for the rock garden.", 100, "Luci");
+	
