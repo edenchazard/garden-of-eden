@@ -50,8 +50,8 @@
               :checked="newSettings.autoSeedTray"
             />
             <label for="auto-er"
-              >Automatically place dragons in the seed tray when 4 days or less
-              and selected.</label
+              >When selecting all, automatically place dragons with 4 days or
+              less remaining, into the seed tray.</label
             >
           </li>
         </ul>
