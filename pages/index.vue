@@ -60,10 +60,10 @@
       class="flex flex-col gap-y-4 *:mx-4 !mx-0"
       @submit.prevent="saveScroll()"
     >
-      <div class="*:max-w-prose order-1">
+      <div class="space-y-2 *:max-w-prose order-1">
         <div
           v-if="fetchScrollError"
-          class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
+          class="justify-items-center text-center grid items-center gap-x-4 mx-auto sm:grid-cols-[auto_1fr] sm:text-left sm:justify-items-start"
         >
           <NuxtPicture
             loading="lazy"
@@ -72,33 +72,30 @@
             sizes="150px md:300px"
             alt="Mint tinkering in the garden"
           />
-          <div>
-            <span class="font-bold">Aurrrr naurrr!!!</span>
-            <p>
-              There was an error trying to fetch your scroll. Whack that reload
-              button and try again.
-            </p>
-          </div>
+          <p class="font-bold self-end">Aurrrr naurrr!!!</p>
+          <p>
+            There was an error trying to fetch your scroll. Whack that reload
+            button and try again.
+          </p>
         </div>
         <template v-else>
           <div
             v-if="!scroll.dragons.length"
-            class="flex flex-col sm:flex-row items-center gap-4 mx-auto"
+            class="justify-items-center text-center grid items-center gap-x-4 mx-auto sm:grid-cols-[auto_1fr] sm:text-left sm:justify-items-start"
           >
             <NuxtPicture
+              class="sm:row-span-2"
               loading="lazy"
               format="avif,webp"
               src="/illustrations/lost-at-sea.png"
               sizes="150px md:300px"
               alt="Matthias fishing for eggs"
             />
-            <div>
-              <span class="font-bold">It's a bit empty here.</span>
-              <p>
-                It looks like you've got no dragons! Time to hit up that cave
-                and go get some! Or, sit and fish with Matthias.
-              </p>
-            </div>
+            <p class="font-bold self-end">It's a bit empty here.</p>
+            <p>
+              It looks like you've got no dragons! Time to hit up that cave and
+              go get some! Or, sit and fish with Matthias.
+            </p>
           </div>
           <div class="text-sm space-y-1">
             <p v-if="eggClosestToHatching">
