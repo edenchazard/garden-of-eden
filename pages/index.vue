@@ -122,8 +122,8 @@
                 {{
                   pluralise('hour', hatchlingClosestToGrowing.hoursleft - 96)
                 }}.
-                <NuxtLink to="#hatchlings" class="underline">[Jump]</NuxtLink>
               </template>
+              <NuxtLink to="#hatchlings" class="underline">[Jump]</NuxtLink>
             </p>
             <p class="text-xs">
               Hidden dragons are not shown and will be regularly removed.
