@@ -7,6 +7,21 @@
   --font-nokiafc22: Nokia Cellphone FC;
 }
 
+@font-face {
+  font-family: 'Alkhemikal';
+  src: url('/public/fonts/Alkhemikal.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nokia Cellphone FC';
+  src: url('/public/fonts/nokiafc22.ttf') format('truetype');
+  size-adjust: 80%;
+}
+
+#__nuxt {
+  @apply flex-1 flex flex-col items-center bg-green-800 dark:bg-neutral-950;
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -23,118 +38,103 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
-}
 
-@font-face {
-  font-family: 'Alkhemikal';
-  src: url('/public/fonts/Alkhemikal.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Nokia Cellphone FC';
-  src: url('/public/fonts/nokiafc22.ttf') format('truetype');
-  size-adjust: 80%;
-}
-
-html {
-  @apply h-full;
-}
-
-body {
-  @apply min-h-full flex text-white dark:text-stone-200;
-}
-
-#__nuxt {
-  @apply flex-1 flex flex-col items-center bg-green-800 dark:bg-neutral-950;
-}
-
-button {
-  @apply py-2 px-4 rounded-md dark:shadow-[inset_0px_0px_6px_-3px_#000];
-
-  & svg {
-    @apply mr-1.5;
+  html {
+    @apply h-full;
   }
 
-  &.btn-primary {
-    @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white;
+  body {
+    @apply min-h-full flex text-white dark:text-stone-200;
   }
 
-  &.btn-secondary {
-    @apply bg-emerald-500 dark:bg-rose-900 dark:text-white;
+  button {
+    @apply py-2 px-4 rounded-md dark:shadow-[inset_0px_0px_6px_-3px_#000];
+
+    & svg {
+      @apply mr-1.5;
+    }
+
+    &.btn-primary {
+      @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white;
+    }
+
+    &.btn-secondary {
+      @apply bg-emerald-500 dark:bg-rose-900 dark:text-white;
+    }
+
+    &.btn-danger {
+      @apply bg-red-500 dark:bg-red-900 dark:text-white;
+    }
+
+    &[class*='btn-'] {
+      @apply min-w-32;
+    }
   }
 
-  &.btn-danger {
-    @apply bg-red-500 dark:bg-red-900 dark:text-white;
+  .mint button.btn-primary {
+    @apply text-black dark:text-white;
   }
 
-  &[class*='btn-'] {
-    @apply min-w-32;
+  input:invalid {
+    @apply ring-4 ring-red-500;
   }
-}
 
-.mint button.btn-primary {
-  @apply text-black dark:text-white;
-}
+  select,
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='url'],
+  input[type='search'],
+  input[type='date'],
+  input[type='time'],
+  input[type='datetime-local'],
+  input[type='month'],
+  input[type='week'],
+  input[type='color'],
+  textarea {
+    @apply text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
+  }
 
-input:invalid {
-  @apply ring-4 ring-red-500;
-}
+  input[type='checkbox'] {
+    @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
+  }
 
-select,
-input[type='text'],
-input[type='email'],
-input[type='password'],
-input[type='number'],
-input[type='tel'],
-input[type='url'],
-input[type='search'],
-input[type='date'],
-input[type='time'],
-input[type='datetime-local'],
-input[type='month'],
-input[type='week'],
-input[type='color'],
-textarea {
-  @apply text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
-}
+  input[type='color'] {
+    @apply appearance-none shadow-none border-none size-8 p-0! bg-transparent;
+  }
 
-input[type='checkbox'] {
-  @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
-}
+  [disabled] {
+    @apply cursor-not-allowed opacity-40;
+  }
 
-input[type='color'] {
-  @apply appearance-none shadow-none border-none size-8 p-0! bg-transparent;
-}
+  option {
+    @apply text-black;
+  }
 
-[disabled] {
-  @apply cursor-not-allowed opacity-40;
-}
+  a {
+    @apply underline underline-offset-4 text-yellow-300 dark:text-sky-500;
+  }
 
-option {
-  @apply text-black;
-}
+  h1,
+  h2 {
+    @apply font-bold;
+  }
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+  h3 {
+    @apply text-xl;
+  }
 
-a {
-  @apply underline underline-offset-4 text-yellow-300 dark:text-sky-500;
-}
-
-h1,
-h2 {
-  @apply font-bold;
-}
-h1 {
-  @apply text-3xl;
-}
-h2 {
-  @apply text-2xl;
-}
-h3 {
-  @apply text-xl;
-}
-
-abbr {
-  @apply decoration-dotted underline-offset-4 decoration-white;
-}
-main {
-  @apply overflow-x-hidden;
+  abbr {
+    @apply decoration-dotted underline-offset-4 decoration-white;
+  }
+  main {
+    @apply overflow-x-hidden;
+  }
 }
