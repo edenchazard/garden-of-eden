@@ -846,23 +846,3 @@ function rgbAlpha(colour: [number, number, number], a: number = 1) {
   return `rgba(${colour.join(',')},${a})`;
 }
 </script>
-
-<style scoped lang="postcss">
-.graph {
-  & div {
-    @apply p-3 border border-green-300 dark:border-stone-700 bg-black/25;
-  }
-
-  & canvas {
-    user-select: none;
-  }
-
-  & figcaption {
-    @apply text-xs italic mt-2 flex justify-end;
-  }
-
-  & p {
-    @apply max-w-prose text-right;
-  }
-}
-</style>
