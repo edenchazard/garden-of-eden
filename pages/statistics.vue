@@ -16,7 +16,7 @@
         <li>
           {{ Intl.NumberFormat().format(personalStats.clicked_24) }} unique
           dragons clicked in the last 24 hours.<sup
-            ><a href="#personal-1" class="!decoration-transparent ml-2"
+            ><a href="#personal-1" class="decoration-transparent! ml-2"
               >[1]</a
             ></sup
           >

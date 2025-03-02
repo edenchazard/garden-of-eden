@@ -2,7 +2,7 @@
   <table class="w-full">
     <thead>
       <tr class="*:px-4 text-center divide-x border-b-2 *:py-2">
-        <th class="!px-2">Rank</th>
+        <th class="px-2!">Rank</th>
         <th>Username</th>
         <th>Clicks</th>
       </tr>
@@ -16,7 +16,7 @@
         :class="{
           'bg-green-900 dark:bg-stone-700':
             user.username === data?.user?.username || user.username === '-1',
-          '!border-t-2': user.rank > 10,
+          'border-t-2!': user.rank > 10,
         }"
       >
         <td class="w-20">

@@ -70,7 +70,7 @@
       </div>
     </div>
     <div
-      class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
+      class="*:first:pl-0.5 *:last:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
       @click.stop
     >
       <span v-if="dragon.is_stunned" v-tooltip.bottom="`Stunned`">

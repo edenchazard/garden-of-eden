@@ -14,7 +14,7 @@
 
     <div
       v-if="!authData?.user"
-      class="!mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
+      class="mx-auto! flex gap-8 max-w-2xl items-center flex-col md:flex-row"
     >
       <div class="flex flex-col gap-y-4 items-center justify-center">
         <p>
@@ -57,7 +57,7 @@
 
     <form
       v-else-if="!authData.user.apiBlocked"
-      class="flex flex-col gap-y-4 *:mx-4 !mx-0"
+      class="flex flex-col gap-y-4 *:mx-4 mx-0!"
       @submit.prevent="saveScroll()"
     >
       <div class="space-y-2 *:max-w-prose order-1">
@@ -208,7 +208,7 @@
           </fieldset>
         </template>
 
-        <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
+        <div v-else class="order-2 contain-inline-size overflow-x-auto mx-0!">
           <ScrollTable
             class="transition-opacity w-full"
             :class="{
@@ -259,7 +259,7 @@
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
-        class="!mt-6 order-4"
+        class="mt-6! order-4"
         :dragons="scroll.dragons"
         :settings="userSettings"
         :fetch-scroll-status

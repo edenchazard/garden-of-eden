@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-screen-lg space-y-4 pt-2.5 pb-4 w-full">
+  <div class="max-w-(--breakpoint-lg) space-y-4 pt-2.5 pb-4 w-full">
     <WarningApiBlock v-if="authData?.user?.apiBlocked" />
 
     <div class="flex flex-col rounded-md">
@@ -102,7 +102,7 @@
             <span class="hidden min-[360px]:inline">&bull;</span>
             <button
               v-if="authData?.user"
-              class="underline-offset-4 underline !px-0 !shadow-none"
+              class="underline-offset-4 underline px-0! shadow-none!"
               type="button"
               @click="signOut()"
             >
@@ -112,7 +112,7 @@
             </button>
             <button
               v-else
-              class="underline-offset-4 underline !px-0 !shadow-none"
+              class="underline-offset-4 underline px-0! shadow-none!"
               type="button"
               @click="signIn('dragcave')"
             >
@@ -136,10 +136,10 @@
             v-if="authData?.user?.role === 'owner'"
             type="button"
             title="Clean"
-            class="border size-8 rounded-full !p-0 self-center"
+            class="border size-8 rounded-full p-0! self-center"
             @click="cleanUp()"
           >
-            <font-awesome-icon :icon="['fas', 'broom']" class="!mr-0" />
+            <font-awesome-icon :icon="['fas', 'broom']" class="mr-0!" />
           </button>
         </div>
         <div
