@@ -47,34 +47,6 @@
     @apply min-h-full flex text-white dark:text-stone-200;
   }
 
-  button {
-    @apply py-2 px-4 rounded-md dark:shadow-[inset_0px_0px_6px_-3px_#000];
-
-    & svg {
-      @apply mr-1.5;
-    }
-
-    &.btn-primary {
-      @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white;
-    }
-
-    &.btn-secondary {
-      @apply bg-emerald-500 dark:bg-rose-900 dark:text-white;
-    }
-
-    &.btn-danger {
-      @apply bg-red-500 dark:bg-red-900 dark:text-white;
-    }
-
-    &[class*='btn-'] {
-      @apply min-w-32;
-    }
-  }
-
-  .mint button.btn-primary {
-    @apply text-black dark:text-white;
-  }
-
   input:invalid {
     @apply ring-4 ring-red-500;
   }
@@ -136,5 +108,35 @@
   }
   main {
     @apply overflow-x-hidden;
+  }
+}
+
+@layer components {
+  button {
+    @apply py-2 px-4 rounded-md dark:shadow-[inset_0px_0px_6px_-3px_#000];
+
+    & svg {
+      @apply mr-1.5;
+    }
+
+    &.btn-primary {
+      @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white;
+    }
+
+    &.btn-secondary {
+      @apply bg-emerald-500 dark:bg-rose-900 dark:text-white;
+    }
+
+    &.btn-danger {
+      @apply bg-red-500 dark:bg-red-900 dark:text-white;
+    }
+
+    &[class*='btn-'] {
+      @apply min-w-32;
+    }
+  }
+
+  .mint button.btn-primary {
+    @apply text-black dark:text-white;
   }
 }
