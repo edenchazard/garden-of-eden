@@ -66,7 +66,7 @@ useScroll(
 </script>
 
 <style>
-.pinned-dragon-column {
+/* .pinned-dragon-column {
   @apply bg-inherit -left-[1px] sticky;
 
   &:not(.is-header) {
@@ -82,5 +82,5 @@ useScroll(
   & > div {
     @apply border-r-8 border-black/40;
   }
-}
+} */
 </style>

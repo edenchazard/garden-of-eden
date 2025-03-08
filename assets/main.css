@@ -7,6 +7,7 @@
   --font-nokiafc22: Nokia Cellphone FC;
 
   --animate-egg-bounce: egg-bounce 1.5s infinite;
+  --animate-glow: glow 1s ease-in-out forwards;
 
   @keyframes egg-bounce {
     0%,
@@ -21,6 +22,29 @@
     }
     60% {
       transform: translateY(-0.25rem);
+    }
+  }
+
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 0 0 var(--colour1);
+    }
+    50% {
+      box-shadow: 0px 0px 8px 1px var(--colour2);
+    }
+    100% {
+      box-shadow: 0 0 0 0 var(--colour1);
+    }
+  }
+
+  @keyframes matthias-roll {
+    0% {
+      opacity: 1;
+      transform: translateX(-100%) rotate(-90deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(100%) rotate(1080deg);
     }
   }
 }
@@ -84,7 +108,7 @@
   input[type='week'],
   input[type='color'],
   textarea {
-    @apply text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
+    @apply bg-white text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
   }
 
   input[type='checkbox'] {
@@ -157,6 +181,10 @@
   .mint button.btn-primary {
     @apply text-black dark:text-white;
   }
+
+  .quote {
+    @apply border-l-4 block pl-4;
+  }
 }
 
 @layer components {
@@ -175,6 +203,18 @@
 
     & p {
       @apply max-w-prose text-right;
+    }
+  }
+}
+
+@layer components {
+  .glow {
+    --colour1: rgba(0, 0, 0, 0.2);
+    --colour2: rgba(254, 240, 138, 0.8);
+
+    @variant dark {
+      --colour1: rgba(7, 89, 133, 0.2);
+      --colour2: rgba(7, 89, 133, 0.8);
     }
   }
 }

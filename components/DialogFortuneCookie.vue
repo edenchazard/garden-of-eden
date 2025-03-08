@@ -86,7 +86,7 @@ defineExpose({
 </script>
 
 <style scoped>
-.dialog[open] {
+/* .dialog[open] {
   animation: fade-in 0.5s ease-in-out;
 }
 
@@ -143,5 +143,5 @@ defineExpose({
   100% {
     opacity: 1;
   }
-}
+} */
 </style>
