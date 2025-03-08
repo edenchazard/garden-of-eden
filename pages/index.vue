@@ -66,6 +66,7 @@
           class="justify-items-center text-center grid items-center gap-x-4 mx-auto sm:grid-cols-[auto_1fr] sm:text-left sm:justify-items-start"
         >
           <NuxtPicture
+            class="row-span-2"
             loading="lazy"
             format="avif,webp"
             src="/illustrations/tinkering-in-the-garden.png"
@@ -73,7 +74,7 @@
             alt="Mint tinkering in the garden"
           />
           <p class="font-bold self-end">Aurrrr naurrr!!!</p>
-          <p>
+          <p class="col-start-2">
             There was an error trying to fetch your scroll. Whack that reload
             button and try again.
           </p>
@@ -84,7 +85,7 @@
             class="justify-items-center text-center grid items-center gap-x-4 mx-auto sm:grid-cols-[auto_1fr] sm:text-left sm:justify-items-start"
           >
             <NuxtPicture
-              class="sm:row-span-2"
+              class="row-span-2"
               loading="lazy"
               format="avif,webp"
               src="/illustrations/lost-at-sea.png"
@@ -92,7 +93,7 @@
               alt="Matthias fishing for eggs"
             />
             <p class="font-bold self-end">It's a bit empty here.</p>
-            <p>
+            <p class="col-start-2">
               It looks like you've got no dragons! Time to hit up that cave and
               go get some! Or, sit and fish with Matthias.
             </p>
