@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -22,11 +23,8 @@ export default defineNuxtConfig({
     ],
   ],
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
+  vite: {
+    plugins: [tailwindcss()],
   },
   app: {
     baseURL: process.env.BASE_URL,

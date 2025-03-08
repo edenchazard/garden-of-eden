@@ -10,9 +10,9 @@
           follow it and find yourself at a small building surrounded by a vast
           clearing.
         </p>
-        <q>Pssst!</q>
+        <q class="quote">Pssst!</q>
         <p>A voice calls to you from inside.</p>
-        <q>Come on in!</q>
+        <q class="quote">Come on in!</q>
         <p>
           Inside, a small mint dragon tumbles from the shelves and lands in
           front of you, propped up against the counter.
@@ -20,10 +20,12 @@
         <img
           :src="`${path}/npc/matthias.webp`"
           alt="Matthias the mint dragon"
-          class="matthias opacity-0"
+          class="opacity-0 animate-[matthias-roll_2s_ease-in-out_forwards_1s]"
           height="34"
         />
-        <q>My name is Matthias, I'm a humble businessmint. Pardon the mess.</q>
+        <q class="quote"
+          >My name is Matthias, I'm a humble businessmint. Pardon the mess.</q
+        >
         <p>
           The mighty Matthias of the business world looks you up and down
           <i class="italic">(as best as he can anyway, he's not very tall)</i>,
@@ -31,7 +33,7 @@
           get the most of your Dragon Dollars.
         </p>
         <p>The brief and unnerving silence concludes...</p>
-        <q>Now then, let's get right to business.</q>
+        <q class="quote">Now then, let's get right to business.</q>
         <p>You never even asked, and yet he's going to tell you anyway.</p>
         (<NuxtLink class="text-sm italic" to="#policy"
           >Terms and Conditions apply, please see Matthias' purchase
@@ -118,7 +120,7 @@
 
     <section v-if="data.limited.length > 0" id="limited">
       <h3>Limited stock</h3>
-      <q class="max-w-prose"
+      <q class="max-w-prose quote"
         >These won't be around for long, so make sure to use them while you
         can.</q
       >
@@ -140,7 +142,7 @@
 
     <section id="regular">
       <h3>Regular stock</h3>
-      <q class="max-w-prose"
+      <q class="max-w-prose quote"
         >I can sell you these at any time. Some are expensive, but well worth
         the money.</q
       >
@@ -331,31 +333,3 @@ function formatItemText(item: Item) {
   return formatters[item.name] ?? ((text: string) => text);
 }
 </script>
-
-<style scoped>
-q {
-  @apply border-l-4 block pl-4;
-}
-
-.matthias {
-  animation: animate-roll 2s ease-in-out forwards 1s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .matthias {
-    animation: none;
-    opacity: 1;
-  }
-}
-
-@keyframes animate-roll {
-  0% {
-    opacity: 1;
-    transform: translateX(-100%) rotate(-90deg);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(100%) rotate(1080deg);
-  }
-}
-</style>

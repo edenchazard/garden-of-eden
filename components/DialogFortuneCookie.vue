@@ -1,7 +1,7 @@
 <template>
   <dialog
     ref="fortuneDialog"
-    class="dialog p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 shadow-xl"
+    class="m-auto p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 shadow-xl open:animate-[fade-in_0.5s_ease-in-out] [&_a]:text-green-950"
     @close="unveiledCookie = false"
   >
     <header>
@@ -10,7 +10,7 @@
 
     <main class="space-y-4">
       <img
-        class="mx-auto my-12 glow rounded-full"
+        class="mx-auto my-12 animate-[glow_3s_ease-in-out_infinite] glow rounded-full motion-reduce:opacity-1"
         :src="`${path}/items/fortune-cookie.webp`"
         alt="Fortune Cookie"
       />
@@ -32,7 +32,7 @@
       <template v-else>
         <div class="overflow-hidden fortune relative">
           <div
-            class="w-full absolute right-0 h-full fortune-cover bg-green-100 dark:bg-stone-200"
+            class="w-full absolute right-0 h-full bg-green-100 dark:bg-stone-200 animate-[unveil_5s_ease-in-out_forwards_1s] motion-reduce:animate-none motion-reduce:w-0 motion-reduce:opacity-1"
           />
           <q
             class="block px-4 py-2 bg-orange-300 text-black italic text-center sm:px-8"
@@ -84,64 +84,3 @@ defineExpose({
   },
 });
 </script>
-
-<style scoped>
-.dialog[open] {
-  animation: fade-in 0.5s ease-in-out;
-}
-
-.dialog a {
-  @apply text-green-950;
-}
-
-.fortune-cover {
-  animation: unveil 5s ease-in-out forwards;
-  animation-delay: 1s;
-}
-
-.glow {
-  animation: animate-glow 3s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fortune-cover {
-    animation: none;
-    width: 0%;
-  }
-
-  .fortune-cover,
-  .glow {
-    opacity: 1;
-  }
-}
-
-@keyframes animate-glow {
-  0% {
-    box-shadow: 0px 0px 34px 20px rgba(255, 189, 46, 0.7);
-  }
-  50% {
-    box-shadow: 0px 0px 34px 20px rgba(255, 189, 46, 1);
-  }
-  100% {
-    box-shadow: 0px 0px 34px 20px rgba(255, 189, 46, 0.7);
-  }
-}
-
-@keyframes unveil {
-  0% {
-    width: 100%;
-  }
-  100% {
-    width: 0%;
-  }
-}
-
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-</style>

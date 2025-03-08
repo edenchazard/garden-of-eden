@@ -3,7 +3,9 @@
     <div
       class="rounded-md"
       :class="{
-        glow: recentlyAdded.includes(dragon.id),
+        'animate-glow glow motion-reduce:animate-none': recentlyAdded.includes(
+          dragon.id
+        ),
       }"
       @animationend="$emit('glowFinished')"
     >
@@ -70,7 +72,7 @@
       </div>
     </div>
     <div
-      class="first:*:pl-0.5 last:*:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
+      class="*:first:pl-0.5 *:last:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
       @click.stop
     >
       <span v-if="dragon.is_stunned" v-tooltip.bottom="`Stunned`">
@@ -136,36 +138,3 @@ defineProps<{
 
 const dragon = defineModel<ScrollView>({ required: true });
 </script>
-
-<style scoped>
-.glow {
-  animation: glow 1s ease-in-out forwards;
-  --colour1: rgba(0, 0, 0, 0.2);
-  --colour2: rgba(254, 240, 138, 0.8);
-}
-
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 0 0 var(--colour1);
-  }
-  50% {
-    box-shadow: 0px 0px 8px 1px var(--colour2);
-  }
-  100% {
-    box-shadow: 0 0 0 0 var(--colour1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .glow {
-    animation: none;
-  }
-}
-</style>
-
-<style>
-.dark .glow {
-  --colour1: rgba(7, 89, 133, 0.2);
-  --colour2: rgba(7, 89, 133, 0.8);
-}
-</style>

@@ -16,7 +16,7 @@
         <li>
           {{ Intl.NumberFormat().format(personalStats.clicked_24) }} unique
           dragons clicked in the last 24 hours.<sup
-            ><a href="#personal-1" class="!decoration-transparent ml-2"
+            ><a href="#personal-1" class="decoration-transparent! ml-2"
               >[1]</a
             ></sup
           >
@@ -846,23 +846,3 @@ function rgbAlpha(colour: [number, number, number], a: number = 1) {
   return `rgba(${colour.join(',')},${a})`;
 }
 </script>
-
-<style scoped lang="postcss">
-.graph {
-  & div {
-    @apply p-3 border border-green-300 dark:border-stone-700 bg-black/25;
-  }
-
-  & canvas {
-    user-select: none;
-  }
-
-  & figcaption {
-    @apply text-xs italic mt-2 flex justify-end;
-  }
-
-  & p {
-    @apply max-w-prose text-right;
-  }
-}
-</style>

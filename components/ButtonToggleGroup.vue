@@ -1,7 +1,7 @@
 <template>
   <div
     role="radiogroup"
-    class="isolate flex rounded-md shadow-sm overflow-hidden ring-1 ring-white"
+    class="isolate flex rounded-md shadow-xs overflow-hidden ring-1 ring-white"
   >
     <button
       v-for="button in buttons"

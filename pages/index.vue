@@ -14,7 +14,7 @@
 
     <div
       v-if="!authData?.user"
-      class="!mx-auto flex gap-8 max-w-2xl items-center flex-col md:flex-row"
+      class="mx-auto! flex gap-8 max-w-2xl items-center flex-col md:flex-row"
     >
       <div class="flex flex-col gap-y-4 items-center justify-center">
         <p>
@@ -57,7 +57,7 @@
 
     <form
       v-else-if="!authData.user.apiBlocked"
-      class="flex flex-col gap-y-4 *:mx-4 !mx-0"
+      class="flex flex-col gap-y-4 *:mx-4 mx-0!"
       @submit.prevent="saveScroll()"
     >
       <div class="space-y-2 *:max-w-prose order-1">
@@ -66,6 +66,7 @@
           class="justify-items-center text-center grid items-center gap-x-4 mx-auto sm:grid-cols-[auto_1fr] sm:text-left sm:justify-items-start"
         >
           <NuxtPicture
+            class="row-span-2"
             loading="lazy"
             format="avif,webp"
             src="/illustrations/tinkering-in-the-garden.png"
@@ -73,7 +74,7 @@
             alt="Mint tinkering in the garden"
           />
           <p class="font-bold self-end">Aurrrr naurrr!!!</p>
-          <p>
+          <p class="col-start-2">
             There was an error trying to fetch your scroll. Whack that reload
             button and try again.
           </p>
@@ -84,7 +85,7 @@
             class="justify-items-center text-center grid items-center gap-x-4 mx-auto sm:grid-cols-[auto_1fr] sm:text-left sm:justify-items-start"
           >
             <NuxtPicture
-              class="sm:row-span-2"
+              class="row-span-2"
               loading="lazy"
               format="avif,webp"
               src="/illustrations/lost-at-sea.png"
@@ -92,7 +93,7 @@
               alt="Matthias fishing for eggs"
             />
             <p class="font-bold self-end">It's a bit empty here.</p>
-            <p>
+            <p class="col-start-2">
               It looks like you've got no dragons! Time to hit up that cave and
               go get some! Or, sit and fish with Matthias.
             </p>
@@ -208,7 +209,7 @@
           </fieldset>
         </template>
 
-        <div v-else class="order-2 contain-inline-size overflow-x-auto !mx-0">
+        <div v-else class="order-2 contain-inline-size overflow-x-auto mx-0!">
           <ScrollTable
             class="transition-opacity w-full"
             :class="{
@@ -259,7 +260,7 @@
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
-        class="!mt-6 order-4"
+        class="mt-6! order-4"
         :dragons="scroll.dragons"
         :settings="userSettings"
         :fetch-scroll-status
