@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4 px-4">
     <h1>Share</h1>
-    <div class="space-y-4 [&_p]:max-w-prose [&_h2]:-mb-4!">
+    <div class="space-y-2 [&_p]:max-w-prose">
       <p>
         Like any public garden, if you want visitors, you've got to advertise.
       </p>
