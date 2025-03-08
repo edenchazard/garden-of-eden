@@ -1,70 +1,6 @@
 @import 'tailwindcss';
 @import './form.css';
 
-@custom-variant dark (&:is(.dark *));
-
-@theme {
-  --font-alkhemikal: Alkhemikal;
-  --font-nokiafc22: Nokia Cellphone FC;
-}
-
-@keyframes unveil {
-  0% {
-    width: 100%;
-  }
-  100% {
-    width: 0%;
-  }
-}
-
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes egg-bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-0.4rem);
-  }
-  60% {
-    transform: translateY(-0.25rem);
-  }
-}
-
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 34px 20px var(--colour1);
-  }
-  50% {
-    box-shadow: 0 0 34px 20px var(--colour2);
-  }
-  100% {
-    box-shadow: 0 0 34px 20px var(--colour1);
-  }
-}
-
-@keyframes matthias-roll {
-  0% {
-    opacity: 1;
-    transform: translateX(-100%) rotate(-90deg);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(100%) rotate(1080deg);
-  }
-}
-
 @font-face {
   font-family: 'Alkhemikal';
   src: url('/public/fonts/Alkhemikal.ttf') format('truetype');
@@ -74,6 +10,13 @@
   font-family: 'Nokia Cellphone FC';
   src: url('/public/fonts/nokiafc22.ttf') format('truetype');
   size-adjust: 80%;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-alkhemikal: Alkhemikal;
+  --font-nokiafc22: Nokia Cellphone FC;
 }
 
 /*
@@ -212,5 +155,62 @@
       --colour1: rgba(7, 89, 133, 0.2);
       --colour2: rgba(7, 89, 133, 0.8);
     }
+  }
+}
+
+@keyframes unveil {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes egg-bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-0.4rem);
+  }
+  60% {
+    transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 34px 20px var(--colour1);
+  }
+  50% {
+    box-shadow: 0 0 34px 20px var(--colour2);
+  }
+  100% {
+    box-shadow: 0 0 34px 20px var(--colour1);
+  }
+}
+
+@keyframes matthias-roll {
+  0% {
+    opacity: 1;
+    transform: translateX(-100%) rotate(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(100%) rotate(1080deg);
   }
 }
