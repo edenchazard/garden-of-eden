@@ -6,47 +6,62 @@
 @theme {
   --font-alkhemikal: Alkhemikal;
   --font-nokiafc22: Nokia Cellphone FC;
+}
 
-  --animate-egg-bounce: egg-bounce 1.5s infinite;
-  --animate-glow: glow 1s ease-in-out forwards;
-
-  @keyframes egg-bounce {
-    0%,
-    20%,
-    50%,
-    80%,
-    100% {
-      transform: translateY(0);
-    }
-    40% {
-      transform: translateY(-0.4rem);
-    }
-    60% {
-      transform: translateY(-0.25rem);
-    }
+@keyframes unveil {
+  0% {
+    width: 100%;
   }
-
-  @keyframes glow {
-    0% {
-      box-shadow: 0 0 0 0 var(--colour1);
-    }
-    50% {
-      box-shadow: 0px 0px 8px 1px var(--colour2);
-    }
-    100% {
-      box-shadow: 0 0 0 0 var(--colour1);
-    }
+  100% {
+    width: 0%;
   }
+}
 
-  @keyframes matthias-roll {
-    0% {
-      opacity: 1;
-      transform: translateX(-100%) rotate(-90deg);
-    }
-    100% {
-      opacity: 1;
-      transform: translate(100%) rotate(1080deg);
-    }
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes egg-bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-0.4rem);
+  }
+  60% {
+    transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 0 0 var(--colour1);
+  }
+  50% {
+    box-shadow: 0px 0px 8px 1px var(--colour2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--colour1);
+  }
+}
+
+@keyframes matthias-roll {
+  0% {
+    opacity: 1;
+    transform: translateX(-100%) rotate(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(100%) rotate(1080deg);
   }
 }
 
@@ -59,10 +74,6 @@
   font-family: 'Nokia Cellphone FC';
   src: url('/public/fonts/nokiafc22.ttf') format('truetype');
   size-adjust: 80%;
-}
-
-#__nuxt {
-  @apply flex-1 flex flex-col items-center bg-green-800 dark:bg-neutral-950;
 }
 
 /*
@@ -88,6 +99,10 @@
 
   body {
     @apply min-h-full flex text-white dark:text-stone-200;
+  }
+
+  #__nuxt {
+    @apply flex-1 flex flex-col items-center bg-green-800 dark:bg-neutral-950;
   }
 
   main {
@@ -128,6 +143,10 @@
       @apply mr-1.5;
     }
 
+    &[class*='btn-'] {
+      @apply min-w-32;
+    }
+
     &.btn-primary {
       @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white;
     }
@@ -138,10 +157,6 @@
 
     &.btn-danger {
       @apply bg-red-500 dark:bg-red-900 dark:text-white;
-    }
-
-    &[class*='btn-'] {
-      @apply min-w-32;
     }
   }
 }
@@ -157,7 +172,7 @@
     }
 
     & canvas {
-      user-select: none;
+      @apply select-none;
     }
 
     & figcaption {
@@ -166,6 +181,24 @@
 
     & p {
       @apply max-w-prose text-right;
+    }
+  }
+
+  .pinned-dragon-column {
+    @apply bg-inherit -left-[1px] sticky;
+
+    &:not(.is-header) {
+      @apply !p-0;
+    }
+
+    & > div {
+      @apply py-2 px-3;
+    }
+  }
+
+  .has-pinned-scroll .pinned-dragon-column {
+    & > div {
+      @apply border-r-8 border-black/40;
     }
   }
 }

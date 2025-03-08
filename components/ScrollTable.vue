@@ -64,23 +64,3 @@ useScroll(
   }
 );
 </script>
-
-<style>
-/* .pinned-dragon-column {
-  @apply bg-inherit -left-[1px] sticky;
-
-  &:not(.is-header) {
-    @apply !p-0;
-  }
-
-  & > div {
-    @apply py-2 px-3;
-  }
-}
-
-.has-pinned-scroll .pinned-dragon-column {
-  & > div {
-    @apply border-r-8 border-black/40;
-  }
-} */
-</style>
