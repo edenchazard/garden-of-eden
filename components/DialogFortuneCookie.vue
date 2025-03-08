@@ -1,7 +1,7 @@
 <template>
   <dialog
     ref="fortuneDialog"
-    class="dialog p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 shadow-xl open:animate-[fade-in_0.5s_ease-in-out] [&_a]:text-green-950"
+    class="m-auto p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 shadow-xl open:animate-[fade-in_0.5s_ease-in-out] [&_a]:text-green-950"
     @close="unveiledCookie = false"
   >
     <header>
@@ -10,7 +10,7 @@
 
     <main class="space-y-4">
       <img
-        class="mx-auto my-12 animate-[glow_1s_ease-in-out_forwards] rounded-full motion-reduce:opacity-1"
+        class="mx-auto my-12 animate-[glow_3s_ease-in-out_infinite] glow rounded-full motion-reduce:opacity-1"
         :src="`${path}/items/fortune-cookie.webp`"
         alt="Fortune Cookie"
       />

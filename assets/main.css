@@ -44,13 +44,13 @@
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 0 0 var(--colour1);
+    box-shadow: 0 0 34px 20px var(--colour1);
   }
   50% {
-    box-shadow: 0px 0px 8px 1px var(--colour2);
+    box-shadow: 0 0 34px 20px var(--colour2);
   }
   100% {
-    box-shadow: 0 0 0 0 var(--colour1);
+    box-shadow: 0 0 34px 20px var(--colour1);
   }
 }
 
@@ -137,7 +137,7 @@
 
 @layer components {
   button {
-    @apply py-2 px-4 rounded-md dark:shadow-[inset_0px_0px_6px_-3px_#000];
+    @apply py-2 px-4 rounded-md dark:shadow-[inset_0px_0px_6px_-3px_var(--color-black)] cursor-pointer;
 
     & svg {
       @apply mr-1.5;
@@ -205,7 +205,7 @@
 
 @layer components {
   .glow {
-    --colour1: rgba(0, 0, 0, 0.2);
+    --colour1: rgba(0, 0, 0, 0);
     --colour2: rgba(254, 240, 138, 0.8);
 
     @variant dark {
