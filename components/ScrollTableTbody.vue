@@ -1,6 +1,6 @@
 <template>
   <tbody>
-    <tr class="*:bg-green-600 dark:*:bg-neutral-900">
+    <tr class="dark:*:bg-neutral-900">
       <td class="pinned-dragon-column is-header text-sm font-bold pl-2 py-2">
         {{ header }}
       </td>
