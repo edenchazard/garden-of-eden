@@ -130,8 +130,13 @@
   }
 }
 
+@utility glow-subtlety-* {
+  --glow-subtlety: calc(--value(integer) * 1px);
+}
+
 @layer components {
   .glow {
+    --glow-subtlety: 34px;
     --colour1: rgba(0, 0, 0, 0);
     --colour2: rgba(254, 240, 138, 0.8);
 
@@ -178,13 +183,16 @@
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 34px 20px var(--colour1);
+    box-shadow: 0 0 var(--glow-subtlety) calc(var(--glow-subtlety) / 5)
+      var(--colour1);
   }
   50% {
-    box-shadow: 0 0 34px 20px var(--colour2);
+    box-shadow: 0 0 var(--glow-subtlety) calc(var(--glow-subtlety) / 5)
+      var(--colour2);
   }
   100% {
-    box-shadow: 0 0 34px 20px var(--colour1);
+    box-shadow: 0 0 var(--glow-subtlety) calc(var(--glow-subtlety) / 5)
+      var(--colour1);
   }
 }
 

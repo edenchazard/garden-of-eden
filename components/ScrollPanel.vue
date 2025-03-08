@@ -3,9 +3,8 @@
     <div
       class="rounded-md"
       :class="{
-        'animate-glow glow motion-reduce:animate-none': recentlyAdded.includes(
-          dragon.id
-        ),
+        'animate-[glow_1.5s_forwards] glow-subtlety-12 glow motion-reduce:animate-none':
+          recentlyAdded.includes(dragon.id),
       }"
       @animationend="$emit('glowFinished')"
     >
