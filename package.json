@@ -42,7 +42,7 @@
     "mysql2": "^3.11.0",
     "next-auth": "^4.21.1",
     "node-webpmux": "^3.2.0",
-    "nuxt": "^3.14.159",
+    "nuxt": "^3.16.0",
     "nuxt-security": "^2.1.1",
     "ofetch": "^1.4.1",
     "sharp": "^0.33.5",
