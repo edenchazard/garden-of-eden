@@ -16,9 +16,9 @@
     "ts:check": "nuxi typecheck",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "dev:docker": "docker-compose -f docker-compose.dev.yml up",
-    "dev:docker:cleanup": "docker-compose down --rmi all --remove-orphans",
-    "dev:docker:cleanup:all": "docker-compose down --rmi all --volumes --remove-orphans",
+    "dev:docker": "docker compose -f docker-compose.dev.yml up",
+    "dev:docker:cleanup": "docker compose down --rmi all --remove-orphans",
+    "dev:docker:cleanup:all": "docker compose down --rmi all --volumes --remove-orphans",
     "dev:docker:migrate": "docker compose exec hatchery bash -c 'npm run db:migrate'"
   },
   "dependencies": {
