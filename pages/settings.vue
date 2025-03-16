@@ -190,7 +190,7 @@ import { userSettingsSchema } from '~/database/schema';
 import { formatHoursLeft } from '#imports';
 
 definePageMeta({
-  middleware: 'auth',
+  middleware: 'sidebase-auth',
 });
 
 useHead({
