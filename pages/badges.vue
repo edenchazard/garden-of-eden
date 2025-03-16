@@ -50,7 +50,7 @@ import { DateTime } from 'luxon';
 import ItemPanel from '~/components/ItemPanel.vue';
 
 definePageMeta({
-  middleware: 'auth',
+  middleware: 'sidebase-auth',
 });
 
 useHead({

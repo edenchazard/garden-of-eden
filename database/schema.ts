@@ -10,9 +10,9 @@ import {
   mysqlTable,
   smallint,
   tinyint,
-  unique,
   varchar,
   text,
+  uniqueIndex,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
 import type { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
@@ -40,11 +40,7 @@ export const userTable = mysqlTable(
     }),
     apiBlocked: boolean('api_blocked').notNull().default(false),
   },
-  (table) => {
-    return {
-      last_activityId: index('last_activity_idx').on(table.last_activity),
-    };
-  }
+  (table) => [index('last_activity_idx').on(table.last_activity)]
 );
 
 export const userSettingsTable = mysqlTable('user_settings', {
@@ -120,15 +116,10 @@ export const hatcheryTable = mysqlTable(
     is_incubated: boolean('is_incubated').notNull().default(false),
     is_stunned: boolean('is_stunned').notNull().default(false),
   },
-  (table) => {
-    return {
-      in_seed_trayIdx: index('in_seed_tray_idx').on(
-        table.in_seed_tray,
-        table.user_id
-      ),
-      in_gardenIdx: index('in_garden_idx').on(table.in_garden, table.user_id),
-    };
-  }
+  (table) => [
+    index('in_seed_tray_idx').on(table.in_seed_tray, table.user_id),
+    index('in_garden_idx').on(table.in_garden, table.user_id),
+  ]
 );
 
 export const recordingsTable = mysqlTable(
@@ -178,12 +169,10 @@ export const recordingsTable = mysqlTable(
       .notNull()
       .default({}),
   },
-  (table) => {
-    return {
-      recorded_onIdx: index('recorded_on_idx').on(table.recorded_on),
-      record_typeIdx: index('record_type_idx').on(table.record_type),
-    };
-  }
+  (table) => [
+    index('recorded_on_idx').on(table.recorded_on),
+    index('record_type_idx').on(table.record_type),
+  ]
 );
 
 export const clicksTable = mysqlTable(
@@ -203,19 +192,11 @@ export const clicksTable = mysqlTable(
       .notNull()
       .default(sql`NOW()`),
   },
-  (table) => {
-    return {
-      hatchery_id_user_idIdx: unique('hatchery_id_user_id_idx').on(
-        table.hatchery_id,
-        table.user_id
-      ),
-      user_id_clicked_onIdx: index('user_id_clicked_on_idx').on(
-        table.user_id,
-        table.clicked_on
-      ),
-      clicked_onIdx: index('clicked_on_idx').on(table.clicked_on),
-    };
-  }
+  (table) => [
+    uniqueIndex('hatchery_id_user_id_idx').on(table.hatchery_id, table.user_id),
+    index('user_id_clicked_on_idx').on(table.user_id, table.clicked_on),
+    index('clicked_on_idx').on(table.clicked_on),
+  ]
 );
 
 export const clicksLeaderboardTable = mysqlTable(
@@ -238,16 +219,14 @@ export const clicksLeaderboardTable = mysqlTable(
       .notNull()
       .default(0),
   },
-  (table) => {
-    return {
-      clicks_givenIdx: index('clicks_given_idx').on(table.clicks_given),
-      leaderboard_start_user_idIdx: unique('leaderboard_start_user_idIdx').on(
-        table.leaderboard,
-        table.start,
-        table.user_id
-      ),
-    };
-  }
+  (table) => [
+    index('clicks_given_idx').on(table.clicks_given),
+    uniqueIndex('leaderboard_start_user_idIdx').on(
+      table.leaderboard,
+      table.start,
+      table.user_id
+    ),
+  ]
 );
 
 export const itemsTable = mysqlTable('items', {
@@ -364,35 +343,24 @@ export const userTrophiesTable = mysqlTable(
       .notNull(),
     awardedOn: datetime('awarded_on', { mode: 'date' }).notNull(),
   },
-  (table) => {
-    return {
-      user_id_awarded_onIdx: index('user_id_awarded_on_idx').on(
-        table.userId,
-        table.awardedOn
-      ),
-    };
-  }
+  (table) => [index('user_id_awarded_on_idx').on(table.userId, table.awardedOn)]
 );
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
-  gardenFrequency: (schema) =>
-    schema.gardenFrequency.min(15).max(300).default(30),
-  gardenPerPage: (schema) => schema.gardenPerPage.min(10).max(500).default(500),
-  seedTrayFrequency: (schema) =>
-    schema.seedTrayFrequency.min(15).max(300).default(30),
-  seedTrayPerPage: (schema) =>
-    schema.seedTrayPerPage.min(10).max(500).default(200),
-  sort: (schema) => schema.sort.default('Youngest First'),
-  scrollLayout: (schema) => schema.scrollLayout.default('card'),
-  hatchlingMinAge: (schema) => schema.hatchlingMinAge.max(72).min(0).default(0),
-  eggMinAge: (schema) => schema.eggMinAge.max(72).min(0).default(0),
-  showScrollRatio: (schema) => schema.showScrollRatio.default(true),
-  autoSeedTray: (schema) => schema.autoSeedTray.default(true),
-  siteName: (schema) => schema.siteName.default('Eden'),
-  highlightClickedDragons: (schema) =>
-    schema.highlightClickedDragons.default(true),
-  anonymiseStatistics: (schema) => schema.anonymiseStatistics.default(false),
-  flair_id: (schema) => schema.flair_id.nullable().default(null),
-  sectionOrder: (schema) => schema.sectionOrder.default('hatchlings,eggs'),
-  bubblewrap: (schema) => schema.bubblewrap.default(false),
+  gardenFrequency: (schema) => schema.min(15).max(300).default(30),
+  gardenPerPage: (schema) => schema.min(10).max(500).default(500),
+  seedTrayFrequency: (schema) => schema.min(15).max(300).default(30),
+  seedTrayPerPage: (schema) => schema.min(10).max(500).default(200),
+  sort: (schema) => schema.default('Youngest First'),
+  scrollLayout: (schema) => schema.default('card'),
+  hatchlingMinAge: (schema) => schema.max(72).min(0).default(0),
+  eggMinAge: (schema) => schema.max(72).min(0).default(0),
+  showScrollRatio: (schema) => schema.default(true),
+  autoSeedTray: (schema) => schema.default(true),
+  siteName: (schema) => schema.default('Eden'),
+  highlightClickedDragons: (schema) => schema.default(true),
+  anonymiseStatistics: (schema) => schema.default(false),
+  flair_id: (schema) => schema.nullable().default(null),
+  sectionOrder: (schema) => schema.default('hatchlings,eggs'),
+  bubblewrap: (schema) => schema.default(false),
 }).omit({ user_id: true, flair_id: true });

@@ -146,9 +146,7 @@ export default defineNuxtConfig({
     runOnInit: false,
     jobsDir: 'cron',
   },
-  robots: {
-    disallow: ['/api', '/view'],
-  },
+  robots: { disallow: ['/api', '/view'] },
   security: {
     removeLoggers: false,
     rateLimiter: false,
