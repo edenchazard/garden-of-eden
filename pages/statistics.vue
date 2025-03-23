@@ -78,7 +78,7 @@
               <figure id="daily-totals-for-week">
                 <div class="h-[5rem]">
                   <Bar
-                    :key="`daily-totals-${redrawTrigger}`"
+                    :key="`daily-totals-chart-${redrawTrigger}`"
                     class="w-full"
                     :data="weeklyDailyTotals"
                     :options="{
@@ -106,6 +106,9 @@
                             ticks: {
                               display: false,
                             },
+                          },
+                          title: {
+                            display: false,
                           },
                         },
                       },
@@ -252,7 +255,10 @@
         </div>
       </section>
 
-      <section class="[&_figure]:mt-4">
+      <section
+        :key="`hatchery-charts-${redrawTrigger}`"
+        class="[&_figure]:mt-4"
+      >
         <h2>Hatchery</h2>
         <p class="max-w-prose">
           Visibility of individual datasets can be toggled by clicking the
@@ -261,7 +267,6 @@
         <figure id="hatchery" class="graph">
           <div class="h-[31rem]">
             <Line
-              :key="`hatchery-${redrawTrigger}`"
               :data="dragons"
               class="w-full"
               :options="{
@@ -310,7 +315,6 @@
         <figure id="soil-composition" class="graph">
           <div class="h-[40rem]">
             <Line
-              :key="`composition-${redrawTrigger}`"
               :data="soilComposition"
               class="w-full"
               :options="{
@@ -342,7 +346,6 @@
         <figure id="hatchling-gender" class="graph">
           <div class="h-[30rem]">
             <Line
-              :key="`gender-${redrawTrigger}`"
               :data="hatchlingGenderRatio"
               class="w-full"
               :options="{
@@ -368,7 +371,6 @@
         <figure id="cb-vs-lineaged" class="graph">
           <div class="h-[30rem]">
             <Line
-              :key="`cb-vs-lineaged-${redrawTrigger}`"
               :data="cbVsLineaged"
               class="w-full"
               :options="{
@@ -390,7 +392,6 @@
         <figure id="gardener-activity" class="graph">
           <div class="h-[20rem]">
             <Line
-              :key="`user-activity-${redrawTrigger}`"
               class="w-full"
               :data="userActivity"
               :options="{
@@ -418,7 +419,6 @@
         <figure id="api-requests" class="graph">
           <div class="h-[20rem]">
             <Bar
-              :key="`api-requests-${redrawTrigger}`"
               class="w-full"
               :data="apiRequests"
               :options="{
@@ -512,6 +512,7 @@ const cbVsLineaged = ref<ChartData<'line'>>(defaultChart);
 const apiRequests = ref<ChartData<'bar'>>(defaultChart);
 
 const { userSettings } = useUserSettings();
+const { data } = useAuth();
 
 const { data: personalStats } = await useFetch('/api/user/statistics', {
   watch: false,
@@ -547,8 +548,6 @@ const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
     clicksGiven: 0,
   }),
 });
-
-const { data } = useAuth();
 
 const colourPalette = computed(() => {
   function chartColourPalette(palette: string) {
@@ -605,6 +604,23 @@ const defaultChartOptions: ChartOptions<'line' | 'bar'> = {
       },
     },
     x: {
+      title: {
+        display: true,
+        align: 'start',
+        font: {
+          size: 11,
+        },
+        // @ts-expect-error It absolutely does exist.
+        text() {
+          const dragCaveTime = DateTime.now().setZone('America/New_York');
+          const localTime = DateTime.now();
+          const offset = (dragCaveTime.offset - localTime.offset) / 60;
+          if (offset === 0) {
+            return `Time (${dragCaveTime.toFormat('ZZZZ')})`;
+          }
+          return `Time (${dragCaveTime.toFormat('ZZZZ')}${offset > 0 ? '+' : ''}${offset})`;
+        },
+      },
       type: 'time',
       time: {
         unit: 'hour',
