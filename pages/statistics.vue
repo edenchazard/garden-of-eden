@@ -107,6 +107,9 @@
                               display: false,
                             },
                           },
+                          title: {
+                            display: false,
+                          },
                         },
                       },
                       plugins: {
@@ -509,6 +512,7 @@ const cbVsLineaged = ref<ChartData<'line'>>(defaultChart);
 const apiRequests = ref<ChartData<'bar'>>(defaultChart);
 
 const { userSettings } = useUserSettings();
+const { data } = useAuth();
 
 const { data: personalStats } = await useFetch('/api/user/statistics', {
   watch: false,
@@ -544,8 +548,6 @@ const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
     clicksGiven: 0,
   }),
 });
-
-const { data } = useAuth();
 
 const colourPalette = computed(() => {
   function chartColourPalette(palette: string) {
@@ -602,6 +604,23 @@ const defaultChartOptions: ChartOptions<'line' | 'bar'> = {
       },
     },
     x: {
+      title: {
+        display: true,
+        align: 'start',
+        font: {
+          size: 11,
+        },
+        // @ts-expect-error It absolutely does exist.
+        text() {
+          const dragCaveTime = DateTime.now().setZone('America/New_York');
+          const localTime = DateTime.now();
+          const offset = (dragCaveTime.offset - localTime.offset) / 60;
+          if (offset === 0) {
+            return `Time (${dragCaveTime.toFormat('ZZZZ')})`;
+          }
+          return `Time (${dragCaveTime.toFormat('ZZZZ')}${offset > 0 ? '+' : ''}${offset})`;
+        },
+      },
       type: 'time',
       time: {
         unit: 'hour',
