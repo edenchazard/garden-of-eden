@@ -405,7 +405,6 @@ const {
     }))
   ),
   onResponse({ response }) {
-    console.log(response);
     if (!response.ok) {
       toast.error('Failed to save your scroll. Please try again.');
       return;
