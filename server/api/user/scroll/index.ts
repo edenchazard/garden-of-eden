@@ -1,7 +1,12 @@
 import { getToken, getServerSession } from '#auth';
-import { and, eq, gt, inArray, not, notInArray, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, not, notInArray, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import { clicksTable, hatcheryTable, userTable } from '~/database/schema';
+import {
+  clicksTable,
+  hatcheryTable,
+  userNotificationsTable,
+  userTable,
+} from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 import { isIncubated, isStunned } from '~/utils/calculations';
@@ -87,30 +92,49 @@ export default defineEventHandler(async (event) => {
   const startOfToday = new Date();
   startOfToday.setDate(startOfToday.getDate() - 1);
 
-  const [[{ clicks_today: clicksToday }], usersDragonsInHatchery] =
-    await Promise.all([
-      db
-        .select({ clicks_today: sql<number>`COUNT(*)`.as('clicks_today') })
-        .from(clicksTable)
-        .where(
-          and(
-            inArray(clicksTable.hatchery_id, alive),
-            gt(clicksTable.clicked_on, startOfToday)
-          )
-        ),
-      db
-        .select({
-          id: hatcheryTable.id,
-          in_garden: hatcheryTable.in_garden,
-          in_seed_tray: hatcheryTable.in_seed_tray,
-          is_incubated: hatcheryTable.is_incubated,
-          is_stunned: hatcheryTable.is_stunned,
-        })
-        .from(hatcheryTable)
-        .where(eq(hatcheryTable.user_id, token.userId)),
-    ]);
+  const [
+    [{ clicks_today: clicksToday }],
+    usersDragonsInHatchery,
+    [releaseNotification],
+  ] = await Promise.all([
+    db
+      .select({ clicks_today: sql<number>`COUNT(*)`.as('clicks_today') })
+      .from(clicksTable)
+      .where(
+        and(
+          inArray(clicksTable.hatchery_id, alive),
+          gt(clicksTable.clicked_on, startOfToday)
+        )
+      ),
+    db
+      .select({
+        id: hatcheryTable.id,
+        in_garden: hatcheryTable.in_garden,
+        in_seed_tray: hatcheryTable.in_seed_tray,
+        is_incubated: hatcheryTable.is_incubated,
+        is_stunned: hatcheryTable.is_stunned,
+      })
+      .from(hatcheryTable)
+      .where(eq(hatcheryTable.user_id, token.userId)),
+    db
+      .select({
+        id: userNotificationsTable.id,
+        content: userNotificationsTable.content,
+        validUntil: userNotificationsTable.validUntil,
+      })
+      .from(userNotificationsTable)
+      .where(
+        and(
+          eq(userNotificationsTable.userId, token.userId),
+          eq(userNotificationsTable.type, 'dragcave')
+        )
+      )
+      .orderBy(desc(userNotificationsTable.createdAt))
+      .limit(1),
+  ]);
 
   return {
+    releaseNotification,
     details: {
       clicksToday,
     },

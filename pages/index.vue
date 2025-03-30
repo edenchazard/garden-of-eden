@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div class="w-full space-y-4 *:mx-4">
     <template v-if="userSettings.bubblewrap">
@@ -60,6 +61,30 @@
       class="flex flex-col gap-y-4 *:mx-4 mx-0!"
       @submit.prevent="saveScroll()"
     >
+      <div
+        v-if="scroll.releaseNotification"
+        class="text-sm my-2 px-4 py-2 bg-yellow-200 text-black rounded-md"
+      >
+        <p class="inline mr-2" v-html="scroll.releaseNotification.content" />
+
+        <div class="flex gap-2 justify-end mt-2">
+          <button
+            type="button"
+            class="btn-primary"
+            @click="dismissReleaseNotification()"
+          >
+            Dismiss
+          </button>
+          <button
+            type="button"
+            class="btn-secondary"
+            @click="dismissReleaseNotification()"
+          >
+            Can it, Matthias! Don't tell me again
+          </button>
+        </div>
+      </div>
+
       <div class="space-y-2 *:max-w-prose order-1">
         <div
           v-if="fetchScrollError"
@@ -359,6 +384,7 @@
 <script lang="ts" setup>
 import { pluralise } from '#imports';
 import ScrollTable from '~/components/ScrollTable.vue';
+import type { userNotificationsTable } from '~/database/schema';
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
@@ -368,6 +394,7 @@ const {
   status: fetchScrollStatus,
   error: fetchScrollError,
 } = await useFetch<{
+  releaseNotification?: null | typeof userNotificationsTable.$inferSelect;
   details: { clicksToday: number };
   dragons: ScrollView[];
 }>('/api/user/scroll', {
@@ -377,6 +404,7 @@ const {
   immediate: !!authData.value?.user,
   default() {
     return {
+      releaseNotification: null,
       details: {
         clicksToday: 0,
       },
@@ -517,6 +545,24 @@ async function refreshScroll() {
     const oldDragon = currentState.find((d) => d.id === dragon.id);
     if (oldDragon) dragon.in_garden = oldDragon.in_garden;
   });
+}
+
+async function dismissReleaseNotification() {
+  if (!scroll.value.releaseNotification) {
+    return;
+  }
+
+  await $fetch(
+    `/api/user/notifications/${scroll.value.releaseNotification.id}`,
+    {
+      headers: {
+        'Csrf-token': useCsrf().csrf,
+      },
+      method: 'DELETE',
+    }
+  );
+
+  scroll.value.releaseNotification = null;
 }
 
 function toggleAll(checked: boolean) {

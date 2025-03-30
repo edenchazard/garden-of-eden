@@ -13,6 +13,7 @@ import {
   varchar,
   text,
   uniqueIndex,
+  int,
 } from 'drizzle-orm/mysql-core';
 import { createSelectSchema } from 'drizzle-zod';
 import type { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
@@ -344,6 +345,43 @@ export const userTrophiesTable = mysqlTable(
     awardedOn: datetime('awarded_on', { mode: 'date' }).notNull(),
   },
   (table) => [index('user_id_awarded_on_idx').on(table.userId, table.awardedOn)]
+);
+
+export const dragCaveFeedTable = mysqlTable('dragcave_feed', {
+  id: bigint('id', { unsigned: true, mode: 'number' })
+    .autoincrement()
+    .primaryKey(),
+  guid: int('guid', { unsigned: true }).unique(),
+  link: text('link').notNull(),
+});
+
+export const userNotificationsTable = mysqlTable(
+  'user_notifications',
+  {
+    id: bigint('id', { unsigned: true, mode: 'number' })
+      .autoincrement()
+      .primaryKey(),
+    userId: mediumint('user_id', {
+      unsigned: true,
+    })
+      .references(() => userTable.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    guid: int('guid', { unsigned: true }),
+    type: varchar('type', {
+      length: 10,
+      enum: ['dragcave'],
+    }).notNull(),
+    validUntil: datetime('valid_until', { mode: 'date' }),
+    content: text('content').notNull(),
+    createdAt: datetime('created_at', { mode: 'date' })
+      .default(sql`NOW()`)
+      .notNull(),
+  },
+  (table) => [
+    index('created_at_valid_until_idx').on(table.createdAt, table.validUntil),
+  ]
 );
 
 export const userSettingsSchema = createSelectSchema(userSettingsTable, {
