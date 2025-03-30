@@ -4,7 +4,7 @@ import { db } from '~/server/db';
 import { DateTime } from 'luxon';
 import { lte, or, sql } from 'drizzle-orm';
 
-export default defineCronHandler('everySixHours', async () => {
+export default defineCronHandler('daily', async () => {
   await db
     .delete(userNotificationsTable)
     .where(
