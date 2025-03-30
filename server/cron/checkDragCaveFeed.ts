@@ -3,11 +3,13 @@ import Parser from 'rss-parser';
 import {
   dragCaveFeedTable,
   userNotificationsTable,
+  userSettingsTable,
   userTable,
 } from '~/database/schema';
 import { db } from '../db';
 import chunkArray from '~/utils/chunkArray';
 import { DateTime } from 'luxon';
+import { eq } from 'drizzle-orm';
 
 const parser = new Parser<
   unknown,
@@ -56,11 +58,17 @@ export default defineCronHandler('everyMinute', async () => {
         link: latestRelease.link,
       });
 
+      // Only fetch users that have newReleaseAlerts enabled.
       const users = await tx
         .select({
           id: userTable.id,
         })
-        .from(userTable);
+        .from(userTable)
+        .where(eq(userSettingsTable.newReleaseAlerts, true))
+        .innerJoin(
+          userSettingsTable,
+          eq(userTable.id, userSettingsTable.user_id)
+        );
 
       const validUntil = (() => {
         if (

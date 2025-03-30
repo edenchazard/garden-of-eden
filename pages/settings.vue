@@ -97,6 +97,13 @@
               Show scroll overview in the {{ newSettings.scrollLayout }} view.
             </p>
           </li>
+          <li class="flex gap-2 flex-col sm:flex-row sm:items-center">
+            <ToggleInput
+              v-model="newSettings.newReleaseAlerts"
+              class="inline-block *:text-base"
+              label="Show me a warning for ongoing releases and events."
+            />
+          </li>
         </ul>
       </fieldset>
       <fieldset>
@@ -188,6 +195,7 @@
 <script lang="ts" setup>
 import { userSettingsSchema } from '~/database/schema';
 import { formatHoursLeft } from '#imports';
+import ToggleInput from '~/components/ToggleInput.vue';
 
 definePageMeta({
   middleware: 'sidebase-auth',

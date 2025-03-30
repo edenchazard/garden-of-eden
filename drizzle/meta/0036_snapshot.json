@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "8f98e9f0-95e4-4775-bd83-c9a6ee7c87c0",
+  "id": "a086c2cf-30f2-4070-8b38-872ba7de2c85",
   "prevId": "21b0cab9-d1f3-4330-85bd-2201072ef5db",
   "tables": {
     "banner_jobs": {
@@ -663,7 +663,7 @@
           "name": "type",
           "type": "varchar(10)",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "valid_until": {
@@ -861,6 +861,14 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
+        },
+        "newReleaseAlerts": {
+          "name": "newReleaseAlerts",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
         }
       },
       "indexes": {},

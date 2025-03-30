@@ -95,6 +95,7 @@ export const userSettingsTable = mysqlTable('user_settings', {
     .default(true),
   anonymiseStatistics: boolean('anonymiseStatistics').notNull().default(false),
   bubblewrap: boolean('bubblewrap').notNull().default(false),
+  newReleaseAlerts: boolean('newReleaseAlerts').notNull().default(true),
 });
 
 export const hatcheryTable = mysqlTable(
@@ -401,4 +402,5 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   flair_id: (schema) => schema.nullable().default(null),
   sectionOrder: (schema) => schema.default('hatchlings,eggs'),
   bubblewrap: (schema) => schema.default(false),
+  newReleaseAlerts: (schema) => schema.default(true),
 }).omit({ user_id: true, flair_id: true });
