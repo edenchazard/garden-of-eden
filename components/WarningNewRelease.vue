@@ -1,13 +1,16 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div class="bg-yellow-900 py-2 px-4 space-y-2 rounded-sm">
+  <div class="banner bg-yellow-900 py-2 px-4 space-y-2 text-sm">
     <p v-html="notification.content" />
 
-    <div class="flex gap-2 justify-end mt-2">
+    <div class="flex gap-2 justify-end mt-2 flex-col sm:flex-row">
       <button
         type="button"
         class="btn-primary"
-        @click="dismissReleaseNotification()"
+        @click="
+          dismissReleaseNotification();
+          emit('dismissed');
+        "
       >
         Dismiss
       </button>
@@ -16,9 +19,10 @@
         class="btn-secondary"
         @click="disableNewReleaseAlerts()"
       >
-        Can it, Matthias! Don't tell me again
+        Can it, Matthias! Never show me these again
       </button>
     </div>
+    <p v-if="shutUpMatthias" class="text-xs text-right">Alright... 😔</p>
   </div>
 </template>
 
@@ -34,6 +38,7 @@ const props = defineProps<{
 }>();
 
 const { userSettings } = useUserSettings(true);
+const shutUpMatthias = ref(false);
 
 async function dismissReleaseNotification() {
   if (!props.notification) {
@@ -46,12 +51,17 @@ async function dismissReleaseNotification() {
     },
     method: 'DELETE',
   });
-
-  emit('dismissed');
 }
 
 function disableNewReleaseAlerts() {
   userSettings.value.newReleaseAlerts = false;
+  shutUpMatthias.value = true;
+
+  setTimeout(() => {
+    shutUpMatthias.value = false;
+    emit('dismissed');
+  }, 2000);
+
   void dismissReleaseNotification();
 }
 </script>

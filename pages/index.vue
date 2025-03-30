@@ -12,6 +12,13 @@
       </audio>
     </template>
 
+    <WarningNewRelease
+      v-if="authData?.user && scroll.releaseNotification"
+      class="!mx-0"
+      :notification="scroll.releaseNotification"
+      @dismissed="scroll.releaseNotification = null"
+    />
+
     <div
       v-if="!authData?.user"
       class="mx-auto! flex gap-8 max-w-2xl items-center flex-col md:flex-row"
@@ -60,12 +67,6 @@
       class="flex flex-col gap-y-4 *:mx-4 mx-0!"
       @submit.prevent="saveScroll()"
     >
-      <WarningNewRelease
-        v-if="scroll.releaseNotification"
-        :notification="scroll.releaseNotification"
-        @dismissed="scroll.releaseNotification = null"
-      />
-
       <div class="space-y-2 *:max-w-prose order-1">
         <div
           v-if="fetchScrollError"

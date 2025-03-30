@@ -21,7 +21,7 @@ const parser = new Parser<
   }
 >();
 
-export default defineCronHandler('everyMinute', async () => {
+export default defineCronHandler('hourly', async () => {
   const feed = await parser.parseURL(
     'https://forums.dragcave.net/forum/1-news.xml'
   );
