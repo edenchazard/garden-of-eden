@@ -12,6 +12,13 @@
       </audio>
     </template>
 
+    <WarningNewRelease
+      v-if="authData?.user && scroll.releaseNotification"
+      class="!mx-0"
+      :notification="scroll.releaseNotification"
+      @dismissed="scroll.releaseNotification = null"
+    />
+
     <div
       v-if="!authData?.user"
       class="mx-auto! flex gap-8 max-w-2xl items-center flex-col md:flex-row"
@@ -359,6 +366,8 @@
 <script lang="ts" setup>
 import { pluralise } from '#imports';
 import ScrollTable from '~/components/ScrollTable.vue';
+import WarningNewRelease from '~/components/WarningNewRelease.vue';
+import type { userNotificationsTable } from '~/database/schema';
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
@@ -368,6 +377,7 @@ const {
   status: fetchScrollStatus,
   error: fetchScrollError,
 } = await useFetch<{
+  releaseNotification: null | typeof userNotificationsTable.$inferSelect;
   details: { clicksToday: number };
   dragons: ScrollView[];
 }>('/api/user/scroll', {
@@ -377,6 +387,7 @@ const {
   immediate: !!authData.value?.user,
   default() {
     return {
+      releaseNotification: null,
       details: {
         clicksToday: 0,
       },

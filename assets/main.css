@@ -60,6 +60,10 @@
   abbr {
     @apply decoration-dotted underline-offset-4 decoration-white;
   }
+
+  .banner a {
+    @apply dark:text-sky-200;
+  }
 }
 
 @layer components {
