@@ -284,7 +284,7 @@
       <p>Resources by other people, you should check them out!</p>
       <ul class="list-disc list-inside">
         <li>
-          <NuxtLink to="https://endulum.github.io/dc-shuffle-clock/index.html"
+          <NuxtLink to="https://dc-shuffle-clock.vercel.app"
             >Cave Shuffle Clock</NuxtLink
           >
           by <span class="italic">Mu-Cephei</span> - A tool for cave hunting.
