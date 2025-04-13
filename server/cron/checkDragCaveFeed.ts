@@ -21,7 +21,7 @@ const parser = new Parser<
   }
 >();
 
-export default defineCronHandler('hourly', async () => {
+export default defineCronHandler('everyTwoHours', async () => {
   const feed = await parser.parseURL(
     'https://forums.dragcave.net/forum/1-news.xml'
   );
@@ -45,7 +45,7 @@ export default defineCronHandler('hourly', async () => {
     latestRelease?.title.toLowerCase().includes(term)
   );
 
-  if (!latestRelease || !matchedSearchTerm || !latestRelease.guid) {
+  if (!matchedSearchTerm || !latestRelease?.guid) {
     return;
   }
 
@@ -79,6 +79,11 @@ export default defineCronHandler('hourly', async () => {
         // Event periods should be two weeks.
         return now.plus({ days: 14 });
       })();
+
+      if (DateTime.now() > validUntil) {
+        // If the validUntil date is in the past, do not send notifications.
+        return;
+      }
 
       const notificationChunks = chunkArray(
         users.map((user) => ({
