@@ -1,7 +1,3 @@
--- Custom SQL migration file, put you code below! --
-
-
--- Dumping data for table hatchery.items: ~40 rows (approximately)
 INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `available_to`, `description`, `cost`, `artist`) VALUES
 	(1, 'Anthurium', 'anthurium.webp', 'flair', NULL, NULL, 'The "flower" on an Anthurium is actually a spathe. The name comes from Greek origins, meaning "flower tail."', 150, '04uni'),
 	(2, 'Blackrose', 'blackrose.webp', 'flair', NULL, NULL, 'Black roses don\'t exist... so just how did Matthias obtain them?', 300, 'Arcy'),
@@ -58,5 +54,6 @@ INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `
 	(53, "Amethyst", "amethyst.webp", "flair", "2025-02-01 00:00:00", "2025-03-01 00:00:00", "February's entry for the rock garden.", 100, "Luci"),
 	(54, "Baby's breath", "babys-breath.webp", "flair", "2025-02-07 00:00:00", "2025-02-21 00:00:00", "A flower that symbolises purity and innocence.", 50, "Luci"),
 	(55, "Rose bouquet", "rose-bouquet.webp", "flair", "2025-02-07 00:00:00", "2025-02-21 00:00:00", "A bouquet of roses, a classic gift for a loved one.", 100, "Luci"),
-	(56, "Aquamarine", 'aquamarine.webp', 'flair', "2025-03-01 00:00:00",  "2025-04-01 00:00:00", "March's entry for the rock garden.", 100, "Luci");
-	
+	(56, "Aquamarine", 'aquamarine.webp', 'flair', "2025-03-01 00:00:00",  "2025-04-01 00:00:00", "March's entry for the rock garden.", 100, "Luci")
+	(56, "Diamond", 'diamond.webp', 'flair', "2025-04-01 00:00:00",  "2025-04-30 00:00:00", "April's entry for the rock garden.", 100, "Luci"),
+	(56, "Banana", 'banana.webp', 'flair', NULL,  NULL, "It's got great ap-peel.", 100, "Inghelene");
