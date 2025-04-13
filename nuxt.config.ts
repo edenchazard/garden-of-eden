@@ -3,12 +3,11 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-04-03',
+  compatibilityDate: '2025-04-13',
   devtools: { enabled: false },
   modules: [
     '@sidebase/nuxt-auth',
     '@nuxtjs/color-mode',
-    'nuxt-cron',
     '@nuxtjs/robots',
     '@nuxt/eslint',
     '@nuxt/test-utils/module',
@@ -142,10 +141,6 @@ export default defineNuxtConfig({
     classSuffix: '',
     preference: 'dark',
   },
-  cron: {
-    runOnInit: false,
-    jobsDir: 'cron',
-  },
   robots: { disallow: ['/api', '/view'] },
   security: {
     removeLoggers: false,
@@ -178,6 +173,26 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    experimental: {
+      tasks: true,
+    },
+    scheduledTasks: {
+      // Every 5 minutes
+      '*/5 * * * *': [
+        'maintenance:flairs',
+        'maintenance:hatchery',
+        'statistics:calculateLeaderboards',
+        'statistics:logApiRequests',
+      ],
+      // Every 15 minutes
+      '*/15 * * * *': ['statistics:logUserActivity'],
+      // Every 30 minutes
+      '*/30 * * * *': ['statistics:logScrollsAndDragons'],
+      // Every 2 hours
+      '0 */2 * * *': ['external:dragCaveFeed'],
+      // Daily
+      '0 0 * * *': ['maintenance:notifications'],
+    },
     storage: {
       redis: {
         driver: 'redis',
