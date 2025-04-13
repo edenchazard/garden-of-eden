@@ -1,9 +1,19 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div class="banner bg-yellow-900 py-2 px-4 space-y-2 text-sm">
+  <div
+    class="banner bg-yellow-900 text-sm p-2 grid grid-cols-[auto_1fr] gap-2 items-center sm:p-4 sm:gap-4"
+  >
+    <img
+      alt="Doctor Matthias"
+      src="/public/npc/doctor_matthias.webp"
+      width="54"
+      height="55"
+      class="sm:row-span-2"
+    />
     <p v-html="notification.content" />
-
-    <div class="flex gap-2 justify-end mt-2 flex-col sm:flex-row">
+    <div
+      class="flex gap-[inherit] justify-end flex-col col-span-full sm:flex-row sm:col-start-2"
+    >
       <button
         type="button"
         class="btn-primary"
