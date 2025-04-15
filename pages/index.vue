@@ -368,6 +368,8 @@ import { pluralise } from '#imports';
 import ScrollTable from '~/components/ScrollTable.vue';
 import WarningNewRelease from '~/components/WarningNewRelease.vue';
 import type { userNotificationsTable } from '~/database/schema';
+import HappyMatthias from '~/public/npc/happy_matthias.webp';
+
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
 
@@ -436,7 +438,14 @@ const {
     texts.push(
       `${garden.length > 0 ? garden.length : 'no'} ${pluralise('dragon', garden.length)} in the garden`
     );
-    toast.success('Scroll updated! You have ' + texts.join(' and ') + '.');
+    toast.success(
+      'Scroll updated! You have ' +
+        texts.join(' and ') +
+        `. <img class="inline" src="${HappyMatthias}" alt="Happy Matthias" />`,
+      {
+        dangerouslyHTMLString: true,
+      }
+    );
     return;
   },
 });
