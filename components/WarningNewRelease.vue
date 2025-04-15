@@ -3,18 +3,20 @@
   <div
     class="banner bg-yellow-900 text-sm p-2 grid grid-cols-[auto_1fr] gap-2 items-center sm:p-4 sm:gap-4"
   >
-    <img
-      alt="Doctor Matthias"
-      :src="
-        [
-          '/public/npc/doctor_matthias.webp',
-          '/public/npc/doctor_matthias_wrong.webp',
-        ][Math.floor(Math.random() * 2)]
-      "
-      width="54"
-      height="55"
-      class="sm:row-span-2"
-    />
+    <div
+      fallback-tag="div"
+      class="w-[54px] h-[55px] inline-block sm:row-span-2"
+    >
+      <img
+        alt="Doctor Matthias"
+        :src="
+          [DoctorMatthias, DoctorMathiasWrong][Math.floor(Math.random() * 2)]
+        "
+        width="54"
+        height="55"
+        class="sm:row-span-2"
+      />
+    </div>
     <p v-html="notification.content" />
     <div
       class="flex gap-[inherit] justify-end flex-col col-span-full sm:flex-row sm:col-start-2"
@@ -43,6 +45,8 @@
 
 <script lang="ts" setup>
 import type { userNotificationsTable } from '~/database/schema';
+import DoctorMatthias from '~/public/npc/doctor_matthias.webp';
+import DoctorMathiasWrong from '~/public/npc/doctor_matthias_wrong.webp';
 
 const emit = defineEmits<{
   (e: 'dismissed'): void;
