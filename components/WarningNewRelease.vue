@@ -5,7 +5,12 @@
   >
     <img
       alt="Doctor Matthias"
-      src="/public/npc/doctor_matthias.webp"
+      :src="
+        [
+          '/public/npc/doctor_matthias.webp',
+          '/public/npc/doctor_matthias_wrong.webp',
+        ][Math.floor(Math.random() * 2)]
+      "
       width="54"
       height="55"
       class="sm:row-span-2"
