@@ -96,7 +96,7 @@ export default NuxtAuthHandler({
           });
 
           await tx.insert(userSettingsTable).ignore().values({
-            user_id: userId,
+            userId,
           });
         });
       }
@@ -115,7 +115,7 @@ export default NuxtAuthHandler({
 
         await db
           .update(userTable)
-          .set({ last_activity: now })
+          .set({ lastActivity: now })
           .where(eq(userTable.id, token.userId));
       }
 
@@ -137,9 +137,9 @@ export default NuxtAuthHandler({
         .where(eq(userTable.id, userId))
         .innerJoin(
           userSettingsTable,
-          eq(userTable.id, userSettingsTable.user_id)
+          eq(userTable.id, userSettingsTable.userId)
         )
-        .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id));
+        .leftJoin(itemsTable, eq(userSettingsTable.flairId, itemsTable.id));
 
       // Access tokens were not stored originally, so this is here to provide backwards
       // compatibility for users who have not logged in since this feature was added.
@@ -154,7 +154,7 @@ export default NuxtAuthHandler({
 
       const {
         users,
-        user_settings: { user_id, ...settings },
+        user_settings: { userId: _, ...settings },
         items: flair,
       } = user;
       session.user.id = users.id;

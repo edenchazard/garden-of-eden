@@ -27,7 +27,7 @@ const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
     db
       .select({
-        weeklyClicks: clicksLeaderboardTable.clicks_given,
+        weeklyClicks: clicksLeaderboardTable.clicksGiven,
         weeklyRank: clicksLeaderboardTable.rank,
       })
       .from(clicksLeaderboardTable)
@@ -38,12 +38,12 @@ const getData = async (userId: number) => {
             clicksLeaderboardTable.start,
             DateTime.now().startOf('week').toJSDate()
           ),
-          eq(clicksLeaderboardTable.user_id, userId)
+          eq(clicksLeaderboardTable.userId, userId)
         )
       ),
     db
       .select({
-        allTimeClicks: sql<number>`SUM(${clicksLeaderboardTable.clicks_given})`,
+        allTimeClicks: sql<number>`SUM(${clicksLeaderboardTable.clicksGiven})`,
         allTimeRank: clicksLeaderboardTable.rank,
       })
       .from(clicksLeaderboardTable)
@@ -52,7 +52,7 @@ const getData = async (userId: number) => {
           eq(clicksLeaderboardTable.leaderboard, 'all time'),
           // Yeah, this is literally just to force mysql to use the index.
           eq(clicksLeaderboardTable.start, DateTime.fromMillis(0).toJSDate()),
-          eq(clicksLeaderboardTable.user_id, userId)
+          eq(clicksLeaderboardTable.userId, userId)
         )
       ),
     db
@@ -62,10 +62,10 @@ const getData = async (userId: number) => {
       .from(hatcheryTable)
       .where(
         and(
-          eq(hatcheryTable.user_id, userId),
+          eq(hatcheryTable.userId, userId),
           or(
-            eq(hatcheryTable.in_seed_tray, true),
-            eq(hatcheryTable.in_garden, true)
+            eq(hatcheryTable.inSeedTray, true),
+            eq(hatcheryTable.inGarden, true)
           )
         )
       ),
@@ -89,8 +89,8 @@ const getUser = async (userId: number, username: string) => {
       flairPath: itemsTable.url,
     })
     .from(userTable)
-    .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
-    .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
+    .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.userId))
+    .leftJoin(itemsTable, eq(userSettingsTable.flairId, itemsTable.id))
     .where(and(eq(userTable.id, userId), eq(userTable.username, username)));
 
   if (!user?.accessToken) return null;

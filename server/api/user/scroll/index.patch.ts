@@ -26,8 +26,8 @@ export default defineEventHandler(async (event) => {
   const schema = z.array(
     createInsertSchema(hatcheryTable).pick({
       id: true,
-      in_garden: true,
-      in_seed_tray: true,
+      inGarden: true,
+      inSeedTray: true,
     })
   );
 
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
           hatcheryTable.id,
           dragons.map((dragon) => dragon.id)
         ),
-        not(eq(hatcheryTable.user_id, token.userId))
+        not(eq(hatcheryTable.userId, token.userId))
       )
     );
 
@@ -53,20 +53,20 @@ export default defineEventHandler(async (event) => {
         .values(
           dragons.map((dragon) => ({
             id: dragon.id,
-            user_id: token.userId,
-            in_garden: dragon.in_garden,
-            in_seed_tray: dragon.in_seed_tray,
+            userId: token.userId,
+            inGarden: dragon.inGarden,
+            inSeedTray: dragon.inSeedTray,
           }))
         )
         .onDuplicateKeyUpdate({
           set: buildConflictUpdateColumns(hatcheryTable, [
-            'in_garden',
-            'in_seed_tray',
+            'inGarden',
+            'inSeedTray',
           ]),
         });
     }
     return dragons
-      .filter((dragon) => dragon.in_garden || dragon.in_seed_tray)
+      .filter((dragon) => dragon.inGarden || dragon.inSeedTray)
       .map((dragon) => dragon.id);
   });
 });

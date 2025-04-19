@@ -37,18 +37,18 @@ export default defineEventHandler(async (event) => {
     return db
       .select({
         url: itemsTable.url,
-        purchasedOn: purchasesTable.purchased_on,
+        purchasedOn: purchasesTable.purchasedOn,
         name: itemsTable.name,
       })
       .from(purchasesTable)
-      .innerJoin(itemsTable, eq(purchasesTable.item_id, itemsTable.id))
+      .innerJoin(itemsTable, eq(purchasesTable.itemId, itemsTable.id))
       .where(
         and(
-          eq(purchasesTable.user_id, token.userId),
-          eq(purchasesTable.item_id, session?.user?.flair?.id)
+          eq(purchasesTable.userId, token.userId),
+          eq(purchasesTable.itemId, session?.user?.flair?.id)
         )
       )
-      .orderBy(desc(purchasesTable.purchased_on));
+      .orderBy(desc(purchasesTable.purchasedOn));
   };
 
   const [items, [currentFlair]] = await Promise.all([

@@ -62,8 +62,8 @@ export default defineEventHandler(async (event) => {
 
   const reward = await db.transaction(async (tx) => {
     await db.insert(purchasesTable).values({
-      item_id: params.id,
-      user_id: token.userId,
+      itemId: params.id,
+      userId: token.userId,
     });
 
     await tx
@@ -77,9 +77,9 @@ export default defineEventHandler(async (event) => {
       await tx
         .update(userSettingsTable)
         .set({
-          flair_id: params.id,
+          flairId: params.id,
         })
-        .where(eq(userSettingsTable.user_id, token.userId));
+        .where(eq(userSettingsTable.userId, token.userId));
     }
 
     // New Year 2025 badge.

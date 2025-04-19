@@ -13,41 +13,41 @@ export default defineEventHandler(async (event) => {
   const personalStats = (
     await Promise.all([
       db
-        .select({ clicked_24: sql<number>`COUNT(*)`.as('clicked_24') })
+        .select({ clicked24: sql<number>`COUNT(*)`.as('clicked_24') })
         .from(clicksTable)
         .where(
           and(
-            eq(clicksTable.user_id, token.userId),
-            gt(clicksTable.clicked_on, startOfToday)
+            eq(clicksTable.userId, token.userId),
+            gt(clicksTable.clickedOn, startOfToday)
           )
         ),
       db
-        .select({ not_clicked: sql<number>`COUNT(*)`.as('not_clicked') })
+        .select({ notClicked: sql<number>`COUNT(*)`.as('not_clicked') })
         .from(hatcheryTable)
         .leftJoin(
           clicksTable,
           and(
-            eq(hatcheryTable.id, clicksTable.hatchery_id),
-            eq(clicksTable.user_id, token.userId)
+            eq(hatcheryTable.id, clicksTable.hatcheryId),
+            eq(clicksTable.userId, token.userId)
           )
         )
         .where(
           and(
-            isNull(clicksTable.user_id),
+            isNull(clicksTable.userId),
             or(
-              eq(hatcheryTable.in_garden, true),
-              eq(hatcheryTable.in_seed_tray, true)
+              eq(hatcheryTable.inGarden, true),
+              eq(hatcheryTable.inSeedTray, true)
             )
           )
         ),
     ])
   )
     .flat()
-    .reduce<{ clicked_24: number; not_clicked: number }>(
+    .reduce<{ clicked24: number; notClicked: number }>(
       (acc, val) => ({ ...acc, ...val }),
       {
-        clicked_24: 0,
-        not_clicked: 0,
+        clicked24: 0,
+        notClicked: 0,
       }
     );
 

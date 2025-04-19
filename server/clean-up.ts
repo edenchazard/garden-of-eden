@@ -16,11 +16,11 @@ export async function cleanUp() {
   const hatcheryDragons = await db
     .select({
       id: hatcheryTable.id,
-      userId: hatcheryTable.user_id,
-      in_seed_tray: hatcheryTable.in_seed_tray,
-      in_garden: hatcheryTable.in_garden,
-      is_incubated: hatcheryTable.is_incubated,
-      is_stunned: hatcheryTable.is_stunned,
+      userId: hatcheryTable.userId,
+      inSeedTray: hatcheryTable.inSeedTray,
+      inGarden: hatcheryTable.inGarden,
+      isIncubated: hatcheryTable.isIncubated,
+      isStunned: hatcheryTable.isStunned,
     })
     .from(hatcheryTable);
 
@@ -73,14 +73,14 @@ export async function cleanUp() {
 
         const apiDragon = apiResponse.dragons[code];
 
-        if (hatcheryDragon.in_seed_tray && apiDragon.hoursleft > 96) {
-          hatcheryDragon.in_seed_tray = false;
+        if (hatcheryDragon.inSeedTray && apiDragon.hoursleft > 96) {
+          hatcheryDragon.inSeedTray = false;
           removeFromSeedTray.push(code);
         }
 
         if (
           apiDragon.hoursleft < 0 ||
-          (!hatcheryDragon.in_seed_tray && !hatcheryDragon.in_garden)
+          (!hatcheryDragon.inSeedTray && !hatcheryDragon.inGarden)
         ) {
           removeFromHatchery.push(code);
         }
@@ -116,7 +116,7 @@ export async function cleanUp() {
         }
 
         if (
-          hatcheryDragon.is_incubated === false &&
+          hatcheryDragon.isIncubated === false &&
           !removeFromHatchery.includes(code) &&
           isIncubated(apiDragon)
         ) {
@@ -124,7 +124,7 @@ export async function cleanUp() {
         }
 
         if (
-          hatcheryDragon.is_stunned === false &&
+          hatcheryDragon.isStunned === false &&
           !removeFromHatchery.includes(code) &&
           isStunned(apiDragon)
         ) {
@@ -138,7 +138,7 @@ export async function cleanUp() {
     chunkArray(removeFromSeedTray, 200).map(async (chunk) =>
       db
         .update(hatcheryTable)
-        .set({ in_seed_tray: false })
+        .set({ inSeedTray: false })
         .where(inArray(hatcheryTable.id, chunk))
     )
   );
@@ -158,7 +158,7 @@ export async function cleanUp() {
     chunkArray(updateIncubated, 200).map(async (chunk) =>
       db
         .update(hatcheryTable)
-        .set({ is_incubated: true })
+        .set({ isIncubated: true })
         .where(inArray(hatcheryTable.id, chunk))
     )
   );
@@ -167,7 +167,7 @@ export async function cleanUp() {
     chunkArray(updateStunned, 200).map(async (chunk) =>
       db
         .update(hatcheryTable)
-        .set({ is_stunned: true })
+        .set({ isStunned: true })
         .where(inArray(hatcheryTable.id, chunk))
     )
   );
@@ -200,11 +200,11 @@ export async function cleanUp() {
 
   await db.insert(recordingsTable).values([
     {
-      recorded_on: DateTime.now()
+      recordedOn: DateTime.now()
         .startOf('minute')
         .toSQL({ includeOffset: false }),
       value: successfullyRemoved,
-      record_type: 'clean_up',
+      recordType: 'clean_up',
       extra: {
         chunks: promises.length,
         success: promises.length - failures,

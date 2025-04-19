@@ -14,22 +14,22 @@ export default defineTask({
   async run() {
     await db
       .update(userSettingsTable)
-      .set({ flair_id: null })
+      .set({ flairId: null })
       .where(
         and(
-          isNotNull(userSettingsTable.flair_id),
+          isNotNull(userSettingsTable.flairId),
           notInArray(
-            userSettingsTable.user_id,
+            userSettingsTable.userId,
             db
               .select({
-                user_id: purchasesTable.user_id,
+                userId: purchasesTable.userId,
               })
               .from(purchasesTable)
-              .innerJoin(itemsTable, eq(purchasesTable.item_id, itemsTable.id))
+              .innerJoin(itemsTable, eq(purchasesTable.itemId, itemsTable.id))
               .where(
                 and(
-                  eq(userSettingsTable.user_id, purchasesTable.user_id),
-                  gte(purchasesTable.purchased_on, sql`NOW() - INTERVAL 7 DAY`),
+                  eq(userSettingsTable.userId, purchasesTable.userId),
+                  gte(purchasesTable.purchasedOn, sql`NOW() - INTERVAL 7 DAY`),
                   eq(itemsTable.category, 'flair')
                 )
               )

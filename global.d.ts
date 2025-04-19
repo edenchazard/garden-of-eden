@@ -2,21 +2,21 @@ import type {
   userSettingsTable,
   userTable,
   itemsTable,
+  hatcheryTable,
 } from '~/database/schema';
 import type { DragonData } from './types/DragonTypes';
 export {};
 
 declare global {
-  type ScrollView = DragonData & {
-    in_garden: boolean;
-    in_seed_tray: boolean;
-    is_incubated: boolean;
-    is_stunned: boolean;
-  };
+  type ScrollView = DragonData &
+    Pick<
+      typeof hatcheryTable.$inferSelect,
+      'inGarden' | 'inSeedTray' | 'isIncubated' | 'isStunned'
+    >;
 
   type HatcheryDragon = {
     id: string;
-    clicked_on: string | null;
+    clickedOn: string | null;
   };
 
   type UserSettings = Omit<

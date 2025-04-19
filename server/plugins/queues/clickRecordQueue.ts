@@ -13,8 +13,8 @@ export default defineNitroPlugin(async () => {
     async (job) => {
       const { userId, hatcheryId } = job.data;
       const [clickRecord] = await db.insert(clicksTable).ignore().values({
-        hatchery_id: hatcheryId,
-        user_id: userId,
+        hatcheryId: hatcheryId,
+        userId: userId,
       });
 
       if (clickRecord.affectedRows === 0) {

@@ -70,11 +70,11 @@ export default defineEventHandler(async (event) => {
       // we should update its user id to reflect the change of ownership.
       await tx
         .update(hatcheryTable)
-        .set({ user_id: token.userId, is_incubated: false, is_stunned: false })
+        .set({ userId: token.userId, isIncubated: false, isStunned: false })
         .where(
           and(
             inArray(hatcheryTable.id, alive),
-            not(eq(hatcheryTable.user_id, token.userId))
+            not(eq(hatcheryTable.userId, token.userId))
           )
         );
 
@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
         .delete(hatcheryTable)
         .where(
           and(
-            eq(hatcheryTable.user_id, token.userId),
+            eq(hatcheryTable.userId, token.userId),
             notInArray(hatcheryTable.id, alive)
           )
         );
@@ -92,46 +92,43 @@ export default defineEventHandler(async (event) => {
   const startOfToday = new Date();
   startOfToday.setDate(startOfToday.getDate() - 1);
 
-  const [
-    [{ clicks_today: clicksToday }],
-    usersDragonsInHatchery,
-    [releaseNotification],
-  ] = await Promise.all([
-    db
-      .select({ clicks_today: sql<number>`COUNT(*)`.as('clicks_today') })
-      .from(clicksTable)
-      .where(
-        and(
-          inArray(clicksTable.hatchery_id, alive),
-          gt(clicksTable.clicked_on, startOfToday)
+  const [[{ clicksToday }], usersDragonsInHatchery, [releaseNotification]] =
+    await Promise.all([
+      db
+        .select({ clicksToday: sql<number>`COUNT(*)`.as('clicks_today') })
+        .from(clicksTable)
+        .where(
+          and(
+            inArray(clicksTable.hatcheryId, alive),
+            gt(clicksTable.clickedOn, startOfToday)
+          )
+        ),
+      db
+        .select({
+          id: hatcheryTable.id,
+          inGarden: hatcheryTable.inGarden,
+          inSeedTray: hatcheryTable.inSeedTray,
+          isIncubated: hatcheryTable.isIncubated,
+          isStunned: hatcheryTable.isStunned,
+        })
+        .from(hatcheryTable)
+        .where(eq(hatcheryTable.userId, token.userId)),
+      db
+        .select({
+          id: userNotificationsTable.id,
+          content: userNotificationsTable.content,
+          validUntil: userNotificationsTable.validUntil,
+        })
+        .from(userNotificationsTable)
+        .where(
+          and(
+            eq(userNotificationsTable.userId, token.userId),
+            eq(userNotificationsTable.type, 'dragcave')
+          )
         )
-      ),
-    db
-      .select({
-        id: hatcheryTable.id,
-        in_garden: hatcheryTable.in_garden,
-        in_seed_tray: hatcheryTable.in_seed_tray,
-        is_incubated: hatcheryTable.is_incubated,
-        is_stunned: hatcheryTable.is_stunned,
-      })
-      .from(hatcheryTable)
-      .where(eq(hatcheryTable.user_id, token.userId)),
-    db
-      .select({
-        id: userNotificationsTable.id,
-        content: userNotificationsTable.content,
-        validUntil: userNotificationsTable.validUntil,
-      })
-      .from(userNotificationsTable)
-      .where(
-        and(
-          eq(userNotificationsTable.userId, token.userId),
-          eq(userNotificationsTable.type, 'dragcave')
-        )
-      )
-      .orderBy(desc(userNotificationsTable.createdAt))
-      .limit(1),
-  ]);
+        .orderBy(desc(userNotificationsTable.createdAt))
+        .limit(1),
+    ]);
 
   return {
     releaseNotification,
@@ -141,22 +138,22 @@ export default defineEventHandler(async (event) => {
     dragons: alive.map<ScrollView>((id) => {
       const apiDragon = scrollResponse.dragons[id];
       const hatcheryData = {
-        in_garden: false,
-        in_seed_tray: false,
-        is_incubated: false,
-        is_stunned: false,
+        inGarden: false,
+        inSeedTray: false,
+        isIncubated: false,
+        isStunned: false,
         ...usersDragonsInHatchery.find((row) => row.id === id),
       };
       const stage = phase(apiDragon);
       const hatcheryDragon = {
-        in_garden: hatcheryData.in_garden,
-        in_seed_tray: hatcheryData.in_seed_tray,
-        is_incubated:
+        inGarden: hatcheryData.inGarden,
+        inSeedTray: hatcheryData.inSeedTray,
+        isIncubated:
           stage === 'Egg' &&
-          (hatcheryData.is_incubated || isIncubated(apiDragon)),
-        is_stunned:
+          (hatcheryData.isIncubated || isIncubated(apiDragon)),
+        isStunned:
           stage === 'Hatchling' &&
-          (hatcheryData.is_stunned || isStunned(apiDragon)),
+          (hatcheryData.isStunned || isStunned(apiDragon)),
       };
 
       return {

@@ -8,8 +8,8 @@ export default defineTask({
   },
   async run() {
     await db.insert(recordingsTable).values({
-      value: sql`(SELECT COUNT(*) FROM ${userTable} WHERE ${userTable.last_activity} > NOW() - INTERVAL 15 MINUTE)`,
-      record_type: 'user_count',
+      value: sql`(SELECT COUNT(*) FROM ${userTable} WHERE ${userTable.lastActivity} > NOW() - INTERVAL 15 MINUTE)`,
+      recordType: 'user_count',
     });
 
     await useStorage('cache').removeItem(

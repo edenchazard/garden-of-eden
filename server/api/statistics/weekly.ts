@@ -14,10 +14,10 @@ import { DateTime, Interval } from 'luxon';
 
 const clicksTotalForWeekCached = defineCachedFunction(
   async (start: DateTime) => {
-    const [{ clicks_this_week: clicks }] = await db
+    const [{ clicksThisWeek: clicks }] = await db
       .select({
-        clicks_this_week:
-          sql<string>`0 + SUM(${clicksLeaderboardTable.clicks_given})`.as(
+        clicksThisWeek:
+          sql<string>`0 + SUM(${clicksLeaderboardTable.clicksGiven})`.as(
             'clicks_this_week'
           ),
       })
@@ -42,13 +42,13 @@ const dailyTotalsForWeekCached = defineCachedFunction(
   async (start: DateTime) => {
     const data = await db
       .select({
-        date: sql<string>`DATE(${clicksTable.clicked_on})`.as('date'),
-        clicks_given: sql<string>`COUNT(*)`.as('clicks_given'),
+        date: sql<string>`DATE(${clicksTable.clickedOn})`.as('date'),
+        clicksGiven: sql<string>`COUNT(*)`.as('clicks_given'),
       })
       .from(clicksTable)
       .where(
         between(
-          clicksTable.clicked_on,
+          clicksTable.clickedOn,
           start.toJSDate(),
           start.endOf('week').toJSDate()
         )
@@ -62,7 +62,7 @@ const dailyTotalsForWeekCached = defineCachedFunction(
         })
         .map((date: Interval) => [
           date.start?.toISODate(),
-          data.find((d) => d.date === date.start?.toISODate())?.clicks_given ??
+          data.find((d) => d.date === date.start?.toISODate())?.clicksGiven ??
             0,
         ])
     ) as Record<string, number>;
@@ -93,11 +93,11 @@ export default defineEventHandler(async (event) => {
         rank: clicksLeaderboardTable.rank,
         username: sql<string>`
       CASE
-        WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+        WHEN (${clicksLeaderboardTable.userId} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
         WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
         ELSE ${userTable.username}
       END`.as('username'),
-        clicks_given: clicksLeaderboardTable.clicks_given,
+        clicksGiven: clicksLeaderboardTable.clicksGiven,
         flair: {
           url: itemsTable.url,
           name: itemsTable.name,
@@ -106,18 +106,18 @@ export default defineEventHandler(async (event) => {
         },
       })
       .from(clicksLeaderboardTable)
-      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
+      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.userId))
       .innerJoin(
         userSettingsTable,
-        eq(userSettingsTable.user_id, clicksLeaderboardTable.user_id)
+        eq(userSettingsTable.userId, clicksLeaderboardTable.userId)
       )
-      .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
+      .leftJoin(itemsTable, eq(userSettingsTable.flairId, itemsTable.id))
       .where(
         and(
           eq(clicksLeaderboardTable.leaderboard, 'weekly'),
           eq(clicksLeaderboardTable.start, weekStart.toJSDate()),
           or(
-            eq(clicksLeaderboardTable.user_id, token?.userId),
+            eq(clicksLeaderboardTable.userId, token?.userId),
             lte(clicksLeaderboardTable.rank, 10)
           )
         )

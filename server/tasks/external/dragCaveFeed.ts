@@ -73,7 +73,7 @@ export default defineTask({
           .where(eq(userSettingsTable.newReleaseAlerts, true))
           .innerJoin(
             userSettingsTable,
-            eq(userTable.id, userSettingsTable.user_id)
+            eq(userTable.id, userSettingsTable.userId)
           );
 
         const validUntil = (() => {

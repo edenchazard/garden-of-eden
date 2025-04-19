@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   await db
     .update(userSettingsTable)
     .set(settings)
-    .where(eq(userSettingsTable.user_id, token.userId));
+    .where(eq(userSettingsTable.userId, token.userId));
 
   return sendNoContent(event);
 });

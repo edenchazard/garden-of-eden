@@ -16,14 +16,14 @@ const totalScrollsCached = defineCachedFunction(
     db
       .select()
       .from(recordingsTable)
-      .orderBy(asc(recordingsTable.recorded_on))
+      .orderBy(asc(recordingsTable.recordedOn))
       .where(
         and(
           gte(
-            recordingsTable.recorded_on,
+            recordingsTable.recordedOn,
             DateTime.now().minus({ hours: 24 }).toSQL()
           ),
-          eq(recordingsTable.record_type, 'total_scrolls')
+          eq(recordingsTable.recordType, 'total_scrolls')
         )
       ),
   {
@@ -39,14 +39,14 @@ const totalDragonsCached = defineCachedFunction(
     db
       .select()
       .from(recordingsTable)
-      .orderBy(asc(recordingsTable.recorded_on))
+      .orderBy(asc(recordingsTable.recordedOn))
       .where(
         and(
           gte(
-            recordingsTable.recorded_on,
+            recordingsTable.recordedOn,
             DateTime.now().minus({ hours: 24 }).toSQL()
           ),
-          eq(recordingsTable.record_type, 'total_dragons')
+          eq(recordingsTable.recordType, 'total_dragons')
         )
       ),
   {
@@ -61,10 +61,9 @@ const clicksTotalAllTimeCached = defineCachedFunction(
   async () => {
     const data = await db
       .select({
-        clicks_total:
-          sql<string>`SUM(${clicksLeaderboardTable.clicks_given})`.as(
-            'clicks_total'
-          ),
+        clicksTotal: sql<string>`SUM(${clicksLeaderboardTable.clicksGiven})`.as(
+          'clicks_total'
+        ),
       })
       .from(clicksLeaderboardTable)
       .where(eq(clicksLeaderboardTable.leaderboard, 'all time'));
@@ -116,13 +115,13 @@ const userActivityCached = defineCachedFunction(
       .where(
         and(
           gte(
-            recordingsTable.recorded_on,
+            recordingsTable.recordedOn,
             DateTime.now().minus({ hours: 24 }).toSQL()
           ),
-          eq(recordingsTable.record_type, 'user_count')
+          eq(recordingsTable.recordType, 'user_count')
         )
       )
-      .orderBy(asc(recordingsTable.recorded_on)),
+      .orderBy(asc(recordingsTable.recordedOn)),
   {
     maxAge: 60 * 15,
     group: 'statistics',
@@ -139,13 +138,13 @@ const cleanUpCached = defineCachedFunction(
       .where(
         and(
           gte(
-            recordingsTable.recorded_on,
+            recordingsTable.recordedOn,
             DateTime.now().minus({ hours: 24 }).toSQL()
           ),
-          eq(recordingsTable.record_type, 'clean_up')
+          eq(recordingsTable.recordType, 'clean_up')
         )
       )
-      .orderBy(asc(recordingsTable.recorded_on)),
+      .orderBy(asc(recordingsTable.recordedOn)),
   {
     maxAge: 60 * 10,
     group: 'statistics',
@@ -162,13 +161,13 @@ const apiRequestsCached = defineCachedFunction(
       .where(
         and(
           gte(
-            recordingsTable.recorded_on,
+            recordingsTable.recordedOn,
             DateTime.now().minus({ hours: 24 }).toSQL()
           ),
-          eq(recordingsTable.record_type, 'api_request')
+          eq(recordingsTable.recordType, 'api_request')
         )
       )
-      .orderBy(asc(recordingsTable.recorded_on)),
+      .orderBy(asc(recordingsTable.recordedOn)),
   {
     maxAge: 60 * 10,
     group: 'statistics',
@@ -186,7 +185,7 @@ export default defineEventHandler(async (event) => {
     scrolls,
     dragons,
     clicksAllTimeLeaderboard,
-    [{ clicks_total: clicksTotalAllTime }],
+    [{ clicksTotal: clicksTotalAllTime }],
     weeklies,
     userActivity,
   ] = await Promise.all([
@@ -199,11 +198,11 @@ export default defineEventHandler(async (event) => {
         rank: clicksLeaderboardTable.rank,
         username: sql<string>`
           CASE
-            WHEN (${clicksLeaderboardTable.user_id} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
+            WHEN (${clicksLeaderboardTable.userId} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
             WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
             ELSE ${userTable.username}
           END`.as('username'),
-        clicks_given: clicksLeaderboardTable.clicks_given,
+        clicksGiven: clicksLeaderboardTable.clicksGiven,
         flair: {
           url: itemsTable.url,
           name: itemsTable.name,
@@ -212,17 +211,17 @@ export default defineEventHandler(async (event) => {
         },
       })
       .from(clicksLeaderboardTable)
-      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.user_id))
+      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.userId))
       .innerJoin(
         userSettingsTable,
-        eq(userSettingsTable.user_id, clicksLeaderboardTable.user_id)
+        eq(userSettingsTable.userId, clicksLeaderboardTable.userId)
       )
-      .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
+      .leftJoin(itemsTable, eq(userSettingsTable.flairId, itemsTable.id))
       .where(
         and(
           eq(clicksLeaderboardTable.leaderboard, 'all time'),
           or(
-            eq(clicksLeaderboardTable.user_id, token?.userId),
+            eq(clicksLeaderboardTable.userId, token?.userId),
             lte(clicksLeaderboardTable.rank, 10)
           )
         )
