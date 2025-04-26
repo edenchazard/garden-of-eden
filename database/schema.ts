@@ -18,7 +18,7 @@ import {
 import { createSelectSchema } from 'drizzle-zod';
 import type { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
 
-export const userTable = mysqlTable(
+export const usersTable = mysqlTable(
   'users',
   {
     id: mediumint('id', { unsigned: true }).primaryKey().notNull(),
@@ -44,12 +44,12 @@ export const userTable = mysqlTable(
   (table) => [index('last_activity_idx').on(table.lastActivity)]
 );
 
-export const userSettingsTable = mysqlTable('user_settings', {
+export const usersSettingsTable = mysqlTable('users_settings', {
   userId: mediumint('user_id', {
     unsigned: true,
   })
     .primaryKey()
-    .references(() => userTable.id, {
+    .references(() => usersTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
@@ -109,7 +109,7 @@ export const hatcheryTable = mysqlTable(
     userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -186,7 +186,7 @@ export const clicksTable = mysqlTable(
     userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -201,13 +201,13 @@ export const clicksTable = mysqlTable(
   ]
 );
 
-export const clicksLeaderboardTable = mysqlTable(
-  'clicks_leaderboard',
+export const clicksLeaderboardsTable = mysqlTable(
+  'clicks_leaderboards',
   {
     userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -262,7 +262,7 @@ export const itemsTable = mysqlTable('items', {
   }),
 });
 
-export const purchasesTable = mysqlTable('purchases', {
+export const userItemTable = mysqlTable('user_item', {
   id: bigint('id', {
     unsigned: true,
     mode: 'number',
@@ -279,7 +279,7 @@ export const purchasesTable = mysqlTable('purchases', {
   userId: mediumint('user_id', {
     unsigned: true,
   })
-    .references(() => userTable.id, {
+    .references(() => usersTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
@@ -288,7 +288,7 @@ export const purchasesTable = mysqlTable('purchases', {
     .notNull(),
 });
 
-export const bannerJobsTable = mysqlTable('banner_jobs', {
+export const userBannerJobTable = mysqlTable('user_banner_job', {
   id: bigint('id', {
     unsigned: true,
     mode: 'number',
@@ -298,7 +298,7 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   userId: mediumint('user_id', {
     unsigned: true,
   })
-    .references(() => userTable.id, {
+    .references(() => usersTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
@@ -323,8 +323,8 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   requestParams: json('request_params').$type<BannerRequestParameters>(),
 });
 
-export const userTrophiesTable = mysqlTable(
-  'users_trophies',
+export const userTrophyTable = mysqlTable(
+  'user_trophy',
   {
     id: bigint('id', { unsigned: true, mode: 'number' })
       .autoincrement()
@@ -332,7 +332,7 @@ export const userTrophiesTable = mysqlTable(
     userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -356,8 +356,8 @@ export const dragCaveFeedTable = mysqlTable('dragcave_feed', {
   link: text('link').notNull(),
 });
 
-export const userNotificationsTable = mysqlTable(
-  'user_notifications',
+export const userNotificationTable = mysqlTable(
+  'user_notification',
   {
     id: bigint('id', { unsigned: true, mode: 'number' })
       .autoincrement()
@@ -365,7 +365,7 @@ export const userNotificationsTable = mysqlTable(
     userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -385,7 +385,7 @@ export const userNotificationsTable = mysqlTable(
   ]
 );
 
-export const userSettingsSchema = createSelectSchema(userSettingsTable, {
+export const userSettingsSchema = createSelectSchema(usersSettingsTable, {
   gardenFrequency: (schema) => schema.min(15).max(300).default(30),
   gardenPerPage: (schema) => schema.min(10).max(500).default(500),
   seedTrayFrequency: (schema) => schema.min(15).max(300).default(30),

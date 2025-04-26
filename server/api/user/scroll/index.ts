@@ -4,8 +4,8 @@ import type { JWT } from 'next-auth/jwt';
 import {
   clicksTable,
   hatcheryTable,
-  userNotificationsTable,
-  userTable,
+  userNotificationTable,
+  usersTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
@@ -38,9 +38,9 @@ async function syncScrollName(token: JWT) {
   });
 
   await db
-    .update(userTable)
+    .update(usersTable)
     .set({ username: updated.data.username })
-    .where(eq(userTable.id, token.userId));
+    .where(eq(usersTable.id, token.userId));
 
   return updated.data;
 }
@@ -115,18 +115,18 @@ export default defineEventHandler(async (event) => {
         .where(eq(hatcheryTable.userId, token.userId)),
       db
         .select({
-          id: userNotificationsTable.id,
-          content: userNotificationsTable.content,
-          validUntil: userNotificationsTable.validUntil,
+          id: userNotificationTable.id,
+          content: userNotificationTable.content,
+          validUntil: userNotificationTable.validUntil,
         })
-        .from(userNotificationsTable)
+        .from(userNotificationTable)
         .where(
           and(
-            eq(userNotificationsTable.userId, token.userId),
-            eq(userNotificationsTable.type, 'dragcave')
+            eq(userNotificationTable.userId, token.userId),
+            eq(userNotificationTable.type, 'dragcave')
           )
         )
-        .orderBy(desc(userNotificationsTable.createdAt))
+        .orderBy(desc(userNotificationTable.createdAt))
         .limit(1),
     ]);
 

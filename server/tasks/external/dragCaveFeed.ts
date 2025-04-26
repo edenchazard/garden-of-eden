@@ -1,9 +1,9 @@
 import Parser from 'rss-parser';
 import {
   dragCaveFeedTable,
-  userNotificationsTable,
-  userSettingsTable,
-  userTable,
+  userNotificationTable,
+  usersSettingsTable,
+  usersTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
 import chunkArray from '~/utils/chunkArray';
@@ -67,13 +67,13 @@ export default defineTask({
         // Only fetch users that have newReleaseAlerts enabled.
         const users = await tx
           .select({
-            id: userTable.id,
+            id: usersTable.id,
           })
-          .from(userTable)
-          .where(eq(userSettingsTable.newReleaseAlerts, true))
+          .from(usersTable)
+          .where(eq(usersSettingsTable.newReleaseAlerts, true))
           .innerJoin(
-            userSettingsTable,
-            eq(userTable.id, userSettingsTable.userId)
+            usersSettingsTable,
+            eq(usersTable.id, usersSettingsTable.userId)
           );
 
         const validUntil = (() => {
@@ -108,7 +108,7 @@ export default defineTask({
 
         await Promise.all(
           notificationChunks.map((chunks) =>
-            tx.insert(userNotificationsTable).values(chunks)
+            tx.insert(userNotificationTable).values(chunks)
           )
         );
       });

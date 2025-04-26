@@ -1,9 +1,9 @@
 import {
-  clicksLeaderboardTable,
+  clicksLeaderboardsTable,
   clicksTable,
   itemsTable,
-  userSettingsTable,
-  userTable,
+  usersSettingsTable,
+  usersTable,
 } from '~/database/schema';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
@@ -17,15 +17,15 @@ const clicksTotalForWeekCached = defineCachedFunction(
     const [{ clicksThisWeek: clicks }] = await db
       .select({
         clicksThisWeek:
-          sql<string>`0 + SUM(${clicksLeaderboardTable.clicksGiven})`.as(
+          sql<string>`0 + SUM(${clicksLeaderboardsTable.clicksGiven})`.as(
             'clicks_this_week'
           ),
       })
-      .from(clicksLeaderboardTable)
+      .from(clicksLeaderboardsTable)
       .where(
         and(
-          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-          eq(clicksLeaderboardTable.start, start.toJSDate())
+          eq(clicksLeaderboardsTable.leaderboard, 'weekly'),
+          eq(clicksLeaderboardsTable.start, start.toJSDate())
         )
       );
     return Number(clicks ?? 0);
@@ -90,14 +90,14 @@ export default defineEventHandler(async (event) => {
     dailyTotalsForWeekCached(weekStart),
     db
       .select({
-        rank: clicksLeaderboardTable.rank,
+        rank: clicksLeaderboardsTable.rank,
         username: sql<string>`
       CASE
-        WHEN (${clicksLeaderboardTable.userId} = ${token?.userId ?? null} AND ${userSettingsTable.anonymiseStatistics} = 1) THEN -1
-        WHEN ${userSettingsTable.anonymiseStatistics} = 1 THEN -2
-        ELSE ${userTable.username}
+        WHEN (${clicksLeaderboardsTable.userId} = ${token?.userId ?? null} AND ${usersSettingsTable.anonymiseStatistics} = 1) THEN -1
+        WHEN ${usersSettingsTable.anonymiseStatistics} = 1 THEN -2
+        ELSE ${usersTable.username}
       END`.as('username'),
-        clicksGiven: clicksLeaderboardTable.clicksGiven,
+        clicksGiven: clicksLeaderboardsTable.clicksGiven,
         flair: {
           url: itemsTable.url,
           name: itemsTable.name,
@@ -105,24 +105,24 @@ export default defineEventHandler(async (event) => {
           artist: itemsTable.artist,
         },
       })
-      .from(clicksLeaderboardTable)
-      .innerJoin(userTable, eq(userTable.id, clicksLeaderboardTable.userId))
+      .from(clicksLeaderboardsTable)
+      .innerJoin(usersTable, eq(usersTable.id, clicksLeaderboardsTable.userId))
       .innerJoin(
-        userSettingsTable,
-        eq(userSettingsTable.userId, clicksLeaderboardTable.userId)
+        usersSettingsTable,
+        eq(usersSettingsTable.userId, clicksLeaderboardsTable.userId)
       )
-      .leftJoin(itemsTable, eq(userSettingsTable.flairId, itemsTable.id))
+      .leftJoin(itemsTable, eq(usersSettingsTable.flairId, itemsTable.id))
       .where(
         and(
-          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-          eq(clicksLeaderboardTable.start, weekStart.toJSDate()),
+          eq(clicksLeaderboardsTable.leaderboard, 'weekly'),
+          eq(clicksLeaderboardsTable.start, weekStart.toJSDate()),
           or(
-            eq(clicksLeaderboardTable.userId, token?.userId),
-            lte(clicksLeaderboardTable.rank, 10)
+            eq(clicksLeaderboardsTable.userId, token?.userId),
+            lte(clicksLeaderboardsTable.rank, 10)
           )
         )
       )
-      .orderBy(clicksLeaderboardTable.rank)
+      .orderBy(clicksLeaderboardsTable.rank)
       .limit(11),
   ]);
 

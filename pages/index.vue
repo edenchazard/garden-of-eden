@@ -367,7 +367,7 @@
 import { pluralise } from '#imports';
 import ScrollTable from '~/components/ScrollTable.vue';
 import WarningNewRelease from '~/components/WarningNewRelease.vue';
-import type { userNotificationsTable } from '~/database/schema';
+import type { userNotificationTable } from '~/database/schema';
 import HappyMatthias from '~/public/npc/happy_matthias.webp';
 
 const { data: authData, signIn } = useAuth();
@@ -379,7 +379,7 @@ const {
   status: fetchScrollStatus,
   error: fetchScrollError,
 } = await useFetch<{
-  releaseNotification: null | typeof userNotificationsTable.$inferSelect;
+  releaseNotification: null | typeof userNotificationTable.$inferSelect;
   details: { clicksToday: number };
   dragons: ScrollView[];
 }>('/api/user/scroll', {

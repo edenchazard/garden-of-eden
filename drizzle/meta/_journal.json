@@ -218,6 +218,13 @@
       "when": 1745072021338,
       "tag": "0037_overjoyed_ikaris",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1745700344688,
+      "tag": "0038_flippant_rumiko_fujikawa",
+      "breakpoints": true
     }
   ]
 }

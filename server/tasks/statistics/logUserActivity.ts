@@ -1,6 +1,6 @@
 import { db } from '~/server/db';
 import { sql } from 'drizzle-orm';
-import { recordingsTable, userTable } from '~/database/schema';
+import { recordingsTable, usersTable } from '~/database/schema';
 
 export default defineTask({
   meta: {
@@ -8,7 +8,7 @@ export default defineTask({
   },
   async run() {
     await db.insert(recordingsTable).values({
-      value: sql`(SELECT COUNT(*) FROM ${userTable} WHERE ${userTable.lastActivity} > NOW() - INTERVAL 15 MINUTE)`,
+      value: sql`(SELECT COUNT(*) FROM ${usersTable} WHERE ${usersTable.lastActivity} > NOW() - INTERVAL 15 MINUTE)`,
       recordType: 'user_count',
     });
 

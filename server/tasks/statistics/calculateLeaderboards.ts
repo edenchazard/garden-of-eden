@@ -1,9 +1,9 @@
 import { db } from '~/server/db';
 import {
-  clicksLeaderboardTable,
+  clicksLeaderboardsTable,
   clicksTable,
   itemsTable,
-  userTrophiesTable,
+  userTrophyTable,
 } from '~/database/schema';
 import { and, between, eq, like, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
@@ -33,23 +33,23 @@ export default defineTask({
     await db.transaction(async (tx) => {
       // Delete existing weekly leaderboard entries for the calculated weekStart
       await tx
-        .delete(clicksLeaderboardTable)
+        .delete(clicksLeaderboardsTable)
         .where(
           and(
-            eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-            eq(clicksLeaderboardTable.start, weekStart.toJSDate())
+            eq(clicksLeaderboardsTable.leaderboard, 'weekly'),
+            eq(clicksLeaderboardsTable.start, weekStart.toJSDate())
           )
         );
 
       // Recalculate the weekly leaderboard
       await tx.execute(
-        sql`INSERT INTO ${clicksLeaderboardTable}
+        sql`INSERT INTO ${clicksLeaderboardsTable}
       (
-        ${clicksLeaderboardTable.userId},
-        ${clicksLeaderboardTable.leaderboard},
-        ${clicksLeaderboardTable.rank},
-        ${clicksLeaderboardTable.clicksGiven},
-        ${clicksLeaderboardTable.start}
+        ${clicksLeaderboardsTable.userId},
+        ${clicksLeaderboardsTable.leaderboard},
+        ${clicksLeaderboardsTable.rank},
+        ${clicksLeaderboardsTable.clicksGiven},
+        ${clicksLeaderboardsTable.start}
       )
       WITH cte AS (
         SELECT
@@ -75,15 +75,15 @@ export default defineTask({
       // Recalculate the all-time leaderboard by summing the weekly leaderboards
       await tx.execute(sql`SET @rank:= 0`);
       await tx
-        .delete(clicksLeaderboardTable)
-        .where(eq(clicksLeaderboardTable.leaderboard, 'all time'));
-      await tx.execute(sql`INSERT INTO ${clicksLeaderboardTable}
+        .delete(clicksLeaderboardsTable)
+        .where(eq(clicksLeaderboardsTable.leaderboard, 'all time'));
+      await tx.execute(sql`INSERT INTO ${clicksLeaderboardsTable}
       (
-        ${clicksLeaderboardTable.userId},
-        ${clicksLeaderboardTable.leaderboard},
-        ${clicksLeaderboardTable.rank},
-        ${clicksLeaderboardTable.clicksGiven},
-        ${clicksLeaderboardTable.start}
+        ${clicksLeaderboardsTable.userId},
+        ${clicksLeaderboardsTable.leaderboard},
+        ${clicksLeaderboardsTable.rank},
+        ${clicksLeaderboardsTable.clicksGiven},
+        ${clicksLeaderboardsTable.start}
       )
       SELECT
         leaderboard.user_id,
@@ -93,11 +93,11 @@ export default defineTask({
         '1970-01-01 00:00:00'
       FROM (
         SELECT
-          ${clicksLeaderboardTable.userId},
-          SUM(${clicksLeaderboardTable.clicksGiven}) AS clicks_given
-        FROM ${clicksLeaderboardTable}
-        WHERE ${clicksLeaderboardTable.leaderboard} = 'weekly'
-        GROUP BY ${clicksLeaderboardTable.userId}
+          ${clicksLeaderboardsTable.userId},
+          SUM(${clicksLeaderboardsTable.clicksGiven}) AS clicks_given
+        FROM ${clicksLeaderboardsTable}
+        WHERE ${clicksLeaderboardsTable.leaderboard} = 'weekly'
+        GROUP BY ${clicksLeaderboardsTable.userId}
         ORDER BY clicks_given DESC
       ) AS leaderboard`);
 
@@ -105,28 +105,28 @@ export default defineTask({
         const top10 = await tx
           .select({
             itemId: itemsTable.id,
-            userId: clicksLeaderboardTable.userId,
+            userId: clicksLeaderboardsTable.userId,
           })
-          .from(clicksLeaderboardTable)
+          .from(clicksLeaderboardsTable)
           .innerJoin(
             itemsTable,
             and(
               eq(itemsTable.category, 'trophy'),
               like(
                 itemsTable.url,
-                sql`CONCAT('trophies/', ${clicksLeaderboardTable.rank}, '.%')`
+                sql`CONCAT('trophies/', ${clicksLeaderboardsTable.rank}, '.%')`
               )
             )
           )
           .where(
             and(
-              eq(clicksLeaderboardTable.leaderboard, 'weekly'),
-              eq(clicksLeaderboardTable.start, weekStart.toJSDate()),
-              between(clicksLeaderboardTable.rank, 1, 10)
+              eq(clicksLeaderboardsTable.leaderboard, 'weekly'),
+              eq(clicksLeaderboardsTable.start, weekStart.toJSDate()),
+              between(clicksLeaderboardsTable.rank, 1, 10)
             )
           );
 
-        await tx.insert(userTrophiesTable).values(
+        await tx.insert(userTrophyTable).values(
           top10.map((row) => ({
             itemId: row.itemId,
             userId: row.userId,

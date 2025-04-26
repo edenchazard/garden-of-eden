@@ -1,6 +1,6 @@
 import { Worker as BullWorker } from 'bullmq';
 import { db } from '~/server/db';
-import { clicksTable, userTable } from '~/database/schema';
+import { clicksTable, usersTable } from '~/database/schema';
 import { and, eq, lt, sql } from 'drizzle-orm';
 
 const {
@@ -22,11 +22,11 @@ export default defineNitroPlugin(async () => {
       }
 
       await db
-        .update(userTable)
+        .update(usersTable)
         .set({
-          money: sql`${userTable.money} + 1`,
+          money: sql`${usersTable.money} + 1`,
         })
-        .where(and(eq(userTable.id, userId), lt(userTable.money, 500)));
+        .where(and(eq(usersTable.id, userId), lt(usersTable.money, 500)));
     },
     {
       connection: {

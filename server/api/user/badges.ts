@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import { itemsTable, userTrophiesTable } from '~/database/schema';
+import { itemsTable, userTrophyTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { getToken } from '#auth';
 
@@ -9,18 +9,18 @@ export default defineEventHandler(async (event) => {
 
   const badges = await db
     .select({
-      id: userTrophiesTable.id,
+      id: userTrophyTable.id,
       itemId: itemsTable.id,
       url: itemsTable.url,
       description: itemsTable.description,
       name: itemsTable.name,
-      awardedOn: userTrophiesTable.awardedOn,
+      awardedOn: userTrophyTable.awardedOn,
       artist: itemsTable.artist,
     })
-    .from(userTrophiesTable)
-    .innerJoin(itemsTable, eq(userTrophiesTable.itemId, itemsTable.id))
-    .where(eq(userTrophiesTable.userId, token.userId))
-    .orderBy(desc(userTrophiesTable.awardedOn));
+    .from(userTrophyTable)
+    .innerJoin(itemsTable, eq(userTrophyTable.itemId, itemsTable.id))
+    .where(eq(userTrophyTable.userId, token.userId))
+    .orderBy(desc(userTrophyTable.awardedOn));
 
   return badges;
 });

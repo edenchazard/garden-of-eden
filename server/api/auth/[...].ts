@@ -1,7 +1,7 @@
 import { NuxtAuthHandler } from '#auth';
 import type { TokenSet } from 'next-auth';
 import { db } from '~/server/db';
-import { itemsTable, userSettingsTable, userTable } from '~/database/schema';
+import { itemsTable, usersSettingsTable, usersTable } from '~/database/schema';
 import { eq, getTableColumns } from 'drizzle-orm';
 import { encrypt } from '~/utils/accessTokenHandling';
 
@@ -73,14 +73,14 @@ export default NuxtAuthHandler({
     async signIn({ user, account }) {
       // Update the user's access token.
       await db
-        .update(userTable)
+        .update(usersTable)
         .set({
           accessToken: encrypt(
             account?.access_token ?? '',
             accessTokenPassword
           ),
         })
-        .where(eq(userTable.id, parseInt(user.id + '')));
+        .where(eq(usersTable.id, parseInt(user.id + '')));
     },
   },
   callbacks: {
@@ -90,12 +90,12 @@ export default NuxtAuthHandler({
         const userId = parseInt(account.providerAccountId);
 
         await db.transaction(async (tx) => {
-          await tx.insert(userTable).ignore().values({
+          await tx.insert(usersTable).ignore().values({
             id: userId,
             username: user.username,
           });
 
-          await tx.insert(userSettingsTable).ignore().values({
+          await tx.insert(usersSettingsTable).ignore().values({
             userId,
           });
         });
@@ -114,9 +114,9 @@ export default NuxtAuthHandler({
         token.lastActivityTimestamp = now.getTime();
 
         await db
-          .update(userTable)
+          .update(usersTable)
           .set({ lastActivity: now })
-          .where(eq(userTable.id, token.userId));
+          .where(eq(usersTable.id, token.userId));
       }
 
       return token;
@@ -125,31 +125,31 @@ export default NuxtAuthHandler({
       const userId = token.userId;
       const [user] = await db
         .select({
-          users: getTableColumns(userTable),
-          user_settings: getTableColumns(userSettingsTable),
+          users: getTableColumns(usersTable),
+          user_settings: getTableColumns(usersSettingsTable),
           items: {
             id: itemsTable.id,
             name: itemsTable.name,
             url: itemsTable.url,
           },
         })
-        .from(userTable)
-        .where(eq(userTable.id, userId))
+        .from(usersTable)
+        .where(eq(usersTable.id, userId))
         .innerJoin(
-          userSettingsTable,
-          eq(userTable.id, userSettingsTable.userId)
+          usersSettingsTable,
+          eq(usersTable.id, usersSettingsTable.userId)
         )
-        .leftJoin(itemsTable, eq(userSettingsTable.flairId, itemsTable.id));
+        .leftJoin(itemsTable, eq(usersSettingsTable.flairId, itemsTable.id));
 
       // Access tokens were not stored originally, so this is here to provide backwards
       // compatibility for users who have not logged in since this feature was added.
       if (!user.users.accessToken && token.sessionToken) {
         await db
-          .update(userTable)
+          .update(usersTable)
           .set({
             accessToken: encrypt(token.sessionToken, accessTokenPassword),
           })
-          .where(eq(userTable.id, userId));
+          .where(eq(usersTable.id, userId));
       }
 
       const {

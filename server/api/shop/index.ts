@@ -8,7 +8,7 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
-import { itemsTable, purchasesTable } from '~/database/schema';
+import { itemsTable, userItemTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { getToken, getServerSession } from '#auth';
 import type { JWT } from 'next-auth/jwt';
@@ -37,18 +37,18 @@ export default defineEventHandler(async (event) => {
     return db
       .select({
         url: itemsTable.url,
-        purchasedOn: purchasesTable.purchasedOn,
+        purchasedOn: userItemTable.purchasedOn,
         name: itemsTable.name,
       })
-      .from(purchasesTable)
-      .innerJoin(itemsTable, eq(purchasesTable.itemId, itemsTable.id))
+      .from(userItemTable)
+      .innerJoin(itemsTable, eq(userItemTable.itemId, itemsTable.id))
       .where(
         and(
-          eq(purchasesTable.userId, token.userId),
-          eq(purchasesTable.itemId, session?.user?.flair?.id)
+          eq(userItemTable.userId, token.userId),
+          eq(userItemTable.itemId, session?.user?.flair?.id)
         )
       )
-      .orderBy(desc(purchasesTable.purchasedOn));
+      .orderBy(desc(userItemTable.purchasedOn));
   };
 
   const [items, [currentFlair]] = await Promise.all([

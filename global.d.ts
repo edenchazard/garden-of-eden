@@ -1,6 +1,6 @@
 import type {
-  userSettingsTable,
-  userTable,
+  usersSettingsTable,
+  usersTable,
   itemsTable,
   hatcheryTable,
 } from '~/database/schema';
@@ -20,12 +20,12 @@ declare global {
   };
 
   type UserSettings = Omit<
-    typeof userSettingsTable.$inferSelect,
+    typeof usersSettingsTable.$inferSelect,
     'user_id',
     'flair'
   >;
-  type UserRole = typeof userTable.$inferSelect.role;
-  type UserFlair = typeof userSettingsTable.$inferSelect.flair;
+  type UserRole = typeof usersTable.$inferSelect.role;
+  type UserFlair = typeof usersSettingsTable.$inferSelect.flair;
   type Item = typeof itemsTable.$inferSelect;
 
   enum RecordType {
