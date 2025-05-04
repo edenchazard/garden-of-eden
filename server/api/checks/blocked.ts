@@ -1,4 +1,4 @@
-import { userTable } from '~/database/schema';
+import { usersTable } from '~/database/schema';
 import { db } from '~/server/db';
 import type { DragonData } from '~/types/DragonTypes';
 import { getToken, getServerSession } from '#auth';
@@ -27,11 +27,11 @@ export default defineEventHandler(async (event) => {
     }
     const [user] = await db
       .select({
-        username: userTable.username,
-        accessToken: userTable.accessToken,
+        username: usersTable.username,
+        accessToken: usersTable.accessToken,
       })
-      .from(userTable)
-      .where(eq(userTable.id, query.userId));
+      .from(usersTable)
+      .where(eq(usersTable.id, query.userId));
     if (!user.username || !user.accessToken) {
       return;
     }
@@ -92,11 +92,11 @@ export default defineEventHandler(async (event) => {
   }
 
   await db
-    .update(userTable)
+    .update(usersTable)
     .set({
       apiBlocked: blocked,
     })
-    .where(eq(userTable.id, userId));
+    .where(eq(usersTable.id, userId));
 
   return blocked;
 });

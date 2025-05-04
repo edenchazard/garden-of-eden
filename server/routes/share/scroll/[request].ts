@@ -6,9 +6,9 @@ import { db } from '~/server/db';
 import { and, eq, sql, or } from 'drizzle-orm';
 import {
   itemsTable,
-  userSettingsTable,
-  userTable,
-  clicksLeaderboardTable,
+  usersSettingsTable,
+  usersTable,
+  clicksLeaderboardsTable,
   hatcheryTable,
 } from '~/database/schema';
 import { DateTime } from 'luxon';
@@ -27,32 +27,32 @@ const getData = async (userId: number) => {
   const [[weekly], [allTime], dragons] = await Promise.all([
     db
       .select({
-        weeklyClicks: clicksLeaderboardTable.clicks_given,
-        weeklyRank: clicksLeaderboardTable.rank,
+        weeklyClicks: clicksLeaderboardsTable.clicksGiven,
+        weeklyRank: clicksLeaderboardsTable.rank,
       })
-      .from(clicksLeaderboardTable)
+      .from(clicksLeaderboardsTable)
       .where(
         and(
-          eq(clicksLeaderboardTable.leaderboard, 'weekly'),
+          eq(clicksLeaderboardsTable.leaderboard, 'weekly'),
           eq(
-            clicksLeaderboardTable.start,
+            clicksLeaderboardsTable.start,
             DateTime.now().startOf('week').toJSDate()
           ),
-          eq(clicksLeaderboardTable.user_id, userId)
+          eq(clicksLeaderboardsTable.userId, userId)
         )
       ),
     db
       .select({
-        allTimeClicks: sql<number>`SUM(${clicksLeaderboardTable.clicks_given})`,
-        allTimeRank: clicksLeaderboardTable.rank,
+        allTimeClicks: sql<number>`SUM(${clicksLeaderboardsTable.clicksGiven})`,
+        allTimeRank: clicksLeaderboardsTable.rank,
       })
-      .from(clicksLeaderboardTable)
+      .from(clicksLeaderboardsTable)
       .where(
         and(
-          eq(clicksLeaderboardTable.leaderboard, 'all time'),
+          eq(clicksLeaderboardsTable.leaderboard, 'all time'),
           // Yeah, this is literally just to force mysql to use the index.
-          eq(clicksLeaderboardTable.start, DateTime.fromMillis(0).toJSDate()),
-          eq(clicksLeaderboardTable.user_id, userId)
+          eq(clicksLeaderboardsTable.start, DateTime.fromMillis(0).toJSDate()),
+          eq(clicksLeaderboardsTable.userId, userId)
         )
       ),
     db
@@ -62,10 +62,10 @@ const getData = async (userId: number) => {
       .from(hatcheryTable)
       .where(
         and(
-          eq(hatcheryTable.user_id, userId),
+          eq(hatcheryTable.userId, userId),
           or(
-            eq(hatcheryTable.in_seed_tray, true),
-            eq(hatcheryTable.in_garden, true)
+            eq(hatcheryTable.inSeedTray, true),
+            eq(hatcheryTable.inGarden, true)
           )
         )
       ),
@@ -83,15 +83,15 @@ const getData = async (userId: number) => {
 const getUser = async (userId: number, username: string) => {
   const [user] = await db
     .select({
-      id: userTable.id,
-      username: userTable.username,
-      accessToken: userTable.accessToken,
+      id: usersTable.id,
+      username: usersTable.username,
+      accessToken: usersTable.accessToken,
       flairPath: itemsTable.url,
     })
-    .from(userTable)
-    .innerJoin(userSettingsTable, eq(userTable.id, userSettingsTable.user_id))
-    .leftJoin(itemsTable, eq(userSettingsTable.flair_id, itemsTable.id))
-    .where(and(eq(userTable.id, userId), eq(userTable.username, username)));
+    .from(usersTable)
+    .innerJoin(usersSettingsTable, eq(usersTable.id, usersSettingsTable.userId))
+    .leftJoin(itemsTable, eq(usersSettingsTable.flairId, itemsTable.id))
+    .where(and(eq(usersTable.id, userId), eq(usersTable.username, username)));
 
   if (!user?.accessToken) return null;
 

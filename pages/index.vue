@@ -174,7 +174,7 @@
                 @click="
                   () => {
                     if (!isProcessing) {
-                      hatchling.in_garden = !hatchling.in_garden;
+                      hatchling.inGarden = !hatchling.inGarden;
                     }
                   }
                 "
@@ -207,7 +207,7 @@
                 @click="
                   () => {
                     if (!isProcessing) {
-                      egg.in_garden = !egg.in_garden;
+                      egg.inGarden = !egg.inGarden;
                     }
                   }
                 "
@@ -367,7 +367,7 @@
 import { pluralise } from '#imports';
 import ScrollTable from '~/components/ScrollTable.vue';
 import WarningNewRelease from '~/components/WarningNewRelease.vue';
-import type { userNotificationsTable } from '~/database/schema';
+import type { userNotificationTable } from '~/database/schema';
 import HappyMatthias from '~/public/npc/happy_matthias.webp';
 
 const { data: authData, signIn } = useAuth();
@@ -379,7 +379,7 @@ const {
   status: fetchScrollStatus,
   error: fetchScrollError,
 } = await useFetch<{
-  releaseNotification: null | typeof userNotificationsTable.$inferSelect;
+  releaseNotification: null | typeof userNotificationTable.$inferSelect;
   details: { clicksToday: number };
   dragons: ScrollView[];
 }>('/api/user/scroll', {
@@ -413,8 +413,8 @@ const {
   body: computed(() =>
     scroll.value.dragons.map((dragon) => ({
       id: dragon.id,
-      in_seed_tray: dragon.in_seed_tray,
-      in_garden: dragon.in_garden,
+      inSeedTray: dragon.inSeedTray,
+      inGarden: dragon.inGarden,
     }))
   ),
   onResponse({ response }) {
@@ -423,10 +423,8 @@ const {
       return;
     }
 
-    const seedTray = scroll.value.dragons.filter(
-      (dragon) => dragon.in_seed_tray
-    );
-    const garden = scroll.value.dragons.filter((dragon) => dragon.in_garden);
+    const seedTray = scroll.value.dragons.filter((dragon) => dragon.inSeedTray);
+    const garden = scroll.value.dragons.filter((dragon) => dragon.inGarden);
     const texts = [];
 
     if (seedTray.length > 0) {
@@ -459,7 +457,7 @@ const hiddenTableColumns = computed(() => {
 
   if (
     !scroll.value.dragons.some(
-      (dragon) => dragon.hoursleft <= 96 || dragon.in_seed_tray
+      (dragon) => dragon.hoursleft <= 96 || dragon.inSeedTray
     )
   ) {
     hidden.push('Seed Tray');
@@ -535,7 +533,7 @@ async function refreshScroll() {
   await fetchScroll();
   scroll.value.dragons.forEach((dragon) => {
     const oldDragon = currentState.find((d) => d.id === dragon.id);
-    if (oldDragon) dragon.in_garden = oldDragon.in_garden;
+    if (oldDragon) dragon.inGarden = oldDragon.inGarden;
   });
 }
 
@@ -547,10 +545,10 @@ function toggleAll(checked: boolean) {
   scroll.value.dragons
     .filter(filterSelectAll(userSettings.value))
     .forEach((dragon) => {
-      dragon.in_garden = checked;
+      dragon.inGarden = checked;
 
       if (userSettings.value.autoSeedTray && dragon.hoursleft <= 96) {
-        dragon.in_seed_tray = checked;
+        dragon.inSeedTray = checked;
       }
     });
 }

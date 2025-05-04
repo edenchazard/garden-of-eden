@@ -45,7 +45,7 @@
           </span>
         </td>
         <td class="w-20 text-right">
-          {{ Intl.NumberFormat().format(user.clicks_given) }}
+          {{ Intl.NumberFormat().format(user.clicksGiven) }}
         </td>
       </tr>
       <tr v-if="leaderboard.length === 10">
@@ -70,13 +70,13 @@ import itemUrl from '~/utils/itemUrl';
 withDefaults(
   defineProps<{
     start?: string;
-    leaderboard: Array<{
+    leaderboard?: Array<{
       rank: number;
       username: string;
-      clicks_given: number;
+      clicksGiven: number;
       flair: Pick<Item, 'url' | 'name' | 'description' | 'artist'> | null;
     }>;
-    total: number;
+    total?: number;
     showTrophies?: boolean;
   }>(),
   {

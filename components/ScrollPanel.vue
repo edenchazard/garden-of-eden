@@ -12,9 +12,9 @@
         class="rounded-md grid grid-cols-[45px_1fr] gap-x-3 gap-y-2 p-2 pb-4 items-center border content-border justify-items-start overflow-hidden"
         :class="{
           'bg-green-500 dark:bg-neutral-800 border-transparent':
-            dragon.in_garden,
-          'border-green-500 dark:border-neutral-600': !dragon.in_garden,
-          'opacity-50': !dragon.in_garden,
+            dragon.inGarden,
+          'border-green-500 dark:border-neutral-600': !dragon.inGarden,
+          'opacity-50': !dragon.inGarden,
         }"
       >
         <NuxtLink
@@ -63,7 +63,7 @@
         </div>
         <input
           :id="`dragon-check-${dragon.id}`"
-          v-model="dragon.in_garden"
+          v-model="dragon.inGarden"
           class="justify-self-end -top-2 -right-2 absolute"
           type="checkbox"
           :aria-labelledby="`dragon-${dragon.id}`"
@@ -74,10 +74,10 @@
       class="*:first:pl-0.5 *:last:pr-0.5 bg-green-900 dark:bg-neutral-950 divide-x divide-white dark:divide-stone-400 text-xs text-left px-2 py-0.5 rounded-md absolute -bottom-2 -right-2 *:px-2"
       @click.stop
     >
-      <span v-if="dragon.is_stunned" v-tooltip.bottom="`Stunned`">
+      <span v-if="dragon.isStunned" v-tooltip.bottom="`Stunned`">
         <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
       </span>
-      <span v-if="dragon.is_incubated" v-tooltip.bottom="`Incubated`">
+      <span v-if="dragon.isIncubated" v-tooltip.bottom="`Incubated`">
         <font-awesome-icon :icon="['fas', 'fire']" />
       </span>
       <span
@@ -85,8 +85,8 @@
         class="inline-flex items-center"
       >
         <ToggleInput
-          v-if="dragon.hoursleft <= 96 || dragon.in_seed_tray"
-          v-model="dragon.in_seed_tray"
+          v-if="dragon.hoursleft <= 96 || dragon.inSeedTray"
+          v-model="dragon.inSeedTray"
           :label="`ER ${formatHoursLeft(dragon.hoursleft)}`"
           size="sm"
           class="text-orange-300 dark:text-red-500 font-semibold"

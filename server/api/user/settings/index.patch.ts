@@ -1,6 +1,6 @@
 import { db } from '~/server/db';
 import { getToken } from '#auth';
-import { userSettingsTable, userSettingsSchema } from '~/database/schema';
+import { usersSettingsTable, userSettingsSchema } from '~/database/schema';
 import { eq } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 
@@ -11,9 +11,9 @@ export default defineEventHandler(async (event) => {
   ]);
 
   await db
-    .update(userSettingsTable)
+    .update(usersSettingsTable)
     .set(settings)
-    .where(eq(userSettingsTable.user_id, token.userId));
+    .where(eq(usersSettingsTable.userId, token.userId));
 
   return sendNoContent(event);
 });

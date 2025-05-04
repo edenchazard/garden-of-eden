@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
   ]);
 
   await db.insert(clicksTable).ignore().values({
-    hatchery_id: query.id,
-    user_id: token.userId,
+    hatcheryId: query.id,
+    userId: token.userId,
   });
 
   return sendNoContent(event);

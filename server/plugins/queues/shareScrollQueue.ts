@@ -1,7 +1,7 @@
 import { Worker as BullWorker } from 'bullmq';
 import { watch } from 'fs';
 import { db } from '~/server/db';
-import { bannerJobsTable, userTable } from '~/database/schema';
+import { userBannerJobTable, usersTable } from '~/database/schema';
 import type {
   WorkerFinished,
   WorkerInput,
@@ -50,7 +50,7 @@ export default defineNitroPlugin(async () => {
 
       await db.transaction(async (tx) => {
         const promises: Promise<unknown>[] = [
-          tx.insert(bannerJobsTable).values({
+          tx.insert(userBannerJobTable).values({
             userId: job.data.user.id,
             username: job.data.user.username,
             flairPath: job.data.user.flairPath,
@@ -63,9 +63,9 @@ export default defineNitroPlugin(async () => {
         if (job.failedReason.endsWith('401 Unauthorized')) {
           promises.push(
             tx
-              .update(userTable)
+              .update(usersTable)
               .set({ accessToken: null })
-              .where(eq(userTable.id, job.data.user.id))
+              .where(eq(usersTable.id, job.data.user.id))
           );
         }
 
@@ -85,7 +85,7 @@ export default defineNitroPlugin(async () => {
         'ms'
       );
 
-      await db.insert(bannerJobsTable).values({
+      await db.insert(userBannerJobTable).values({
         userId: job.data.user.id,
         username: job.data.user.username,
         flairPath: job.data.user.flairPath,
