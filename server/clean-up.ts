@@ -9,6 +9,8 @@ import type { DragonData } from '~/types/DragonTypes';
 import { blockedApiQueue } from './queue';
 
 export async function cleanUp() {
+  const sqlChunkSize = 200;
+  const dragCaveChunkSize = 400;
   const { clientSecret } = useRuntimeConfig();
 
   const start = new Date().getTime();
@@ -41,7 +43,7 @@ export async function cleanUp() {
   let caveborn = 0;
   let lineaged = 0;
 
-  const chunkedDragons = chunkArray(hatcheryDragons, 400);
+  const chunkedDragons = chunkArray(hatcheryDragons, dragCaveChunkSize);
 
   const promises = await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
@@ -162,19 +164,19 @@ export async function cleanUp() {
   let successfullyRemoved = 0;
 
   await Promise.allSettled([
-    ...chunkArray([...removeFromSeedTray], 200).map(async (chunk) =>
+    ...chunkArray([...removeFromSeedTray], sqlChunkSize).map(async (chunk) =>
       removeFromSeedTrayStatement.execute({ chunk })
     ),
-    ...chunkArray([...removeFromHatchery], 200).map(async (chunk) => {
+    ...chunkArray([...removeFromHatchery], sqlChunkSize).map(async (chunk) => {
       const [{ affectedRows }] = await removeFromHatcheryStatement.execute({
         chunk,
       });
       successfullyRemoved += affectedRows;
     }),
-    ...chunkArray([...updateIncubated], 200).map(async (chunk) =>
+    ...chunkArray([...updateIncubated], sqlChunkSize).map(async (chunk) =>
       updateIncubatedStatement.execute({ chunk })
     ),
-    ...chunkArray([...updateStunned], 200).map(async (chunk) =>
+    ...chunkArray([...updateStunned], sqlChunkSize).map(async (chunk) =>
       updateStunnedStatement.execute({ chunk })
     ),
   ]);
