@@ -1,4 +1,4 @@
-import { userNotificationsTable } from '~/database/schema';
+import { userNotificationTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { DateTime } from 'luxon';
 import { lte, or, sql } from 'drizzle-orm';
@@ -9,14 +9,14 @@ export default defineTask({
   },
   async run() {
     await db
-      .delete(userNotificationsTable)
+      .delete(userNotificationTable)
       .where(
         or(
           lte(
-            userNotificationsTable.createdAt,
+            userNotificationTable.createdAt,
             sql`${DateTime.now().minus({ days: 28 }).toSQL()}`
           ),
-          lte(userNotificationsTable.validUntil, sql`NOW()`)
+          lte(userNotificationTable.validUntil, sql`NOW()`)
         )
       );
     return {

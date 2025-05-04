@@ -18,7 +18,7 @@ import {
 import { createSelectSchema } from 'drizzle-zod';
 import type { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
 
-export const userTable = mysqlTable(
+export const usersTable = mysqlTable(
   'users',
   {
     id: mediumint('id', { unsigned: true }).primaryKey().notNull(),
@@ -31,29 +31,29 @@ export const userTable = mysqlTable(
     })
       .default('user')
       .notNull(),
-    registered_on: datetime('registered_on')
+    registeredOn: datetime('registered_on')
       .default(sql`NOW()`)
       .notNull(),
-    last_activity: datetime('last_activity'),
+    lastActivity: datetime('last_activity'),
     money: smallint('money').notNull().default(0),
     accessToken: char('access_token', {
       length: 129,
     }),
     apiBlocked: boolean('api_blocked').notNull().default(false),
   },
-  (table) => [index('last_activity_idx').on(table.last_activity)]
+  (table) => [index('last_activity_idx').on(table.lastActivity)]
 );
 
-export const userSettingsTable = mysqlTable('user_settings', {
-  user_id: mediumint('user_id', {
+export const usersSettingsTable = mysqlTable('users_settings', {
+  userId: mediumint('user_id', {
     unsigned: true,
   })
     .primaryKey()
-    .references(() => userTable.id, {
+    .references(() => usersTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
-  flair_id: tinyint('flair_id', {
+  flairId: tinyint('flair_id', {
     unsigned: true,
   }).references(() => itemsTable.id, {
     onDelete: 'set null',
@@ -64,10 +64,10 @@ export const userSettingsTable = mysqlTable('user_settings', {
   })
     .notNull()
     .default('hatchlings,eggs'),
-  gardenFrequency: smallint('gardenFrequency').notNull().default(30),
-  gardenPerPage: smallint('gardenPerPage').notNull().default(50),
-  seedTrayFrequency: smallint('seedTrayFrequency').notNull().default(30),
-  seedTrayPerPage: smallint('seedTrayPerPage').notNull().default(50),
+  gardenFrequency: smallint('garden_frequency').notNull().default(30),
+  gardenPerPage: smallint('garden_per_page').notNull().default(50),
+  seedTrayFrequency: smallint('seed_tray_frequency').notNull().default(30),
+  seedTrayPerPage: smallint('seed_tray_per_page').notNull().default(50),
   sort: varchar('sort', {
     length: 32,
     enum: ['Youngest First', 'Oldest First'],
@@ -80,22 +80,22 @@ export const userSettingsTable = mysqlTable('user_settings', {
   })
     .notNull()
     .default('card'),
-  hatchlingMinAge: tinyint('hatchlingMinAge').notNull().default(0),
-  eggMinAge: tinyint('eggMinAge').notNull().default(0),
-  showScrollRatio: boolean('showScrollRatio').notNull().default(false),
-  autoSeedTray: boolean('autoSeedTray').notNull().default(true),
-  siteName: varchar('siteName', {
+  hatchlingMinAge: tinyint('hatchling_min_age').notNull().default(0),
+  eggMinAge: tinyint('egg_min_age').notNull().default(0),
+  showScrollRatio: boolean('show_scroll_ratio').notNull().default(false),
+  autoSeedTray: boolean('auto_seed_tray').notNull().default(true),
+  siteName: varchar('site_name', {
     length: 5,
     enum: ['Eden', 'Elena'],
   })
     .default('Eden')
     .notNull(),
-  highlightClickedDragons: boolean('highlightClickedDragons')
+  highlightClickedDragons: boolean('highlight_clicked_dragons')
     .notNull()
     .default(true),
-  anonymiseStatistics: boolean('anonymiseStatistics').notNull().default(false),
+  anonymiseStatistics: boolean('anonymise_statistics').notNull().default(false),
   bubblewrap: boolean('bubblewrap').notNull().default(false),
-  newReleaseAlerts: boolean('newReleaseAlerts').notNull().default(true),
+  newReleaseAlerts: boolean('new_release_alerts').notNull().default(true),
 });
 
 export const hatcheryTable = mysqlTable(
@@ -106,32 +106,32 @@ export const hatcheryTable = mysqlTable(
     })
       .primaryKey()
       .notNull(),
-    user_id: mediumint('user_id', {
+    userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
-    in_seed_tray: boolean('in_seed_tray').notNull().default(false),
-    in_garden: boolean('in_garden').notNull().default(false),
-    is_incubated: boolean('is_incubated').notNull().default(false),
-    is_stunned: boolean('is_stunned').notNull().default(false),
+    inSeedTray: boolean('in_seed_tray').notNull().default(false),
+    inGarden: boolean('in_garden').notNull().default(false),
+    isIncubated: boolean('is_incubated').notNull().default(false),
+    isStunned: boolean('is_stunned').notNull().default(false),
   },
   (table) => [
-    index('in_seed_tray_idx').on(table.in_seed_tray, table.user_id),
-    index('in_garden_idx').on(table.in_garden, table.user_id),
+    index('in_seed_tray_idx').on(table.inSeedTray, table.userId),
+    index('in_garden_idx').on(table.inGarden, table.userId),
   ]
 );
 
 export const recordingsTable = mysqlTable(
   'recordings',
   {
-    recorded_on: datetime('recorded_on', { mode: 'string' })
+    recordedOn: datetime('recorded_on', { mode: 'string' })
       .notNull()
       .default(sql`NOW()`),
     value: bigint('value', { mode: 'number', unsigned: true }).notNull(),
-    record_type: varchar('record_type', {
+    recordType: varchar('record_type', {
       length: 24,
       enum: [
         'removed',
@@ -172,42 +172,42 @@ export const recordingsTable = mysqlTable(
       .default({}),
   },
   (table) => [
-    index('recorded_on_idx').on(table.recorded_on),
-    index('record_type_idx').on(table.record_type),
+    index('recorded_on_idx').on(table.recordedOn),
+    index('record_type_idx').on(table.recordType),
   ]
 );
 
 export const clicksTable = mysqlTable(
   'clicks',
   {
-    hatchery_id: char('hatchery_id', {
+    hatcheryId: char('hatchery_id', {
       length: 5,
     }).notNull(),
-    user_id: mediumint('user_id', {
+    userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
-    clicked_on: datetime('clicked_on', { mode: 'date' })
+    clickedOn: datetime('clicked_on', { mode: 'date' })
       .notNull()
       .default(sql`NOW()`),
   },
   (table) => [
-    uniqueIndex('hatchery_id_user_id_idx').on(table.hatchery_id, table.user_id),
-    index('user_id_clicked_on_idx').on(table.user_id, table.clicked_on),
-    index('clicked_on_idx').on(table.clicked_on),
+    uniqueIndex('hatchery_id_user_id_idx').on(table.hatcheryId, table.userId),
+    index('user_id_clicked_on_idx').on(table.userId, table.clickedOn),
+    index('clicked_on_idx').on(table.clickedOn),
   ]
 );
 
-export const clicksLeaderboardTable = mysqlTable(
-  'clicks_leaderboard',
+export const clicksLeaderboardsTable = mysqlTable(
+  'clicks_leaderboards',
   {
-    user_id: mediumint('user_id', {
+    userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -217,16 +217,16 @@ export const clicksLeaderboardTable = mysqlTable(
     }).notNull(),
     start: datetime('start').notNull(),
     rank: mediumint('rank', { unsigned: true }).notNull(),
-    clicks_given: bigint('clicks_given', { mode: 'number', unsigned: true })
+    clicksGiven: bigint('clicks_given', { mode: 'number', unsigned: true })
       .notNull()
       .default(0),
   },
   (table) => [
-    index('clicks_given_idx').on(table.clicks_given),
+    index('clicks_given_idx').on(table.clicksGiven),
     uniqueIndex('leaderboard_start_user_idIdx').on(
       table.leaderboard,
       table.start,
-      table.user_id
+      table.userId
     ),
   ]
 );
@@ -262,33 +262,33 @@ export const itemsTable = mysqlTable('items', {
   }),
 });
 
-export const purchasesTable = mysqlTable('purchases', {
+export const userItemTable = mysqlTable('user_item', {
   id: bigint('id', {
     unsigned: true,
     mode: 'number',
   })
     .autoincrement()
     .primaryKey(),
-  item_id: tinyint('item_id', {
+  itemId: tinyint('item_id', {
     unsigned: true,
   })
     .references(() => itemsTable.id, {
       onDelete: 'restrict',
     })
     .notNull(),
-  user_id: mediumint('user_id', {
+  userId: mediumint('user_id', {
     unsigned: true,
   })
-    .references(() => userTable.id, {
+    .references(() => usersTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
-  purchased_on: datetime('purchased_on', { mode: 'date' })
+  purchasedOn: datetime('purchased_on', { mode: 'date' })
     .default(sql`NOW()`)
     .notNull(),
 });
 
-export const bannerJobsTable = mysqlTable('banner_jobs', {
+export const userBannerJobTable = mysqlTable('user_banner_job', {
   id: bigint('id', {
     unsigned: true,
     mode: 'number',
@@ -298,7 +298,7 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   userId: mediumint('user_id', {
     unsigned: true,
   })
-    .references(() => userTable.id, {
+    .references(() => usersTable.id, {
       onDelete: 'cascade',
     })
     .notNull(),
@@ -323,8 +323,8 @@ export const bannerJobsTable = mysqlTable('banner_jobs', {
   requestParams: json('request_params').$type<BannerRequestParameters>(),
 });
 
-export const userTrophiesTable = mysqlTable(
-  'users_trophies',
+export const userTrophyTable = mysqlTable(
+  'user_trophy',
   {
     id: bigint('id', { unsigned: true, mode: 'number' })
       .autoincrement()
@@ -332,7 +332,7 @@ export const userTrophiesTable = mysqlTable(
     userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -356,8 +356,8 @@ export const dragCaveFeedTable = mysqlTable('dragcave_feed', {
   link: text('link').notNull(),
 });
 
-export const userNotificationsTable = mysqlTable(
-  'user_notifications',
+export const userNotificationTable = mysqlTable(
+  'user_notification',
   {
     id: bigint('id', { unsigned: true, mode: 'number' })
       .autoincrement()
@@ -365,7 +365,7 @@ export const userNotificationsTable = mysqlTable(
     userId: mediumint('user_id', {
       unsigned: true,
     })
-      .references(() => userTable.id, {
+      .references(() => usersTable.id, {
         onDelete: 'cascade',
       })
       .notNull(),
@@ -385,7 +385,7 @@ export const userNotificationsTable = mysqlTable(
   ]
 );
 
-export const userSettingsSchema = createSelectSchema(userSettingsTable, {
+export const userSettingsSchema = createSelectSchema(usersSettingsTable, {
   gardenFrequency: (schema) => schema.min(15).max(300).default(30),
   gardenPerPage: (schema) => schema.min(10).max(500).default(500),
   seedTrayFrequency: (schema) => schema.min(15).max(300).default(30),
@@ -399,8 +399,8 @@ export const userSettingsSchema = createSelectSchema(userSettingsTable, {
   siteName: (schema) => schema.default('Eden'),
   highlightClickedDragons: (schema) => schema.default(true),
   anonymiseStatistics: (schema) => schema.default(false),
-  flair_id: (schema) => schema.nullable().default(null),
+  flairId: (schema) => schema.nullable().default(null),
   sectionOrder: (schema) => schema.default('hatchlings,eggs'),
   bubblewrap: (schema) => schema.default(false),
   newReleaseAlerts: (schema) => schema.default(true),
-}).omit({ user_id: true, flair_id: true });
+}).omit({ userId: true, flairId: true });

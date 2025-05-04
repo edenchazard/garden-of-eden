@@ -10,11 +10,11 @@ export default defineTask({
     await db.insert(recordingsTable).values([
       {
         value: sql`(SELECT COUNT(*) FROM ${hatcheryTable})`,
-        record_type: 'total_dragons',
+        recordType: 'total_dragons',
       },
       {
-        value: sql`(SELECT COUNT(DISTINCT(${hatcheryTable.user_id})) FROM ${hatcheryTable})`,
-        record_type: 'total_scrolls',
+        value: sql`(SELECT COUNT(DISTINCT(${hatcheryTable.userId})) FROM ${hatcheryTable})`,
+        recordType: 'total_scrolls',
       },
     ]);
 

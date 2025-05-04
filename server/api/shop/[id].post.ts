@@ -1,9 +1,9 @@
 import {
   itemsTable,
-  purchasesTable,
-  userSettingsTable,
-  userTable,
-  userTrophiesTable,
+  userItemTable,
+  usersSettingsTable,
+  usersTable,
+  userTrophyTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
 import { getToken } from '#auth';
@@ -52,34 +52,34 @@ export default defineEventHandler(async (event) => {
 
   // User has enough money check.
   const [user] = await db
-    .select({ money: userTable.money })
-    .from(userTable)
-    .where(eq(userTable.id, token.userId));
+    .select({ money: usersTable.money })
+    .from(usersTable)
+    .where(eq(usersTable.id, token.userId));
 
   if (item.cost && user.money < item.cost) {
     return setResponseStatus(event, 404);
   }
 
   const reward = await db.transaction(async (tx) => {
-    await db.insert(purchasesTable).values({
-      item_id: params.id,
-      user_id: token.userId,
+    await db.insert(userItemTable).values({
+      itemId: params.id,
+      userId: token.userId,
     });
 
     await tx
-      .update(userTable)
+      .update(usersTable)
       .set({
         money: user.money - (item?.cost ?? 0),
       })
-      .where(eq(userTable.id, token.userId));
+      .where(eq(usersTable.id, token.userId));
 
     if (item.category === 'flair') {
       await tx
-        .update(userSettingsTable)
+        .update(usersSettingsTable)
         .set({
-          flair_id: params.id,
+          flairId: params.id,
         })
-        .where(eq(userSettingsTable.user_id, token.userId));
+        .where(eq(usersSettingsTable.userId, token.userId));
     }
 
     // New Year 2025 badge.
@@ -92,19 +92,19 @@ export default defineEventHandler(async (event) => {
       // Check they don't already have the badge.
       const hasBadge = await tx
         .select({
-          id: userTrophiesTable.id,
+          id: userTrophyTable.id,
         })
-        .from(userTrophiesTable)
+        .from(userTrophyTable)
         .where(
           and(
-            eq(userTrophiesTable.itemId, badge.id),
-            eq(userTrophiesTable.userId, token.userId)
+            eq(userTrophyTable.itemId, badge.id),
+            eq(userTrophyTable.userId, token.userId)
           )
         )
         .limit(1);
 
       if (!hasBadge.length) {
-        await tx.insert(userTrophiesTable).values({
+        await tx.insert(userTrophyTable).values({
           itemId: badge.id,
           userId: token.userId,
           awardedOn: now,

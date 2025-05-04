@@ -14,7 +14,7 @@
       <td class="border-none!">
         <input
           :id="`dragon-check-${dragon.id}`"
-          v-model="dragon.in_garden"
+          v-model="dragon.inGarden"
           type="checkbox"
           :aria-labelledby="`dragon-${dragon.id}`"
           :disabled
@@ -22,9 +22,9 @@
       </td>
       <td v-if="!hiddenColumns.includes('Seed Tray')" class="border-none!">
         <input
-          v-if="dragon.hoursleft <= 96 || dragon.in_seed_tray"
+          v-if="dragon.hoursleft <= 96 || dragon.inSeedTray"
           :id="`dragon-check-${dragon.id}`"
-          v-model="dragon.in_seed_tray"
+          v-model="dragon.inSeedTray"
           type="checkbox"
           :aria-labelledby="`dragon-${dragon.id}`"
           :disabled
@@ -75,7 +75,7 @@
       <td
         :class="{
           'text-orange-300 dark:text-red-500 ':
-            dragon.hoursleft <= 96 || dragon.in_seed_tray,
+            dragon.hoursleft <= 96 || dragon.inSeedTray,
         }"
       >
         {{ formatHoursLeft(dragon.hoursleft) }}
@@ -93,10 +93,10 @@
         </span>
       </td>
       <td>
-        <span v-if="dragon.is_stunned" v-tooltip.bottom="`Stunned`">
+        <span v-if="dragon.isStunned" v-tooltip.bottom="`Stunned`">
           <font-awesome-icon :icon="['fas', 'bolt-lightning']" />
         </span>
-        <span v-else-if="dragon.is_incubated" v-tooltip.bottom="`Incubated`">
+        <span v-else-if="dragon.isIncubated" v-tooltip.bottom="`Incubated`">
           <font-awesome-icon :icon="['fas', 'fire']" />
         </span>
       </td>

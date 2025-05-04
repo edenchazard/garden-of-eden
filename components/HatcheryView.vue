@@ -95,7 +95,7 @@
       class="size-full flex items-center justify-center"
       :class="{
         'bg-orange-100/30 dark:bg-sky-200/15 transition-colors':
-          dragon.clicked_on && highlightClickedDragons,
+          dragon.clickedOn && highlightClickedDragons,
       }"
       :href="`${path}/view/${dragon.id}`"
       target="_blank"
@@ -191,11 +191,11 @@ function trackClick(dragon: HatcheryDragon) {
     }
   }
 
-  if (dragon.clicked_on || !authData?.value?.user) {
+  if (dragon.clickedOn || !authData?.value?.user) {
     return;
   }
 
-  dragon.clicked_on = new Date().toISOString();
+  dragon.clickedOn = new Date().toISOString();
 }
 
 function trackMouseClick(dragon: HatcheryDragon, event: MouseEvent) {

@@ -14,20 +14,20 @@
       <h2>Personal statistics</h2>
       <ul class="list-disc list-inside space-y-2">
         <li>
-          {{ Intl.NumberFormat().format(personalStats.clicked_24) }} unique
+          {{ Intl.NumberFormat().format(personalStats.clicked24) }} unique
           dragons clicked in the last 24 hours.<sup
             ><a href="#personal-1" class="decoration-transparent! ml-2"
               >[1]</a
             ></sup
           >
           <p class="pl-6 italic block text-sm">
-            <template v-if="personalStats.not_clicked === 0">
+            <template v-if="personalStats.notClicked === 0">
               (Nice job! You've clicked all the dragons in the garden for now.)
             </template>
             <template v-else>
               (There's still
-              {{ Intl.NumberFormat().format(personalStats.not_clicked) }}
-              {{ pluralise('dragon', personalStats.not_clicked) }} in the garden
+              {{ Intl.NumberFormat().format(personalStats.notClicked) }}
+              {{ pluralise('dragon', personalStats.notClicked) }} in the garden
               that you haven't clicked!)
             </template>
           </p>
@@ -644,7 +644,7 @@ function renderCharts() {
   if (statistics === null) return;
 
   const mapTimes = (stat: typeof recordingsTable.$inferSelect) =>
-    DateTime.fromSQL(stat.recorded_on + 'Z').toJSDate();
+    DateTime.fromSQL(stat.recordedOn + 'Z').toJSDate();
 
   function transform(stat: (typeof statistics.cleanUp)[0]) {
     const extra = JSON.parse(stat.extra as string);

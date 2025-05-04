@@ -12,16 +12,14 @@ const getCounts = defineCachedFunction(
     const [{ total, scrolls }] = await db
       .select({
         total: sql<number>`COUNT(*)`.as('total'),
-        scrolls: sql<number>`COUNT(DISTINCT(${hatcheryTable.user_id}))`.as(
+        scrolls: sql<number>`COUNT(DISTINCT(${hatcheryTable.userId}))`.as(
           'scrolls'
         ),
       })
       .from(hatcheryTable)
       .where(
         eq(
-          area === 'garden'
-            ? hatcheryTable.in_garden
-            : hatcheryTable.in_seed_tray,
+          area === 'garden' ? hatcheryTable.inGarden : hatcheryTable.inSeedTray,
           true
         )
       );
@@ -43,27 +41,25 @@ async function getDragons(
 
   if (token?.userId) {
     query = db
-      .select({ id: hatcheryTable.id, clicked_on: clicksTable.clicked_on })
+      .select({ id: hatcheryTable.id, clickedOn: clicksTable.clickedOn })
       .from(hatcheryTable)
       .leftJoin(
         clicksTable,
         and(
-          eq(hatcheryTable.id, clicksTable.hatchery_id),
-          eq(clicksTable.user_id, token.userId)
+          eq(hatcheryTable.id, clicksTable.hatcheryId),
+          eq(clicksTable.userId, token.userId)
         )
       );
   } else {
     query = db
-      .select({ id: hatcheryTable.id, clicked_on: sql<null>`null` })
+      .select({ id: hatcheryTable.id, clickedOn: sql<null>`null` })
       .from(hatcheryTable);
   }
 
   return query
     .where(
       eq(
-        area === 'garden'
-          ? hatcheryTable.in_garden
-          : hatcheryTable.in_seed_tray,
+        area === 'garden' ? hatcheryTable.inGarden : hatcheryTable.inSeedTray,
         true
       )
     )

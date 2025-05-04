@@ -1,7 +1,7 @@
 import {
   itemsTable,
-  purchasesTable,
-  userSettingsTable,
+  userItemTable,
+  usersSettingsTable,
 } from '~/database/schema';
 import { db } from '~/server/db';
 import { and, sql, eq, notInArray, gte, isNotNull } from 'drizzle-orm';
@@ -13,23 +13,23 @@ export default defineTask({
   },
   async run() {
     await db
-      .update(userSettingsTable)
-      .set({ flair_id: null })
+      .update(usersSettingsTable)
+      .set({ flairId: null })
       .where(
         and(
-          isNotNull(userSettingsTable.flair_id),
+          isNotNull(usersSettingsTable.flairId),
           notInArray(
-            userSettingsTable.user_id,
+            usersSettingsTable.userId,
             db
               .select({
-                user_id: purchasesTable.user_id,
+                userId: userItemTable.userId,
               })
-              .from(purchasesTable)
-              .innerJoin(itemsTable, eq(purchasesTable.item_id, itemsTable.id))
+              .from(userItemTable)
+              .innerJoin(itemsTable, eq(userItemTable.itemId, itemsTable.id))
               .where(
                 and(
-                  eq(userSettingsTable.user_id, purchasesTable.user_id),
-                  gte(purchasesTable.purchased_on, sql`NOW() - INTERVAL 7 DAY`),
+                  eq(usersSettingsTable.userId, userItemTable.userId),
+                  gte(userItemTable.purchasedOn, sql`NOW() - INTERVAL 7 DAY`),
                   eq(itemsTable.category, 'flair')
                 )
               )

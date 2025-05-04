@@ -15,11 +15,11 @@ export default defineTask({
     const failed = failure.filter((timestamp) => timestamp < now);
 
     await db.insert(recordingsTable).values({
-      recorded_on: DateTime.now()
+      recordedOn: DateTime.now()
         .startOf('minute')
         .toSQL({ includeOffset: false }),
       value: successful.length + failed.length,
-      record_type: 'api_request',
+      recordType: 'api_request',
       extra: {
         success: successful.length,
         failure: failed.length,

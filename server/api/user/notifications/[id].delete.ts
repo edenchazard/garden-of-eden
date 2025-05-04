@@ -1,4 +1,4 @@
-import { userNotificationsTable } from '~/database/schema';
+import { userNotificationTable } from '~/database/schema';
 import { db } from '~/server/db';
 import { getToken } from '#auth';
 import type { JWT } from 'next-auth/jwt';
@@ -17,11 +17,11 @@ export default defineEventHandler(async (event) => {
   ]);
 
   await db
-    .delete(userNotificationsTable)
+    .delete(userNotificationTable)
     .where(
       and(
-        eq(userNotificationsTable.id, params.id),
-        eq(userNotificationsTable.userId, token.userId)
+        eq(userNotificationTable.id, params.id),
+        eq(userNotificationTable.userId, token.userId)
       )
     );
 
