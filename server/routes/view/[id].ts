@@ -23,10 +23,10 @@ export default defineEventHandler(async (event) => {
       },
       {
         removeOnComplete: {
-          age: 1000 * 60 * 60 * 24 * 3,
+          age: 1000 * 60 * 60 * 12,
         },
         removeOnFail: {
-          age: 1000 * 60 * 60 * 24 * 3,
+          age: 1000 * 60 * 60 * 12,
         },
       }
     );
