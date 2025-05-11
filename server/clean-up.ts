@@ -1,7 +1,7 @@
 import chunkArray from '~/utils/chunkArray';
 import { db } from '~/server/db';
 import { hatcheryTable, recordingsTable } from '~/database/schema';
-import { inArray, sql } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
 import { isIncubated, isStunned } from '~/utils/calculations';
@@ -9,8 +9,6 @@ import type { DragonData } from '~/types/DragonTypes';
 import { blockedApiQueue } from './queue';
 
 export async function cleanUp() {
-  const sqlChunkSize = 200;
-  const dragCaveChunkSize = 400;
   const { clientSecret } = useRuntimeConfig();
 
   const start = new Date().getTime();
@@ -26,13 +24,11 @@ export async function cleanUp() {
     })
     .from(hatcheryTable);
 
-  type DragonCode = (typeof hatcheryDragons)[number]['id'];
-
-  const removeFromSeedTray = new Set<DragonCode>();
-  const removeFromHatchery = new Set<DragonCode>();
-  const updateIncubated = new Set<DragonCode>();
-  const updateStunned = new Set<DragonCode>();
-  const apiBlockedTest = new Set<(typeof hatcheryDragons)[number]['userId']>();
+  const removeFromSeedTray: string[] = [];
+  const removeFromHatchery: string[] = [];
+  const updateIncubated: string[] = [];
+  const updateStunned: string[] = [];
+  const apiBlockedTest: Set<number> = new Set();
   let hatchlings = 0;
   let eggs = 0;
   let adults = 0;
@@ -43,7 +39,7 @@ export async function cleanUp() {
   let caveborn = 0;
   let lineaged = 0;
 
-  const chunkedDragons = chunkArray(hatcheryDragons, dragCaveChunkSize);
+  const chunkedDragons = chunkArray(hatcheryDragons, 400);
 
   const promises = await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
@@ -70,7 +66,7 @@ export async function cleanUp() {
         // If it didn't come back in the response, we can assume they blocked the Garden.
         // Sucks for them. We'll remove it, and add a note to the user.
         if (code in apiResponse.dragons === false) {
-          removeFromHatchery.add(code);
+          removeFromHatchery.push(code);
           apiBlockedTest.add(hatcheryDragon.userId);
           continue;
         }
@@ -79,14 +75,14 @@ export async function cleanUp() {
 
         if (hatcheryDragon.inSeedTray && apiDragon.hoursleft > 96) {
           hatcheryDragon.inSeedTray = false;
-          removeFromSeedTray.add(code);
+          removeFromSeedTray.push(code);
         }
 
         if (
           apiDragon.hoursleft < 0 ||
           (!hatcheryDragon.inSeedTray && !hatcheryDragon.inGarden)
         ) {
-          removeFromHatchery.add(code);
+          removeFromHatchery.push(code);
         }
 
         if (apiDragon.grow !== '0') {
@@ -121,65 +117,60 @@ export async function cleanUp() {
 
         if (
           hatcheryDragon.isIncubated === false &&
-          !removeFromHatchery.has(code) &&
+          !removeFromHatchery.includes(code) &&
           isIncubated(apiDragon)
         ) {
-          updateIncubated.add(code);
+          updateIncubated.push(code);
         }
 
         if (
           hatcheryDragon.isStunned === false &&
-          !removeFromHatchery.has(code) &&
+          !removeFromHatchery.includes(code) &&
           isStunned(apiDragon)
         ) {
-          updateStunned.add(code);
+          updateStunned.push(code);
         }
       }
     })
   );
 
-  const removeFromHatcheryStatement = db
-    .delete(hatcheryTable)
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
-
-  const removeFromSeedTrayStatement = db
-    .update(hatcheryTable)
-    .set({ inSeedTray: false })
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
-
-  const updateIncubatedStatement = db
-    .update(hatcheryTable)
-    .set({ isIncubated: true })
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
-
-  const updateStunnedStatement = db
-    .update(hatcheryTable)
-    .set({ isStunned: true })
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
+  await Promise.allSettled(
+    chunkArray(removeFromSeedTray, 200).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ inSeedTray: false })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
 
   let successfullyRemoved = 0;
 
-  await Promise.allSettled([
-    ...chunkArray([...removeFromSeedTray], sqlChunkSize).map(async (chunk) =>
-      removeFromSeedTrayStatement.execute({ chunk })
-    ),
-    ...chunkArray([...removeFromHatchery], sqlChunkSize).map(async (chunk) => {
-      const [{ affectedRows }] = await removeFromHatcheryStatement.execute({
-        chunk,
-      });
+  await Promise.allSettled(
+    chunkArray(removeFromHatchery, 200).map(async (chunk) => {
+      const [{ affectedRows }] = await db
+        .delete(hatcheryTable)
+        .where(inArray(hatcheryTable.id, chunk));
       successfullyRemoved += affectedRows;
-    }),
-    ...chunkArray([...updateIncubated], sqlChunkSize).map(async (chunk) =>
-      updateIncubatedStatement.execute({ chunk })
-    ),
-    ...chunkArray([...updateStunned], sqlChunkSize).map(async (chunk) =>
-      updateStunnedStatement.execute({ chunk })
-    ),
-  ]);
+    })
+  );
+
+  await Promise.allSettled(
+    chunkArray(updateIncubated, 200).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ isIncubated: true })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
+
+  await Promise.allSettled(
+    chunkArray(updateStunned, 200).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ isStunned: true })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
 
   // We can't totally be sure that just because we couldn't find one of their dragons
   // that they're blocking us. For example, maybe they transferred it to an account
