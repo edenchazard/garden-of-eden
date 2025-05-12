@@ -16,7 +16,7 @@ services:
       - internal
 
   db:
-    image: mariadb:10
+    image: mariadb:10.9.3
     tty: true
     volumes:
       - dbdata:/var/lib/mysql
@@ -28,15 +28,14 @@ services:
       - internal
 
   redis:
-    image: redis:alpine
+    image: redis:7.4.1-alpine
     ports:
       - 6379:6379
     networks:
       - internal
 
   bullboard:
-    image: venatum/bull-board:latest
-    restart: unless-stopped
+    image: venatum/bull-board:2.3.1
     ports:
       - 3001:3000
     networks:
