@@ -1,7 +1,6 @@
-# syntax = docker/dockerfile:1
+
 
 ARG NODE_VERSION=20.16.0
-ARG PORT=3000
 
 FROM node:${NODE_VERSION}-slim AS base
 ENV NODE_ENV=production
@@ -15,6 +14,8 @@ RUN npm i bullmq sharp --os=linux --cpu=x64
 
 # Build
 FROM base AS build
+ARG BASE_URL="/dc/lineage-builder"
+ENV BASE_URL=$BASE_URL
 COPY --link package.json package-lock.json ./
 RUN npm install --production=false
 COPY --link . .
@@ -23,6 +24,7 @@ RUN npm prune
 
 # Run
 FROM base
+ARG PORT=3000
 ENV PORT=$PORT
 # Required for health check.
 RUN apt-get update && apt-get install curl -y

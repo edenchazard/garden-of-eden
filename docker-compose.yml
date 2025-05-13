@@ -2,51 +2,42 @@ services:
   hatchery:
     build:
       context: .
-    command: node .output/server/index.mjs
-    env_file:
-      - .env
+      dockerfile: ./Dockerfile.dev
+    command: sh -c "rm -f /tmp/nitro/*.sock && npm run dev"
     volumes:
+      - .:/src
+      - node_modules:/src/node_modules
       - caches:/cache
-    depends_on:
-      - db
-    healthcheck:
-      test: 'curl -f http://localhost:3000/dc/hatchery/ || exit 1'
-      interval: 30s
-      timeout: 20s
-      retries: 3
-      start_period: 60s
-    labels:
-      autoheal: true
     ports:
       - 3000:3000
+    env_file:
+      - .env
     networks:
       - internal
-      - dragcave
 
   db:
-    image: mariadb:10
+    image: mariadb:10.9.3
     tty: true
     volumes:
       - dbdata:/var/lib/mysql
     env_file:
       - .env
+    ports:
+      - 3306:3306
     networks:
       - internal
-    ports:
-      - 55555:3306
 
   redis:
-    image: redis:alpine
+    image: redis:7.4.1-alpine
     ports:
       - 6379:6379
     networks:
       - internal
 
   bullboard:
-    image: venatum/bull-board:latest
-    restart: unless-stopped
+    image: venatum/bull-board:2.3.1
     ports:
-      - 55556:3000
+      - 3001:3000
     networks:
       - internal
     environment:
@@ -54,25 +45,10 @@ services:
       USER_LOGIN: ${BULLBOARD_USER}
       USER_PASSWORD: ${BULLBOARD_PASSWORD}
 
-  autoheal:
-    deploy:
-      replicas: 1
-    environment:
-      AUTOHEAL_INTERVAL: 60
-      AUTOHEAL_START_PERIOD: 300
-      AUTOHEAL_DEFAULT_STOP_TIMEOUT: 10
-    image: willfarrell/autoheal:latest
-    network_mode: none
-    restart: always
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-
 volumes:
   dbdata:
+  node_modules:
   caches:
 
 networks:
   internal:
-  dragcave:
-    external: true
