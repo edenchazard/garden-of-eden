@@ -1,7 +1,11 @@
-# .dockerignore
-/.nuxt
-/.output
-/node_modules
+.github
+.nuxt
+.output
+.env
+node_modules
 
+Dockerfile
+Dockerfile.dev
+docker-compose.yml
 .gitignore
 README.md

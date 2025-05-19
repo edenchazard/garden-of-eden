@@ -1,16 +1,16 @@
 import { defineConfig } from 'drizzle-kit';
 
-const config = process.env;
+const { db } = useRuntimeConfig();
 
 export default defineConfig({
   dialect: 'mysql',
   schema: './database/schema.ts',
   out: './drizzle',
   dbCredentials: {
-    user: config.MYSQL_USER ?? '',
-    password: config.MYSQL_PASSWORD ?? '',
-    host: config.MYSQL_HOST ?? '',
+    user: db.user,
+    password: db.password,
+    host: db.host,
     port: 3306,
-    database: config.MYSQL_DATABASE ?? '',
+    database: db.database,
   },
 });
