@@ -20,7 +20,8 @@ textarea {
   @apply bg-white text-black p-2 rounded-md shadow-[inset_0px_0px_7px_-3px_#000];
 }
 
-input[type='checkbox'] {
+input[type='checkbox'],
+input[type='radio'] {
   @apply overflow-hidden size-6 rounded-full border-[3px] appearance-none bg-green-800 border-green-400 dark:bg-neutral-900 dark:border-neutral-700 checked:bg-yellow-400 dark:checked:bg-sky-900;
 }
 

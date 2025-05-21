@@ -182,6 +182,19 @@
               />
               <label for="animated-christmas">Christmas</label>
               <span class="italic text-sm col-span-full text-center">Arcy</span>
+              <ShareScrollBannerPreview
+                :params="animatedBannerOptions"
+                :banner="`${config.public.baseUrl}/share/scroll/aquarium.webp`"
+              />
+              <input
+                id="animated-aquarium"
+                v-model="animatedBannerOptions.style"
+                value="aquarium"
+                type="radio"
+                name="animated-banner"
+              />
+              <label for="animated-aquarium">Aquarium</label>
+              <span class="italic text-sm col-span-full text-center">Arcy</span>
             </div>
 
             <div
@@ -216,9 +229,7 @@
                     v-model="useDefaultPalette"
                     type="checkbox"
                   />
-                  <label for="animated-use-default=palette"
-                    >Use default palette</label
-                  >
+                  <label for="animated-use-default=palette">Defaults</label>
                 </div>
               </fieldset>
 
