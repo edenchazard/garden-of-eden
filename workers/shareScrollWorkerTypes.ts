@@ -72,6 +72,11 @@ export const defaultPalette = {
     valueColour: '#94edff',
     usernameColour: '#ffffff',
   },
+  aquarium: {
+    labelColour: '#ffffff',
+    valueColour: '#f2bd59',
+    usernameColour: '#ffffff',
+  },
 };
 
 const hexValue = z.string().regex(/^#[0-9a-f]{6}$/);
@@ -83,7 +88,11 @@ export const querySchema = z
       .union([z.literal('dragons'), z.literal('garden')])
       .default('garden'),
     style: z
-      .union([z.literal('default'), z.literal('christmas')])
+      .union([
+        z.literal('default'),
+        z.literal('christmas'),
+        z.literal('aquarium'),
+      ])
       .default('default'),
     usernameColour: hexValue.optional(),
     labelColour: hexValue.optional(),

@@ -1,12 +1,9 @@
-#
 name: Build and Push Docker Image
 on:
   release:
     types: [published]
-
 env:
   IMAGE_NAME: garden-of-eden
-#
 jobs:
   push:
     runs-on: ubuntu-latest
