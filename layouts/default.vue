@@ -124,6 +124,7 @@
         </div>
       </header>
       <main
+        :style="{ overflow: 'initial' }"
         class="lg:rounded-t-md bg-green-600/80 dark:bg-neutral-900 py-4 space-y-4 shadow-lg shadow-black/20 dark:shadow-black/50"
       >
         <slot />

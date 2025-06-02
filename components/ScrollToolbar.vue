@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid sm:grid-cols-2 md:grid-cols-[1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
+    class="bg-green-800 dark:bg-neutral-950 grid grid-cols-[auto_1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
   >
     <div class="flex col-span-full sm:col-auto *:flex-1 gap-4">
       <label :for="`${id}-sort`" class="mr-1 sr-only"> Sort by: </label>
@@ -10,7 +10,7 @@
       </select>
     </div>
 
-    <div class="col-span-full items-center flex gap-x-2 sm:col-auto">
+    <div class="items-center flex gap-x-2">
       <input
         :id="`${id}-select-all-hatchery`"
         type="checkbox"
