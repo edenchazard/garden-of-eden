@@ -263,11 +263,10 @@
           </ScrollTable>
         </div>
       </template>
-
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
-        class="mt-6! order-4 bottom-0 sticky z-10 p-2"
+        class="order-4 bottom-0 sticky z-10 p-2 !mx-0"
         :dragons="scroll.dragons"
         :settings="userSettings"
         :fetch-scroll-status

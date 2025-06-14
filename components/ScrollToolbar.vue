@@ -1,8 +1,8 @@
 <template>
   <div
-    class="bg-green-800 dark:bg-neutral-950 grid grid-cols-[auto_1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
+    class="bg-green-800/70 dark:bg-neutral-950/70 grid grid-cols-2 md:grid-cols-[auto_1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
   >
-    <div class="flex col-span-full sm:col-auto *:flex-1 gap-4">
+    <div class="flex *:flex-1 gap-4">
       <label :for="`${id}-sort`" class="mr-1 sr-only"> Sort by: </label>
       <select :id="`${id}-sort`" v-model="sort" class="md:max-w-60">
         <option value="Oldest First">Oldest First</option>
@@ -10,7 +10,9 @@
       </select>
     </div>
 
-    <div class="items-center flex gap-x-2">
+    <div
+      class="items-center justify-self-center 3xs:justify-self-auto flex gap-x-2"
+    >
       <input
         :id="`${id}-select-all-hatchery`"
         type="checkbox"
@@ -23,7 +25,10 @@
           emit('toggle-all', ($event.target as HTMLInputElement).checked)
         "
       />
-      <label :for="`${id}-select-all-hatchery`" class="flex-1 text-left py-2">
+      <label
+        :for="`${id}-select-all-hatchery`"
+        class="flex-1 text-left py-2 sr-only 3xs:!not-sr-only"
+      >
         Select all
       </label>
     </div>
@@ -32,7 +37,7 @@
       <LoadingIcon v-if="fetchScrollStatus === 'pending'" class="mr-1 size-4" />
 
       <font-awesome-icon v-else class="mr-1" :icon="['fas', 'rotate']" />
-      Reload
+      <span class="sr-only 3xs:!not-sr-only">Reload</span>
     </button>
 
     <button
@@ -42,7 +47,7 @@
     >
       <LoadingIcon v-if="saveScrollStatus === 'pending'" class="ml-1 size-4" />
       <font-awesome-icon v-else :icon="['fas', 'dragon']" class="ml-1 size-4" />
-      Submit
+      <span class="sr-only 3xs:!not-sr-only">Submit</span>
     </button>
   </div>
 </template>
