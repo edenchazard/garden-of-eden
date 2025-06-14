@@ -152,7 +152,7 @@
             class="flex flex-col min-[840px]:flex-row gap-4 items-start justify-around"
           >
             <div
-              class="self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
+              class="justify-items-center self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
             >
               <ShareScrollBannerPreview
                 :params="animatedBannerOptions"
