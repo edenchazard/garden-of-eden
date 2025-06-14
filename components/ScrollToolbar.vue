@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-green-800/70 dark:bg-neutral-950/70 grid grid-cols-2 md:grid-cols-[auto_1fr_auto_auto_auto] gap-y-2 gap-x-4 items-center"
+    class="bg-green-800/70 dark:bg-neutral-950/70 grid grid-cols-2 md:grid-cols-[1fr_auto_auto_auto_auto] gap-y-2 gap-x-4 items-center"
   >
     <div class="flex *:flex-1 gap-4">
       <label :for="`${id}-sort`" class="mr-1 sr-only"> Sort by: </label>
