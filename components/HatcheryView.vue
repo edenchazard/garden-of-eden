@@ -92,7 +92,7 @@
     <a
       v-for="dragon in hatchery.dragons"
       :key="dragon.id"
-      class="size-full flex items-center justify-center"
+      class="size-full flex items-center justify-center cursor-watering-can"
       :class="{
         'bg-orange-100/30 dark:bg-sky-200/15 transition-colors':
           dragon.clickedOn && highlightClickedDragons,
