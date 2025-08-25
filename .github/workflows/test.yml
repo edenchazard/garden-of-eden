@@ -9,6 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: try to build the project
+        run: npm i && npm run build
+
       - name: run prettier checks
         run: npm run fmt:check
 
@@ -20,6 +23,3 @@ jobs:
 
       - name: run unit tests via vitest
         run: npm i && npm run test:unit -- --run
-
-      - name: try to build the project
-        run: npm i && npm run build
