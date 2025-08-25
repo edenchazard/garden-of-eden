@@ -10,13 +10,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: run prettier checks
-        run: docker compose exec -T testapp sh -c "npm run fmt:check"
+        run: npm run fmt:check
 
       - name: run linting
-        run: docker compose exec -T testapp sh -c "npm run lint"
+        run: npm run lint
 
       - name: run typescript checks
-        run: docker compose exec -T testapp sh -c "npm run ts:check"
+        run: npm run ts:check
 
       - name: run unit tests via vitest
         run: npm i && npm run test:unit -- --run
