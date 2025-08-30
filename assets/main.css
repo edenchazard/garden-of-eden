@@ -18,7 +18,9 @@
   --breakpoint-3xs: 20rem;
   --font-alkhemikal: Alkhemikal;
   --font-nokiafc22: Nokia Cellphone FC;
-  --cursor-watering-can: url(/public/cursors/watering-can/tilted.png), pointer;
+  --cursor-watering-can: url(/public/cursors/watering-can/default.png), pointer;
+  --cursor-watering-can-tilted:
+    url(/public/cursors/watering-can/tilted.png), pointer;
 }
 
 @layer base {
