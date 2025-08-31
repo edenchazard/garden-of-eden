@@ -139,7 +139,7 @@
               />
             </div>
             <p
-              class="bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose text-sm"
+              class="bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 border-transparent rounded-md p-4 max-w-prose text-sm"
             >
               These banners are examples. Your banner will display any eggs and
               hatchlings you currently have in the garden. If you have a flair,
@@ -198,7 +198,7 @@
             </div>
 
             <div
-              class="self-stretch bg-green-500 dark:bg-neutral-800 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
+              class="self-stretch bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
             >
               <fieldset>
                 <legend class="font-bold">Colours</legend>

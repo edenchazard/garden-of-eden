@@ -4,7 +4,7 @@
 
     <div class="flex flex-col rounded-md">
       <header
-        class="px-2 lg:px-0 space-y-2 sm:space-y-0 pb-2 justify-between items-center"
+        class="px-2 lg:px-0 space-y-2 sm:space-y-0 pb-2 justify-between items-center [&_.link]:text-white! dark:[&_.link]:text-stone-200! deep-sea:[&_.link]:text-blue-50!"
       >
         <div
           class="flex flex-col min-[500px]:flex-row gap-x-3 gap-y-3 min-h-9 min-[500px]:items-center justify-end"
@@ -18,7 +18,7 @@
               :to="`https://dragcave.net/user/${authData?.user.username}`"
               target="_blank"
               class="truncate whitespace-nowrap"
-              >{{ authData?.user.username }}</NuxtLink
+              >{{ authData.user.username }}</NuxtLink
             >
             <span v-if="authData.user.flair" class="ml-1 w-[19px]">
               <img
@@ -30,26 +30,31 @@
           </span>
           <div class="flex items-center justify-end gap-x-[inherit]">
             <ClientOnly>
-              <ToggleInput
-                class="inline-block w-[5.1rem]"
-                :model-value="$colorMode.preference === 'dark'"
-                :label="$colorMode.preference === 'dark' ? 'Dark' : 'Mint'"
-                @update:model-value="
-                  $colorMode.preference = $event ? 'dark' : 'mint'
+              <select
+                class="inline-block w-[7rem] rounded px-2 !py-1 text-xs"
+                :value="$colorMode.preference"
+                @change="
+                  $colorMode.preference = (
+                    $event.target as HTMLSelectElement
+                  ).value
                 "
-              />
+              >
+                <option value="system">System</option>
+                <option value="mint">Mint</option>
+                <option value="dark">Dark</option>
+                <option value="deep-sea">Deep Sea</option>
+              </select>
               <template #fallback>
-                <ToggleInput
-                  :model-value="false"
-                  label=""
-                  class="inline-block w-[5.1rem]"
+                <select
+                  class="inline-block w-[7rem] rounded px-2 !py-1 text-xs"
+                  disabled
                 />
               </template>
             </ClientOnly>
             <NuxtLink
               v-if="authData?.user"
               to="/settings"
-              class="shrink-0 pl-2 text-white dark:text-stone-200 group"
+              class="shrink-0 pl-2 group link"
               ><font-awesome-icon
                 :icon="['fas', 'cog']"
                 class="mr-2 motion-safe:group-hover:animate-spin"
@@ -59,9 +64,7 @@
         </div>
         <div class="flex gap-y-1 flex-col sm:flex-row justify-between">
           <div class="text-center z-10">
-            <span
-              class="inline-block relative bg-green-800 dark:bg-neutral-950"
-            >
+            <span class="inline-block relative bg-(--outer-bg)">
               <img
                 v-if="
                   Interval.fromDateTimes(
@@ -80,29 +83,23 @@
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: '0.2rem',
                 }"
-                class="pl-9 text-3xl text-white dark:text-stone-200 tracking-wider font-thin decoration-transparent"
+                class="link pl-9 text-3xl tracking-wider font-thin decoration-transparent"
                 >Garden of {{ userSettings.siteName }}</NuxtLink
               ></span
             >
           </div>
           <nav
-            class="grid grid-cols-2 justify-items-center min-[360px]:flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center"
+            class="grid grid-cols-2 justify-items-center min-[360px]:flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center [&_a]:underline-offset-4 [&_a]:underline [&_a]:px-0! [&_a]:shadow-none!"
           >
-            <NuxtLink class="text-white dark:text-stone-200" to="/statistics"
-              >Statistics</NuxtLink
-            >
+            <NuxtLink class="link" to="/statistics">Statistics</NuxtLink>
             <span class="hidden min-[360px]:inline">&bull;</span>
-            <NuxtLink class="text-white dark:text-stone-200" to="/share"
-              >Share</NuxtLink
-            >
+            <NuxtLink class="link" to="/share">Share</NuxtLink>
             <span class="hidden min-[360px]:inline">&bull;</span>
-            <NuxtLink class="text-white dark:text-stone-200" to="/shop"
-              >Shop</NuxtLink
-            >
+            <NuxtLink class="link" to="/shop">Shop</NuxtLink>
             <span class="hidden min-[360px]:inline">&bull;</span>
             <button
               v-if="authData?.user"
-              class="underline-offset-4 underline px-0! shadow-none!"
+              class="link underline-offset-4 underline px-0! shadow-none!"
               type="button"
               @click="signOut()"
             >
@@ -112,7 +109,7 @@
             </button>
             <button
               v-else
-              class="underline-offset-4 underline px-0! shadow-none!"
+              class="link underline-offset-4 underline px-0! shadow-none!"
               type="button"
               @click="signIn('dragcave')"
             >
@@ -125,7 +122,7 @@
       </header>
       <main
         :style="{ overflow: 'initial' }"
-        class="lg:rounded-t-md bg-green-600/80 dark:bg-neutral-900 py-4 space-y-4 shadow-lg shadow-black/20 dark:shadow-black/50"
+        class="lg:rounded-t-md bg-green-600/80 dark:bg-neutral-900 deep-sea:bg-slate-800 py-4 space-y-4 shadow-lg shadow-black/20 dark:shadow-black/50"
       >
         <slot />
       </main>
