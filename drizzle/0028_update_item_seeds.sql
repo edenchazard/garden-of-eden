@@ -64,4 +64,6 @@ INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `
 	(63, "Ruby", "ruby.webp", "flair", "2025-07-01 00:00:00", "2025-07-31 00:00:00", "July's entry for the rock garden.", 100, "Luci"),
 	(64, "Monstera", "monstera-leaf.webp", "flair", NULL,  NULL, "The holes in the leaves serve a purpose — to increase the surface area for sunlight, and to let rain through.", 150, "Luci"),
 	(65, "Peridot", "peridot.webp", "flair", "2025-08-01 00:00:00", "2025-08-31 00:00:00", "August's entry for the rock garden.", 100, "Luci"),
-	(66, "Marigold", "marigold.webp", "flair", NULL,  NULL, "A popular companion plant.", 125, "04uni");
+	(66, "Marigold", "marigold.webp", "flair", NULL,  NULL, "A popular companion plant.", 125, "04uni"),
+	(67, "Sapphire", "sapphire.webp", "flair", "2025-09-01 00:00:00", "2025-09-30 00:00:00", "September's entry for the rock garden.", 100, "Luci"),
+	(68, "Poppy", "poppy.webp", "flair", NULL,  NULL, "A flower that symbolises remembrance.", 200, "Inghelene");
