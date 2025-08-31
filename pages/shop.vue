@@ -42,55 +42,60 @@
       </div>
 
       <div
-        v-if="authData?.user"
-        class="p-4 bg-orange-200 text-black dark:bg-sky-900 dark:text-white max-w-prose mx-auto rounded-lg grid items-center gap-2 grid-cols-[auto_1fr] data-center"
+        class="p-4 bg-orange-200 text-black dark:bg-sky-900 dark:text-white deep-sea:bg-orange-200 max-w-prose mx-auto rounded-lg grid items-center gap-2 grid-cols-[auto_1fr]"
       >
-        <p class="col-span-full">
-          Matthias will sell you <strong>flairs</strong> to display alongside
-          your username in return for <strong>Dragon Dollars</strong>. You can
-          display one flair but it can be changed at any time. Flairs expire, so
-          after 7 days it will disappear.
-        </p>
-        <p class="col-span-full">
-          You can acquire Dragon Dollars by clicking on dragons in the site and
-          may have a maximum of 500 Dragon Dollars at any time.
-        </p>
-        <img src="/public/other/dragon-dollar.webp" width="17" height="10" />
-        <p>You have {{ authData?.user.money ?? 0 }} Dragon Dollars.</p>
-        <template v-if="data.currentFlair">
-          <img :src="itemUrl(data.currentFlair.url)" alt="" />
-          <p v-if="data.currentFlair">
-            You currently have the
-            <strong>{{ data.currentFlair.name }}</strong> flair. It will wilt on
-            <ClientOnly>
-              {{
-                DateTime.fromISO(data.currentFlair.purchasedOn)
-                  .plus({
-                    days: 7,
-                  })
-                  .toLocaleString({
-                    dateStyle: 'short',
-                    timeStyle: 'short',
-                  })
-              }}</ClientOnly
-            >.
-          </p>
-        </template>
-        <p v-else class="col-span-full">You have no flair currently.</p>
-      </div>
-      <div v-else class="text-center space-y-2 max-w-prose mx-auto">
-        <p>
-          Matthias will sell you <strong>flairs</strong> to display alongside
-          your username in exchange for Dragon Dollars, earned by clicking. You
-          must be logged in.
-        </p>
-        <button
-          type="button"
-          class="btn btn-primary"
-          @click="signIn('dragcave')"
+        <div
+          v-if="authData?.user"
+          class="grid items-center gap-2 grid-cols-[auto_1fr]"
         >
-          Login
-        </button>
+          <p class="col-span-full">
+            Matthias will sell you <strong>flairs</strong> to display alongside
+            your username in return for <strong>Dragon Dollars</strong>. You can
+            display one flair but it can be changed at any time. Flairs expire,
+            so after 7 days it will disappear.
+          </p>
+          <p class="col-span-full">
+            You can acquire Dragon Dollars by clicking on dragons in the site
+            and may have a maximum of 500 Dragon Dollars at any time.
+          </p>
+          <img src="/public/other/dragon-dollar.webp" width="17" height="10" />
+          <p>You have {{ authData?.user.money ?? 0 }} Dragon Dollars.</p>
+          <template v-if="data.currentFlair">
+            <img :src="itemUrl(data.currentFlair.url)" alt="" />
+            <p v-if="data.currentFlair">
+              You currently have the
+              <strong>{{ data.currentFlair.name }}</strong> flair. It will wilt
+              on
+              <ClientOnly>
+                {{
+                  DateTime.fromISO(data.currentFlair.purchasedOn)
+                    .plus({
+                      days: 7,
+                    })
+                    .toLocaleString({
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    })
+                }}</ClientOnly
+              >.
+            </p>
+          </template>
+          <p v-else class="col-span-full">You have no flair currently.</p>
+        </div>
+        <div v-else class="space-y-2 text-center">
+          <p>
+            Matthias will sell you <strong>flairs</strong> to display alongside
+            your username in exchange for Dragon Dollars, earned by clicking.
+            You must be logged in.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="signIn('dragcave')"
+          >
+            Login
+          </button>
+        </div>
       </div>
     </section>
 

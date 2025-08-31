@@ -9,7 +9,7 @@
     <tr
       v-for="dragon in dragons"
       :key="dragon.id"
-      class="divide-x divide-emerald-900/30 dark:divide-stone-500/30 *:py-2 *:px-3 *:text-center even:bg-green-500 odd:bg-green-600 dark:even:bg-neutral-800 dark:odd:bg-neutral-900"
+      class="divide-x divide-emerald-900/30 dark:divide-stone-500/30 deep-sea:divide-slate-500/30 *:py-2 *:px-3 *:text-center even:bg-green-500 odd:bg-green-600 dark:even:bg-neutral-800 dark:odd:bg-neutral-900 deep-sea:even:bg-slate-700 deep-sea:odd:bg-slate-800"
     >
       <td class="border-none!">
         <input
@@ -35,7 +35,7 @@
           <NuxtLink
             :to="`https://dragcave.net/view/${dragon.id}`"
             target="_blank"
-            class="shrink-0 size-[45px] flex items-center justify-center rounded-md border border-green-400 dark:border-stone-700"
+            class="shrink-0 size-[45px] flex items-center justify-center rounded-md border border-green-400 dark:border-stone-700 deep-sea:border-slate-500"
             :aria-labelledby="`dragon-${dragon.id}`"
           >
             <ClientOnly>

@@ -13,6 +13,7 @@
 }
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant deep-sea (&:is(.deep-sea *));
 
 @theme {
   --breakpoint-3xs: 20rem;
@@ -27,11 +28,18 @@
   }
 
   body {
-    @apply min-h-full flex text-white dark:text-stone-200;
+    @apply min-h-full flex text-white dark:text-stone-200 deep-sea:text-slate-300;
   }
 
   #__nuxt {
-    @apply flex-1 flex flex-col items-center bg-green-800 dark:bg-neutral-950;
+    --outer-bg: var(--color-green-800);
+    @variant dark {
+      --outer-bg: var(--color-neutral-950);
+    }
+    @variant deep-sea {
+      --outer-bg: var(--color-slate-950);
+    }
+    @apply flex-1 flex flex-col items-center bg-(--outer-bg);
   }
 
   main {
@@ -56,7 +64,7 @@
   }
 
   a {
-    @apply underline underline-offset-4 text-yellow-300 dark:text-sky-500;
+    @apply underline underline-offset-4 text-yellow-300 dark:text-sky-500 deep-sea:text-orange-200;
   }
 
   abbr {
@@ -81,11 +89,11 @@
     }
 
     &.btn-primary {
-      @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white;
+      @apply bg-orange-200 text-black dark:bg-sky-900 dark:text-white deep-sea:bg-indigo-800 deep-sea:text-slate-100;
     }
 
     &.btn-secondary {
-      @apply bg-emerald-500 dark:bg-rose-900 dark:text-white;
+      @apply bg-emerald-500 dark:bg-rose-900 dark:text-white deep-sea:bg-indigo-200 deep-sea:text-black;
     }
 
     &.btn-danger {

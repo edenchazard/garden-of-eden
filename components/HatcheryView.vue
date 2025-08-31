@@ -94,7 +94,7 @@
       :key="dragon.id"
       class="size-full flex items-center justify-center cursor-watering-can"
       :class="{
-        'bg-orange-100/30 dark:bg-sky-200/15 transition-colors':
+        'bg-orange-100/30 dark:bg-sky-200/15 deep-sea:bg-orange-200/40 transition-colors':
           dragon.clickedOn && highlightClickedDragons,
       }"
       :href="`${path}/view/${dragon.id}`"

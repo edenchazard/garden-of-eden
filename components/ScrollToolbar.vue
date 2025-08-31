@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-green-800/70 dark:bg-neutral-950/70 grid grid-cols-2 md:grid-cols-[1fr_auto_auto_auto_auto] gap-y-2 gap-x-4 items-center"
+    class="bg-green-800/70 dark:bg-neutral-950/70 deep-sea:bg-slate-900/70 grid grid-cols-2 md:grid-cols-[1fr_auto_auto_auto_auto] gap-y-2 gap-x-4 items-center"
   >
     <div class="flex *:flex-1 gap-4">
       <label :for="`${id}-sort`" class="mr-1 sr-only"> Sort by: </label>
@@ -42,7 +42,7 @@
 
     <button
       type="submit"
-      class="btn- bg-amber-700 dark:bg-indigo-900"
+      class="btn- bg-amber-700 dark:bg-indigo-900 deep-sea:bg-sky-800"
       @click="emit('submit')"
     >
       <LoadingIcon v-if="saveScrollStatus === 'pending'" class="ml-1 size-4" />
