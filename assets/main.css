@@ -111,7 +111,7 @@
 
   .graph {
     & div {
-      @apply p-3 border border-green-300 dark:border-stone-700 bg-black/25;
+      @apply p-3 border border-green-300 dark:border-stone-700 deep-sea:border-slate-400 bg-black/25;
     }
 
     & canvas {
