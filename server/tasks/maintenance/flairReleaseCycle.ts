@@ -33,7 +33,7 @@ export default defineTask({
     const currentDate = DateTime.now();
 
     await db.transaction(async (tx) => {
-      expiredFlairs.forEach(async (flair) => {
+      const updates = expiredFlairs.map(async (flair) => {
         const releaseDate = DateTime.fromSQL(flair.releaseDate);
 
         // Find the next year when this flair should be available
@@ -48,7 +48,7 @@ export default defineTask({
           days: flair.daysAvailable,
         });
 
-        await tx
+        return tx
           .update(itemsTable)
           .set({
             availableFrom: newAvailableFrom.toSQL({ includeOffset: true }),
@@ -56,6 +56,8 @@ export default defineTask({
           })
           .where(eq(itemsTable.id, flair.id));
       });
+
+      await Promise.all(updates);
     });
 
     return {
