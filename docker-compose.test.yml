@@ -1,0 +1,64 @@
+services:
+  testapp:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    command: sh -c "rm -f /tmp/nitro/*.sock && npm run dev"
+    depends_on:
+      - testdb
+      - redis
+    volumes:
+      - .:/src
+      - test_node_modules:/src/node_modules
+      - test_caches:/cache
+    ports:
+      - 3000:3000
+    environment:
+      - NUXT_APP_BASE_URL=${BASE_URL:-/dc/hatchery}
+      - NUXT_DB_DATABASE=${TEST_MYSQL_DATABASE:-hatchery_test}
+      - NUXT_DB_USER=${TEST_MYSQL_USER:-gardener_test}
+      - NUXT_DB_PASSWORD=${TEST_MYSQL_PASSWORD:-TestPassword123}
+      - NUXT_DB_HOST=${TEST_MYSQL_HOST:-testdb}
+      - NUXT_CLIENT_ID=${CLIENT_ID:-test_client_id}
+      - NUXT_CLIENT_SECRET=${CLIENT_SECRET:-test_client_secret}
+      - NUXT_PUBLIC_ORIGIN=${ORIGIN:-http://localhost:3000}
+      - NUXT_PUBLIC_BASE_URL=${BASE_URL:-/dc/hatchery}
+      - NUXT_REDIS_HOST=${REDIS_HOST:-redis}
+      - NUXT_REDIS_PORT=${REDIS_PORT:-6379}
+      - NUXT_BANNER_CACHE_EXPIRY=${BANNER_CACHE_EXPIRY:-10}
+      - NUXT_ACCESS_TOKEN_PASSWORD=${ACCESS_TOKEN_PASSWORD:-test_access_token}
+      - NUXT_NEXT_AUTH_SECRET=${NEXT_SECRET:-test_secret}
+      - NUXT_SECURITY_CSRF_ENCRYPT_SECRET=${CSRF_SECRET:-test_csrf_secret}
+      - AUTH_ORIGIN=${ORIGIN:-http://localhost:3000}${BASE_URL:-/dc/hatchery}/api/auth
+    networks:
+      - test_internal
+
+  testdb:
+    image: mariadb:10.9
+    tty: true
+    volumes:
+      - test_dbdata:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${TEST_MYSQL_ROOT_PASSWORD:-TestRootPassword123}
+      - MYSQL_DATABASE=${TEST_MYSQL_DATABASE:-hatchery_test}
+      - MYSQL_USER=${TEST_MYSQL_USER:-gardener_test}
+      - MYSQL_PASSWORD=${TEST_MYSQL_PASSWORD:-TestPassword123}
+    ports:
+      - 3307:3306
+    networks:
+      - test_internal
+
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - 6380:6379
+    networks:
+      - test_internal
+
+volumes:
+  test_dbdata:
+  test_node_modules:
+  test_caches:
+
+networks:
+  test_internal:
