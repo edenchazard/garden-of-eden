@@ -263,11 +263,10 @@
           </ScrollTable>
         </div>
       </template>
-
       <ScrollToolbar
         id="scroll-toolbar"
         v-model:sort="userSettings.sort"
-        class="mt-6! order-4"
+        class="order-4 bottom-0 sticky z-10 p-2 !mx-0"
         :dragons="scroll.dragons"
         :settings="userSettings"
         :fetch-scroll-status
@@ -296,7 +295,7 @@
               urgently.
             </p>
             <div
-              class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
+              class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 deep-sea:bg-indigo-900/20 rounded-md text-center"
             >
               <div>
                 <b class="text-2xl font-bold block">{{
@@ -340,7 +339,7 @@
               is a garden, not a dragon's cave!
             </p>
             <div
-              class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 rounded-md text-center"
+              class="grid grid-cols-[1fr_auto_1fr] flex-1 items-center p-2 bg-green-300/20 dark:bg-stone-500/20 deep-sea:bg-indigo-800/20 rounded-md text-center"
             >
               <div>
                 <b class="text-2xl font-bold block">{{

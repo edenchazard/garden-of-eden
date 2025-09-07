@@ -2,77 +2,77 @@ services:
   hatchery:
     build:
       context: .
-    command: node .output/server/index.mjs
-    env_file:
-      - .env
-    volumes:
-      - caches:/cache
+      dockerfile: ./Dockerfile.dev
+    command: sh -c "rm -f /tmp/nitro/*.sock && npm run dev"
     depends_on:
       - db
-    healthcheck:
-      test: 'curl -f http://localhost:3000/dc/hatchery/ || exit 1'
-      interval: 30s
-      timeout: 20s
-      retries: 3
-      start_period: 60s
-    labels:
-      autoheal: true
+      - redis
+    volumes:
+      - .:/src
+      - node_modules:/src/node_modules
+      - caches:/cache
     ports:
       - 3000:3000
+    environment:
+      - NUXT_APP_BASE_URL=${BASE_URL}
+      - NUXT_DB_DATABASE=${MYSQL_DATABASE}
+      - NUXT_DB_USER=${MYSQL_USER}
+      - NUXT_DB_PASSWORD=${MYSQL_PASSWORD}
+      - NUXT_DB_HOST=${MYSQL_HOST}
+      - NUXT_CLIENT_ID=${CLIENT_ID}
+      - NUXT_CLIENT_SECRET=${CLIENT_SECRET}
+      - NUXT_PUBLIC_ORIGIN=${ORIGIN}
+      - NUXT_PUBLIC_BASE_URL=${BASE_URL}
+      - NUXT_REDIS_HOST=${REDIS_HOST}
+      - NUXT_REDIS_PORT=${REDIS_PORT}
+      - NUXT_BANNER_CACHE_EXPIRY=${BANNER_CACHE_EXPIRY}
+      - NUXT_ACCESS_TOKEN_PASSWORD=${ACCESS_TOKEN_PASSWORD}
+      - NUXT_NEXT_AUTH_SECRET=${NEXT_SECRET}
+      - NUXT_SECURITY_CSRF_ENCRYPT_SECRET=${CSRF_SECRET}
+      - AUTH_ORIGIN=${ORIGIN}${BASE_URL}/api/auth
     networks:
       - internal
-      - dragcave
 
   db:
-    image: mariadb:10
+    image: mariadb:10.9
     tty: true
     volumes:
       - dbdata:/var/lib/mysql
-    env_file:
-      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - 3306:3306
     networks:
       - internal
-    ports:
-      - 55555:3306
 
   redis:
-    image: redis:alpine
+    image: redis:7.4-alpine
     ports:
       - 6379:6379
     networks:
       - internal
 
   bullboard:
-    image: venatum/bull-board:latest
-    restart: unless-stopped
+    image: venatum/bull-board:2.3
+    depends_on:
+      - redis
     ports:
-      - 55556:3000
+      - 3001:3000
     networks:
       - internal
     environment:
-      REDIS_HOST: ${REDIS_HOST}
-      USER_LOGIN: ${BULLBOARD_USER}
-      USER_PASSWORD: ${BULLBOARD_PASSWORD}
-
-  autoheal:
-    deploy:
-      replicas: 1
-    environment:
-      AUTOHEAL_INTERVAL: 60
-      AUTOHEAL_START_PERIOD: 300
-      AUTOHEAL_DEFAULT_STOP_TIMEOUT: 10
-    image: willfarrell/autoheal:latest
-    network_mode: none
-    restart: always
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - USER_LOGIN=${BULLBOARD_USER}
+      - BULLBOARD_PASSWORD=${BULLBOARD_PASSWORD}
 
 volumes:
   dbdata:
+  node_modules:
   caches:
 
 networks:
   internal:
-  dragcave:
-    external: true

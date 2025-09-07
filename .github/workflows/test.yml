@@ -1,48 +1,9 @@
 name: Tests
 
-on:
-  pull_request:
-    branches:
-      - master
+on: [push]
 
 jobs:
-  formatting:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: run prettier checks
-        run: npm i && npm run fmt:check
-
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: run linting
-        run: npm i && npm run lint
-
-  typescript-checks:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: run typescript checks
-        run: npm i && npm run ts:check
-
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: run unit tests via vitest
-        run: npm i && npm run test:unit -- --run
-
-  try-build:
+  code-quality-and-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -50,3 +11,15 @@ jobs:
 
       - name: try to build the project
         run: npm i && npm run build
+
+      - name: run prettier checks
+        run: npm run fmt:check
+
+      - name: run linting
+        run: npm run lint
+
+      - name: run typescript checks
+        run: npm run ts:check
+
+      - name: run unit tests via vitest
+        run: npm i && npm run test:unit -- --run

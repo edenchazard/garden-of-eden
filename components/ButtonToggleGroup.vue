@@ -11,7 +11,8 @@
       role="radio"
       class="flex-1 rounded-none text-sm font-semibold whitespace-nowrap"
       :class="{
-        'bg-emerald-600 text-white dark:bg-rose-900': model === button.value,
+        'bg-emerald-600 text-white dark:bg-rose-900 deep-sea:bg-indigo-700':
+          model === button.value,
         'bg-white text-black': model !== button.value,
       }"
       @click="model = button.value"

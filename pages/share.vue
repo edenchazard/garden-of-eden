@@ -139,7 +139,7 @@
               />
             </div>
             <p
-              class="bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 max-w-prose text-sm"
+              class="bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 border-transparent rounded-md p-4 max-w-prose text-sm"
             >
               These banners are examples. Your banner will display any eggs and
               hatchlings you currently have in the garden. If you have a flair,
@@ -152,7 +152,7 @@
             class="flex flex-col min-[840px]:flex-row gap-4 items-start justify-around"
           >
             <div
-              class="self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
+              class="justify-items-center self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
             >
               <ShareScrollBannerPreview
                 :params="animatedBannerOptions"
@@ -182,10 +182,23 @@
               />
               <label for="animated-christmas">Christmas</label>
               <span class="italic text-sm col-span-full text-center">Arcy</span>
+              <ShareScrollBannerPreview
+                :params="animatedBannerOptions"
+                :banner="`${config.public.baseUrl}/share/scroll/aquarium.webp`"
+              />
+              <input
+                id="animated-aquarium"
+                v-model="animatedBannerOptions.style"
+                value="aquarium"
+                type="radio"
+                name="animated-banner"
+              />
+              <label for="animated-aquarium">Aquarium</label>
+              <span class="italic text-sm col-span-full text-center">Arcy</span>
             </div>
 
             <div
-              class="self-stretch bg-green-500 dark:bg-neutral-800 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
+              class="self-stretch bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
             >
               <fieldset>
                 <legend class="font-bold">Colours</legend>
@@ -216,9 +229,7 @@
                     v-model="useDefaultPalette"
                     type="checkbox"
                   />
-                  <label for="animated-use-default=palette"
-                    >Use default palette</label
-                  >
+                  <label for="animated-use-default=palette">Defaults</label>
                 </div>
               </fieldset>
 

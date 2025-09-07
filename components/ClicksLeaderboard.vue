@@ -14,7 +14,7 @@
         v-for="(user, $index) in leaderboard"
         :key="$index"
         :class="{
-          'bg-green-900 dark:bg-stone-700':
+          'bg-green-900 dark:bg-stone-700 deep-sea:bg-slate-600':
             user.username === data?.user?.username || user.username === '-1',
           'border-t-2!': user.rank > 10,
         }"

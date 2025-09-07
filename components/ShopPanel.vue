@@ -6,7 +6,7 @@
     :style="{
       gridTemplateRows: '1fr auto',
     }"
-    class="grid grid-cols-[7rem_1fr] gap-4 bg-green-500 dark:bg-neutral-800 border-transparent rounded-md p-4 relative"
+    class="grid grid-cols-[7rem_1fr] gap-4 bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-600 border-transparent rounded-md p-4 relative"
   >
     <div class="flex flex-col items-center gap-y-2 row-span-2">
       <span class="size-6 flex items-center justify-center">
