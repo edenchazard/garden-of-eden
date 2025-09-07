@@ -211,6 +211,20 @@
       "when": 1745700344688,
       "tag": "0038_flippant_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "5",
+      "when": 1757237888533,
+      "tag": "0039_deep_spot",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1757238000000,
+      "tag": "0040_populate_flair_release_data",
+      "breakpoints": true
     }
   ]
 }
