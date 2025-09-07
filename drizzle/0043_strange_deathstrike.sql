@@ -1,0 +1,1 @@
+ALTER TABLE `items` MODIFY COLUMN `release_date` datetime NOT NULL;

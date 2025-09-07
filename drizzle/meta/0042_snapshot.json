@@ -1,8 +1,8 @@
 {
+  "id": "73d7685e-65fd-41d7-bf6f-15089ecb6d2c",
+  "prevId": "34506c64-de45-483c-bf7d-32db44a97bde",
   "version": "5",
   "dialect": "mysql",
-  "id": "a34beb24-7281-49ce-8ff3-52524081e2f1",
-  "prevId": "3067623c-1888-442c-b1b7-d3fc7eb2e072",
   "tables": {
     "clicks_leaderboards": {
       "name": "clicks_leaderboards",
@@ -66,15 +66,15 @@
         "clicks_leaderboards_user_id_users_id_fk": {
           "name": "clicks_leaderboards_user_id_users_id_fk",
           "tableFrom": "clicks_leaderboards",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -136,15 +136,15 @@
         "clicks_user_id_users_id_fk": {
           "name": "clicks_user_id_users_id_fk",
           "tableFrom": "clicks",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -268,15 +268,15 @@
         "hatchery_user_id_users_id_fk": {
           "name": "hatchery_user_id_users_id_fk",
           "tableFrom": "hatchery",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -344,7 +344,7 @@
         },
         "days_available": {
           "name": "days_available",
-          "type": "smallint",
+          "type": "smallint unsigned",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -554,15 +554,15 @@
         "user_banner_job_user_id_users_id_fk": {
           "name": "user_banner_job_user_id_users_id_fk",
           "tableFrom": "user_banner_job",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -614,28 +614,28 @@
         "user_item_item_id_items_id_fk": {
           "name": "user_item_item_id_items_id_fk",
           "tableFrom": "user_item",
-          "tableTo": "items",
           "columnsFrom": [
             "item_id"
           ],
+          "tableTo": "items",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
         },
         "user_item_user_id_users_id_fk": {
           "name": "user_item_user_id_users_id_fk",
           "tableFrom": "user_item",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -717,15 +717,15 @@
         "user_notification_user_id_users_id_fk": {
           "name": "user_notification_user_id_users_id_fk",
           "tableFrom": "user_notification",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -785,28 +785,28 @@
         "user_trophy_user_id_users_id_fk": {
           "name": "user_trophy_user_id_users_id_fk",
           "tableFrom": "user_trophy",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "user_trophy_item_id_items_id_fk": {
           "name": "user_trophy_item_id_items_id_fk",
           "tableFrom": "user_trophy",
-          "tableTo": "items",
           "columnsFrom": [
             "item_id"
           ],
+          "tableTo": "items",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {
@@ -971,28 +971,28 @@
         "users_settings_user_id_users_id_fk": {
           "name": "users_settings_user_id_users_id_fk",
           "tableFrom": "users_settings",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "users_settings_flair_id_items_id_fk": {
           "name": "users_settings_flair_id_items_id_fk",
           "tableFrom": "users_settings",
-          "tableTo": "items",
           "columnsFrom": [
             "flair_id"
           ],
+          "tableTo": "items",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {
@@ -1094,9 +1094,9 @@
   },
   "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   },
   "internal": {
     "tables": {},

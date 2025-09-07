@@ -255,8 +255,10 @@ export const itemsTable = mysqlTable('items', {
   }),
   releaseDate: datetime('release_date', {
     mode: 'string',
+  }).notNull(),
+  daysAvailable: smallint('days_available', {
+    unsigned: true,
   }),
-  daysAvailable: smallint('days_available'),
   description: varchar('description', {
     length: 255,
   }).notNull(),
