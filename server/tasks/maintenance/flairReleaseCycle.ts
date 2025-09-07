@@ -39,11 +39,14 @@ export default defineTask({
       // Calculate the next release year based on current date and release date
       const currentDate = new Date();
       const releaseDate = new Date(flair.releaseDate);
-      
+
       // Find the next year when this flair should be available
       let nextYear = currentDate.getFullYear();
-      if (currentDate.getMonth() < releaseDate.getMonth() || 
-          (currentDate.getMonth() === releaseDate.getMonth() && currentDate.getDate() < releaseDate.getDate())) {
+      if (
+        currentDate.getMonth() < releaseDate.getMonth() ||
+        (currentDate.getMonth() === releaseDate.getMonth() &&
+          currentDate.getDate() < releaseDate.getDate())
+      ) {
         // If we haven't reached this year's release date yet, use this year
         nextYear = currentDate.getFullYear();
       } else {
@@ -63,8 +66,14 @@ export default defineTask({
       await db
         .update(itemsTable)
         .set({
-          availableFrom: newAvailableFrom.toISOString().slice(0, 19).replace('T', ' '),
-          availableTo: newAvailableTo.toISOString().slice(0, 19).replace('T', ' '),
+          availableFrom: newAvailableFrom
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' '),
+          availableTo: newAvailableTo
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' '),
         })
         .where(eq(itemsTable.id, flair.id));
 

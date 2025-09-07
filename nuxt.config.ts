@@ -123,7 +123,10 @@ export default defineNuxtConfig({
       // Every 2 hours
       '0 */2 * * *': ['external:dragCaveFeed'],
       // Daily
-      '0 0 * * *': ['maintenance:notifications', 'maintenance:flairReleaseCycle'],
+      '0 0 * * *': [
+        'maintenance:notifications',
+        'maintenance:flairReleaseCycle',
+      ],
     },
     storage: {
       cache: {
