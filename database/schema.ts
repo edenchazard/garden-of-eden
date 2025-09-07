@@ -255,7 +255,9 @@ export const itemsTable = mysqlTable('items', {
   }),
   releaseDate: datetime('release_date', {
     mode: 'string',
-  }).notNull(),
+  })
+    .notNull()
+    .default('1970-01-01 00:00:00'),
   daysAvailable: smallint('days_available', {
     unsigned: true,
   }),

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "34506c64-de45-483c-bf7d-32db44a97bde",
+  "id": "51308213-a1ab-48f6-b5c8-e3fc60e1f3df",
   "prevId": "3067623c-1888-442c-b1b7-d3fc7eb2e072",
   "tables": {
     "clicks_leaderboards": {
@@ -339,8 +339,9 @@
           "name": "release_date",
           "type": "datetime",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'1970-01-01 00:00:00'"
         },
         "days_available": {
           "name": "days_available",

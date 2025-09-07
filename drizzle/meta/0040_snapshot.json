@@ -1,6 +1,6 @@
 {
-  "id": "73d7685e-65fd-41d7-bf6f-15089ecb6d2c",
-  "prevId": "34506c64-de45-483c-bf7d-32db44a97bde",
+  "id": "c720ef60-7684-4baf-820d-4a7bd0893293",
+  "prevId": "51308213-a1ab-48f6-b5c8-e3fc60e1f3df",
   "version": "5",
   "dialect": "mysql",
   "tables": {
@@ -339,8 +339,9 @@
           "name": "release_date",
           "type": "datetime",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'1970-01-01 00:00:00'"
         },
         "days_available": {
           "name": "days_available",

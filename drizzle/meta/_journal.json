@@ -213,24 +213,17 @@
       "breakpoints": true
     },
     {
-      "idx": 41,
+      "idx": 39,
       "version": "5",
-      "when": 1757251401497,
-      "tag": "0041_bright_stepford_cuckoos",
+      "when": 1757254243802,
+      "tag": "0039_ancient_mantis",
       "breakpoints": true
     },
     {
-      "idx": 42,
+      "idx": 40,
       "version": "5",
-      "when": 1757251442204,
-      "tag": "0042_fixed_franklin_storm",
-      "breakpoints": true
-    },
-    {
-      "idx": 43,
-      "version": "5",
-      "when": 1757251486220,
-      "tag": "0043_strange_deathstrike",
+      "when": 1757254261665,
+      "tag": "0040_spicy_mac_gargan",
       "breakpoints": true
     }
   ]
