@@ -1,5 +1,9 @@
-import { describe, expect, it, beforeAll } from 'vitest';
-import { usersTable, usersSettingsTable, userSettingsSchema } from '~/database/schema';
+import { describe, expect, it } from 'vitest';
+import {
+  usersTable,
+  usersSettingsTable,
+  userSettingsSchema,
+} from '~/database/schema';
 
 describe('Database Schema', () => {
   describe('usersTable', () => {

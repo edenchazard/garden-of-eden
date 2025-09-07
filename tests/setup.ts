@@ -4,7 +4,7 @@ import { beforeAll } from 'vitest';
 beforeAll(async () => {
   // Simple setup for unit tests - no Docker required
   console.log('Setting up unit tests...');
-  
-  // Note: For integration tests that need database, 
+
+  // Note: For integration tests that need database,
   // run docker-compose.test.yml manually first
 });

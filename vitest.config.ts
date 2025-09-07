@@ -7,8 +7,8 @@ export default defineVitestConfig({
     pool: 'forks',
     poolOptions: {
       forks: {
-        singleFork: true
-      }
+        singleFork: true,
+      },
     },
     // Setup files to run before each test
     setupFiles: ['./tests/setup.ts'],
@@ -18,7 +18,7 @@ export default defineVitestConfig({
       '**/dist/**',
       '**/tests/e2e/**',
       '**/.{git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
-    ]
-  }
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+    ],
+  },
 });
