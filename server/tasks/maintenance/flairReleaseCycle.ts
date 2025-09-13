@@ -5,8 +5,7 @@ import { DateTime } from 'luxon';
 
 export default defineTask({
   meta: {
-    description:
-      'Reset expired limited-time flairs to next year based on release_date and days_available.',
+    description: 'Reset yearly cycles for limited-time flairs.',
   },
   async run() {
     const expiredFlairs = await db
