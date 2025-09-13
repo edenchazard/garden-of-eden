@@ -211,6 +211,20 @@
       "when": 1745700344688,
       "tag": "0038_flippant_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "5",
+      "when": 1757254243802,
+      "tag": "0039_ancient_mantis",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1757254261665,
+      "tag": "0040_spicy_mac_gargan",
+      "breakpoints": true
     }
   ]
 }
