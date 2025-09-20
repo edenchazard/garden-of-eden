@@ -265,6 +265,12 @@
           legends. Missing data points indicate an API failure.
         </p>
         <figure id="hatchery" class="graph">
+          <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+            <DateTimePicker 
+              v-model="hatcheryDateRange"
+              label="Hatchery time range:"
+            />
+          </div>
           <div class="h-[31rem]">
             <Line
               :data="dragons"
@@ -313,6 +319,12 @@
         </figure>
 
         <figure id="soil-composition" class="graph">
+          <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+            <DateTimePicker 
+              v-model="soilDateRange"
+              label="Soil composition time range:"
+            />
+          </div>
           <div class="h-[40rem]">
             <Line
               :data="soilComposition"
@@ -344,6 +356,12 @@
         </figure>
 
         <figure id="hatchling-gender" class="graph">
+          <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+            <DateTimePicker 
+              v-model="genderDateRange"
+              label="Hatchling gender time range:"
+            />
+          </div>
           <div class="h-[30rem]">
             <Line
               :data="hatchlingGenderRatio"
@@ -369,6 +387,12 @@
         </figure>
 
         <figure id="cb-vs-lineaged" class="graph">
+          <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+            <DateTimePicker 
+              v-model="lineageeDateRange"
+              label="Caveborn vs lineaged time range:"
+            />
+          </div>
           <div class="h-[30rem]">
             <Line
               :data="cbVsLineaged"
@@ -390,6 +414,12 @@
         </figure>
 
         <figure id="gardener-activity" class="graph">
+          <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+            <DateTimePicker 
+              v-model="activityDateRange"
+              label="Gardener activity time range:"
+            />
+          </div>
           <div class="h-[20rem]">
             <Line
               class="w-full"
@@ -417,6 +447,12 @@
         </figure>
 
         <figure id="api-requests" class="graph">
+          <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded">
+            <DateTimePicker 
+              v-model="apiDateRange"
+              label="API requests time range:"
+            />
+          </div>
           <div class="h-[20rem]">
             <Bar
               class="w-full"
@@ -503,6 +539,30 @@ const defaultChart = {
 
 const redrawTrigger = ref(0);
 const selectedWeek = ref<string | null>();
+const hatcheryDateRange = ref({
+  start: DateTime.now().minus({ hours: 24 }).toISO(),
+  end: DateTime.now().toISO(),
+});
+const soilDateRange = ref({
+  start: DateTime.now().minus({ hours: 24 }).toISO(), 
+  end: DateTime.now().toISO(),
+});
+const genderDateRange = ref({
+  start: DateTime.now().minus({ hours: 24 }).toISO(),
+  end: DateTime.now().toISO(),
+});
+const lineageeDateRange = ref({
+  start: DateTime.now().minus({ hours: 24 }).toISO(),
+  end: DateTime.now().toISO(), 
+});
+const activityDateRange = ref({
+  start: DateTime.now().minus({ hours: 24 }).toISO(),
+  end: DateTime.now().toISO(),
+});
+const apiDateRange = ref({
+  start: DateTime.now().minus({ hours: 24 }).toISO(),
+  end: DateTime.now().toISO(),
+});
 const weeklyDailyTotals = ref<ChartData<'bar'>>(defaultChart);
 const dragons = ref<ChartData<'line'>>(defaultChart);
 const userActivity = ref<ChartData<'line'>>(defaultChart);
@@ -549,6 +609,67 @@ const { data: weeklyLeaderboard } = await useFetch('/api/statistics/weekly', {
   }),
 });
 
+// Fetch range-based statistics
+const { data: hatcheryStats } = await useFetch('/api/statistics/range', {
+  query: computed(() => ({
+    start: hatcheryDateRange.value.start,
+    end: hatcheryDateRange.value.end,
+    recordType: undefined, // Get all types for hatchery section
+  })),
+  watch: [hatcheryDateRange],
+  default: () => ({ data: {}, startDate: '', endDate: '' }),
+});
+
+const { data: soilStats } = await useFetch('/api/statistics/range', {
+  query: computed(() => ({
+    start: soilDateRange.value.start,
+    end: soilDateRange.value.end,
+    recordType: 'clean_up',
+  })),
+  watch: [soilDateRange],
+  default: () => ({ data: {}, startDate: '', endDate: '' }),
+});
+
+const { data: genderStats } = await useFetch('/api/statistics/range', {
+  query: computed(() => ({
+    start: genderDateRange.value.start,
+    end: genderDateRange.value.end,
+    recordType: 'clean_up',
+  })),
+  watch: [genderDateRange],
+  default: () => ({ data: {}, startDate: '', endDate: '' }),
+});
+
+const { data: lineageStats } = await useFetch('/api/statistics/range', {
+  query: computed(() => ({
+    start: lineageeDateRange.value.start,
+    end: lineageeDateRange.value.end,
+    recordType: 'clean_up',
+  })),
+  watch: [lineageeDateRange],
+  default: () => ({ data: {}, startDate: '', endDate: '' }),
+});
+
+const { data: activityStats } = await useFetch('/api/statistics/range', {
+  query: computed(() => ({
+    start: activityDateRange.value.start,
+    end: activityDateRange.value.end,
+    recordType: 'user_count',
+  })),
+  watch: [activityDateRange],
+  default: () => ({ data: {}, startDate: '', endDate: '' }),
+});
+
+const { data: apiStats } = await useFetch('/api/statistics/range', {
+  query: computed(() => ({
+    start: apiDateRange.value.start,
+    end: apiDateRange.value.end,
+    recordType: 'api_request',
+  })),
+  watch: [apiDateRange],
+  default: () => ({ data: {}, startDate: '', endDate: '' }),
+});
+
 const colourPalette = computed(() => {
   function chartColourPalette(palette: string) {
     const defaultPalette = [
@@ -577,7 +698,16 @@ const colourPalette = computed(() => {
 });
 
 watch(
-  () => [useColorMode().value, useWindowSize().width.value],
+  () => [
+    useColorMode().value, 
+    useWindowSize().width.value,
+    hatcheryStats.value,
+    soilStats.value,
+    genderStats.value,
+    lineageStats.value,
+    activityStats.value,
+    apiStats.value,
+  ],
   () => redrawTrigger.value++
 );
 
@@ -594,6 +724,23 @@ const defaultChartOptions: ChartOptions<'line' | 'bar'> = {
   interaction: {
     intersect: false,
     mode: 'index',
+  },
+  plugins: {
+    zoom: {
+      pan: {
+        enabled: true,
+        mode: 'x',
+      },
+      zoom: {
+        wheel: {
+          enabled: true,
+        },
+        pinch: {
+          enabled: true,
+        },
+        mode: 'x',
+      },
+    },
   },
   scales: {
     y: {
@@ -661,8 +808,21 @@ function renderCharts() {
     };
   }
 
-  const cleanUpTransform = statistics.cleanUp.map(transform);
-  const apiRequestsTransform = statistics.apiRequests.map(transform);
+  // Use fallback data for charts that haven't been updated yet
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cleanUpTransform = ((soilStats.value?.data as any)?.['clean_up'] ?? statistics.cleanUp).map(transform);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const apiRequestsTransform = ((apiStats.value?.data as any)?.['api_request'] ?? statistics.apiRequests).map(transform);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hatcheryDragons = (hatcheryStats.value?.data as any)?.['total_dragons'] ?? statistics.dragons;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hatcheryScrolls = (hatcheryStats.value?.data as any)?.['total_scrolls'] ?? statistics.scrolls;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userActivityData = (activityStats.value?.data as any)?.['user_count'] ?? statistics.userActivity;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const genderData = ((genderStats.value?.data as any)?.['clean_up'] ?? statistics.cleanUp).map(transform);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const lineageData = ((lineageStats.value?.data as any)?.['clean_up'] ?? statistics.cleanUp).map(transform);
 
   weeklyDailyTotals.value = {
     labels: Object.keys(weeklyLeaderboard.value.dailyTotals),
@@ -675,7 +835,7 @@ function renderCharts() {
   };
 
   dragons.value = {
-    labels: statistics.dragons.map(mapTimes),
+    labels: hatcheryDragons.map(mapTimes),
     datasets: [
       {
         ...createPoints(),
@@ -683,7 +843,9 @@ function renderCharts() {
         label: 'Dragons in garden',
         backgroundColor: rgbAlpha(colourPalette.value[0]),
         borderColor: rgbAlpha(colourPalette.value[0]),
-        data: statistics.dragons.map((stat) => stat.value),
+         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: hatcheryDragons.map((stat: any) => stat.value),
       },
       {
         ...createPoints(),
@@ -691,32 +853,36 @@ function renderCharts() {
         label: 'Scrolls with dragons',
         backgroundColor: rgbAlpha(colourPalette.value[1]),
         borderColor: rgbAlpha(colourPalette.value[1]),
-        data: statistics.scrolls.map((stat) => stat.value),
+         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: hatcheryScrolls.map((stat: any) => stat.value),
       },
     ],
   };
 
   userActivity.value = {
-    labels: statistics.userActivity.map(mapTimes),
+    labels: userActivityData.map(mapTimes),
     datasets: [
       {
         ...createPoints(),
         label: 'User Activity',
         borderColor: rgbAlpha(colourPalette.value[2]),
-        data: statistics.userActivity.map((stat) => stat.value),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: userActivityData.map((stat: any) => stat.value),
       },
     ],
   };
 
   soilComposition.value = {
-    labels: statistics.cleanUp.map(mapTimes),
+    labels: cleanUpTransform.map(mapTimes),
     datasets: [
       {
         ...createPoints(),
         label: 'Other',
         backgroundColor: rgbAlpha(colourPalette.value[4], 0.75),
         borderColor: rgbAlpha(colourPalette.value[4]),
-        data: cleanUpTransform.map((stat) => stat.value),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: cleanUpTransform.map((stat: any) => stat.value),
         fill: 'origin',
         hidden: true,
       },
@@ -725,7 +891,8 @@ function renderCharts() {
         label: 'Eggs',
         backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
         borderColor: rgbAlpha(colourPalette.value[1]),
-        data: cleanUpTransform.map((stat) => stat.extra.eggs ?? null),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: cleanUpTransform.map((stat: any) => stat.extra.eggs ?? null),
         fill: 'origin',
       },
       {
@@ -733,7 +900,8 @@ function renderCharts() {
         label: 'Hatchlings',
         backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
         borderColor: rgbAlpha(colourPalette.value[2]),
-        data: cleanUpTransform.map((stat) => stat.extra.hatchlings ?? null),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: cleanUpTransform.map((stat: any) => stat.extra.hatchlings ?? null),
         fill: 'origin',
       },
       {
@@ -746,7 +914,8 @@ function renderCharts() {
         label: 'Dead',
         backgroundColor: rgbAlpha(colourPalette.value[3], 0.75),
         borderColor: rgbAlpha(colourPalette.value[3]),
-        data: cleanUpTransform.map((stat) => stat.extra.dead ?? null),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: cleanUpTransform.map((stat: any) => stat.extra.dead ?? null),
       },
       {
         pointHitRadius: 0,
@@ -758,21 +927,23 @@ function renderCharts() {
         label: 'Adult',
         backgroundColor: rgbAlpha(colourPalette.value[4], 0.75),
         borderColor: rgbAlpha(colourPalette.value[4]),
-        data: cleanUpTransform.map((stat) => stat.extra.adults ?? null),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: cleanUpTransform.map((stat: any) => stat.extra.adults ?? null),
       },
     ],
   };
 
   hatchlingGenderRatio.value = {
-    labels: statistics.cleanUp.map(mapTimes),
+    labels: genderData.map(mapTimes),
     datasets: [
       {
         ...createPoints(),
         label: 'Ungendered',
         backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
         borderColor: rgbAlpha(colourPalette.value[1]),
-        data: cleanUpTransform.map(
-          (stat) => stat.extra.hatchlingsUngendered ?? null
+        data: genderData.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (stat: any) => stat.extra.hatchlingsUngendered ?? null
         ),
       },
       {
@@ -780,54 +951,60 @@ function renderCharts() {
         label: 'Male',
         backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
         borderColor: rgbAlpha(colourPalette.value[2]),
-        data: cleanUpTransform.map((stat) => stat.extra.hatchlingsMale ?? null),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: genderData.map((stat: any) => stat.extra.hatchlingsMale ?? null),
       },
       {
         ...createPoints(),
         label: 'Female',
         backgroundColor: rgbAlpha(colourPalette.value[3], 0.75),
         borderColor: rgbAlpha(colourPalette.value[3]),
-        data: cleanUpTransform.map(
-          (stat) => stat.extra.hatchlingsFemale ?? null
+        data: genderData.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (stat: any) => stat.extra.hatchlingsFemale ?? null
         ),
       },
     ],
   };
 
   cbVsLineaged.value = {
-    labels: statistics.cleanUp.map(mapTimes),
+    labels: lineageData.map(mapTimes),
     datasets: [
       {
         ...createPoints(),
         label: 'Caveborn',
         backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
         borderColor: rgbAlpha(colourPalette.value[1]),
-        data: cleanUpTransform.map((stat) => stat.extra.caveborn ?? null),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: lineageData.map((stat: any) => stat.extra.caveborn ?? null),
       },
       {
         ...createPoints(),
         label: 'Lineaged',
         backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
         borderColor: rgbAlpha(colourPalette.value[2]),
-        data: cleanUpTransform.map((stat) => stat.extra.lineaged ?? null),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: lineageData.map((stat: any) => stat.extra.lineaged ?? null),
       },
     ],
   };
 
   apiRequests.value = {
-    labels: statistics.apiRequests.map(mapTimes),
+    labels: apiRequestsTransform.map(mapTimes),
     datasets: [
       {
         label: 'Successful',
         backgroundColor: rgbAlpha(colourPalette.value[1], 0.75),
         borderColor: rgbAlpha(colourPalette.value[1]),
-        data: apiRequestsTransform.map((stat) => stat.extra.success ?? 0),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: apiRequestsTransform.map((stat: any) => stat.extra.success ?? 0),
       },
       {
         label: 'Failed',
         backgroundColor: rgbAlpha(colourPalette.value[2], 0.75),
         borderColor: rgbAlpha(colourPalette.value[2]),
-        data: apiRequestsTransform.map((stat) => -(stat.extra.failure ?? 0)),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: apiRequestsTransform.map((stat: any) => -(stat.extra.failure ?? 0)),
       },
     ],
   };
