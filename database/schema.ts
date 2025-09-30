@@ -253,6 +253,14 @@ export const itemsTable = mysqlTable('items', {
   availableTo: datetime('available_to', {
     mode: 'string',
   }),
+  releaseDate: datetime('release_date', {
+    mode: 'string',
+  })
+    .notNull()
+    .default('1970-01-01 00:00:00'),
+  daysAvailable: smallint('days_available', {
+    unsigned: true,
+  }),
   description: varchar('description', {
     length: 255,
   }).notNull(),
