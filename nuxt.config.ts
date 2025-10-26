@@ -115,7 +115,6 @@ export default defineNuxtConfig({
         'maintenance:hatchery',
         'statistics:calculateLeaderboards',
         'statistics:logApiRequests',
-        'maintenance:flairReleaseCycle',
       ],
       // Every 15 minutes
       '*/15 * * * *': ['statistics:logUserActivity'],
@@ -123,7 +122,7 @@ export default defineNuxtConfig({
       '*/30 * * * *': ['statistics:logScrollsAndDragons'],
       // Every 2 hours
       '0 */2 * * *': ['external:dragCaveFeed'],
-      // Daily
+      // Every day at midnight
       '0 0 * * *': [
         'maintenance:notifications',
         'maintenance:flairReleaseCycle',
