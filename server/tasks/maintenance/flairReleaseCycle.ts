@@ -50,8 +50,8 @@ export default defineTask({
         return tx
           .update(itemsTable)
           .set({
-            availableFrom: newAvailableFrom.toSQL({ includeOffset: true }),
-            availableTo: newAvailableTo.toSQL({ includeOffset: true }),
+            availableFrom: newAvailableFrom.toSQL({ includeOffset: false }),
+            availableTo: newAvailableTo.toSQL({ includeOffset: false }),
           })
           .where(eq(itemsTable.id, flair.id));
       });
