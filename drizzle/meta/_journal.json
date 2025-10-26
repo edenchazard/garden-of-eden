@@ -150,13 +150,6 @@
       "breakpoints": true
     },
     {
-      "idx": 28,
-      "version": "5",
-      "when": 1733075827173,
-      "tag": "0028_update_item_seeds",
-      "breakpoints": true
-    },
-    {
       "idx": 30,
       "version": "5",
       "when": 1733348798919,
@@ -222,8 +215,8 @@
     {
       "idx": 40,
       "version": "5",
-      "when": 1757254261665,
-      "tag": "0040_spicy_mac_gargan",
+      "when": 1761476299444,
+      "tag": "0040_item_seeds",
       "breakpoints": true
     }
   ]
