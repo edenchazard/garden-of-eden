@@ -12,6 +12,7 @@ import {
   Filler,
   TimeScale,
 } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 
 export default defineNuxtPlugin(() => {
   Chart.register(
@@ -26,6 +27,7 @@ export default defineNuxtPlugin(() => {
     Tooltip,
     Legend,
     Filler,
+    zoomPlugin,
     {
       id: 'corsair',
       defaults: {
