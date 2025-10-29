@@ -69,5 +69,7 @@ INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `
 	(67, 'Sapphire', 'sapphire.webp', 'flair', '2025-09-01 00:00:00', '2025-09-30 00:00:00', 'September\'s entry for the rock garden.', 100, 'Luci', '2025-09-01 00:00:00', 29),
 	(68, 'Poppy', 'poppy.webp', 'flair', NULL, NULL, 'A flower that symbolises remembrance.', 200, 'Inghelene', '2025-08-31 00:00:00', NULL),
 	(69, 'Opal', 'opal.webp', 'flair', '2025-10-01 00:00:00', '2025-10-31 00:00:00', 'October\'s entry for the rock garden.', 100, 'Luci', '2025-10-01 00:00:00', 30),
-	(70, 'Venus flytrap', 'venus-flytrap.webp', 'flair', NULL, NULL, 'It\'s a twap!', 200, '04uni', '2025-09-30 00:00:00', NULL);
+	(70, 'Venus flytrap', 'venus-flytrap.webp', 'flair', NULL, NULL, 'It\'s a twap!', 200, '04uni', '2025-09-30 00:00:00', NULL),
+	(71, 'Spider Lily', 'spider-lily.webp', 'flair', '2025-10-25 00:00:00', '2025-11-07 00:00:00', 'Also known as the red spider lily, this flower is said to guide the dead to their next reincarnation.', 125, 'Hourai', '2025-10-29 00:00:00', 13),
+	(72, 'Black Bat Flower', 'black-bat-flower.webp', 'flair', '2025-10-25 00:00:00', '2025-11-07 00:00:00', 'Na na na na na na na na na na na na na BATMAN!', 150, 'Luci', '2025-10-29 00:00:00', 13);
  
