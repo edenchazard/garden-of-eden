@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-04-13',
+  compatibilityDate: '2025-11-28',
   devtools: { enabled: false },
   modules: [
     '@sidebase/nuxt-auth',
@@ -92,7 +92,7 @@ export default defineNuxtConfig({
     },
   },
   image: {
-    formats: ['avif', 'webp'],
+    format: ['avif', 'webp'],
     provider: 'ipx',
     ipx: {
       maxAge: 60 * 60 * 24 * 30,
@@ -146,5 +146,25 @@ export default defineNuxtConfig({
         drop: process.env.NODE_ENV === 'production' ? ['console'] : [],
       },
     },
+  },
+  typescript: {
+    // Customize app/server TypeScript config
+    tsConfig: {
+      compilerOptions: {
+        strict: true,
+      },
+    },
+    // Customise build-time TypeScript config
+    nodeTsConfig: {
+      compilerOptions: {
+        strict: true,
+      },
+    },
+  },
+  experimental: {
+    sharedPrerenderData: false,
+    pendingWhenIdle: true,
+    granularCachedData: false,
+    purgeCachedData: false,
   },
 });
