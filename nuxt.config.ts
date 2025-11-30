@@ -1,24 +1,33 @@
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import type { NuxtConfig } from 'nuxt/schema';
+
+const modules: NuxtConfig['modules'] = [
+  '@sidebase/nuxt-auth',
+  '@nuxtjs/color-mode',
+  '@nuxtjs/robots',
+  '@nuxt/eslint',
+  '@nuxt/test-utils/module',
+  'nuxt-security',
+  'floating-vue/nuxt',
+  [
+    '~~/modules/watch-workers.ts',
+    {
+      path: fileURLToPath(new URL('/src/workers', import.meta.url)),
+    },
+  ],
+];
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-11-28',
   devtools: { enabled: false },
-  modules: [
-    '@sidebase/nuxt-auth',
-    '@nuxtjs/color-mode',
-    '@nuxtjs/robots',
-    '@nuxt/eslint',
-    '@nuxt/test-utils/module',
-    'nuxt-security',
-    'floating-vue/nuxt',
-    [
-      '~~/modules/watch-workers.ts',
-      {
-        path: fileURLToPath(new URL('/src/workers', import.meta.url)),
-      },
-    ],
-  ],
+  $development: {
+    modules: [...modules, '@nuxt/image'],
+  },
+  $production: {
+    modules: [...modules, '@nuxt/image'],
+  },
+  modules,
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   vite: {
     plugins: [tailwindcss()],
