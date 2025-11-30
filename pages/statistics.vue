@@ -858,7 +858,10 @@ function createPoints() {
   return points;
 }
 
-function rgbAlpha(colour: [number, number, number], a: number = 1) {
+function rgbAlpha(colour: [number, number, number] | undefined, a: number = 1) {
+  if (!colour) {
+    return `rgba(255,255,255,${a})`;
+  }
   return `rgba(${colour.join(',')},${a})`;
 }
 </script>
