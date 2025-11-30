@@ -228,11 +228,7 @@
                 title=""
                 >GOAT</abbr
               >
-              <img
-                alt="A goat."
-                class="inline"
-                src="/public/other/goat.webp"
-              />.
+              <img alt="A goat." class="inline" :src="Goat" />.
             </p>
           </div>
           <div class="md:col-start-2 md:row-start-2">
@@ -491,6 +487,7 @@ import { pluralise } from '#imports';
 import type { recordingsTable } from '~~/database/schema';
 import 'chartjs-adapter-luxon';
 import { useWindowSize } from '@vueuse/core';
+import Goat from '~~/public/other/goat.webp';
 
 useHead({
   title: 'Statistics',
