@@ -21,8 +21,7 @@ declare global {
 
   type UserSettings = Omit<
     typeof usersSettingsTable.$inferSelect,
-    'user_id',
-    'flair'
+    'user_id' | 'flair'
   >;
   type UserRole = typeof usersTable.$inferSelect.role;
   type UserFlair = typeof usersSettingsTable.$inferSelect.flair;
