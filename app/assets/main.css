@@ -3,12 +3,12 @@
 
 @font-face {
   font-family: 'Alkhemikal';
-  src: url('/public/fonts/Alkhemikal.ttf') format('truetype');
+  src: url('~~/public/fonts/Alkhemikal.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Nokia Cellphone FC';
-  src: url('/public/fonts/nokiafc22.ttf') format('truetype');
+  src: url('~~/public/fonts/nokiafc22.ttf') format('truetype');
   size-adjust: 80%;
 }
 
@@ -19,9 +19,10 @@
   --breakpoint-3xs: 20rem;
   --font-alkhemikal: Alkhemikal;
   --font-nokiafc22: Nokia Cellphone FC;
-  --cursor-watering-can: url(/public/cursors/watering-can/default.png), pointer;
+  --cursor-watering-can:
+    url(~~/public/cursors/watering-can/default.png), pointer;
   --cursor-watering-can-tilted:
-    url(/public/cursors/watering-can/tilted.png), pointer;
+    url(~~/public/cursors/watering-can/tilted.png), pointer;
 }
 
 @layer base {

@@ -58,7 +58,7 @@
             You can acquire Dragon Dollars by clicking on dragons in the site
             and may have a maximum of 500 Dragon Dollars at any time.
           </p>
-          <img src="/public/other/dragon-dollar.webp" width="17" height="10" />
+          <img :src="DragonDollar" width="17" height="10" />
           <p>You have {{ authData?.user.money ?? 0 }} Dragon Dollars.</p>
           <template v-if="data.currentFlair">
             <img :src="itemUrl(data.currentFlair.url)" alt="" />
@@ -199,6 +199,7 @@
 import { itemUrl } from '#imports';
 import { DateTime } from 'luxon';
 import DialogFortuneCookie from '~/components/DialogFortuneCookie.vue';
+import DragonDollar from '~~/public/other/dragon-dollar.webp';
 
 useHead({
   title: "Matthias' Shop",
