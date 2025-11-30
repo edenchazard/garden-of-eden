@@ -12,7 +12,6 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     'nuxt-security',
     'floating-vue/nuxt',
-    '@nuxt/image',
     [
       '~~/modules/watch-workers.ts',
       {
