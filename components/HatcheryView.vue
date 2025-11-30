@@ -161,6 +161,7 @@ const {
     limit: perPage.value,
     ...props.query,
   })),
+  deep: true,
   watch: [() => [frequency, perPage]],
   onRequest() {
     loading.value = true;
@@ -181,7 +182,12 @@ function trackClick(dragon: HatcheryDragon) {
     const bubbles = Array.from(
       document.querySelectorAll<HTMLAudioElement>('.bubblewrap')
     );
+
     const bubble = bubbles[Math.floor(Math.random() * bubbles.length)];
+
+    if (!bubble) {
+      return;
+    }
 
     try {
       bubble.currentTime = 0;

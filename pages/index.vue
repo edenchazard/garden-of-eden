@@ -386,6 +386,7 @@ const {
     'Csrf-token': useCsrf().csrf,
   })),
   immediate: !!authData.value?.user,
+  deep: true,
   default() {
     return {
       releaseNotification: null,
@@ -407,6 +408,7 @@ const {
   })),
   immediate: false,
   watch: false,
+  deep: true,
   default: () => [],
   method: 'PATCH',
   body: computed(() =>

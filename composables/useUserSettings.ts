@@ -16,6 +16,7 @@ export function useUserSettings(
     method: 'PATCH',
     body: newSettings,
     immediate: false,
+    key: Math.random().toString(36).substring(2),
     watch: false,
     headers: computed(() => ({
       'Csrf-token': useCsrf().csrf,

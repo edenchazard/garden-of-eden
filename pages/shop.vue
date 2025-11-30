@@ -215,6 +215,7 @@ await getSession();
 
 const { data } = await useFetch('/api/shop', {
   immediate: true,
+  deep: true,
   default: () => ({
     currentFlair: null,
     regular: [],
@@ -295,6 +296,11 @@ async function handleItem(item: Item) {
     ];
 
     const randomCookie = fortunes[Math.floor(Math.random() * fortunes.length)];
+
+    if (!randomCookie) {
+      return;
+    }
+
     fortune.value = formatItemText(item)(randomCookie);
 
     await nextTick();
