@@ -1,6 +1,6 @@
-import { db } from '~/server/db';
+import { db } from '~~/server/db';
 import { z } from 'zod';
-import { clicksTable, hatcheryTable } from '~/database/schema';
+import { clicksTable, hatcheryTable } from '~~/database/schema';
 import { and, eq, sql } from 'drizzle-orm';
 import type { H3Event } from 'h3';
 import { getToken } from '#auth';

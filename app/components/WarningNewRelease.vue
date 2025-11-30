@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { userNotificationTable } from '~/database/schema';
+import type { userNotificationTable } from '~~/database/schema';
 import DoctorMatthias from '~/public/npc/doctor_matthias.webp';
 import DoctorMathiasWrong from '~/public/npc/doctor_matthias_wrong.webp';
 

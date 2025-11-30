@@ -488,7 +488,7 @@ import type {
 import { DateTime } from 'luxon';
 import { Bar, Line } from 'vue-chartjs';
 import { pluralise } from '#imports';
-import type { recordingsTable } from '~/database/schema';
+import type { recordingsTable } from '~~/database/schema';
 import 'chartjs-adapter-luxon';
 import { useWindowSize } from '@vueuse/core';
 

@@ -1,5 +1,5 @@
 import { getServerSession } from '#auth';
-import { cleanUp } from '~/server/clean-up';
+import { cleanUp } from '~~/server/clean-up';
 
 export default defineEventHandler(async (event) => {
   const session = await getServerSession(event);

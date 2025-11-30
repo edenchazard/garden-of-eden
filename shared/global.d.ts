@@ -3,8 +3,8 @@ import type {
   usersTable,
   itemsTable,
   hatcheryTable,
-} from '~/database/schema';
-import type { DragonData } from './types/DragonTypes';
+} from '~~/database/schema';
+import type { DragonData } from '../types/DragonTypes';
 export {};
 
 declare global {
@@ -21,7 +21,8 @@ declare global {
 
   type UserSettings = Omit<
     typeof usersSettingsTable.$inferSelect,
-    'user_id' | 'flair'
+    'user_id',
+    'flair'
   >;
   type UserRole = typeof usersTable.$inferSelect.role;
   type UserFlair = typeof usersSettingsTable.$inferSelect.flair;

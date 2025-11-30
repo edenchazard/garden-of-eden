@@ -193,7 +193,7 @@
 </template>
 
 <script lang="ts" setup>
-import { userSettingsSchema } from '~/database/schema';
+import { userSettingsSchema } from '~~/database/schema';
 import { formatHoursLeft } from '#imports';
 import ToggleInput from '~/components/ToggleInput.vue';
 

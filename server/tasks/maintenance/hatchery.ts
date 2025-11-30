@@ -1,4 +1,4 @@
-import { cleanUp } from '~/server/clean-up';
+import { cleanUp } from '~~/server/clean-up';
 
 export default defineTask({
   meta: {

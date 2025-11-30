@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-11-28',
@@ -15,7 +14,7 @@ export default defineNuxtConfig({
     'floating-vue/nuxt',
     '@nuxt/image',
     [
-      '~/modules/watch-workers',
+      '~~/modules/watch-workers.ts',
       {
         path: fileURLToPath(new URL('/src/workers', import.meta.url)),
       },
@@ -147,24 +146,17 @@ export default defineNuxtConfig({
       },
     },
   },
-  typescript: {
-    // Customize app/server TypeScript config
-    tsConfig: {
-      compilerOptions: {
-        strict: true,
-      },
-    },
-    // Customise build-time TypeScript config
-    nodeTsConfig: {
-      compilerOptions: {
-        strict: true,
-      },
-    },
-  },
   experimental: {
     sharedPrerenderData: false,
     pendingWhenIdle: true,
     granularCachedData: false,
     purgeCachedData: false,
+  },
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        noUncheckedIndexedAccess: false,
+      },
+    },
   },
 });

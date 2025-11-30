@@ -11,7 +11,7 @@ import {
 } from './shareScrollWorkerTypes';
 import type { Job } from 'bullmq';
 import type { DragonData } from '../types/DragonTypes';
-import { attributes, phase } from '../utils/dragons';
+import { attributes, phase } from '../app/utils/dragons';
 import fsExists from '../server/utils/fsExists';
 // @ts-expect-error Unfortunately there are no types.
 import WebP from 'node-webpmux';

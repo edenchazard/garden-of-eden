@@ -1,11 +1,11 @@
 import { Worker as BullWorker } from 'bullmq';
 import { watch } from 'fs';
-import { db } from '~/server/db';
-import { userBannerJobTable, usersTable } from '~/database/schema';
+import { db } from '~~/server/db';
+import { userBannerJobTable, usersTable } from '~~/database/schema';
 import type {
   WorkerFinished,
   WorkerInput,
-} from '~/workers/shareScrollWorkerTypes';
+} from '~~/workers/shareScrollWorkerTypes';
 import { eq } from 'drizzle-orm';
 import { pathToFileURL } from 'url';
 

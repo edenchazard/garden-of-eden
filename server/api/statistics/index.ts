@@ -8,8 +8,8 @@ import {
   recordingsTable,
   usersSettingsTable,
   usersTable,
-} from '~/database/schema';
-import { db } from '~/server/db';
+} from '~~/database/schema';
+import { db } from '~~/server/db';
 
 const totalScrollsCached = defineCachedFunction(
   async () =>
