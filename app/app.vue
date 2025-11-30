@@ -13,47 +13,49 @@ const {
   public: { origin },
 } = useRuntimeConfig();
 
-useServerSeoMeta({
-  description:
-    "A Dragon Cave hatchery with a minty theme. Help yours and other people's dragons flourish in the Garden of Eden.",
-  keywords: 'dragon cave, hatchery, minty theme, garden of eden',
-  ogTitle: 'Garden of Eden',
-  ogType: 'website',
-  ogImage: `${origin}${baseURL}/open-graph.png`,
-  ogDescription:
-    "A Dragon Cave hatchery with a minty theme. Help yours and other people's dragons flourish in the Garden of Eden.",
-  themeColor: '#7cf3a0',
-  appleMobileWebAppTitle: 'Garden',
-});
+if (import.meta.server) {
+  useSeoMeta({
+    description:
+      "A Dragon Cave hatchery with a minty theme. Help yours and other people's dragons flourish in the Garden of Eden.",
+    keywords: 'dragon cave, hatchery, minty theme, garden of eden',
+    ogTitle: 'Garden of Eden',
+    ogType: 'website',
+    ogImage: `${origin}${baseURL}/open-graph.png`,
+    ogDescription:
+      "A Dragon Cave hatchery with a minty theme. Help yours and other people's dragons flourish in the Garden of Eden.",
+    themeColor: '#7cf3a0',
+    appleMobileWebAppTitle: 'Garden',
+  });
 
-useServerHead({
-  link: [
-    {
-      rel: 'icon',
-      type: 'image/png',
-      href: `${origin}${baseURL}/favicon-96x96.png`,
-      sizes: '96x96',
-    },
-    {
-      rel: 'icon',
-      type: 'image/svg+xml',
-      href: `${origin}${baseURL}/favicon.svg`,
-    },
-    {
-      rel: 'shortcut icon',
-      href: `${origin}${baseURL}/favicon.ico`,
-    },
-    {
-      rel: 'apple-touch-icon',
-      href: `${origin}${baseURL}/apple-touch-icon.png`,
-      sizes: '180x180',
-    },
-    {
-      rel: 'manifest',
-      href: `${origin}${baseURL}/site.webmanifest`,
-    },
-  ],
-});
+  useHead({
+    link: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: `${origin}${baseURL}/favicon-96x96.png`,
+        sizes: '96x96',
+      },
+      {
+        rel: 'icon',
+        type: 'image/svg+xml',
+        href: `${origin}${baseURL}/favicon.svg`,
+      },
+      {
+        rel: 'shortcut icon',
+        href: `${origin}${baseURL}/favicon.ico`,
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: `${origin}${baseURL}/apple-touch-icon.png`,
+        sizes: '180x180',
+      },
+      {
+        rel: 'manifest',
+        href: `${origin}${baseURL}/site.webmanifest`,
+      },
+    ],
+  });
+}
 
 watch(
   useNuxtApp().$colorMode,
