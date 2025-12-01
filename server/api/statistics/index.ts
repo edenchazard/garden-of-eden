@@ -209,6 +209,7 @@ export default defineEventHandler(async (event) => {
           name: itemsTable.name,
           description: itemsTable.description,
           artist: itemsTable.artist,
+          releaseDate: itemsTable.releaseDate,
         },
       })
       .from(clicksLeaderboardsTable)
