@@ -14,7 +14,7 @@
       </span>
       <b class="text-base font-semibold text-center">{{ item.name }}</b>
       <p v-if="item.artist" class="text-xs text-center italic">
-        by {{ item.artist }}
+        by <b class="font-semibold">{{ item.artist }}</b>
       </p>
       <button
         v-if="item.cost && authData?.user"
