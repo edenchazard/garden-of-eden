@@ -13,6 +13,9 @@
         <img :src="itemUrl(item.url)" alt="" loading="lazy" />
       </span>
       <b class="text-base font-semibold text-center">{{ item.name }}</b>
+      <p v-if="item.artist" class="text-xs text-center italic">
+        by {{ item.artist }}
+      </p>
       <button
         v-if="item.cost && authData?.user"
         type="button"
