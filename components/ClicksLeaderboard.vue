@@ -74,7 +74,10 @@ withDefaults(
       rank: number;
       username: string;
       clicksGiven: number;
-      flair: Pick<Item, 'url' | 'name' | 'description' | 'artist' | 'releaseDate'> | null;
+      flair: Pick<
+        Item,
+        'url' | 'name' | 'description' | 'artist' | 'releaseDate'
+      > | null;
     }>;
     total?: number;
     showTrophies?: boolean;
