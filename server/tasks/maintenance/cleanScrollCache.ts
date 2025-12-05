@@ -1,5 +1,5 @@
 import { readdir, stat, unlink } from 'node:fs/promises';
-import fsExists from '~/server/utils/fsExists';
+import fsExists from '~~/server/utils/fsExists';
 import { join } from 'node:path';
 
 export default defineTask({

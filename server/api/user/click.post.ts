@@ -1,6 +1,6 @@
-import { db } from '~/server/db';
+import { db } from '~~/server/db';
 import { getToken } from '#auth';
-import { hatcheryTable, clicksTable } from '~/database/schema';
+import { hatcheryTable, clicksTable } from '~~/database/schema';
 import type { JWT } from 'next-auth/jwt';
 import { createSelectSchema } from 'drizzle-zod';
 

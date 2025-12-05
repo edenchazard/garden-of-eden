@@ -1,7 +1,7 @@
-import { recordingsTable } from '~/database/schema';
-import { db } from '~/server/db';
+import { recordingsTable } from '~~/database/schema';
+import { db } from '~~/server/db';
 import { DateTime } from 'luxon';
-import { purgeCounters } from '~/server/utils/dragCaveFetch';
+import { purgeCounters } from '~~/server/utils/dragCaveFetch';
 
 export default defineTask({
   meta: {

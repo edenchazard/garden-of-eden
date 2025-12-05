@@ -1,8 +1,8 @@
 import { getToken } from '#auth';
 import { eq, getTableColumns } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import { usersSettingsTable } from '~/database/schema';
-import { db } from '~/server/db';
+import { usersSettingsTable } from '~~/database/schema';
+import { db } from '~~/server/db';
 
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;

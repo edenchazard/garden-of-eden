@@ -3,8 +3,8 @@ import type {
   usersTable,
   itemsTable,
   hatcheryTable,
-} from '~/database/schema';
-import type { DragonData } from './types/DragonTypes';
+} from '~~/database/schema';
+import type { DragonData } from '../types/DragonTypes';
 export {};
 
 declare global {

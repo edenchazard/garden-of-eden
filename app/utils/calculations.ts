@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import type { DragonData } from '~/types/DragonTypes';
+import type { DragonData } from '#shared/DragonTypes';
 import { phase } from '~/utils/dragons';
 
 export function predictedStartTimeFromHoursLeft(

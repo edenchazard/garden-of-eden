@@ -366,8 +366,8 @@
 import { pluralise } from '#imports';
 import ScrollTable from '~/components/ScrollTable.vue';
 import WarningNewRelease from '~/components/WarningNewRelease.vue';
-import type { userNotificationTable } from '~/database/schema';
-import HappyMatthias from '~/public/npc/happy_matthias.webp';
+import type { userNotificationTable } from '~~/database/schema';
+import HappyMatthias from '~~/public/npc/happy_matthias.webp';
 
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
@@ -386,6 +386,7 @@ const {
     'Csrf-token': useCsrf().csrf,
   })),
   immediate: !!authData.value?.user,
+  deep: true,
   default() {
     return {
       releaseNotification: null,
@@ -407,6 +408,7 @@ const {
   })),
   immediate: false,
   watch: false,
+  deep: true,
   default: () => [],
   method: 'PATCH',
   body: computed(() =>

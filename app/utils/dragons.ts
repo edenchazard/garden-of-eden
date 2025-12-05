@@ -1,4 +1,4 @@
-import type { DragonAttributes, DragonData } from '~/types/DragonTypes';
+import type { DragonAttributes, DragonData } from '#shared/DragonTypes';
 
 export function phase(dragon: DragonData) {
   if (dragon.grow !== '0') {

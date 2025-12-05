@@ -1,7 +1,7 @@
 import { NuxtAuthHandler } from '#auth';
 import type { TokenSet } from 'next-auth';
-import { db } from '~/server/db';
-import { itemsTable, usersSettingsTable, usersTable } from '~/database/schema';
+import { db } from '~~/server/db';
+import { itemsTable, usersSettingsTable, usersTable } from '~~/database/schema';
 import { eq, getTableColumns } from 'drizzle-orm';
 import { encrypt } from '~/utils/accessTokenHandling';
 

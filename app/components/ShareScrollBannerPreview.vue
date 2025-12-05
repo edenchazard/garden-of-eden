@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import itemUrl from '~/utils/itemUrl';
-import type { BannerRequestParameters } from '~/workers/shareScrollWorkerTypes';
+import type { BannerRequestParameters } from '~~/workers/shareScrollWorkerTypes';
 
 defineProps<{
   params: Pick<

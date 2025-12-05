@@ -228,11 +228,7 @@
                 title=""
                 >GOAT</abbr
               >
-              <img
-                alt="A goat."
-                class="inline"
-                src="/public/other/goat.webp"
-              />.
+              <img alt="A goat." class="inline" :src="Goat" />.
             </p>
           </div>
           <div class="md:col-start-2 md:row-start-2">
@@ -488,9 +484,10 @@ import type {
 import { DateTime } from 'luxon';
 import { Bar, Line } from 'vue-chartjs';
 import { pluralise } from '#imports';
-import type { recordingsTable } from '~/database/schema';
+import type { recordingsTable } from '~~/database/schema';
 import 'chartjs-adapter-luxon';
 import { useWindowSize } from '@vueuse/core';
+import Goat from '~~/public/other/goat.webp';
 
 useHead({
   title: 'Statistics',
@@ -858,7 +855,10 @@ function createPoints() {
   return points;
 }
 
-function rgbAlpha(colour: [number, number, number], a: number = 1) {
+function rgbAlpha(colour: [number, number, number] | undefined, a: number = 1) {
+  if (!colour) {
+    return `rgba(255,255,255,${a})`;
+  }
   return `rgba(${colour.join(',')},${a})`;
 }
 </script>

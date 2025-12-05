@@ -1,10 +1,10 @@
-import { db } from '~/server/db';
+import { db } from '~~/server/db';
 import {
   clicksLeaderboardsTable,
   clicksTable,
   itemsTable,
   userTrophyTable,
-} from '~/database/schema';
+} from '~~/database/schema';
 import { and, between, eq, like, sql } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 

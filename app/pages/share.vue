@@ -309,7 +309,7 @@
 import {
   defaultPalette,
   type BannerRequestParameters,
-} from '~/workers/shareScrollWorkerTypes';
+} from '~~/workers/shareScrollWorkerTypes';
 
 useHead({
   title: 'Share',

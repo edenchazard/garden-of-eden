@@ -4,8 +4,8 @@ import {
   userNotificationTable,
   usersSettingsTable,
   usersTable,
-} from '~/database/schema';
-import { db } from '~/server/db';
+} from '~~/database/schema';
+import { db } from '~~/server/db';
 import chunkArray from '~/utils/chunkArray';
 import { DateTime } from 'luxon';
 import { eq } from 'drizzle-orm';

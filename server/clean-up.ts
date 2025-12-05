@@ -1,11 +1,11 @@
 import chunkArray from '~/utils/chunkArray';
-import { db } from '~/server/db';
-import { hatcheryTable, recordingsTable } from '~/database/schema';
+import { db } from '~~/server/db';
+import { hatcheryTable, recordingsTable } from '~~/database/schema';
 import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
-import { dragCaveFetch } from '~/server/utils/dragCaveFetch';
+import { dragCaveFetch } from '~~/server/utils/dragCaveFetch';
 import { isIncubated, isStunned } from '~/utils/calculations';
-import type { DragonData } from '~/types/DragonTypes';
+import type { DragonData } from '#shared/DragonTypes';
 import { blockedApiQueue } from './queue';
 
 export async function cleanUp() {

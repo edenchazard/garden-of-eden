@@ -1,8 +1,8 @@
-import { db } from '~/server/db';
+import { db } from '~~/server/db';
 import { getToken } from '#auth';
 import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
-import { hatcheryTable } from '~/database/schema';
+import { hatcheryTable } from '~~/database/schema';
 import { and, eq, inArray, not, sql, getTableColumns } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
