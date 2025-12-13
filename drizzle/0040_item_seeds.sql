@@ -73,4 +73,6 @@ INSERT IGNORE INTO `items` (`id`, `name`, `url`, `category`, `available_from`, `
 	(71, 'Spider Lily', 'spider-lily.webp', 'flair', '2025-10-25 00:00:00', '2025-11-07 00:00:00', 'Also known as the red spider lily, this flower is said to guide the dead to their next reincarnation.', 125, 'Hourai', '2025-10-29 00:00:00', 13),
 	(72, 'Black Bat Flower', 'black-bat-flower.webp', 'flair', '2025-10-25 00:00:00', '2025-11-07 00:00:00', 'Na na na na na na na na na na na na na BATMAN!', 150, 'Luci', '2025-10-29 00:00:00', 13),
 	(73, "Topaz", 'topaz.webp', 'flair', '2025-11-01 00:00:00', '2025-11-30 00:00:00', 'November\'s entry for the rock garden.', 100, 'Luci', '2025-11-01 00:00:00', 29),
-	(74, "Turquoise", 'turquoise.webp', 'flair', '2025-12-01 00:00:00', '2025-12-31 00:00:00', 'December\'s entry for the rock garden.', 100, 'Luci', '2025-12-01 00:00:00', 30);
+	(74, "Turquoise", 'turquoise.webp', 'flair', '2025-12-01 00:00:00', '2025-12-31 00:00:00', 'December\'s entry for the rock garden.', 100, 'Luci', '2025-12-01 00:00:00', 30),
+	(75, "Winter cherry", 'winter-cherry.webp', 'flair', '2025-12-01 00:00:00', '2026-01-07 00:00:00', "It's winter. The fruits look like cherries. That's why it's called the winter cherry.", 100, '04uni', '2025-12-13 00:00:00', 37),
+	(75, "Bauble (white-gold)", 'bauble-white-gold.webp', 'flair', '2025-12-01 00:00:00', '2026-01-07 00:00:00', "This bauble doesn't know what colour it is.", 100, 'Inghelene', '2025-12-13 00:00:00', 37);
