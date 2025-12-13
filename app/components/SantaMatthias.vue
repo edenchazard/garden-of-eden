@@ -8,7 +8,7 @@
     "
     :src="SantaMatthias"
     alt=""
-    class="santa-matthias absolute right-0.5 -bottom-1.5 -z-10 motion-reduce:animate-none!"
+    class="santa-matthias absolute right-0.75 -bottom-1.5 -z-10 motion-reduce:animate-none!"
   />
 </template>
 
