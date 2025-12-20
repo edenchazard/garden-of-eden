@@ -18,7 +18,11 @@
           front of you, propped up against the counter.
         </p>
         <img
-          :src="`${path}/npc/matthias.webp`"
+          :src="
+            isChristmas()
+              ? `${path}/npc/santa_matthias_dressed.webp`
+              : `${path}/npc/matthias.webp`
+          "
           alt="Matthias the mint dragon"
           class="opacity-0 animate-[matthias-roll_2s_ease-in-out_forwards_1s]"
           height="34"
@@ -199,6 +203,7 @@
 import { itemUrl } from '#imports';
 import { DateTime } from 'luxon';
 import DialogFortuneCookie from '~/components/DialogFortuneCookie.vue';
+import isChristmas from '~/utils/isChristmas';
 import DragonDollar from '~~/public/other/dragon-dollar.webp';
 
 useHead({

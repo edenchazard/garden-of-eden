@@ -76,14 +76,21 @@
             class="row-span-2"
             loading="lazy"
             format="avif,webp"
-            src="/illustrations/tinkering-in-the-garden.png"
-            sizes="150px md:300px"
+            :src="
+              isChristmas()
+                ? `/illustrations/tree-needs-power.png`
+                : `/illustrations/tinkering-in-the-garden.png`
+            "
+            :sizes="isChristmas() ? '120px md:200px' : '150px md:300px'"
             alt="Mint tinkering in the garden"
           />
           <p class="font-bold self-end">Aurrrr naurrr!!!</p>
           <p class="col-start-2">
             There was an error trying to fetch your scroll. Whack that reload
             button and try again.
+            <NuxtLink to="/statistics#api-requests">
+              Go here to check if Dragon Cave is having issues</NuxtLink
+            >.
           </p>
         </div>
         <template v-else>
@@ -276,6 +283,33 @@
       />
     </form>
 
+    <template v-if="isChristmas()">
+      <div ref="formEnd" aria-hidden="true" class="h-px !m-0" />
+      <Transition
+        class="transition-opacity duration-300"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+      >
+        <div
+          v-if="scrollUpdated && isChristmas()"
+          class="px-4 max-w-prose justify-items-center text-center grid items-center gap-x-4 !mx-auto sm:grid-cols-[auto_1fr] sm:text-left sm:justify-items-start"
+        >
+          <NuxtPicture
+            class="row-span-2"
+            loading="lazy"
+            format="avif,webp"
+            src="/illustrations/wrapping-presents.png"
+            sizes="120px md:200px"
+            alt="Matthias wrapping eggs"
+          />
+          <p class="font-bold self-end">{{ getUpdatedTexts() }}</p>
+          <p class="col-start-2">
+            While you're here... why not give the gift of clicks this Christmas?
+          </p>
+        </div>
+      </Transition>
+    </template>
+
     <section class="space-y-2">
       <h2 class="text-2xl text-white">Seed tray</h2>
       <HatcheryView
@@ -364,13 +398,26 @@
 
 <script lang="ts" setup>
 import { pluralise } from '#imports';
+import { useElementVisibility } from '@vueuse/core';
 import ScrollTable from '~/components/ScrollTable.vue';
 import WarningNewRelease from '~/components/WarningNewRelease.vue';
+import isChristmas from '~/utils/isChristmas';
 import type { userNotificationTable } from '~~/database/schema';
 import HappyMatthias from '~~/public/npc/happy_matthias.webp';
 
 const { data: authData, signIn } = useAuth();
 const { userSettings } = useUserSettings(true);
+
+const scrollUpdated = ref(false);
+
+const savedDragons = reactive({
+  seedTray: 0,
+  garden: 0,
+});
+
+const formEndVisible = useElementVisibility(useTemplateRef('formEnd'), {
+  threshold: 0,
+});
 
 const {
   data: scroll,
@@ -418,34 +465,33 @@ const {
       inGarden: dragon.inGarden,
     }))
   ),
-  onResponse({ response }) {
+  async onResponse({ response }) {
     if (!response.ok) {
       toast.error('Failed to save your scroll. Please try again.');
+      scrollUpdated.value = false;
       return;
     }
 
-    const seedTray = scroll.value.dragons.filter((dragon) => dragon.inSeedTray);
-    const garden = scroll.value.dragons.filter((dragon) => dragon.inGarden);
-    const texts = [];
+    savedDragons.seedTray = scroll.value.dragons.filter(
+      (dragon) => dragon.inSeedTray
+    ).length;
 
-    if (seedTray.length > 0) {
-      texts.push(
-        `${seedTray.length} ${pluralise('dragon', seedTray.length)} in the seed tray`
+    savedDragons.garden = scroll.value.dragons.filter(
+      (dragon) => dragon.inGarden
+    ).length;
+
+    scrollUpdated.value = true;
+
+    console.log('formEndVisible', formEndVisible.value);
+
+    if (!formEndVisible.value) {
+      toast.success(
+        `${getUpdatedTexts()} <img class="inline" src="${HappyMatthias}" alt="Happy Matthias" />`,
+        {
+          dangerouslyHTMLString: true,
+        }
       );
     }
-
-    texts.push(
-      `${garden.length > 0 ? garden.length : 'no'} ${pluralise('dragon', garden.length)} in the garden`
-    );
-    toast.success(
-      'Scroll updated! You have ' +
-        texts.join(' and ') +
-        `. <img class="inline" src="${HappyMatthias}" alt="Happy Matthias" />`,
-      {
-        dangerouslyHTMLString: true,
-      }
-    );
-    return;
   },
 });
 
@@ -552,5 +598,21 @@ function toggleAll(checked: boolean) {
         dragon.inSeedTray = checked;
       }
     });
+}
+
+function getUpdatedTexts(): string {
+  const texts: string[] = [];
+
+  if (savedDragons.seedTray > 0) {
+    texts.push(
+      `${savedDragons.seedTray} ${pluralise('dragon', savedDragons.seedTray)} in the seed tray`
+    );
+  }
+
+  texts.push(
+    `${savedDragons.garden > 0 ? savedDragons.garden : 'no'} ${pluralise('dragon', savedDragons.garden)} in the garden`
+  );
+
+  return 'Scroll updated! You have ' + texts.join(' and ') + `.`;
 }
 </script>
