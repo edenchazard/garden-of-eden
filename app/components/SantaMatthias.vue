@@ -1,11 +1,6 @@
 <template>
   <img
-    v-if="
-      Interval.fromDateTimes(
-        DateTime.fromISO(`${DateTime.now().year}-10-11T00:00:00Z`),
-        DateTime.fromISO(`${DateTime.now().year}-12-31T23:59:59Z`)
-      ).contains(DateTime.utc())
-    "
+    v-if="isChristmas()"
     :src="SantaMatthias"
     alt=""
     class="santa-matthias absolute right-0.75 -bottom-1.5 -z-10 motion-reduce:animate-none!"
@@ -13,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { DateTime, Interval } from 'luxon';
-import SantaMatthias from '~~/public/npc/santa_matthias3.webp';
+import isChristmas from '~/utils/isChristmas';
+import SantaMatthias from '~~/public/npc/santa_matthias_animated.webp';
 </script>
 
 <style scoped>
