@@ -482,8 +482,6 @@ const {
 
     scrollUpdated.value = true;
 
-    console.log('formEndVisible', formEndVisible.value);
-
     if (!formEndVisible.value) {
       toast.success(
         `${getUpdatedTexts()} <img class="inline" src="${HappyMatthias}" alt="Happy Matthias" />`,
