@@ -82,8 +82,8 @@ export default defineEventHandler(async (event) => {
         .where(eq(usersSettingsTable.userId, token.userId));
     }
 
-    // New Year 2025 badge.
-    if (item.name === 'Fortune Cookie' && now.getFullYear() === 2025) {
+    // New Year badge.
+    if (item.name === 'Fortune Cookie') {
       const itemId = now.getFullYear() === 2025 ? 50 : 77;
 
       const [badge] = await tx
