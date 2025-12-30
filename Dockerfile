@@ -18,18 +18,16 @@ COPY --link . .
 RUN npm run build
 
 # Run
-FROM base 
-# Required hacks for working animated banners in prod.
-# TODO: --chown=node:node
-COPY --from=required-packages /src/node_modules/bullmq/dist/cjs dist/cjs 
-COPY --from=required-packages /src/node_modules node_modules
-COPY  resources/banner resources/banner
-COPY --from=build /src/.output .output 
-COPY --from=build /src/workers/*.cjs workers/
+FROM base  
+# Required hacks for working animated banners in prod. 
+COPY --chown=node:node --from=required-packages /src/node_modules/bullmq/dist/cjs dist/cjs 
+COPY --chown=node:node --from=required-packages /src/node_modules node_modules
+COPY --chown=node:node resources/banner resources/banner
+COPY --chown=node:node --from=build /src/.output .output 
+COPY --chown=node:node --from=build /src/workers/*.cjs workers/
 
-#RUN mkdir /cache 
-#RUN chown -R node:node /cache
+RUN mkdir /cache
+RUN chown -R node:node /cache
+USER node
 
-#USER node
-
-CMD [ "node", ".output/server/index.mjs" ]
+CMD [ "node", ".output/server/index.mjs" ] 
