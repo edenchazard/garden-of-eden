@@ -1,7 +1,8 @@
 <template>
+  <!-- eslint-disable vue/no-v-html We're good. -->
   <dialog
     ref="fortuneDialog"
-    class="m-auto p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 shadow-xl open:animate-[fade-in_0.5s_ease-in-out] [&_a]:text-green-950"
+    class="backdrop:bg-black/50 m-auto p-4 rounded-lg max-w-md bg-green-100 dark:bg-stone-200 deep-sea:bg-slate-500 deep-sea:text-white shadow-xl open:animate-[fade-in_0.5s_ease-in-out] [&_a]:text-green-950"
     @close="unveiledCookie = false"
   >
     <header>
@@ -32,12 +33,12 @@
       <template v-else>
         <div class="overflow-hidden fortune relative">
           <div
-            class="w-full absolute right-0 h-full bg-green-100 dark:bg-stone-200 animate-[unveil_5s_ease-in-out_forwards_1s] motion-reduce:animate-none motion-reduce:w-0 motion-reduce:opacity-1"
+            class="w-full absolute right-0 h-full bg-green-100 dark:bg-stone-200 deep-sea:bg-slate-500 animate-[unveil_5s_ease-in-out_forwards_1s] motion-reduce:animate-none motion-reduce:w-0 motion-reduce:opacity-1"
           />
           <q
             class="block px-4 py-2 bg-orange-300 text-black italic text-center sm:px-8"
-            >{{ fortune }}</q
-          >
+            v-html="fortune"
+          />
         </div>
         <template v-if="reward">
           <p class="flex items-center gap-2">
