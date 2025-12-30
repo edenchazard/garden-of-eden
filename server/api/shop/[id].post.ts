@@ -84,12 +84,19 @@ export default defineEventHandler(async (event) => {
 
     // New Year badge.
     if (item.name === 'Fortune Cookie') {
-      const itemId = now.getFullYear() === 2025 ? 50 : 77;
-
       const [badge] = await tx
         .select()
         .from(itemsTable)
-        .where(eq(itemsTable.id, itemId));
+        .where(
+          and(
+            eq(itemsTable.name, `New Year ${now.getFullYear()}`),
+            eq(itemsTable.category, 'trophy')
+          )
+        );
+
+      if (!badge) {
+        return;
+      }
 
       // Check they don't already have the badge.
       const hasBadge = await tx
