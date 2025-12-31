@@ -268,6 +268,14 @@ async function handleItem(item: Item) {
 
   if (item.name === 'Fortune Cookie') {
     const fortunes = [
+      ':3c',
+      'Not telling.',
+      'Do whatever you want forever.',
+      'You are about to invent the next viral meme. This may or may not be good news.',
+      "Need an idea for a New Year's resolution? Eat as many pasta shapes as you can this year.",
+      "Need an idea for a New Year's resolution? Listen to as many different music genres as you can this year.",
+      "Need an idea for a New Year's resolution? Pet as many cats (or dogs) as you can this year.",
+      "Need an idea for a New Year's resolution? Raise as many Mints as you can this year.",
       'Run.',
       "Dare to dream, but don't forget to live.",
       'Carton of eggs, milk, shredded cheese, paper towels, loaf of bread, lettuce, ketchup...',
