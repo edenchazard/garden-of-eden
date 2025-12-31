@@ -2,5 +2,5 @@ FROM node:24.11-bookworm-slim
 ENV NODE_ENV=development
 WORKDIR /src
 COPY --link package.json package-lock.json ./
-RUN npm ci
+RUN npm i
 CMD [ "npm", "run", "dev" ]
