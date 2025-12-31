@@ -290,7 +290,7 @@ async function handleItem(item: Item) {
       'Disregard all previous cookies.',
       "'Good enough' is enough.",
       'Terrible luck. You might as well take this year off.',
-      'Great fortune is upon you! You shall surely succeed…surely.',
+      'Great fortune is upon you! You shall surely succeed... surely.',
       'You will open at least one fortune cookie this year.',
       'Thank you for freeing me! But your fortune is in another cookie!',
       'Clicking on {{random_breed}}s will give you good luck today.',
