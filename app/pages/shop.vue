@@ -284,7 +284,7 @@ async function handleItem(item: Item) {
       'Last year was practice. This year is yours.',
       'Choices made in anger cannot be undone!',
       'If it sucks, hit the bricks! Real winners quit!',
-      'Fortune favors the cookie eater.',
+      'Fortune favours the cookie eater.',
       'Form is temporary, class is permanent.',
       'TRAPPED IN FORTUNE COOKIE FACTORY PLEASE HELP',
       'Disregard all previous cookies.',
