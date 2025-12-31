@@ -280,7 +280,7 @@ async function handleItem(item: Item) {
       'Fear is the mind-killer.',
       'You will be hungry again in one to three hours.',
       'A shell in the hand is better than a Shumoga hatchling in the AP.',
-      'We\'ve been trying to reach you about your automobile's extended warranty...',
+      'We\'ve been trying to reach you about your automobile\'s extended warranty...',
       'Last year was practice. This year is yours.',
       'Choices made in anger cannot be undone!',
       'If it sucks, hit the bricks! Real winners quit!',
