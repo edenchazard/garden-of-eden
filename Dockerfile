@@ -25,6 +25,7 @@ COPY --chown=node:node --from=required-packages /src/node_modules node_modules
 COPY --chown=node:node resources/banner resources/banner
 COPY --chown=node:node --from=build /src/.output .output 
 COPY --chown=node:node --from=build /src/workers/*.cjs workers/
+COPY --chown=root:node --from=build /src/.output/public/fonts/ /usr/share/fonts/ 
 
 RUN mkdir /cache
 RUN chown -R node:node /cache
