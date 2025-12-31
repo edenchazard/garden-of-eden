@@ -347,6 +347,7 @@ async function handleItem(item: Item) {
       'You are now {{price}} dragon dollars poorer.',
       'You are about to finish reading a fortune.',
       'You may see at least one Staterae in the cave this week.',
+      "There's always another dragon.",
     ];
 
     const randomCookie = fortunes[Math.floor(Math.random() * fortunes.length)];
