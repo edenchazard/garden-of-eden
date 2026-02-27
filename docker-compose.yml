@@ -33,6 +33,29 @@ services:
     networks:
       - internal
 
+  testapp:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    command: sh -c "npx playwright install --with-deps chromium && tail -f /dev/null"
+    depends_on:
+      - hatchery
+    volumes:
+      - .:/src
+      - node_modules:/src/node_modules
+      - caches:/cache
+      - playwright_cache:/ms-playwright
+    environment:
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - E2E_BASE_URL=http://hatchery:3000${BASE_URL:-/dc/hatchery}
+      - NUXT_DB_HOST=db
+      - NUXT_DB_PORT=3306
+      - NUXT_DB_DATABASE=${MYSQL_DATABASE}
+      - NUXT_DB_USER=root
+      - NUXT_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    networks:
+      - internal
+
   db:
     image: mariadb:10.9
     tty: true
@@ -73,6 +96,7 @@ volumes:
   dbdata:
   node_modules:
   caches:
+  playwright_cache:
 
 networks:
   internal:

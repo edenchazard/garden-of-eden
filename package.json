@@ -13,6 +13,8 @@
     "fmt": "prettier --write .",
     "fmt:check": "prettier . --check",
     "test:unit": "vitest",
+    "db:reset:test": "tsx ./scripts/reset-test-db.ts",
+    "test:e2e": "npm run db:reset:test && npm run db:migrate && playwright test",
     "ts:check": "nuxt prepare && vue-tsc -b --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -53,6 +55,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.11.0",
     "@nuxt/test-utils": "^3.20.1",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.12",
     "@types/luxon": "^3.6.2",
     "@types/node": "^24.10.1",

@@ -1,0 +1,64 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: mariadb:10.9
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: hatchery
+          MYSQL_USER: root
+          MYSQL_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >
+          --health-cmd="mysqladmin ping --silent" --health-interval=5s --health-timeout=5s --health-retries=10
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+    env:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hatchery
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      NUXT_DB_HOST: 127.0.0.1
+      NUXT_DB_PORT: 3306
+      NUXT_DB_DATABASE: hatchery
+      NUXT_DB_USER: root
+      NUXT_DB_PASSWORD: root
+      NUXT_REDIS_HOST: 127.0.0.1
+      NUXT_REDIS_PORT: 6379
+      BASE_URL: /dc/hatchery
+      E2E_BASE_URL: http://localhost:3000/dc/hatchery
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build testapp image
+        run: docker compose build testapp
+      - name: Start hatchery and testapp
+        run: docker compose up -d hatchery testapp
+      - name: Wait for hatchery
+        run: |
+          for i in {1..60}; do
+            if curl -sSf http://localhost:3000/dc/hatchery > /dev/null; then
+              echo "Nuxt hatchery is up!"; break;
+            fi
+            sleep 2
+          done
+      - name: Run e2e tests
+        run: docker compose exec testapp sh -c "npm run test:e2e"

@@ -31,6 +31,9 @@ export default defineNuxtConfig({
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      allowedHosts: ['hatchery', 'testapp', 'localhost', '127.0.0.1'],
+    },
   },
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL,

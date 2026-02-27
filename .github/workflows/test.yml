@@ -23,3 +23,21 @@ jobs:
 
       - name: run unit tests via vitest
         run: npm i && npm run test:unit -- --run
+
+      - name: Start DB and Redis
+        run: |
+          docker compose up -d db redis
+      - name: Build testapp image
+        run: docker compose build testapp
+      - name: Start hatchery and testapp
+        run: docker compose up -d hatchery testapp
+      - name: Wait for hatchery
+        run: |
+          for i in {1..60}; do
+            if curl -sSf http://localhost:3000/dc/hatchery > /dev/null; then
+              echo "Nuxt hatchery is up!"; break;
+            fi
+            sleep 2
+          done
+      - name: Run e2e tests
+        run: docker compose exec testapp sh -c "npm run test:e2e"
