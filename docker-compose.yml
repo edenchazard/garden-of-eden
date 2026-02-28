@@ -41,10 +41,8 @@ services:
         TESTING: 'true'
     command: sh -c "tail -f /dev/null"
     depends_on:
-      testdb:
-        condition: service_healthy
-      testredis:
-        condition: service_healthy
+      - testdb
+      - testredis
     volumes:
       - .:/src
       - node_modules:/src/node_modules
