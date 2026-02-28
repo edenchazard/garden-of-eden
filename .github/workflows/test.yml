@@ -21,6 +21,9 @@ jobs:
       - name: run typescript checks
         run: npm run ts:check
 
+      - name: copy env.example to .env
+        run: cp env.example .env
+
       - name: start testing stack
         run: docker compose up -d testapp
 
