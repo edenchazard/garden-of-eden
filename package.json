@@ -5,7 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
-    "test": "npm run db:reset:test && npm run db:migrate && npx vitest run",
+    "test": "npm run db:migrate && npx vitest run",
     "test:watch": "npm run db:migrate && npx vitest",
     "ts:check": "nuxt prepare && vue-tsc -b --noEmit",
     "lint": "eslint .",
