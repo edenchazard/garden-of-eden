@@ -21,5 +21,17 @@ jobs:
       - name: run typescript checks
         run: npm run ts:check
 
-      - name: run unit tests via vitest
-        run: npm i && npm run test:unit -- --run
+      - name: copy .env.example to .env
+        run: cp .env.example .env
+
+      - name: start testing stack
+        run: docker compose up -d testapp
+
+      # - name: run vitest:unit
+      # run: docker compose exec -T testapp sh -c "npm run test -- --run --project unit"
+
+      - name: run vitest:nuxt
+        run: docker compose exec -T testapp sh -c "npm run test -- --run --project nuxt"
+
+      - name: run vitest:e2e
+        run: docker compose exec -T testapp sh -c "npm run test -- --run --project e2e"

@@ -12,6 +12,7 @@ node_modules
 # Logs
 logs
 *.log
+test-results
 
 # Misc
 .DS_Store
@@ -29,3 +30,4 @@ logs
 
 /resources/public
 /resources/flair-shadows/*
+

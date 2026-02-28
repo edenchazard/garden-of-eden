@@ -1,6 +1,10 @@
 FROM node:24.11-bookworm-slim
 ENV NODE_ENV=development
+ARG TESTING=false
+ENV TESTING=$TESTING
+
 WORKDIR /src
 COPY --link package.json package-lock.json ./
 RUN npm i
+RUN if [ "$TESTING" = "true" ]; then npx playwright install --with-deps; fi
 CMD [ "npm", "run", "dev" ]

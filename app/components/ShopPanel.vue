@@ -3,6 +3,7 @@
   <component
     :is="as"
     :key="item.id"
+    :data-shop-item="item.id"
     :style="{
       gridTemplateRows: '1fr auto',
     }"

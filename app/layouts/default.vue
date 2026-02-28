@@ -80,6 +80,7 @@
             >
           </div>
           <nav
+            data-test-id="nav"
             class="grid grid-cols-2 justify-items-center min-[360px]:flex gap-x-4 gap-y-2 justify-center sm:justify-end items-center [&_a]:underline-offset-4 [&_a]:underline [&_a]:px-0! [&_a]:shadow-none!"
           >
             <NuxtLink class="link" to="/statistics">Statistics</NuxtLink>

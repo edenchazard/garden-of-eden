@@ -5,9 +5,9 @@ import type { NuxtConfig } from 'nuxt/schema';
 const modules: NuxtConfig['modules'] = [
   '@sidebase/nuxt-auth',
   '@nuxtjs/color-mode',
-  '@nuxtjs/robots',
   '@nuxt/eslint',
   '@nuxt/test-utils/module',
+  '@nuxt/image',
   'nuxt-security',
   'floating-vue/nuxt',
   [
@@ -22,15 +22,21 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-11-28',
   devtools: { enabled: false },
   $development: {
-    modules: [...modules, '@nuxt/image'],
+    modules,
   },
   $production: {
-    modules: [...modules, '@nuxt/image'],
+    modules,
+  },
+  $test: {
+    modules: modules.slice(0, -1),
   },
   modules,
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      allowedHosts: ['hatchery', 'testapp', 'localhost', '127.0.0.1'],
+    },
   },
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL,
@@ -81,7 +87,6 @@ export default defineNuxtConfig({
     classSuffix: '',
     preference: 'dark',
   },
-  robots: { disallow: ['/api', '/view'] },
   security: {
     removeLoggers: false,
     rateLimiter: false,

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { formatRatio } from '#imports';
 
 describe('formatRatio', () => {
   it('should format ratio', () => {
