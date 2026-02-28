@@ -60,7 +60,7 @@
     "drizzle-kit": "^0.30.5",
     "esbuild": "^0.24.0",
     "happy-dom": "^17.4.4",
-    "prettier": "^3.5.3",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "tsx": "^4.20.6",
     "vitest": "^3.0.8",
