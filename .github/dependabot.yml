@@ -9,7 +9,7 @@ updates:
       timezone: Europe/London
     labels:
       - dependencies
-      - dependencies:docker-compose
+      - docker-compose
 
   - package-ecosystem: docker
     directory: '/'
@@ -20,7 +20,7 @@ updates:
       timezone: Europe/London
     labels:
       - dependencies
-      - dependencies:docker
+      - docker
 
   - package-ecosystem: npm
     directory: '/'
@@ -31,7 +31,7 @@ updates:
       timezone: Europe/London
     labels:
       - dependencies
-      - dependencies:npm
+      - npm
 
   - package-ecosystem: github-actions
     directory: '/'
@@ -42,4 +42,4 @@ updates:
       timezone: Europe/London
     labels:
       - dependencies
-      - dependencies:github-actions
+      - actions
