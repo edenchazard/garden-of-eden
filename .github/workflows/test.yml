@@ -41,10 +41,10 @@ jobs:
           fi
 
       - name: Run vitest:unit
-        run: docker compose exec -T testapp sh -c "npm run test:unit -- --run"
+        run: docker compose exec -T testapp sh -c "npm run test -- --run --project unit"
 
       - name: Run vitest:nuxt
-        run: docker compose exec -T testapp sh -c "npm run test:nuxt -- --run"
+        run: docker compose exec -T testapp sh -c "npm run test -- --run --project nuxt"
 
       - name: Run vitest:e2e
-        run: docker compose exec -T testapp sh -c "npm run test:e2e -- --run"
+        run: docker compose exec -T testapp sh -c "npm run test -- --run --project e2e"
