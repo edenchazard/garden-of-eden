@@ -8,7 +8,7 @@ const port = Number(process.env.NUXT_DB_PORT ?? '3306');
 
 if (!host || !user || !database) {
   throw new Error(
-    'Missing required env vars: NUXT_DB_HOST, NUXT_DB_USER, NUXT_DB_DATABASE',
+    'Missing required env vars: NUXT_DB_HOST, NUXT_DB_USER, NUXT_DB_DATABASE'
   );
 }
 
@@ -24,7 +24,7 @@ const connection = await mysql.createConnection({
 
 await connection.query(`DROP DATABASE IF EXISTS ${identifier(database)}`);
 await connection.query(
-  `CREATE DATABASE ${identifier(database)} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
+  `CREATE DATABASE ${identifier(database)} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
 );
 await connection.end();
 
