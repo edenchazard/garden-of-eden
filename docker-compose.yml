@@ -34,7 +34,7 @@ services:
       - internal
 
   db:
-    image: mariadb:10.9
+    image: mariadb:12.2
     tty: true
     volumes:
       - dbdata:/var/lib/mysql
