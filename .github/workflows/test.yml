@@ -27,22 +27,6 @@ jobs:
       - name: start testing stack
         run: docker compose up -d testapp
 
-      - name: wait for testapp
-        run: |
-          ready=0
-          for i in {1..60}; do
-            if docker compose exec -T testapp sh -c 'node -e "fetch(process.env.E2E_BASE_URL).then((res) => { if (!res.ok) process.exit(1); }).catch(() => process.exit(1));"'; then
-              echo "Nuxt testapp is up!"
-              ready=1
-              break
-            fi
-            sleep 2
-          done
-          if [ "$ready" -ne 1 ]; then
-            echo "Nuxt testapp did not become ready in time"
-            exit 1
-          fi
-
       - name: run vitest:unit
         run: docker compose exec -T testapp sh -c "npm run test -- --run --project unit"
 
