@@ -5,7 +5,6 @@ import type { NuxtConfig } from 'nuxt/schema';
 const modules: NuxtConfig['modules'] = [
   '@sidebase/nuxt-auth',
   '@nuxtjs/color-mode',
-  '@nuxtjs/robots',
   '@nuxt/eslint',
   '@nuxt/test-utils/module',
   '@nuxt/image',
@@ -88,7 +87,6 @@ export default defineNuxtConfig({
     classSuffix: '',
     preference: 'dark',
   },
-  robots: { disallow: ['/api', '/view'] },
   security: {
     removeLoggers: false,
     rateLimiter: false,

@@ -33,6 +33,42 @@ services:
     networks:
       - internal
 
+  db:
+    image: mariadb:10.9
+    tty: true
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - 3306:3306
+    networks:
+      - internal
+
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379
+    networks:
+      - internal
+
+  bullboard:
+    image: venatum/bull-board:2.3
+    depends_on:
+      - redis
+    ports:
+      - 3001:3000
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - USER_LOGIN=${BULLBOARD_USER}
+      - BULLBOARD_PASSWORD=${BULLBOARD_PASSWORD}
+    networks:
+      - internal
+
   testapp:
     build:
       context: .
@@ -50,17 +86,16 @@ services:
       - node_modules:/src/node_modules
     environment:
       - NUXT_APP_BASE_URL=${BASE_URL}
-      - NUXT_DB_HOST=testdb
-      - NUXT_DB_PORT=3306
+      - NUXT_DB_HOST=${MYSQL_HOST}
       - NUXT_DB_DATABASE=${MYSQL_DATABASE}
-      - NUXT_DB_USER=root
-      - NUXT_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - NUXT_DB_USER=${MYSQL_USER}
+      - NUXT_DB_PASSWORD=${MYSQL_PASSWORD}
       - NUXT_CLIENT_ID=${CLIENT_ID}
       - NUXT_CLIENT_SECRET=${CLIENT_SECRET}
       - NUXT_PUBLIC_ORIGIN=${ORIGIN}
       - NUXT_PUBLIC_BASE_URL=${BASE_URL}
-      - NUXT_REDIS_HOST=testredis
-      - NUXT_REDIS_PORT=6379
+      - NUXT_REDIS_HOST=${REDIS_HOST}
+      - NUXT_REDIS_PORT=${REDIS_PORT}
       - NUXT_BANNER_CACHE_EXPIRY=${BANNER_CACHE_EXPIRY}
       - NUXT_ACCESS_TOKEN_PASSWORD=${ACCESS_TOKEN_PASSWORD}
       - NUXT_NEXT_AUTH_SECRET=${NEXT_SECRET}
@@ -104,42 +139,6 @@ services:
       test:
         aliases:
           - redis
-
-  db:
-    image: mariadb:10.9
-    tty: true
-    volumes:
-      - dbdata:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    ports:
-      - 3306:3306
-    networks:
-      - internal
-
-  redis:
-    image: redis:7.4-alpine
-    ports:
-      - 6379:6379
-    networks:
-      - internal
-
-  bullboard:
-    image: venatum/bull-board:2.3
-    depends_on:
-      - redis
-    ports:
-      - 3001:3000
-    environment:
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - USER_LOGIN=${BULLBOARD_USER}
-      - BULLBOARD_PASSWORD=${BULLBOARD_PASSWORD}
-    networks:
-      - internal
 
 volumes:
   dbdata:
