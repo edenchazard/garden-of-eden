@@ -21,7 +21,7 @@ jobs:
       - name: run typescript checks
         run: npm run ts:check
 
-      - name: Start isolated e2e stack
+      - name: start isolated e2e stack
         run: docker compose up -d testdb testredis testapp
 
       - name: wait for testapp
