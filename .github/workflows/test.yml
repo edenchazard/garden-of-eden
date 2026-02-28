@@ -24,7 +24,7 @@ jobs:
       - name: Start isolated e2e stack
         run: docker compose up -d testdb testredis testapp
 
-      - name: Wait for testhatchery
+      - name: wait for testapp
         run: |
           ready=0
           for i in {1..60}; do
@@ -40,11 +40,11 @@ jobs:
             exit 1
           fi
 
-      - name: Run vitest:unit
+      - name: run vitest:unit
         run: docker compose exec -T testapp sh -c "npm run test -- --run --project unit"
 
-      - name: Run vitest:nuxt
+      - name: run vitest:nuxt
         run: docker compose exec -T testapp sh -c "npm run test -- --run --project nuxt"
 
-      - name: Run vitest:e2e
+      - name: run vitest:e2e
         run: docker compose exec -T testapp sh -c "npm run test -- --run --project e2e"
