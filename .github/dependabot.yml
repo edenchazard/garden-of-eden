@@ -1,0 +1,45 @@
+version: 2
+updates:
+  - package-ecosystem: docker-compose
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: saturday
+      time: '08:00'
+      timezone: Europe/London
+    labels:
+      - dependencies
+      - dependencies:docker-compose
+
+  - package-ecosystem: docker
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: saturday
+      time: '08:00'
+      timezone: Europe/London
+    labels:
+      - dependencies
+      - dependencies:docker
+
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: saturday
+      time: '08:00'
+      timezone: Europe/London
+    labels:
+      - dependencies
+      - dependencies:npm
+
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: saturday
+      time: '08:00'
+      timezone: Europe/London
+    labels:
+      - dependencies
+      - dependencies:github-actions
