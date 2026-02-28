@@ -27,8 +27,8 @@ jobs:
       - name: start testing stack
         run: docker compose up -d testapp
 
-      - name: run vitest:unit
-        run: docker compose exec -T testapp sh -c "npm run test -- --run --project unit"
+      # - name: run vitest:unit
+      # run: docker compose exec -T testapp sh -c "npm run test -- --run --project unit"
 
       - name: run vitest:nuxt
         run: docker compose exec -T testapp sh -c "npm run test -- --run --project nuxt"

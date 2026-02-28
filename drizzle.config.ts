@@ -1,6 +1,6 @@
 import { defineConfig } from 'drizzle-kit';
 import { env } from 'node:process';
-console.log('Using database credentials:', env);
+
 export default defineConfig({
   dialect: 'mysql',
   schema: './database/schema.ts',
