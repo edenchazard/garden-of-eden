@@ -1,4 +1,4 @@
-FROM node:24.11-bookworm-slim AS base
+FROM node:25.7-bookworm-slim AS base
 ENV NODE_ENV=production
 WORKDIR /src
 # Required for health check.

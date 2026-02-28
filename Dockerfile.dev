@@ -1,4 +1,4 @@
-FROM node:24.11-bookworm-slim
+FROM node:25.7-bookworm-slim
 ENV NODE_ENV=development
 WORKDIR /src
 COPY --link package.json package-lock.json ./
