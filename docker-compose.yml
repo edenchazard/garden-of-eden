@@ -37,24 +37,73 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.dev
-    command: sh -c "npx playwright install --with-deps chromium && tail -f /dev/null"
+      args:
+        TESTING: 'true'
+    command: sh -c "tail -f /dev/null"
     depends_on:
-      - hatchery
+      testdb:
+        condition: service_healthy
+      testredis:
+        condition: service_healthy
     volumes:
       - .:/src
       - node_modules:/src/node_modules
-      - caches:/cache
-      - playwright_cache:/ms-playwright
     environment:
-      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-      - E2E_BASE_URL=http://hatchery:3000${BASE_URL:-/dc/hatchery}
-      - NUXT_DB_HOST=db
+      - NUXT_APP_BASE_URL=${BASE_URL}
+      - NUXT_DB_HOST=testdb
       - NUXT_DB_PORT=3306
       - NUXT_DB_DATABASE=${MYSQL_DATABASE}
       - NUXT_DB_USER=root
       - NUXT_DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - NUXT_CLIENT_ID=${CLIENT_ID}
+      - NUXT_CLIENT_SECRET=${CLIENT_SECRET}
+      - NUXT_PUBLIC_ORIGIN=${ORIGIN}
+      - NUXT_PUBLIC_BASE_URL=${BASE_URL}
+      - NUXT_REDIS_HOST=testredis
+      - NUXT_REDIS_PORT=6379
+      - NUXT_BANNER_CACHE_EXPIRY=${BANNER_CACHE_EXPIRY}
+      - NUXT_ACCESS_TOKEN_PASSWORD=${ACCESS_TOKEN_PASSWORD}
+      - NUXT_NEXT_AUTH_SECRET=${NEXT_SECRET}
+      - NUXT_SECURITY_CSRF_ENCRYPT_SECRET=${CSRF_SECRET}
+      - AUTH_ORIGIN=${ORIGIN}${BASE_URL}/api/auth
     networks:
-      - internal
+      - test
+
+  testdb:
+    image: mariadb:10.9
+    tty: true
+    tmpfs:
+      - /var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      test:
+        aliases:
+          - db
+
+  testredis:
+    image: redis:7.4-alpine
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      test:
+        aliases:
+          - redis
 
   db:
     image: mariadb:10.9
@@ -84,19 +133,19 @@ services:
       - redis
     ports:
       - 3001:3000
-    networks:
-      - internal
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - USER_LOGIN=${BULLBOARD_USER}
       - BULLBOARD_PASSWORD=${BULLBOARD_PASSWORD}
+    networks:
+      - internal
 
 volumes:
   dbdata:
   node_modules:
   caches:
-  playwright_cache:
 
 networks:
   internal:
+  test:

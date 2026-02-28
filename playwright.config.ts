@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: true,
   reporter: 'list',
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? 'http://hatchery:3000/dc/hatchery',
+    baseURL: process.env.E2E_BASE_URL,
     trace: 'on-first-retry',
   },
   projects: [

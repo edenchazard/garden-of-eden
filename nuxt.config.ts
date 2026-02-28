@@ -8,6 +8,7 @@ const modules: NuxtConfig['modules'] = [
   '@nuxtjs/robots',
   '@nuxt/eslint',
   '@nuxt/test-utils/module',
+  '@nuxt/image',
   'nuxt-security',
   'floating-vue/nuxt',
   [
@@ -22,10 +23,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-11-28',
   devtools: { enabled: false },
   $development: {
-    modules: [...modules, '@nuxt/image'],
+    modules,
   },
   $production: {
-    modules: [...modules, '@nuxt/image'],
+    modules,
+  },
+  $test: {
+    modules: modules.slice(0, -1),
   },
   modules,
   css: ['~/assets/main.css', '@fortawesome/fontawesome-svg-core/styles.css'],

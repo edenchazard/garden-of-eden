@@ -5,6 +5,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "test": "npm run db:reset:test && npm run db:migrate && npx vitest run",
+    "test:watch": "npm run db:reset:test && npm run db:migrate && npx vitest",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -12,9 +14,7 @@
     "lint:fix": "npm run lint -- --fix",
     "fmt": "prettier --write .",
     "fmt:check": "prettier . --check",
-    "test:unit": "vitest",
     "db:reset:test": "tsx ./scripts/reset-test-db.ts",
-    "test:e2e": "npm run db:reset:test && npm run db:migrate && playwright test",
     "ts:check": "nuxt prepare && vue-tsc -b --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
