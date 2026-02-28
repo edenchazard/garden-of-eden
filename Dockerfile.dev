@@ -5,6 +5,6 @@ ENV TESTING=$TESTING
 
 WORKDIR /src
 COPY --link package.json package-lock.json ./
-RUN if [ "$TESTING" = "true" ]; then npx playwright install --with-deps; fi
 RUN npm i
+RUN if [ "$TESTING" = "true" ]; then npx playwright install --with-deps; fi
 CMD [ "npm", "run", "dev" ]
