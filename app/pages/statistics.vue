@@ -86,7 +86,7 @@
                       normalized: true,
                       scales: {
                         y: {
-                          ...defaultChartOptions.scales?.y,
+                          ...defaultChartOptions<'bar'>().scales?.y,
                           ticks: {
                             font: {
                               size: 10,
@@ -95,7 +95,7 @@
                         },
                         x: {
                           ...{
-                            ...defaultChartOptions.scales?.x,
+                            ...defaultChartOptions<'bar'>().scales?.x,
                             time: {
                               unit: 'day',
                               displayFormats: {
@@ -272,7 +272,7 @@
                     type: 'linear',
                     position: 'right',
                     grid: {
-                      ...defaultChartOptions.scales?.y?.grid,
+                      ...defaultChartOptions<'line'>().scales?.y?.grid,
                       color: rgbAlpha(colourPalette[1], 0.4),
                       z: 0,
                     },
@@ -289,12 +289,12 @@
                         (dragons.datasets[0]?.borderColor as string) ?? '#fff',
                     },
                     grid: {
-                      ...defaultChartOptions.scales?.y?.grid,
+                      ...defaultChartOptions<'line'>().scales?.y?.grid,
                       color: rgbAlpha(colourPalette[0], 0.4),
                       z: 0,
                     },
                   },
-                  x: defaultChartOptions.scales?.x,
+                  x: defaultChartOptions<'line'>().scales?.x,
                 },
                 normalized: true,
                 plugins: {
@@ -422,7 +422,7 @@
                 normalized: true,
                 scales: {
                   y: {
-                    ...defaultChartOptions.scales?.y,
+                    ...defaultChartOptions<'bar'>().scales?.y,
                     stacked: true,
                     ticks: {
                       callback(ctx) {
@@ -432,7 +432,7 @@
                   },
                   x: {
                     ...{
-                      ...defaultChartOptions.scales?.x,
+                      ...defaultChartOptions<'bar'>().scales?.x,
                       time: {
                         unit: 'hour',
                         displayFormats: {
@@ -479,6 +479,7 @@ import type {
   ChartData,
   ChartDataset,
   ChartOptions,
+  ChartTypeRegistry,
   ScriptableContext,
 } from 'chart.js';
 import { DateTime } from 'luxon';
@@ -587,53 +588,56 @@ onNuxtReady(() => redrawTrigger.value++);
 
 watch(redrawTrigger, renderCharts);
 
-const defaultChartOptions: ChartOptions<'line' | 'bar'> = {
-  interaction: {
-    intersect: false,
-    mode: 'index',
-  },
-  scales: {
-    y: {
-      grid: {
-        color: rgbAlpha([255, 255, 255], 0.1),
-        z: 1,
-        lineWidth: 1,
+function defaultChartOptions<
+  T extends keyof ChartTypeRegistry,
+>(): ChartOptions<T> {
+  return {
+    interaction: {
+      intersect: false,
+      mode: 'index',
+    },
+    scales: {
+      y: {
+        grid: {
+          color: rgbAlpha([255, 255, 255], 0.1),
+          z: 1,
+          lineWidth: 1,
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          align: 'start',
+          font: {
+            size: 11,
+          },
+          text() {
+            const dragCaveTime = DateTime.now().setZone('America/New_York');
+            const localTime = DateTime.now();
+            const offset = (dragCaveTime.offset - localTime.offset) / 60;
+            if (offset === 0) {
+              return `Time (${dragCaveTime.toFormat('ZZZZ')})`;
+            }
+            return `Time (${dragCaveTime.toFormat('ZZZZ')}${offset > 0 ? '+' : ''}${offset})`;
+          },
+        },
+        type: 'time',
+        time: {
+          unit: 'hour',
+          displayFormats: {
+            hour: 'T',
+          },
+          tooltipFormat: 'f',
+        },
+        grid: {
+          color: rgbAlpha([255, 255, 255], 0.1),
+          z: 1,
+          lineWidth: 1,
+        },
       },
     },
-    x: {
-      title: {
-        display: true,
-        align: 'start',
-        font: {
-          size: 11,
-        },
-        // @ts-expect-error It absolutely does exist.
-        text() {
-          const dragCaveTime = DateTime.now().setZone('America/New_York');
-          const localTime = DateTime.now();
-          const offset = (dragCaveTime.offset - localTime.offset) / 60;
-          if (offset === 0) {
-            return `Time (${dragCaveTime.toFormat('ZZZZ')})`;
-          }
-          return `Time (${dragCaveTime.toFormat('ZZZZ')}${offset > 0 ? '+' : ''}${offset})`;
-        },
-      },
-      type: 'time',
-      time: {
-        unit: 'hour',
-        displayFormats: {
-          hour: 'T',
-        },
-        tooltipFormat: 'f',
-      },
-      grid: {
-        color: rgbAlpha([255, 255, 255], 0.1),
-        z: 1,
-        lineWidth: 1,
-      },
-    },
-  },
-};
+  } as ChartOptions<T>;
+}
 
 function renderCharts() {
   const statistics = stats.value;
@@ -840,7 +844,7 @@ function createPoints() {
       return 0;
     }
     const resolvedDesktopSize =
-      DateTime.fromMillis(context.parsed.x).minute === 0 ? threshold : 0;
+      DateTime.fromMillis(context.parsed.x ?? 0).minute === 0 ? threshold : 0;
     return context.chart.width > 615 ? resolvedDesktopSize : small;
   };
 
