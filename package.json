@@ -38,7 +38,7 @@
     "floating-vue": "^5.2.2",
     "luxon": "^3.7.2",
     "mysql2": "^3.18.2",
-    "next-auth": "^4.21.1",
+    "next-auth": "^4.24.13",
     "node-webpmux": "^3.2.1",
     "nuxt": "^4.2.2",
     "nuxt-security": "^2.5.1",
