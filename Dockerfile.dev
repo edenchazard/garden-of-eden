@@ -1,4 +1,4 @@
-FROM node:24.11-bookworm-slim
+FROM node:24.14-bookworm-slim
 ENV NODE_ENV=development
 ARG TESTING=false
 ENV TESTING=$TESTING
