@@ -76,7 +76,7 @@
             />
             <div class="text-xs italic text-right">
               <figure id="daily-totals-for-week">
-                <div class="h-[5rem]">
+                <div class="h-20">
                   <Bar
                     :key="`daily-totals-chart-${redrawTrigger}`"
                     class="w-full"
@@ -261,12 +261,12 @@
           legends. Missing data points indicate an API failure.
         </p>
         <figure id="hatchery" class="graph">
-          <div class="h-[31rem]">
+          <div class="h-124">
             <Line
               :data="dragons"
               class="w-full"
               :options="{
-                ...defaultChartOptions,
+                ...defaultChartOptions<'line'>(),
                 scales: {
                   scrollAxis: {
                     type: 'linear',
@@ -309,12 +309,12 @@
         </figure>
 
         <figure id="soil-composition" class="graph">
-          <div class="h-[40rem]">
+          <div class="h-160">
             <Line
               :data="soilComposition"
               class="w-full"
               :options="{
-                ...defaultChartOptions,
+                ...defaultChartOptions<'line'>(),
                 normalized: true,
                 plugins: {
                   title: {
@@ -340,12 +340,12 @@
         </figure>
 
         <figure id="hatchling-gender" class="graph">
-          <div class="h-[30rem]">
+          <div class="h-120">
             <Line
               :data="hatchlingGenderRatio"
               class="w-full"
               :options="{
-                ...defaultChartOptions,
+                ...defaultChartOptions<'line'>(),
                 normalized: true,
                 plugins: {
                   title: {
@@ -365,12 +365,12 @@
         </figure>
 
         <figure id="cb-vs-lineaged" class="graph">
-          <div class="h-[30rem]">
+          <div class="h-120">
             <Line
               :data="cbVsLineaged"
               class="w-full"
               :options="{
-                ...defaultChartOptions,
+                ...defaultChartOptions<'line'>(),
                 normalized: true,
                 plugins: {
                   title: {
@@ -386,12 +386,12 @@
         </figure>
 
         <figure id="gardener-activity" class="graph">
-          <div class="h-[20rem]">
+          <div class="h-80">
             <Line
               class="w-full"
               :data="userActivity"
               :options="{
-                ...defaultChartOptions,
+                ...defaultChartOptions<'line'>(),
                 normalized: true,
                 plugins: {
                   title: {
@@ -413,12 +413,12 @@
         </figure>
 
         <figure id="api-requests" class="graph">
-          <div class="h-[20rem]">
+          <div class="h-80">
             <Bar
               class="w-full"
               :data="apiRequests"
               :options="{
-                ...defaultChartOptions,
+                ...defaultChartOptions<'bar'>(),
                 normalized: true,
                 scales: {
                   y: {
