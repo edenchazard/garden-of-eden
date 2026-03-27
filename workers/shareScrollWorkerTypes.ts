@@ -70,6 +70,8 @@ export const bannerStyles = [
   'summer',
   'autumn',
   'seasonal',
+  'pacman',
+  'stardew',
 ] as const;
 
 export type BannerStyle = (typeof bannerStyles)[number];
@@ -117,6 +119,16 @@ export const defaultPalette: Record<StaticBannerStyle, BannerPalette> = {
     labelColour: '#ffe8cc',
     valueColour: '#c96c2d',
     usernameColour: '#fff3e0',
+  },
+  pacman: {
+    labelColour: '#ffff00',
+    valueColour: '#ff0000',
+    usernameColour: '#ffff00',
+  },
+  stardew: {
+    labelColour: '#ffffff',
+    valueColour: '#f2bd59',
+    usernameColour: '#ffffff',
   },
 };
 

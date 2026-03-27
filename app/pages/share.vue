@@ -360,6 +360,16 @@ const animatedBannerVariants: {
     label: 'Seasonal (auto)',
     credit: 'Arcy',
   },
+  {
+    value: 'pacman',
+    label: 'Pac-Man',
+    credit: 'Arcy',
+  },
+  {
+    value: 'stardew',
+    label: 'Stardew Valley',
+    credit: 'Arcy',
+  },
 ] as const;
 
 function applyDefaultPalette(style: BannerStyle) {
