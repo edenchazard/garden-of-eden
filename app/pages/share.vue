@@ -154,47 +154,31 @@
             <div
               class="justify-items-center self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
             >
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/default.webp`"
-              />
-              <input
-                id="animated-default"
-                v-model="animatedBannerOptions.style"
-                value="default"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-default">Default</label>
-              <span class="italic text-sm col-span-full text-center"
-                >Mu-Cephei</span
+              <template
+                v-for="variant in animatedBannerVariants"
+                :key="variant.value"
               >
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/christmas.webp`"
-              />
-              <input
-                id="animated-christmas"
-                v-model="animatedBannerOptions.style"
-                value="christmas"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-christmas">Christmas</label>
-              <span class="italic text-sm col-span-full text-center">Arcy</span>
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/aquarium.webp`"
-              />
-              <input
-                id="animated-aquarium"
-                v-model="animatedBannerOptions.style"
-                value="aquarium"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-aquarium">Aquarium</label>
-              <span class="italic text-sm col-span-full text-center">Arcy</span>
+                <ShareScrollBannerPreview
+                  :params="animatedBannerOptions"
+                  :banner="bannerVariantPreview(variant.value)"
+                />
+                <input
+                  :id="`animated-${variant.value}`"
+                  v-model="animatedBannerOptions.style"
+                  :value="variant.value"
+                  type="radio"
+                  name="animated-banner"
+                />
+                <label :for="`animated-${variant.value}`">{{
+                  variant.label
+                }}</label>
+                <span
+                  v-if="variant.credit"
+                  class="italic text-sm col-span-full text-center"
+                  >{{ variant.credit }}</span
+                >
+                <span v-else class="col-span-full" aria-hidden="true"></span>
+              </template>
             </div>
 
             <div
@@ -307,7 +291,9 @@
 
 <script setup lang="ts">
 import {
-  defaultPalette,
+  getDefaultBannerPalette,
+  resolveBannerStyle,
+  type BannerStyle,
   type BannerRequestParameters,
 } from '~~/workers/shareScrollWorkerTypes';
 
@@ -325,11 +311,78 @@ const banner294x30 = path + '/share/294x30.webp';
 const banner90x51 = path + '/share/90x51.webp';
 const banner88x63 = path + '/share/88x63.webp';
 const useDefaultPalette = ref(true);
+const seasonalPreviewStyle = useState('share-seasonal-preview-style', () =>
+  resolveBannerStyle('seasonal')
+);
+
+const animatedBannerVariants: {
+  value: BannerStyle;
+  label: string;
+  credit?: string;
+}[] = [
+  {
+    value: 'default',
+    label: 'Default',
+    credit: 'Mu-Cephei',
+  },
+  {
+    value: 'christmas',
+    label: 'Christmas',
+    credit: 'Arcy',
+  },
+  {
+    value: 'aquarium',
+    label: 'Aquarium',
+    credit: 'Arcy',
+  },
+  {
+    value: 'winter',
+    label: 'Winter',
+    credit: 'Arcy',
+  },
+  {
+    value: 'spring',
+    label: 'Spring',
+    credit: 'Arcy',
+  },
+  {
+    value: 'summer',
+    label: 'Summer',
+    credit: 'Arcy',
+  },
+  {
+    value: 'autumn',
+    label: 'Autumn',
+    credit: 'Arcy',
+  },
+  {
+    value: 'seasonal',
+    label: 'Seasonal (auto)',
+    credit: 'Arcy',
+  },
+] as const;
+
+function applyDefaultPalette(style: BannerStyle) {
+  const palette = getDefaultBannerPalette(style);
+
+  animatedBannerOptions.value.usernameColour = palette.usernameColour;
+  animatedBannerOptions.value.labelColour = palette.labelColour;
+  animatedBannerOptions.value.valueColour = palette.valueColour;
+}
+
+function bannerVariantPreview(style: BannerStyle) {
+  const previewStyle =
+    style === 'seasonal'
+      ? seasonalPreviewStyle.value
+      : resolveBannerStyle(style);
+
+  return `${config.public.baseUrl}/share/scroll/${previewStyle}.webp`;
+}
 
 const animatedBannerOptions = ref<BannerRequestParameters>({
   style: 'default',
   stats: 'garden',
-  ...defaultPalette.default,
+  ...getDefaultBannerPalette('default'),
   ext: '.gif',
 });
 
@@ -337,13 +390,16 @@ watch(
   () => animatedBannerOptions.value.style,
   () => {
     if (useDefaultPalette.value && animatedBannerOptions.value.style) {
-      const palette = defaultPalette[animatedBannerOptions.value.style];
-      animatedBannerOptions.value.usernameColour = palette.usernameColour;
-      animatedBannerOptions.value.labelColour = palette.labelColour;
-      animatedBannerOptions.value.valueColour = palette.valueColour;
+      applyDefaultPalette(animatedBannerOptions.value.style);
     }
   }
 );
+
+watch(useDefaultPalette, (enabled) => {
+  if (enabled) {
+    applyDefaultPalette(animatedBannerOptions.value.style);
+  }
+});
 
 const animatedBannerUrl = computed(() => {
   const params = new URLSearchParams(
