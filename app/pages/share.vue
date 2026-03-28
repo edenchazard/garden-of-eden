@@ -316,7 +316,7 @@ const seasonalPreviewStyle = useState('share-seasonal-preview-style', () =>
 const animatedBannerVariants: {
   value: BannerStyle;
   label: string;
-  credit?: string;
+  credit: string;
 }[] = [
   {
     value: 'default',
