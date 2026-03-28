@@ -149,19 +149,14 @@
           </div>
 
           <div
-            class="flex flex-col min-[840px]:flex-row gap-4 items-start justify-around"
+            class="flex flex-col md:flex-row gap-4 items-start justify-around"
           >
-            <div
-              class="justify-items-center self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
-            >
-              <template
+            <ul class="space-y-4">
+              <li
+                class="grid grid-cols-[auto_auto] gap-2 items-center"
                 v-for="variant in animatedBannerVariants"
                 :key="variant.value"
               >
-                <ShareScrollBannerPreview
-                  :params="animatedBannerOptions"
-                  :banner="bannerVariantPreview(variant.value)"
-                />
                 <input
                   :id="`animated-${variant.value}`"
                   v-model="animatedBannerOptions.style"
@@ -169,20 +164,23 @@
                   type="radio"
                   name="animated-banner"
                 />
-                <label :for="`animated-${variant.value}`">{{
-                  variant.label
-                }}</label>
-                <span
-                  v-if="variant.credit"
-                  class="italic text-sm col-span-full text-center"
-                  >{{ variant.credit }}</span
-                >
-                <span v-else class="col-span-full" aria-hidden="true"></span>
-              </template>
-            </div>
+                <ShareScrollBannerPreview
+                  :params="animatedBannerOptions"
+                  :banner="bannerVariantPreview(variant.value)"
+                />
+                <div class="col-start-2 flex items-center gap-2">
+                  <label :for="`animated-${variant.value}`" class="font-medium">
+                    {{ variant.label }}
+                  </label>
+                  <span class="italic text-xs">
+                    {{ `(Credit: ${variant.credit})` }}
+                  </span>
+                </div>
+              </li>
+            </ul>
 
             <div
-              class="self-stretch bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
+              class="sticky self-stretch md:self-start top-0 bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col flex gap-4 min-w-64"
             >
               <fieldset>
                 <legend class="font-bold">Colours</legend>
