@@ -106,19 +106,19 @@ export const defaultPalette: Record<StaticBannerStyle, BannerPalette> = {
     usernameColour: '#ffffff',
   },
   spring: {
-    labelColour: '#f4ffe5',
-    valueColour: '#ff8fab',
+    labelColour: '#ffffff',
+    valueColour: '#ffe0e8',
     usernameColour: '#fff7d6',
   },
   summer: {
-    labelColour: '#fff4bf',
-    valueColour: '#ff9f1c',
-    usernameColour: '#fffdf2',
+    labelColour: '#225923',
+    valueColour: '#ffea00',
+    usernameColour: '#eeff00',
   },
   autumn: {
-    labelColour: '#ffe8cc',
-    valueColour: '#c96c2d',
-    usernameColour: '#fff3e0',
+    labelColour: '#633313',
+    valueColour: '#940000',
+    usernameColour: '#945b00',
   },
   pacman: {
     labelColour: '#ffff00',
@@ -126,9 +126,9 @@ export const defaultPalette: Record<StaticBannerStyle, BannerPalette> = {
     usernameColour: '#ffff00',
   },
   stardew: {
-    labelColour: '#ffffff',
-    valueColour: '#f2bd59',
-    usernameColour: '#ffffff',
+    labelColour: '#835532',
+    valueColour: '#533c13',
+    usernameColour: '#000000',
   },
 };
 
