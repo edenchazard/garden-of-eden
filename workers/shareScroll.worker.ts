@@ -1,6 +1,6 @@
 import sharp from 'sharp';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { ofetch, FetchError } from 'ofetch';
 import {
   BannerType,
@@ -73,6 +73,9 @@ async function generateBannerToTemporary(
     start();
 
     const base = await getBannerBaseComposite(input);
+    const decorations = await getDecorationComposites(
+      input.requestParameters.decorations
+    );
     const bannerBuffer = await createEmptyFrame(
       baseBannerWidth,
       baseBannerHeight
@@ -101,7 +104,8 @@ async function generateBannerToTemporary(
         bannerBuffer,
         stripBuffer,
         stripWidth,
-        stripHeight
+        stripHeight,
+        decorations
       );
 
       perfData.frameGenTime = end();
@@ -141,6 +145,7 @@ async function generateBannerToTemporary(
       start();
 
       await sharp(bannerBuffer)
+        .composite(decorations)
         .webp({ nearLossless: true, quality: 90 })
         .toFile(`${input.filePath}.tmp`);
 
@@ -157,6 +162,19 @@ async function generateBannerToTemporary(
 }
 
 // bannergen steps
+
+async function getDecorationComposites(decorations: string[]) {
+  return Promise.all(
+    decorations.map(async (decoration) => ({
+      input: path.resolve(
+        '/src/resources/public/share/scroll/decorations/',
+        decoration
+      ),
+      top: 0,
+      left: 0,
+    }))
+  );
+}
 
 async function getBannerBaseComposite(input: WorkerInput) {
   const composites: sharp.OverlayOptions[] = [
@@ -435,7 +453,8 @@ async function createFrames(
   bannerBuffer: Buffer,
   stripBuffer: Buffer,
   stripWidth: number,
-  stripHeight: number
+  stripHeight: number,
+  decorations: sharp.OverlayOptions[]
 ) {
   const framePromises: Array<Promise<sharp.Sharp> | sharp.Sharp> = [];
 
@@ -455,6 +474,7 @@ async function createFrames(
         left:
           Math.floor(baseCarouselWidth / 2) - Math.floor(stripWidth / 2) + 5,
       },
+      ...decorations,
     ]);
 
     framePromises.push(composedFrameBuffer);
@@ -470,7 +490,8 @@ async function createFrames(
           bannerBuffer,
           stripBuffer,
           stripWidth,
-          stripHeight
+          stripHeight,
+          decorations
         )
       );
     }
@@ -620,7 +641,8 @@ async function createFrame(
   bannerBuffer: Buffer,
   dragonStripBuffer: Buffer,
   stripWidth: number,
-  stripHeight: number
+  stripHeight: number,
+  decorations: sharp.OverlayOptions[]
 ) {
   const cropX = scrollPosition % stripWidth;
   const visibleWidth = Math.min(baseCarouselWidth, stripWidth - cropX);
@@ -664,6 +686,8 @@ async function createFrame(
       left: visibleWidth + 5,
     });
   }
+
+  composites.push(...decorations);
 
   return frame.composite(composites);
 }
