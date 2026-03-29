@@ -170,7 +170,7 @@
                   type="radio"
                   name="animated-banner"
                 />
-                <div class="col-start-2 flex items-center gap-2">
+                <div class="flex items-center gap-2">
                   <label :for="`animated-${variant.value}`" class="font-medium">
                     {{ variant.label }}
                   </label>
@@ -178,6 +178,9 @@
                     {{ `(Credit: ${variant.credit})` }}
                   </span>
                 </div>
+                <p v-if="variant.content" class="text-center text-xs">
+                  {{ variant.content }}
+                </p>
               </li>
             </ul>
 
@@ -339,6 +342,7 @@ const animatedBannerVariants: {
   label: string;
   credit: string;
   decorations?: string[];
+  content?: string;
 }[] = [
   {
     value: 'default',
@@ -379,6 +383,8 @@ const animatedBannerVariants: {
     value: 'seasonal',
     label: 'Seasonal (auto)',
     credit: 'Arcy',
+    content:
+      'Automatically changes based on the current season in the northern hemisphere.',
   },
   {
     value: 'pacman',
