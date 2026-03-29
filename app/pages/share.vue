@@ -148,26 +148,27 @@
             </p>
           </div>
 
-          <div
-            class="flex flex-col md:flex-row gap-4 items-start justify-around"
-          >
-            <ul class="space-y-4">
+          <div class="flex flex-col gap-4">
+            <ul
+              class="grid grid-cols-[repeat(auto-fit,327px)] gap-4 justify-center"
+            >
               <li
-                class="grid grid-cols-[auto_auto] gap-2 items-center"
+                class="flex flex-col gap-2 items-center"
                 v-for="variant in animatedBannerVariants"
                 :key="variant.value"
               >
+                <ShareScrollBannerPreview
+                  :params="animatedBannerOptions"
+                  :banner="bannerVariantPreview(variant.value)"
+                  :decorations="variant.decorations"
+                />
+
                 <input
                   :id="`animated-${variant.value}`"
                   v-model="animatedBannerOptions.style"
                   :value="variant.value"
                   type="radio"
                   name="animated-banner"
-                />
-                <ShareScrollBannerPreview
-                  :params="animatedBannerOptions"
-                  :banner="bannerVariantPreview(variant.value)"
-                  :decorations="variant.decorations"
                 />
                 <div class="col-start-2 flex items-center gap-2">
                   <label :for="`animated-${variant.value}`" class="font-medium">
@@ -181,44 +182,56 @@
             </ul>
 
             <div
-              class="sticky self-stretch md:self-start top-0 bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col flex gap-4 min-w-64"
+              class="md:justify-center sticky z-10 bottom-0 bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex flex-wrap gap-4 md:gap-x-16 w-full"
             >
-              <fieldset>
+              <fieldset class="flex items-center">
                 <legend class="font-bold">Colours</legend>
-                <div class="mt-1 grid grid-cols-[auto_1fr] gap-2 items-center">
-                  <input
-                    id="animated-username-colour"
-                    v-model="animatedBannerOptions.usernameColour"
-                    :disabled="useDefaultPalette"
-                    type="color"
-                  />
-                  <label for="animated-username-colour">Username</label>
-                  <input
-                    id="animated-label-colour"
-                    v-model="animatedBannerOptions.labelColour"
-                    :disabled="useDefaultPalette"
-                    type="color"
-                  />
-                  <label for="animated-label-colour">Label</label>
-                  <input
-                    id="animated-value-colour"
-                    v-model="animatedBannerOptions.valueColour"
-                    :disabled="useDefaultPalette"
-                    type="color"
-                  />
-                  <label for="animated-value-colour">Value</label>
-                  <input
-                    id="animated-use-default=palette"
-                    v-model="useDefaultPalette"
-                    type="checkbox"
-                  />
-                  <label for="animated-use-default=palette">Defaults</label>
+                <div
+                  class="mt-1 flex flex-wrap gap-2 items-center *:flex *:items-center *:gap-2"
+                >
+                  <div>
+                    <input
+                      id="animated-username-colour"
+                      v-model="animatedBannerOptions.usernameColour"
+                      :disabled="useDefaultPalette"
+                      type="color"
+                    />
+                    <label for="animated-username-colour">Username</label>
+                  </div>
+                  <div>
+                    <input
+                      id="animated-label-colour"
+                      v-model="animatedBannerOptions.labelColour"
+                      :disabled="useDefaultPalette"
+                      type="color"
+                    />
+                    <label for="animated-label-colour">Label</label>
+                  </div>
+                  <div>
+                    <input
+                      id="animated-value-colour"
+                      v-model="animatedBannerOptions.valueColour"
+                      :disabled="useDefaultPalette"
+                      type="color"
+                    />
+                    <label for="animated-value-colour">Value</label>
+                  </div>
+                  <div>
+                    <input
+                      id="animated-use-default=palette"
+                      v-model="useDefaultPalette"
+                      type="checkbox"
+                    />
+                    <label for="animated-use-default=palette">Use preset</label>
+                  </div>
                 </div>
               </fieldset>
 
-              <fieldset>
+              <fieldset class="flex items-center">
                 <legend class="font-bold">Type of statistic</legend>
-                <div class="mt-1 grid grid-cols-[auto_1fr] gap-2 items-center">
+                <div
+                  class="mt-1 grid grid-cols-[auto_1fr_auto_1fr] items-center gap-2"
+                >
                   <input
                     id="animated-stat-dragons"
                     v-model="animatedBannerOptions.stats"
@@ -237,10 +250,20 @@
                   <label for="animated-stat-garden">Garden</label>
                 </div>
               </fieldset>
+              <div class="text-center w-full">
+                <a href="#animated-banner-links">
+                  Give me my link!
+                  <font-awesome-icon :icon="['fas', 'caret-down']" />
+                </a>
+              </div>
             </div>
           </div>
 
-          <div v-if="authData?.user" class="space-y-2">
+          <div
+            v-if="authData?.user"
+            class="space-y-2"
+            id="animated-banner-links"
+          >
             <div class="flex items-center gap-2">
               <label for="animated-327x61-direct">Direct:</label>
               <input
