@@ -142,15 +142,20 @@ export function getCurrentSeason(date = new Date()): SeasonalBannerStyle {
   return 'winter';
 }
 
-export function resolveStaticBannerStyle(
-  style: BannerStyle,
-  date = new Date()
-): StaticBannerStyle {
-  return style === 'seasonal' ? getCurrentSeason(date) : style;
+export function resolveBannerStyle(style: BannerStyle): StaticBannerStyle {
+  if (style === 'seasonal') {
+    return getCurrentSeason();
+  }
+
+  return style;
 }
 
-export function getDefaultBannerPalette(style: BannerStyle, date = new Date()) {
-  return defaultPalette[resolveBannerStyle(style, date)];
+export function getDefaultBannerPalette(style: BannerStyle) {
+  if (style === 'seasonal') {
+    return defaultPalette[getCurrentSeason()];
+  }
+
+  return defaultPalette[style];
 }
 
 const hexValue = z.string().regex(/^#[0-9a-f]{6}$/);

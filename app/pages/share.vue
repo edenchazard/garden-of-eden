@@ -368,20 +368,11 @@ const animatedBannerVariants: {
 ] as const;
 
 function applyDefaultPalette(style: BannerStyle) {
-  const { usernameColour, labelColour, valueColour } = getDefaultBannerPalette(style);
-
-  Object.assign(animatedBannerOptions.value, {
-    usernameColour,
-    labelColour,
-    valueColour,
-  });
+  Object.assign(animatedBannerOptions.value, getDefaultBannerPalette(style));
 }
 
 function bannerVariantPreview(style: BannerStyle) {
-  const previewStyle =
-    style === 'seasonal'
-      ? resolveBannerStyle('seasonal')
-      : resolveStaticBannerStyle(style);
+  const previewStyle = resolveBannerStyle(style);
 
   return `${config.public.baseUrl}/share/scroll/${previewStyle}.webp`;
 }
