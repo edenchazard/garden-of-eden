@@ -390,7 +390,7 @@ const animatedBannerVariants: {
     value: 'pacman',
     label: 'Pac-Man',
     credit: 'Arcy',
-    decorations: [`/pacman.webp`],
+    decorations: [`pacman.webp`],
   },
   {
     value: 'stardew',
