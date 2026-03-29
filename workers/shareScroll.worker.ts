@@ -165,7 +165,7 @@ async function getBannerBaseComposite(input: WorkerInput) {
     {
       input: path.resolve(
         '/src/resources/public/share/scroll/',
-        backgroundStyle + '.webp'
+        `${backgroundStyle}.webp`
       ),
       top: 0,
       left: 0,

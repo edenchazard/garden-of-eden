@@ -142,7 +142,7 @@ export function getCurrentSeason(date = new Date()): SeasonalBannerStyle {
   return 'winter';
 }
 
-export function resolveBannerStyle(
+export function resolveStaticBannerStyle(
   style: BannerStyle,
   date = new Date()
 ): StaticBannerStyle {

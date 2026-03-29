@@ -309,9 +309,6 @@ const banner294x30 = path + '/share/294x30.webp';
 const banner90x51 = path + '/share/90x51.webp';
 const banner88x63 = path + '/share/88x63.webp';
 const useDefaultPalette = ref(true);
-const seasonalPreviewStyle = useState('share-seasonal-preview-style', () =>
-  resolveBannerStyle('seasonal')
-);
 
 const animatedBannerVariants: {
   value: BannerStyle;
@@ -371,18 +368,20 @@ const animatedBannerVariants: {
 ] as const;
 
 function applyDefaultPalette(style: BannerStyle) {
-  const palette = getDefaultBannerPalette(style);
+  const { usernameColour, labelColour, valueColour } = getDefaultBannerPalette(style);
 
-  animatedBannerOptions.value.usernameColour = palette.usernameColour;
-  animatedBannerOptions.value.labelColour = palette.labelColour;
-  animatedBannerOptions.value.valueColour = palette.valueColour;
+  Object.assign(animatedBannerOptions.value, {
+    usernameColour,
+    labelColour,
+    valueColour,
+  });
 }
 
 function bannerVariantPreview(style: BannerStyle) {
   const previewStyle =
     style === 'seasonal'
-      ? seasonalPreviewStyle.value
-      : resolveBannerStyle(style);
+      ? resolveBannerStyle('seasonal')
+      : resolveStaticBannerStyle(style);
 
   return `${config.public.baseUrl}/share/scroll/${previewStyle}.webp`;
 }
