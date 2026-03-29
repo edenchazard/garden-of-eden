@@ -74,9 +74,9 @@ async function generateBannerToTemporary(
     start();
 
     const base = await getBannerBaseComposite(input);
-    const decorations = await getDecorationComposites(
-      input.requestParameters.decorations
-    );
+    const decorations = input.requestParameters.decorations
+      ? await getDecorationComposites(input.requestParameters.decorations)
+      : [];
     const bannerBuffer = await createEmptyFrame(
       baseBannerWidth,
       baseBannerHeight
@@ -145,8 +145,13 @@ async function generateBannerToTemporary(
 
       start();
 
-      await sharp(bannerBuffer)
-        .composite(decorations)
+      const out = await sharp(bannerBuffer);
+
+      if (decorations.length > 0) {
+        out.composite(decorations);
+      }
+
+      out
         .webp({ nearLossless: true, quality: 90 })
         .toFile(`${input.filePath}.tmp`);
 
