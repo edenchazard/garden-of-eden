@@ -22,6 +22,7 @@ import {
   faMinus,
   faTableList,
   faSquare,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 
 // This is important, we are going to let Nuxt worry about the CSS
@@ -49,7 +50,8 @@ library.add(
   faFire,
   faMinus,
   faTableList,
-  faSquare
+  faSquare,
+  faCaretDown
 );
 
 export default defineNuxtPlugin((nuxtApp) => {

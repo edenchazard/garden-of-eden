@@ -1,7 +1,14 @@
 <template>
-  <div class="max-md:col-span-full relative" aria-hidden="true">
-    <img :src="banner" alt="" />
-    <div class="absolute flex items-center top-1.5 z-10 left-[119px]">
+  <div class="relative" aria-hidden="true">
+    <img :src="banner" alt="" class="shrink-0" />
+    <img
+      v-for="decoration in decorations ?? []"
+      :key="decoration"
+      :src="`${config.public.baseUrl}/share/scroll/decorations/${decoration}`"
+      alt=""
+      class="absolute top-0 left-0"
+    />
+    <div class="absolute flex items-center top-1.5 z-10 left-29.75">
       <span
         class="font-alkhemikal text-[16px]"
         :style="{
@@ -16,7 +23,7 @@
         :alt="authData.user.flair.name"
       />
     </div>
-    <div class="absolute top-8 z-10 left-[120px] text-[8px] font-nokiafc22">
+    <div class="absolute top-8 z-10 left-30 text-[8px] font-nokiafc22">
       <span
         :style="{
           color: params.labelColour,
@@ -44,7 +51,9 @@ defineProps<{
     'labelColour' | 'usernameColour' | 'valueColour'
   >;
   banner: string;
+  decorations?: string[];
 }>();
 
 const { data: authData } = useAuth();
+const config = useRuntimeConfig();
 </script>

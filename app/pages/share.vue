@@ -148,94 +148,93 @@
             </p>
           </div>
 
-          <div
-            class="flex flex-col min-[840px]:flex-row gap-4 items-start justify-around"
-          >
-            <div
-              class="justify-items-center self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
+          <div class="flex flex-col gap-4">
+            <ul
+              class="grid grid-cols-[repeat(auto-fit,327px)] gap-4 justify-center"
             >
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/default.webp`"
-              />
-              <input
-                id="animated-default"
-                v-model="animatedBannerOptions.style"
-                value="default"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-default">Default</label>
-              <span class="italic text-sm col-span-full text-center"
-                >Mu-Cephei</span
+              <li
+                class="flex flex-col gap-2 items-center"
+                v-for="variant in animatedBannerVariants"
+                :key="variant.value"
               >
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/christmas.webp`"
-              />
-              <input
-                id="animated-christmas"
-                v-model="animatedBannerOptions.style"
-                value="christmas"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-christmas">Christmas</label>
-              <span class="italic text-sm col-span-full text-center">Arcy</span>
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/aquarium.webp`"
-              />
-              <input
-                id="animated-aquarium"
-                v-model="animatedBannerOptions.style"
-                value="aquarium"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-aquarium">Aquarium</label>
-              <span class="italic text-sm col-span-full text-center">Arcy</span>
-            </div>
+                <ShareScrollBannerPreview
+                  :params="animatedBannerOptions"
+                  :banner="bannerVariantPreview(variant.value)"
+                  :decorations="variant.decorations"
+                />
+
+                <input
+                  :id="`animated-${variant.value}`"
+                  v-model="animatedBannerOptions.style"
+                  :value="variant.value"
+                  type="radio"
+                  name="animated-banner"
+                />
+                <div class="flex items-center gap-2">
+                  <label :for="`animated-${variant.value}`" class="font-medium">
+                    {{ variant.label }}
+                  </label>
+                  <span class="italic text-xs">
+                    {{ `(Credit: ${variant.credit})` }}
+                  </span>
+                </div>
+                <p v-if="variant.content" class="text-center text-xs">
+                  {{ variant.content }}
+                </p>
+              </li>
+            </ul>
 
             <div
-              class="self-stretch bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
+              class="md:justify-center sticky z-10 bottom-0 bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex flex-wrap gap-4 md:gap-x-16 w-full"
             >
-              <fieldset>
+              <fieldset class="flex items-center">
                 <legend class="font-bold">Colours</legend>
-                <div class="mt-1 grid grid-cols-[auto_1fr] gap-2 items-center">
-                  <input
-                    id="animated-username-colour"
-                    v-model="animatedBannerOptions.usernameColour"
-                    :disabled="useDefaultPalette"
-                    type="color"
-                  />
-                  <label for="animated-username-colour">Username</label>
-                  <input
-                    id="animated-label-colour"
-                    v-model="animatedBannerOptions.labelColour"
-                    :disabled="useDefaultPalette"
-                    type="color"
-                  />
-                  <label for="animated-label-colour">Label</label>
-                  <input
-                    id="animated-value-colour"
-                    v-model="animatedBannerOptions.valueColour"
-                    :disabled="useDefaultPalette"
-                    type="color"
-                  />
-                  <label for="animated-value-colour">Value</label>
-                  <input
-                    id="animated-use-default=palette"
-                    v-model="useDefaultPalette"
-                    type="checkbox"
-                  />
-                  <label for="animated-use-default=palette">Defaults</label>
+                <div
+                  class="mt-1 flex flex-wrap gap-2 items-center *:flex *:items-center *:gap-2"
+                >
+                  <div>
+                    <input
+                      id="animated-username-colour"
+                      v-model="animatedBannerOptions.usernameColour"
+                      :disabled="useDefaultPalette"
+                      type="color"
+                    />
+                    <label for="animated-username-colour">Username</label>
+                  </div>
+                  <div>
+                    <input
+                      id="animated-label-colour"
+                      v-model="animatedBannerOptions.labelColour"
+                      :disabled="useDefaultPalette"
+                      type="color"
+                    />
+                    <label for="animated-label-colour">Label</label>
+                  </div>
+                  <div>
+                    <input
+                      id="animated-value-colour"
+                      v-model="animatedBannerOptions.valueColour"
+                      :disabled="useDefaultPalette"
+                      type="color"
+                    />
+                    <label for="animated-value-colour">Value</label>
+                  </div>
+                  <div>
+                    <input
+                      id="animated-use-default=palette"
+                      v-model="useDefaultPalette"
+                      type="checkbox"
+                    />
+                    <label for="animated-use-default=palette">Use preset</label>
+                  </div>
                 </div>
               </fieldset>
 
-              <fieldset>
+              <fieldset class="flex items-center">
                 <legend class="font-bold">Type of statistic</legend>
-                <div class="mt-1 grid grid-cols-[auto_1fr] gap-2 items-center">
+                <div
+                  class="mt-1 grid grid-cols-[auto_1fr_auto_1fr] items-center gap-2"
+                >
                   <input
                     id="animated-stat-dragons"
                     v-model="animatedBannerOptions.stats"
@@ -254,10 +253,20 @@
                   <label for="animated-stat-garden">Garden</label>
                 </div>
               </fieldset>
+              <div class="text-center w-full">
+                <a href="#animated-banner-links">
+                  Give me my link!
+                  <font-awesome-icon :icon="['fas', 'caret-down']" />
+                </a>
+              </div>
             </div>
           </div>
 
-          <div v-if="authData?.user" class="space-y-2">
+          <div
+            v-if="authData?.user"
+            class="space-y-2"
+            id="animated-banner-links"
+          >
             <div class="flex items-center gap-2">
               <label for="animated-327x61-direct">Direct:</label>
               <input
@@ -307,7 +316,9 @@
 
 <script setup lang="ts">
 import {
-  defaultPalette,
+  getPresentBannerPaletteForStyle,
+  resolveBannerStyle,
+  type BannerStyle,
   type BannerRequestParameters,
 } from '~~/workers/shareScrollWorkerTypes';
 
@@ -326,10 +337,85 @@ const banner90x51 = path + '/share/90x51.webp';
 const banner88x63 = path + '/share/88x63.webp';
 const useDefaultPalette = ref(true);
 
+const animatedBannerVariants: {
+  value: BannerStyle;
+  label: string;
+  credit: string;
+  decorations?: string[];
+  content?: string;
+}[] = [
+  {
+    value: 'default',
+    label: 'Default',
+    credit: 'Mu-Cephei',
+  },
+  {
+    value: 'christmas',
+    label: 'Christmas',
+    credit: 'Arcy',
+  },
+  {
+    value: 'aquarium',
+    label: 'Aquarium',
+    credit: 'Arcy',
+  },
+  {
+    value: 'winter',
+    label: 'Winter',
+    credit: 'Arcy',
+  },
+  {
+    value: 'spring',
+    label: 'Spring',
+    credit: 'Arcy',
+  },
+  {
+    value: 'summer',
+    label: 'Summer',
+    credit: 'Arcy',
+  },
+  {
+    value: 'autumn',
+    label: 'Autumn',
+    credit: 'Arcy',
+  },
+  {
+    value: 'seasonal',
+    label: 'Seasonal (auto)',
+    credit: 'Arcy',
+    content:
+      'Automatically changes based on the current season in the northern hemisphere.',
+  },
+  {
+    value: 'pacman',
+    label: 'Pac-Man',
+    credit: 'Arcy',
+    decorations: [`/pacman.webp`],
+  },
+  {
+    value: 'stardew',
+    label: 'Stardew Valley',
+    credit: 'Arcy',
+  },
+] as const;
+
+function applyDefaultPalette(style: BannerStyle) {
+  Object.assign(
+    animatedBannerOptions.value,
+    getPresentBannerPaletteForStyle(style)
+  );
+}
+
+function bannerVariantPreview(style: BannerStyle) {
+  const previewStyle = resolveBannerStyle(style);
+  return `${config.public.baseUrl}/share/scroll/${previewStyle}.webp`;
+}
+
 const animatedBannerOptions = ref<BannerRequestParameters>({
   style: 'default',
   stats: 'garden',
-  ...defaultPalette.default,
+  ...getPresentBannerPaletteForStyle('default'),
+  decorations: [],
   ext: '.gif',
 });
 
@@ -337,18 +423,25 @@ watch(
   () => animatedBannerOptions.value.style,
   () => {
     if (useDefaultPalette.value && animatedBannerOptions.value.style) {
-      const palette = defaultPalette[animatedBannerOptions.value.style];
-      animatedBannerOptions.value.usernameColour = palette.usernameColour;
-      animatedBannerOptions.value.labelColour = palette.labelColour;
-      animatedBannerOptions.value.valueColour = palette.valueColour;
+      applyDefaultPalette(animatedBannerOptions.value.style);
     }
   }
 );
 
+watch(useDefaultPalette, (enabled) => {
+  if (enabled) {
+    applyDefaultPalette(animatedBannerOptions.value.style);
+  }
+});
+
 const animatedBannerUrl = computed(() => {
-  const params = new URLSearchParams(
-    animatedBannerOptions.value satisfies Record<string, string>
-  );
+  const params = new URLSearchParams({
+    style: animatedBannerOptions.value.style,
+    stats: animatedBannerOptions.value.stats,
+    usernameColour: animatedBannerOptions.value.usernameColour,
+    labelColour: animatedBannerOptions.value.labelColour,
+    valueColour: animatedBannerOptions.value.valueColour,
+  });
 
   if (useDefaultPalette.value) {
     params.delete('usernameColour');
@@ -366,6 +459,7 @@ const animatedBannerUrl = computed(() => {
 
   // Hide for now.
   params.delete('ext');
+  params.delete('decorations');
 
   const url = new URL(
     `${path}/share/scroll/${authData.value?.user.id}-${authData.value?.user.username}`
