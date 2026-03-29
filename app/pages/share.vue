@@ -149,56 +149,38 @@
           </div>
 
           <div
-            class="flex flex-col min-[840px]:flex-row gap-4 items-start justify-around"
+            class="flex flex-col md:flex-row gap-4 items-start justify-around"
           >
-            <div
-              class="justify-items-center self-center grid md:grid-cols-[auto_auto_auto] gap-2 items-center text-center md:text-left"
-            >
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/default.webp`"
-              />
-              <input
-                id="animated-default"
-                v-model="animatedBannerOptions.style"
-                value="default"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-default">Default</label>
-              <span class="italic text-sm col-span-full text-center"
-                >Mu-Cephei</span
+            <ul class="space-y-4">
+              <li
+                class="grid grid-cols-[auto_auto] gap-2 items-center"
+                v-for="variant in animatedBannerVariants"
+                :key="variant.value"
               >
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/christmas.webp`"
-              />
-              <input
-                id="animated-christmas"
-                v-model="animatedBannerOptions.style"
-                value="christmas"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-christmas">Christmas</label>
-              <span class="italic text-sm col-span-full text-center">Arcy</span>
-              <ShareScrollBannerPreview
-                :params="animatedBannerOptions"
-                :banner="`${config.public.baseUrl}/share/scroll/aquarium.webp`"
-              />
-              <input
-                id="animated-aquarium"
-                v-model="animatedBannerOptions.style"
-                value="aquarium"
-                type="radio"
-                name="animated-banner"
-              />
-              <label for="animated-aquarium">Aquarium</label>
-              <span class="italic text-sm col-span-full text-center">Arcy</span>
-            </div>
+                <input
+                  :id="`animated-${variant.value}`"
+                  v-model="animatedBannerOptions.style"
+                  :value="variant.value"
+                  type="radio"
+                  name="animated-banner"
+                />
+                <ShareScrollBannerPreview
+                  :params="animatedBannerOptions"
+                  :banner="bannerVariantPreview(variant.value)"
+                />
+                <div class="col-start-2 flex items-center gap-2">
+                  <label :for="`animated-${variant.value}`" class="font-medium">
+                    {{ variant.label }}
+                  </label>
+                  <span class="italic text-xs">
+                    {{ `(Credit: ${variant.credit})` }}
+                  </span>
+                </div>
+              </li>
+            </ul>
 
             <div
-              class="self-stretch bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col sm:flex-row flex gap-4 md:flex-none *:flex-1"
+              class="sticky self-stretch md:self-start top-0 bg-green-500 dark:bg-neutral-800 deep-sea:bg-slate-700 p-4 rounded-md flex-col flex gap-4 min-w-64"
             >
               <fieldset>
                 <legend class="font-bold">Colours</legend>
@@ -307,7 +289,9 @@
 
 <script setup lang="ts">
 import {
-  defaultPalette,
+  getDefaultBannerPalette,
+  resolveBannerStyle,
+  type BannerStyle,
   type BannerRequestParameters,
 } from '~~/workers/shareScrollWorkerTypes';
 
@@ -326,10 +310,86 @@ const banner90x51 = path + '/share/90x51.webp';
 const banner88x63 = path + '/share/88x63.webp';
 const useDefaultPalette = ref(true);
 
+const animatedBannerVariants: {
+  value: BannerStyle;
+  label: string;
+  credit: string;
+}[] = [
+  {
+    value: 'default',
+    label: 'Default',
+    credit: 'Mu-Cephei',
+  },
+  {
+    value: 'christmas',
+    label: 'Christmas',
+    credit: 'Arcy',
+  },
+  {
+    value: 'aquarium',
+    label: 'Aquarium',
+    credit: 'Arcy',
+  },
+  {
+    value: 'winter',
+    label: 'Winter',
+    credit: 'Arcy',
+  },
+  {
+    value: 'spring',
+    label: 'Spring',
+    credit: 'Arcy',
+  },
+  {
+    value: 'summer',
+    label: 'Summer',
+    credit: 'Arcy',
+  },
+  {
+    value: 'autumn',
+    label: 'Autumn',
+    credit: 'Arcy',
+  },
+  {
+    value: 'seasonal',
+    label: 'Seasonal (auto)',
+    credit: 'Arcy',
+  },
+  {
+    value: 'pacman',
+    label: 'Pac-Man',
+    credit: 'Arcy',
+  },
+  {
+    value: 'stardew',
+    label: 'Stardew Valley',
+    credit: 'Arcy',
+  },
+] as const;
+
+function applyDefaultPalette(style: BannerStyle) {
+  const { usernameColour, labelColour, valueColour } = getDefaultBannerPalette(style);
+
+  Object.assign(animatedBannerOptions.value, {
+    usernameColour,
+    labelColour,
+    valueColour,
+  });
+}
+
+function bannerVariantPreview(style: BannerStyle) {
+  const previewStyle =
+    style === 'seasonal'
+      ? resolveBannerStyle('seasonal')
+      : resolveStaticBannerStyle(style);
+
+  return `${config.public.baseUrl}/share/scroll/${previewStyle}.webp`;
+}
+
 const animatedBannerOptions = ref<BannerRequestParameters>({
   style: 'default',
   stats: 'garden',
-  ...defaultPalette.default,
+  ...getDefaultBannerPalette('default'),
   ext: '.gif',
 });
 
@@ -337,13 +397,16 @@ watch(
   () => animatedBannerOptions.value.style,
   () => {
     if (useDefaultPalette.value && animatedBannerOptions.value.style) {
-      const palette = defaultPalette[animatedBannerOptions.value.style];
-      animatedBannerOptions.value.usernameColour = palette.usernameColour;
-      animatedBannerOptions.value.labelColour = palette.labelColour;
-      animatedBannerOptions.value.valueColour = palette.valueColour;
+      applyDefaultPalette(animatedBannerOptions.value.style);
     }
   }
 );
+
+watch(useDefaultPalette, (enabled) => {
+  if (enabled) {
+    applyDefaultPalette(animatedBannerOptions.value.style);
+  }
+});
 
 const animatedBannerUrl = computed(() => {
   const params = new URLSearchParams(

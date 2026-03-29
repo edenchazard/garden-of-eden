@@ -61,7 +61,30 @@ export interface WorkerFinished {
   performanceData: PerformanceData;
 }
 
-export const defaultPalette = {
+export const bannerStyles = [
+  'default',
+  'christmas',
+  'aquarium',
+  'winter',
+  'spring',
+  'summer',
+  'autumn',
+  'seasonal',
+  'pacman',
+  'stardew',
+] as const;
+
+export type BannerStyle = (typeof bannerStyles)[number];
+export type SeasonalBannerStyle = 'winter' | 'spring' | 'summer' | 'autumn';
+export type StaticBannerStyle = Exclude<BannerStyle, 'seasonal'>;
+
+type BannerPalette = {
+  labelColour: string;
+  valueColour: string;
+  usernameColour: string;
+};
+
+export const defaultPalette: Record<StaticBannerStyle, BannerPalette> = {
   default: {
     labelColour: '#dff6f5',
     valueColour: '#f2bd59',
@@ -77,7 +100,58 @@ export const defaultPalette = {
     valueColour: '#f2bd59',
     usernameColour: '#ffffff',
   },
+  winter: {
+    labelColour: '#eef6ff',
+    valueColour: '#7dd3fc',
+    usernameColour: '#ffffff',
+  },
+  spring: {
+    labelColour: '#ffffff',
+    valueColour: '#ffe0e8',
+    usernameColour: '#fff7d6',
+  },
+  summer: {
+    labelColour: '#225923',
+    valueColour: '#ffea00',
+    usernameColour: '#eeff00',
+  },
+  autumn: {
+    labelColour: '#633313',
+    valueColour: '#940000',
+    usernameColour: '#945b00',
+  },
+  pacman: {
+    labelColour: '#ffff00',
+    valueColour: '#ff0000',
+    usernameColour: '#ffff00',
+  },
+  stardew: {
+    labelColour: '#835532',
+    valueColour: '#533c13',
+    usernameColour: '#000000',
+  },
 };
+
+export function getCurrentSeason(date = new Date()): SeasonalBannerStyle {
+  const month = date.getMonth();
+
+  if (month >= 2 && month <= 4) return 'spring';
+  if (month >= 5 && month <= 7) return 'summer';
+  if (month >= 8 && month <= 10) return 'autumn';
+
+  return 'winter';
+}
+
+export function resolveStaticBannerStyle(
+  style: BannerStyle,
+  date = new Date()
+): StaticBannerStyle {
+  return style === 'seasonal' ? getCurrentSeason(date) : style;
+}
+
+export function getDefaultBannerPalette(style: BannerStyle, date = new Date()) {
+  return defaultPalette[resolveBannerStyle(style, date)];
+}
 
 const hexValue = z.string().regex(/^#[0-9a-f]{6}$/);
 
@@ -87,19 +161,13 @@ export const querySchema = z
     stats: z
       .union([z.literal('dragons'), z.literal('garden')])
       .default('garden'),
-    style: z
-      .union([
-        z.literal('default'),
-        z.literal('christmas'),
-        z.literal('aquarium'),
-      ])
-      .default('default'),
+    style: z.enum(bannerStyles).default('default'),
     usernameColour: hexValue.optional(),
     labelColour: hexValue.optional(),
     valueColour: hexValue.optional(),
   })
   .transform((data) => ({
-    ...defaultPalette[data.style],
+    ...getDefaultBannerPalette(data.style),
     ...data,
   }));
 

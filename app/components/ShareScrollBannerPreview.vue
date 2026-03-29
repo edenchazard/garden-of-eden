@@ -1,7 +1,7 @@
 <template>
-  <div class="max-md:col-span-full relative" aria-hidden="true">
-    <img :src="banner" alt="" />
-    <div class="absolute flex items-center top-1.5 z-10 left-[119px]">
+  <div class="relative" aria-hidden="true">
+    <img :src="banner" alt="" class="shrink-0" />
+    <div class="absolute flex items-center top-1.5 z-10 left-29.75">
       <span
         class="font-alkhemikal text-[16px]"
         :style="{
@@ -16,7 +16,7 @@
         :alt="authData.user.flair.name"
       />
     </div>
-    <div class="absolute top-8 z-10 left-[120px] text-[8px] font-nokiafc22">
+    <div class="absolute top-8 z-10 left-30 text-[8px] font-nokiafc22">
       <span
         :style="{
           color: params.labelColour,

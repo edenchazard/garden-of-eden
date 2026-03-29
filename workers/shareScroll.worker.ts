@@ -4,6 +4,7 @@ import path from 'path';
 import { ofetch, FetchError } from 'ofetch';
 import {
   BannerType,
+  resolveBannerStyle,
   type PerformanceData,
   type ScrollStats,
   type WorkerFinished,
@@ -159,11 +160,12 @@ async function generateBannerToTemporary(
 // bannergen steps
 
 async function getBannerBaseComposite(input: WorkerInput) {
+  const backgroundStyle = resolveBannerStyle(input.requestParameters.style);
   const composites: sharp.OverlayOptions[] = [
     {
       input: path.resolve(
         '/src/resources/public/share/scroll/',
-        input.requestParameters.style + '.webp'
+        `${backgroundStyle}.webp`
       ),
       top: 0,
       left: 0,
