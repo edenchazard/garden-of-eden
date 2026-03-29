@@ -197,6 +197,10 @@ export default defineEventHandler(async (event) => {
   // in case we want to support it or other formats in the future.
   query.data.ext = '.webp';
 
+  // Inject decorations for specific banner styles.
+  if (query.data.style === 'pacman') {
+    query.data.decorations = ['pacman.webp'];
+  }
   const [, userId, username] = match;
 
   const params = await paramSchema.safeParseAsync({

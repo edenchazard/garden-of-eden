@@ -167,6 +167,7 @@
                 <ShareScrollBannerPreview
                   :params="animatedBannerOptions"
                   :banner="bannerVariantPreview(variant.value)"
+                  :decorations="variant.decorations"
                 />
                 <div class="col-start-2 flex items-center gap-2">
                   <label :for="`animated-${variant.value}`" class="font-medium">
@@ -289,7 +290,7 @@
 
 <script setup lang="ts">
 import {
-  getDefaultBannerPalette,
+  getPresentBannerPaletteForStyle,
   resolveBannerStyle,
   type BannerStyle,
   type BannerRequestParameters,
@@ -314,6 +315,7 @@ const animatedBannerVariants: {
   value: BannerStyle;
   label: string;
   credit: string;
+  decorations?: string[];
 }[] = [
   {
     value: 'default',
@@ -359,6 +361,7 @@ const animatedBannerVariants: {
     value: 'pacman',
     label: 'Pac-Man',
     credit: 'Arcy',
+    decorations: [`/pacman.webp`],
   },
   {
     value: 'stardew',
@@ -368,19 +371,22 @@ const animatedBannerVariants: {
 ] as const;
 
 function applyDefaultPalette(style: BannerStyle) {
-  Object.assign(animatedBannerOptions.value, getDefaultBannerPalette(style));
+  Object.assign(
+    animatedBannerOptions.value,
+    getPresentBannerPaletteForStyle(style)
+  );
 }
 
 function bannerVariantPreview(style: BannerStyle) {
   const previewStyle = resolveBannerStyle(style);
-
   return `${config.public.baseUrl}/share/scroll/${previewStyle}.webp`;
 }
 
 const animatedBannerOptions = ref<BannerRequestParameters>({
   style: 'default',
   stats: 'garden',
-  ...getDefaultBannerPalette('default'),
+  ...getPresentBannerPaletteForStyle('default'),
+  decorations: [],
   ext: '.gif',
 });
 
@@ -400,9 +406,13 @@ watch(useDefaultPalette, (enabled) => {
 });
 
 const animatedBannerUrl = computed(() => {
-  const params = new URLSearchParams(
-    animatedBannerOptions.value satisfies Record<string, string>
-  );
+  const params = new URLSearchParams({
+    style: animatedBannerOptions.value.style,
+    stats: animatedBannerOptions.value.stats,
+    usernameColour: animatedBannerOptions.value.usernameColour,
+    labelColour: animatedBannerOptions.value.labelColour,
+    valueColour: animatedBannerOptions.value.valueColour,
+  });
 
   if (useDefaultPalette.value) {
     params.delete('usernameColour');
@@ -420,6 +430,7 @@ const animatedBannerUrl = computed(() => {
 
   // Hide for now.
   params.delete('ext');
+  params.delete('decorations');
 
   const url = new URL(
     `${path}/share/scroll/${authData.value?.user.id}-${authData.value?.user.username}`

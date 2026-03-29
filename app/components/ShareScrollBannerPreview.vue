@@ -1,6 +1,13 @@
 <template>
   <div class="relative" aria-hidden="true">
     <img :src="banner" alt="" class="shrink-0" />
+    <img
+      v-for="decoration in decorations ?? []"
+      :key="decoration"
+      :src="`${config.public.baseUrl}/share/scroll/decorations/${decoration}`"
+      alt=""
+      class="absolute top-0 left-0"
+    />
     <div class="absolute flex items-center top-1.5 z-10 left-29.75">
       <span
         class="font-alkhemikal text-[16px]"
@@ -44,7 +51,9 @@ defineProps<{
     'labelColour' | 'usernameColour' | 'valueColour'
   >;
   banner: string;
+  decorations?: string[];
 }>();
 
 const { data: authData } = useAuth();
+const config = useRuntimeConfig();
 </script>

@@ -150,7 +150,7 @@ export function resolveBannerStyle(style: BannerStyle): StaticBannerStyle {
   return style;
 }
 
-export function getDefaultBannerPalette(style: BannerStyle) {
+export function getPresentBannerPaletteForStyle(style: BannerStyle) {
   if (style === 'seasonal') {
     return defaultPalette[getCurrentSeason()];
   }
@@ -170,9 +170,10 @@ export const querySchema = z
     usernameColour: hexValue.optional(),
     labelColour: hexValue.optional(),
     valueColour: hexValue.optional(),
+    decorations: z.array(z.string()).optional(),
   })
   .transform((data) => ({
-    ...getDefaultBannerPalette(data.style),
+    ...getPresentBannerPaletteForStyle(data.style),
     ...data,
   }));
 
