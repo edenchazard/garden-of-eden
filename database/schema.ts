@@ -393,6 +393,47 @@ export const userNotificationTable = mysqlTable(
   ]
 );
 
+export const caretakerTable = mysqlTable(
+  'caretakers',
+  {
+    userId: mediumint('user_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    ownerId: mediumint('owner_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    approved: boolean('approved').notNull().default(false),
+    blocked: boolean('blocked').notNull().default(false),
+  },
+  (table) => [
+    uniqueIndex('caretaker_owner_idx').on(table.userId, table.ownerId),
+    index('caretaker_owner_id_idx').on(table.ownerId),
+  ]
+);
+
+export const caretakerAuditLogTable = mysqlTable(
+  'caretaker_audit_log',
+  {
+    id: int('id').autoincrement().primaryKey().notNull(),
+    userId: mediumint('user_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    ownerId: mediumint('owner_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    loggedAt: datetime('logged_at')
+      .default(sql`NOW()`)
+      .notNull(),
+    dragons: json('dragons')
+      .$type<{ added: string[]; removed: string[]; unchanged: string[] }>()
+      .notNull(),
+  },
+  (table) => [
+    index('caretaker_audit_user_idx').on(table.userId),
+    index('caretaker_audit_owner_idx').on(table.ownerId),
+  ]
+);
+
 export const userSettingsSchema = createSelectSchema(usersSettingsTable, {
   gardenFrequency: (schema) => schema.min(15).max(300).default(30),
   gardenPerPage: (schema) => schema.min(10).max(500).default(500),

@@ -189,6 +189,40 @@
         Correct the values highlighted before saving.
       </p>
     </form>
+
+    <form
+      class="flex flex-col gap-y-4 [&_legend]:text-2xl [&_legend]:font-bold"
+      @submit.prevent="saveCaretakers"
+    >
+      <fieldset>
+        <legend>Trusted caretakers</legend>
+        <p class="mb-4">
+          Caretakers can view your scroll and add or remove your dragons from
+          the hatchery on your behalf. Enter one username per line. You can
+          revoke a caretaker at any time by removing their name and saving.
+        </p>
+        <textarea
+          v-model="caretakerUsernames"
+          class="w-full font-mono text-sm"
+          rows="6"
+          placeholder="One username per line"
+          spellcheck="false"
+        />
+        <p v-if="caretakerError" class="text-red-500 text-sm mt-1">
+          {{ caretakerError }}
+        </p>
+      </fieldset>
+      <button
+        type="submit"
+        class="btn-primary self-end"
+        :disabled="saveCaretakersStatus === 'pending'"
+      >
+        <LoadingIcon v-if="saveCaretakersStatus === 'pending'" class="mr-1" />
+        {{
+          saveCaretakersStatus === 'pending' ? 'Saving...' : 'Save caretakers'
+        }}
+      </button>
+    </form>
   </div>
 </template>
 
@@ -228,4 +262,46 @@ const invalid = computed(() => {
 const canSave = computed(
   () => saveSettingsStatus.value === 'pending' || invalid.value
 );
+
+const { data: existingCaretakers } = await useFetch<
+  { id: number; username: string; approved: boolean }[]
+>('/api/user/caretakers', {
+  headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+});
+
+const caretakerUsernames = ref(
+  (existingCaretakers.value ?? []).map((c) => c.username).join('\n')
+);
+
+const caretakerError = ref('');
+const saveCaretakersStatus = ref<'idle' | 'pending'>('idle');
+
+async function saveCaretakers() {
+  caretakerError.value = '';
+  saveCaretakersStatus.value = 'pending';
+
+  const usernames = caretakerUsernames.value
+    .split('\n')
+    .map((u) => u.trim())
+    .filter(Boolean);
+
+  try {
+    const result = await $fetch('/api/user/caretakers', {
+      method: 'PUT',
+      headers: { 'Csrf-token': useCsrf().csrf },
+      body: { usernames },
+      ignoreResponseError: true,
+    });
+
+    if (result && typeof result === 'object' && 'invalidUsernames' in result) {
+      const invalid = (result as { invalidUsernames: string[] })
+        .invalidUsernames;
+      caretakerError.value = `The following usernames were not found: ${invalid.join(', ')}`;
+    } else {
+      toast.success('Caretakers saved.');
+    }
+  } finally {
+    saveCaretakersStatus.value = 'idle';
+  }
+}
 </script>

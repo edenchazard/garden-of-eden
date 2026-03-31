@@ -19,6 +19,68 @@
       @dismissed="scroll.releaseNotification = null"
     />
 
+    <section
+      v-if="authData?.user && pendingRequests && pendingRequests.length > 0"
+      class="rounded-md border border-amber-400/50 bg-amber-400/10 p-4 space-y-3"
+    >
+      <h2 class="text-lg font-bold">Pending caretaker requests</h2>
+      <p class="text-sm">
+        The following users have added you as a trusted caretaker of their
+        scroll. Accept to manage their dragons, or decline to never be asked by
+        them again.
+      </p>
+      <ul class="space-y-2">
+        <li
+          v-for="request in pendingRequests"
+          :key="request.id"
+          class="flex items-center gap-3 flex-wrap"
+        >
+          <span class="font-medium">{{ request.username }}</span>
+          <button
+            class="btn-primary text-sm py-1 px-3"
+            :disabled="requestActionPending === request.id"
+            @click="approveRequest(request.id)"
+          >
+            Accept
+          </button>
+          <button
+            class="btn-secondary text-sm py-1 px-3"
+            :disabled="requestActionPending === request.id"
+            @click="blockRequest(request.id)"
+          >
+            Decline (never ask again)
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <section
+      v-if="authData?.user && blockedPrincipals && blockedPrincipals.length > 0"
+      class="rounded-md border border-stone-400/40 bg-stone-400/10 p-4 space-y-3"
+    >
+      <h2 class="text-lg font-bold">Blocked caretaker requests</h2>
+      <p class="text-sm">
+        You have blocked these users from adding you as their caretaker. You can
+        unblock them to allow their request to go through again.
+      </p>
+      <ul class="space-y-2">
+        <li
+          v-for="principal in blockedPrincipals"
+          :key="principal.id"
+          class="flex items-center gap-3 flex-wrap"
+        >
+          <span class="font-medium">{{ principal.username }}</span>
+          <button
+            class="btn-secondary text-sm py-1 px-3"
+            :disabled="requestActionPending === principal.id"
+            @click="unblockPrincipal(principal.id)"
+          >
+            Unblock
+          </button>
+        </li>
+      </ul>
+    </section>
+
     <div
       v-if="!authData?.user"
       class="mx-auto! flex gap-8 max-w-2xl items-center flex-col md:flex-row"
@@ -67,6 +129,28 @@
       class="flex flex-col gap-y-4 *:mx-4 mx-0!"
       @submit.prevent="saveScroll()"
     >
+      <div
+        v-if="caretakerPrincipals && caretakerPrincipals.length > 0"
+        class="order-0 flex items-center gap-3 flex-wrap"
+      >
+        <label for="caretaker-select" class="text-sm font-medium shrink-0"
+          >Managing scroll for:</label
+        >
+        <select
+          id="caretaker-select"
+          v-model="selectedOwnerId"
+          class="min-w-40"
+        >
+          <option :value="null">My own scroll</option>
+          <option
+            v-for="principal in caretakerPrincipals"
+            :key="principal.id"
+            :value="principal.id"
+          >
+            {{ principal.username }}
+          </option>
+        </select>
+      </div>
       <div class="space-y-2 *:max-w-prose order-1">
         <div
           v-if="fetchScrollError"
@@ -419,6 +503,88 @@ const formEndVisible = useElementVisibility(useTemplateRef('formEnd'), {
   threshold: 0,
 });
 
+const { data: caretakerPrincipals, refresh: refreshCaretakerPrincipals } =
+  await useFetch<{ id: number; username: string }[]>(
+    '/api/user/caretaker-principals',
+    {
+      headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+      immediate: !!authData.value?.user,
+      default: () => [],
+    }
+  );
+
+const { data: pendingRequests, refresh: refreshPendingRequests } =
+  await useFetch<{ id: number; username: string }[]>(
+    '/api/caretaker/requests',
+    {
+      headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+      immediate: !!authData.value?.user,
+      default: () => [],
+    }
+  );
+
+const { data: blockedPrincipals, refresh: refreshBlockedPrincipals } =
+  await useFetch<{ id: number; username: string }[]>(
+    '/api/caretaker/requests/blocked',
+    {
+      headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+      immediate: !!authData.value?.user,
+      default: () => [],
+    }
+  );
+
+const requestActionPending = ref<number | null>(null);
+
+async function approveRequest(ownerId: number) {
+  requestActionPending.value = ownerId;
+  try {
+    await $fetch(`/api/caretaker/requests/${ownerId}/approve`, {
+      method: 'POST',
+      headers: { 'Csrf-token': useCsrf().csrf },
+    });
+    await Promise.all([refreshPendingRequests(), refreshCaretakerPrincipals()]);
+    toast.success('Caretaker request accepted.');
+  } finally {
+    requestActionPending.value = null;
+  }
+}
+
+async function blockRequest(ownerId: number) {
+  requestActionPending.value = ownerId;
+  try {
+    await $fetch(`/api/caretaker/requests/${ownerId}/block`, {
+      method: 'POST',
+      headers: { 'Csrf-token': useCsrf().csrf },
+    });
+    await Promise.all([refreshPendingRequests(), refreshBlockedPrincipals()]);
+    toast.success('Request declined. You will not be asked again.');
+  } finally {
+    requestActionPending.value = null;
+  }
+}
+
+async function unblockPrincipal(ownerId: number) {
+  requestActionPending.value = ownerId;
+  try {
+    await $fetch(`/api/caretaker/requests/${ownerId}/unblock`, {
+      method: 'POST',
+      headers: { 'Csrf-token': useCsrf().csrf },
+    });
+    await Promise.all([refreshBlockedPrincipals(), refreshPendingRequests()]);
+    toast.success('Unblocked. The request is now pending again.');
+  } finally {
+    requestActionPending.value = null;
+  }
+}
+
+const selectedOwnerId = ref<number | null>(null);
+
+const scrollUrl = computed(() =>
+  selectedOwnerId.value
+    ? `/api/caretaker/scroll/${selectedOwnerId.value}`
+    : '/api/user/scroll'
+);
+
 const {
   data: scroll,
   execute: fetchScroll,
@@ -428,11 +594,12 @@ const {
   releaseNotification: null | typeof userNotificationTable.$inferSelect;
   details: { clicksToday: number };
   dragons: ScrollView[];
-}>('/api/user/scroll', {
+}>(scrollUrl, {
   headers: computed(() => ({
     'Csrf-token': useCsrf().csrf,
   })),
   immediate: !!authData.value?.user,
+  watch: false,
   deep: true,
   default() {
     return {
@@ -445,11 +612,24 @@ const {
   },
 });
 
+watch(selectedOwnerId, () => {
+  if (authData.value?.user) {
+    scroll.value.dragons = [];
+    fetchScroll();
+  }
+});
+
+const saveScrollUrl = computed(() =>
+  selectedOwnerId.value
+    ? `/api/caretaker/scroll/${selectedOwnerId.value}`
+    : '/api/user/scroll'
+);
+
 const {
   data: recentlyAdded,
   execute: saveScroll,
   status: saveScrollStatus,
-} = useFetch('/api/user/scroll', {
+} = useFetch<string[]>(saveScrollUrl, {
   headers: computed(() => ({
     'Csrf-token': useCsrf().csrf,
   })),
@@ -467,7 +647,7 @@ const {
   ),
   async onResponse({ response }) {
     if (!response.ok) {
-      toast.error('Failed to save your scroll. Please try again.');
+      toast.error('Failed to save the scroll. Please try again.');
       scrollUpdated.value = false;
       return;
     }
