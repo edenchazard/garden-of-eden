@@ -1,6 +1,6 @@
-import { db } from '~/server/db';
+import { db } from '~~/server/db';
 import { sql } from 'drizzle-orm';
-import { hatcheryTable, recordingsTable } from '~/database/schema';
+import { hatcheryTable, recordingsTable } from '~~/database/schema';
 
 export default defineTask({
   meta: {

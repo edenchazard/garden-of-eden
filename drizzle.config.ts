@@ -1,16 +1,15 @@
 import { defineConfig } from 'drizzle-kit';
-
-const { db } = useRuntimeConfig();
+import { env } from 'node:process';
 
 export default defineConfig({
   dialect: 'mysql',
   schema: './database/schema.ts',
   out: './drizzle',
   dbCredentials: {
-    user: db.user,
-    password: db.password,
-    host: db.host,
+    user: env.NUXT_DB_USER,
+    password: env.NUXT_DB_PASSWORD,
+    host: env.NUXT_DB_HOST ?? '',
     port: 3306,
-    database: db.database,
+    database: env.NUXT_DB_DATABASE ?? '',
   },
 });

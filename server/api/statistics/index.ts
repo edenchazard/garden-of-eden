@@ -8,8 +8,8 @@ import {
   recordingsTable,
   usersSettingsTable,
   usersTable,
-} from '~/database/schema';
-import { db } from '~/server/db';
+} from '~~/database/schema';
+import { db } from '~~/server/db';
 
 const totalScrollsCached = defineCachedFunction(
   async () =>
@@ -209,6 +209,7 @@ export default defineEventHandler(async (event) => {
           name: itemsTable.name,
           description: itemsTable.description,
           artist: itemsTable.artist,
+          releaseDate: itemsTable.releaseDate,
         },
       })
       .from(clicksLeaderboardsTable)

@@ -2,8 +2,8 @@ import {
   itemsTable,
   userItemTable,
   usersSettingsTable,
-} from '~/database/schema';
-import { db } from '~/server/db';
+} from '~~/database/schema';
+import { db } from '~~/server/db';
 import { and, sql, eq, notInArray, gte, isNotNull } from 'drizzle-orm';
 
 export default defineTask({

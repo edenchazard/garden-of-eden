@@ -8,8 +8,8 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
-import { itemsTable, userItemTable } from '~/database/schema';
-import { db } from '~/server/db';
+import { itemsTable, userItemTable } from '~~/database/schema';
+import { db } from '~~/server/db';
 import { getToken, getServerSession } from '#auth';
 import type { JWT } from 'next-auth/jwt';
 

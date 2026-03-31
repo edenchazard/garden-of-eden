@@ -1,7 +1,7 @@
 import { defineNuxtModule } from '@nuxt/kit';
 import * as esbuild from 'esbuild';
 import { watch, type WatchEventType } from 'fs';
-import fsExists from '~/server/utils/fsExists';
+import fsExists from '../server/utils/fsExists';
 
 export default defineNuxtModule({
   async setup({ path }, nuxt) {

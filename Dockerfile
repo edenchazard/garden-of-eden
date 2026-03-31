@@ -1,4 +1,4 @@
-FROM node:24.0-bookworm-slim AS base
+FROM node:24.14-bookworm-slim AS base
 ENV NODE_ENV=production
 WORKDIR /src
 # Required for health check.
@@ -18,18 +18,17 @@ COPY --link . .
 RUN npm run build
 
 # Run
-FROM base 
-# Required hacks for working animated banners in prod.
-# TODO: --chown=node:node
-COPY --from=required-packages /src/node_modules/bullmq/dist/cjs dist/cjs 
-COPY --from=required-packages /src/node_modules node_modules
-COPY  resources/banner resources/banner
-COPY --from=build /src/.output .output 
-COPY --from=build /src/workers/*.cjs workers/
+FROM base  
+# Required hacks for working animated banners in prod. 
+COPY --chown=node:node --from=required-packages /src/node_modules/bullmq/dist/cjs dist/cjs 
+COPY --chown=node:node --from=required-packages /src/node_modules node_modules
+COPY --chown=node:node resources/banner resources/banner
+COPY --chown=node:node --from=build /src/.output .output 
+COPY --chown=node:node --from=build /src/workers/*.cjs workers/
+COPY --chown=root:node --from=build /src/.output/public/fonts/ /usr/share/fonts/ 
 
-#RUN mkdir /cache 
-#RUN chown -R node:node /cache
+RUN mkdir /cache
+RUN chown -R node:node /cache
+USER node
 
-#USER node
-
-CMD [ "node", ".output/server/index.mjs" ]
+CMD [ "node", ".output/server/index.mjs" ] 

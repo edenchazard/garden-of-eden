@@ -1,7 +1,7 @@
 import { and, eq, gt, isNull, or, sql } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import { clicksTable, hatcheryTable } from '~/database/schema';
-import { db } from '~/server/db';
+import { clicksTable, hatcheryTable } from '~~/database/schema';
+import { db } from '~~/server/db';
 import { getToken } from '#auth';
 
 export default defineEventHandler(async (event) => {

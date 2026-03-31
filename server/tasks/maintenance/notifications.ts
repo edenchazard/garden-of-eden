@@ -1,5 +1,5 @@
-import { userNotificationTable } from '~/database/schema';
-import { db } from '~/server/db';
+import { userNotificationTable } from '~~/database/schema';
+import { db } from '~~/server/db';
 import { DateTime } from 'luxon';
 import { lte, or, sql } from 'drizzle-orm';
 

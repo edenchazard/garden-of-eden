@@ -1,5 +1,5 @@
-import { userNotificationTable } from '~/database/schema';
-import { db } from '~/server/db';
+import { userNotificationTable } from '~~/database/schema';
+import { db } from '~~/server/db';
 import { getToken } from '#auth';
 import type { JWT } from 'next-auth/jwt';
 import { and, eq } from 'drizzle-orm';

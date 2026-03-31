@@ -4,11 +4,11 @@ import {
   itemsTable,
   usersSettingsTable,
   usersTable,
-} from '~/database/schema';
+} from '~~/database/schema';
 import type { JWT } from 'next-auth/jwt';
 import { getToken } from '#auth';
 import { and, between, eq, lte, or, sql } from 'drizzle-orm';
-import { db } from '~/server/db';
+import { db } from '~~/server/db';
 import { z } from 'zod';
 import { DateTime, Interval } from 'luxon';
 
@@ -103,6 +103,7 @@ export default defineEventHandler(async (event) => {
           name: itemsTable.name,
           description: itemsTable.description,
           artist: itemsTable.artist,
+          releaseDate: itemsTable.releaseDate,
         },
       })
       .from(clicksLeaderboardsTable)

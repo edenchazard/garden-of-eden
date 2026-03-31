@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import fsExists from '~/server/utils/fsExists';
+import fsExists from '~~/server/utils/fsExists';
 import { createReadStream } from 'fs';
-import { shareScrollQueue } from '~/server/queue';
-import { db } from '~/server/db';
+import { shareScrollQueue } from '~~/server/queue';
+import { db } from '~~/server/db';
 import { and, eq, sql, or } from 'drizzle-orm';
 import {
   itemsTable,
@@ -10,7 +10,7 @@ import {
   usersTable,
   clicksLeaderboardsTable,
   hatcheryTable,
-} from '~/database/schema';
+} from '~~/database/schema';
 import { DateTime } from 'luxon';
 import path from 'node:path';
 import type { H3Event } from 'h3';
@@ -19,7 +19,7 @@ import {
   querySchema,
   type BannerRequestParameters,
   type User,
-} from '~/workers/shareScrollWorkerTypes';
+} from '~~/workers/shareScrollWorkerTypes';
 import crypto from 'crypto';
 import { decrypt } from '~/utils/accessTokenHandling';
 
@@ -197,6 +197,10 @@ export default defineEventHandler(async (event) => {
   // in case we want to support it or other formats in the future.
   query.data.ext = '.webp';
 
+  // Inject decorations for specific banner styles.
+  if (query.data.style === 'pacman') {
+    query.data.decorations = ['pacman.webp'];
+  }
   const [, userId, username] = match;
 
   const params = await paramSchema.safeParseAsync({

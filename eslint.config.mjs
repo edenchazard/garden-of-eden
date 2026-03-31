@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-expect-error
 import withNuxt from './.nuxt/eslint.config.mjs';
 
 export default withNuxt({
@@ -19,4 +19,3 @@ export default withNuxt({
     '@typescript-eslint/no-unused-expressions': 'off',
   },
 });
-// Your custom configs here

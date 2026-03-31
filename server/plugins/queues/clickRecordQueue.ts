@@ -1,6 +1,6 @@
 import { Worker as BullWorker } from 'bullmq';
-import { db } from '~/server/db';
-import { clicksTable, usersTable } from '~/database/schema';
+import { db } from '~~/server/db';
+import { clicksTable, usersTable } from '~~/database/schema';
 import { and, eq, lt, sql } from 'drizzle-orm';
 
 const {

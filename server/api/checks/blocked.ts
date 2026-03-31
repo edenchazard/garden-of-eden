@@ -1,6 +1,6 @@
-import { usersTable } from '~/database/schema';
-import { db } from '~/server/db';
-import type { DragonData } from '~/types/DragonTypes';
+import { usersTable } from '~~/database/schema';
+import { db } from '~~/server/db';
+import type { DragonData } from '#shared/DragonTypes';
 import { getToken, getServerSession } from '#auth';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';

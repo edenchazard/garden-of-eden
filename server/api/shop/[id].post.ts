@@ -4,8 +4,8 @@ import {
   usersSettingsTable,
   usersTable,
   userTrophyTable,
-} from '~/database/schema';
-import { db } from '~/server/db';
+} from '~~/database/schema';
+import { db } from '~~/server/db';
 import { getToken } from '#auth';
 import type { JWT } from 'next-auth/jwt';
 import { and, eq } from 'drizzle-orm';
@@ -82,12 +82,21 @@ export default defineEventHandler(async (event) => {
         .where(eq(usersSettingsTable.userId, token.userId));
     }
 
-    // New Year 2025 badge.
-    if (item.name === 'Fortune Cookie' && now.getFullYear() === 2025) {
+    // New Year badge.
+    if (item.name === 'Fortune Cookie') {
       const [badge] = await tx
         .select()
         .from(itemsTable)
-        .where(eq(itemsTable.id, 50));
+        .where(
+          and(
+            eq(itemsTable.name, `New Year ${now.getFullYear()}`),
+            eq(itemsTable.category, 'trophy')
+          )
+        );
+
+      if (!badge) {
+        return;
+      }
 
       // Check they don't already have the badge.
       const hasBadge = await tx
