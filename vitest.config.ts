@@ -1,3 +1,11 @@
-import { defineVitestConfig } from '@nuxt/test-utils/config';
+import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
 
-export default defineVitestConfig({});
+export default defineConfig({
+  resolve: {
+    alias: {
+      '~~': fileURLToPath(new URL('.', import.meta.url)),
+      '~': fileURLToPath(new URL('.', import.meta.url)),
+    },
+  },
+});
