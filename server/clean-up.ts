@@ -1,7 +1,7 @@
 import chunkArray from '~~/utils/chunkArray';
 import { db } from '~~/server/db';
 import { hatcheryTable, recordingsTable } from '~~/database/schema';
-import { inArray, sql } from 'drizzle-orm';
+import { inArray } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { dragCaveFetch } from '~~/server/utils/dragCaveFetch';
 import { isIncubated, isStunned } from '~~/utils/calculations';
@@ -138,48 +138,43 @@ export async function cleanUp() {
     })
   );
 
-  const removeFromHatcheryStatement = db
-    .delete(hatcheryTable)
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
-
-  const removeFromSeedTrayStatement = db
-    .update(hatcheryTable)
-    .set({ inSeedTray: false })
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
-
-  const updateIncubatedStatement = db
-    .update(hatcheryTable)
-    .set({ isIncubated: true })
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
-
-  const updateStunnedStatement = db
-    .update(hatcheryTable)
-    .set({ isStunned: true })
-    .where(inArray(hatcheryTable.id, sql.placeholder('chunk')))
-    .prepare();
-
   let successfullyRemoved = 0;
 
-  await Promise.allSettled([
-    ...chunkArray([...removeFromSeedTray], sqlChunkSize).map(async (chunk) =>
-      removeFromSeedTrayStatement.execute({ chunk })
-    ),
-    ...chunkArray([...removeFromHatchery], sqlChunkSize).map(async (chunk) => {
-      const [{ affectedRows }] = await removeFromHatcheryStatement.execute({
-        chunk,
-      });
+  await Promise.allSettled(
+    chunkArray([...removeFromSeedTray], sqlChunkSize).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ inSeedTray: false })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
+
+  await Promise.allSettled(
+    chunkArray([...removeFromHatchery], sqlChunkSize).map(async (chunk) => {
+      const [{ affectedRows }] = await db
+        .delete(hatcheryTable)
+        .where(inArray(hatcheryTable.id, chunk));
       successfullyRemoved += affectedRows;
-    }),
-    ...chunkArray([...updateIncubated], sqlChunkSize).map(async (chunk) =>
-      updateIncubatedStatement.execute({ chunk })
-    ),
-    ...chunkArray([...updateStunned], sqlChunkSize).map(async (chunk) =>
-      updateStunnedStatement.execute({ chunk })
-    ),
-  ]);
+    })
+  );
+
+  await Promise.allSettled(
+    chunkArray([...updateIncubated], sqlChunkSize).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ isIncubated: true })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
+
+  await Promise.allSettled(
+    chunkArray([...updateStunned], sqlChunkSize).map(async (chunk) =>
+      db
+        .update(hatcheryTable)
+        .set({ isStunned: true })
+        .where(inArray(hatcheryTable.id, chunk))
+    )
+  );
 
   // We can't totally be sure that just because we couldn't find one of their dragons
   // that they're blocking us. For example, maybe they transferred it to an account
