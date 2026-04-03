@@ -3,24 +3,9 @@ import { getToken } from '#auth';
 import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
 import { hatcheryTable } from '~~/database/schema';
-import { and, eq, inArray, not, sql, getTableColumns } from 'drizzle-orm';
-import type { SQL } from 'drizzle-orm';
+import { and, eq, inArray, not } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
-import type { MySqlTable } from 'drizzle-orm/mysql-core';
-
-function buildConflictUpdateColumns<
-  T extends MySqlTable,
-  Q extends keyof T['_']['columns'],
->(table: T, columns: Q[]) {
-  const cls = getTableColumns(table);
-  return columns.reduce(
-    (acc, column) => {
-      acc[column] = sql`values(${cls[column]})`;
-      return acc;
-    },
-    {} as Record<Q, SQL>
-  );
-}
+import buildConflictUpdateColumns from '~~/server/utils/buildConflictUpdateColumns';
 
 export default defineEventHandler(async (event) => {
   const schema = z.array(
