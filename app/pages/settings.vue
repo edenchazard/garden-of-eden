@@ -181,29 +181,16 @@
           />
         </div>
       </fieldset>
-      <button type="submit" class="btn-primary self-end" :disabled="canSave">
-        <LoadingIcon v-if="saveSettingsStatus === 'pending'" class="mr-1" />
-        {{ saveSettingsStatus === 'pending' ? 'Saving...' : 'Save' }}
-      </button>
-      <p v-if="invalid" class="self-end">
-        Correct the values highlighted before saving.
-      </p>
-    </form>
-
-    <form
-      class="flex flex-col gap-y-4 [&_legend]:text-2xl [&_legend]:font-bold"
-      @submit.prevent="saveCaretakers"
-    >
       <fieldset>
         <legend>Trusted caretakers</legend>
-        <p class="mb-4">
+        <p>
           Caretakers can view your scroll and add or remove your dragons from
           the hatchery on your behalf. Enter one username per line. You can
           revoke a caretaker at any time by removing their name and saving.
         </p>
         <textarea
           v-model="caretakerUsernames"
-          class="w-full font-mono text-sm"
+          class="w-full font-mono text-sm my-4"
           rows="6"
           placeholder="One username per line"
           spellcheck="false"
@@ -212,16 +199,13 @@
           {{ caretakerError }}
         </p>
       </fieldset>
-      <button
-        type="submit"
-        class="btn-primary self-end"
-        :disabled="saveCaretakersStatus === 'pending'"
-      >
-        <LoadingIcon v-if="saveCaretakersStatus === 'pending'" class="mr-1" />
-        {{
-          saveCaretakersStatus === 'pending' ? 'Saving...' : 'Save caretakers'
-        }}
+      <button type="submit" class="btn-primary self-end" :disabled="canSave">
+        <LoadingIcon v-if="saveSettingsStatus === 'pending'" class="mr-1" />
+        {{ saveSettingsStatus === 'pending' ? 'Saving...' : 'Save' }}
       </button>
+      <p v-if="invalid" class="self-end">
+        Correct the values highlighted before saving.
+      </p>
     </form>
   </div>
 </template>
