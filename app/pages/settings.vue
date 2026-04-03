@@ -181,24 +181,7 @@
           />
         </div>
       </fieldset>
-      <fieldset>
-        <legend>Trusted caretakers</legend>
-        <p>
-          Caretakers can view your scroll and add or remove your dragons from
-          the hatchery on your behalf. Enter one username per line. You can
-          revoke a caretaker at any time by removing their name and saving.
-        </p>
-        <textarea
-          v-model="caretakerUsernames"
-          class="w-full font-mono text-sm my-4"
-          rows="6"
-          placeholder="One username per line"
-          spellcheck="false"
-        />
-        <p v-if="caretakerError" class="text-red-500 text-sm mt-1">
-          {{ caretakerError }}
-        </p>
-      </fieldset>
+
       <button type="submit" class="btn-primary self-end" :disabled="canSave">
         <LoadingIcon v-if="saveSettingsStatus === 'pending'" class="mr-1" />
         {{ saveSettingsStatus === 'pending' ? 'Saving...' : 'Save' }}
@@ -207,6 +190,90 @@
         Correct the values highlighted before saving.
       </p>
     </form>
+
+    <form>
+      <h2>Trusted caretakers</h2>
+      <fieldset>
+        <p>
+          Caretakers can view your scroll and add or remove your dragons from
+          the hatchery on your behalf. Generate a temporary share link and send
+          it to the person you want to trust. The link will be valid for 1 hour.
+        </p>
+
+        <div class="flex gap-2">
+          <template v-if="inviteUrl">
+            <input type="text" class="flex-1" :value="inviteUrl" readonly />
+            <button
+              class="btn-secondary"
+              type="button"
+              @click="copyInviteLink()"
+            >
+              Copy
+            </button>
+          </template>
+          <button
+            class="btn-primary"
+            type="button"
+            :disabled="invitationStatus === 'pending'"
+            @click="generateInvite()"
+          >
+            <LoadingIcon v-if="invitationStatus === 'pending'" class="mr-1" />
+            <template v-if="invitationStatus === 'pending'">
+              Generating...
+            </template>
+            <template v-else>
+              {{ inviteUrl ? 'Generate new invite' : 'Generate invite' }}
+            </template>
+          </button>
+        </div>
+
+        <ul v-if="caretakers.length > 0" class="divide-y mt-4">
+          <li
+            v-for="caretaker in caretakers"
+            :key="caretaker.id"
+            class="py-3 flex items-center gap-3 flex-wrap"
+          >
+            <span class="font-medium">{{ caretaker.username }}</span>
+            <button
+              class="btn-secondary text-sm py-1 px-3"
+              type="button"
+              @click="removeCaretaker(caretaker.id)"
+            >
+              Remove
+            </button>
+          </li>
+        </ul>
+        <p v-else class="text-sm mt-4">No caretakers added yet.</p>
+      </fieldset>
+
+      <h2>Caretaker access</h2>
+      <fieldset>
+        <p>
+          If you have confirmed caretaker access for someone else, you can
+          remove it here.
+        </p>
+
+        <ul v-if="principles.length > 0" class="divide-y mt-4">
+          <li
+            v-for="principal in principles"
+            :key="principal.id"
+            class="py-3 flex items-center gap-3 flex-wrap"
+          >
+            <span class="font-medium">{{ principal.username }}</span>
+            <button
+              class="btn-secondary text-sm py-1 px-3"
+              type="button"
+              @click="removePrincipalAccess(principal.id)"
+            >
+              Remove
+            </button>
+          </li>
+        </ul>
+        <p v-else class="text-sm mt-4">
+          You are not managing anyone else's scroll.
+        </p>
+      </fieldset>
+    </form>
   </div>
 </template>
 
@@ -214,6 +281,7 @@
 import { userSettingsSchema } from '~~/database/schema';
 import { formatHoursLeft } from '#imports';
 import ToggleInput from '~/components/ToggleInput.vue';
+import { useClipboard } from '@vueuse/core';
 
 definePageMeta({
   middleware: 'sidebase-auth',
@@ -222,6 +290,9 @@ definePageMeta({
 useHead({
   title: 'Settings',
 });
+
+const config = useRuntimeConfig();
+const { copy } = useClipboard();
 
 const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings(
   false,
@@ -247,45 +318,45 @@ const canSave = computed(
   () => saveSettingsStatus.value === 'pending' || invalid.value
 );
 
-const { data: existingCaretakers } = await useFetch<
-  { id: number; username: string; approved: boolean }[]
->('/api/user/caretakers', {
-  headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+const {
+  execute: generateInvite,
+  data: invitation,
+  status: invitationStatus,
+} = useFetch('/api/user/caretakers/invite', {
+  method: 'POST',
+  headers: { 'Csrf-token': useCsrf().csrf },
+  body: {},
+  immediate: false,
+  onResponseError() {
+    toast.error('Failed to generate invite. Please try again.');
+  },
 });
 
-const caretakerUsernames = ref(
-  (existingCaretakers.value ?? []).map((c) => c.username).join('\n')
-);
+const { data: caretakers } = await useFetch('/api/user/caretakers', {
+  headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+  default: () => [],
+});
 
-const caretakerError = ref('');
-const saveCaretakersStatus = ref<'idle' | 'pending'>('idle');
+const { data: principles } = await useFetch('/api/user/caretakers/principals', {
+  headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+  default: () => [],
+});
 
-async function saveCaretakers() {
-  caretakerError.value = '';
-  saveCaretakersStatus.value = 'pending';
+const inviteUrl = computed(() => {
+  if (!invitation.value?.code) {
+    return '';
+  }
 
-  const usernames = caretakerUsernames.value
-    .split('\n')
-    .map((u) => u.trim())
-    .filter(Boolean);
+  const path = config.public.origin + config.public.baseUrl;
+  return new URL(`${path}/caretaker/${invitation.value.code}`).toString();
+});
 
+async function copyInviteLink() {
   try {
-    const result = await $fetch('/api/user/caretakers', {
-      method: 'PUT',
-      headers: { 'Csrf-token': useCsrf().csrf },
-      body: { usernames },
-      ignoreResponseError: true,
-    });
-
-    if (result && typeof result === 'object' && 'invalidUsernames' in result) {
-      const invalid = (result as { invalidUsernames: string[] })
-        .invalidUsernames;
-      caretakerError.value = `The following usernames were not found: ${invalid.join(', ')}`;
-    } else {
-      toast.success('Caretakers saved.');
-    }
-  } finally {
-    saveCaretakersStatus.value = 'idle';
+    await copy(inviteUrl.value);
+    toast.success('Invite link copied to clipboard.');
+  } catch {
+    toast.error('Failed to copy link. Please copy it manually.');
   }
 }
 </script>

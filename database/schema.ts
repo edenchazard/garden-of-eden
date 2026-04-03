@@ -399,15 +399,32 @@ export const caretakerTable = mysqlTable(
     userId: mediumint('user_id', { unsigned: true })
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
-    ownerId: mediumint('owner_id', { unsigned: true })
+    caretakerId: mediumint('caretaker_id', { unsigned: true })
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
-    approved: boolean('approved').notNull().default(false),
-    blocked: boolean('blocked').notNull().default(false),
   },
   (table) => [
-    uniqueIndex('caretaker_owner_idx').on(table.userId, table.ownerId),
-    index('caretaker_owner_id_idx').on(table.ownerId),
+    uniqueIndex('caretaker_user_idx').on(table.userId, table.caretakerId),
+    index('caretaker_caretaker_id_idx').on(table.caretakerId),
+  ]
+);
+
+export const caretakerInviteTable = mysqlTable(
+  'caretaker_invites',
+  {
+    code: char('code', {
+      length: 36,
+    })
+      .primaryKey()
+      .notNull(),
+    userId: mediumint('user_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    expiresAt: datetime('expires_at', { mode: 'date' }).notNull(),
+  },
+  (table) => [
+    index('caretaker_invite_user_idx').on(table.userId),
+    index('caretaker_invite_expiry_idx').on(table.expiresAt),
   ]
 );
 
@@ -418,19 +435,19 @@ export const caretakerAuditLogTable = mysqlTable(
     userId: mediumint('user_id', { unsigned: true })
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
-    ownerId: mediumint('owner_id', { unsigned: true })
+    caretakerId: mediumint('caretaker_id', { unsigned: true })
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
-    loggedAt: datetime('logged_at')
+    createdAt: datetime('created_at', { mode: 'date' })
       .default(sql`NOW()`)
       .notNull(),
-    dragons: json('dragons')
+    changes: json('changes')
       .$type<{ added: string[]; removed: string[]; unchanged: string[] }>()
       .notNull(),
   },
   (table) => [
     index('caretaker_audit_user_idx').on(table.userId),
-    index('caretaker_audit_owner_idx').on(table.ownerId),
+    index('caretaker_audit_caretaker_idx').on(table.caretakerId),
   ]
 );
 

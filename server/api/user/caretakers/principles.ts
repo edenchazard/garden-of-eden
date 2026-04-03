@@ -7,15 +7,12 @@ import { db } from '~~/server/db';
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
 
-  return db
-    .select({ id: usersTable.id, username: usersTable.username })
+  return await db
+    .select({
+      id: usersTable.id,
+      username: usersTable.username,
+    })
     .from(caretakerTable)
-    .innerJoin(usersTable, eq(caretakerTable.ownerId, usersTable.id))
-    .where(
-      and(
-        eq(caretakerTable.userId, token.userId),
-        eq(caretakerTable.approved, false),
-        eq(caretakerTable.blocked, false)
-      )
-    );
+    .innerJoin(usersTable, eq(caretakerTable.caretakerId, usersTable.id))
+    .where(and(eq(caretakerTable.userId, token.userId)));
 });
