@@ -263,7 +263,7 @@
             <button
               class="btn-secondary text-sm py-1 px-3"
               type="button"
-              @click="removePrincipalAccess(principal.id)"
+              @click="removePrincipal(principal.id)"
             >
               Remove
             </button>
@@ -332,15 +332,43 @@ const {
   },
 });
 
-const { data: caretakers } = await useFetch('/api/user/caretakers', {
+const { data: caretakers, execute: fetchCaretakers } = await useFetch(
+  '/api/user/caretakers',
+  {
+    headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+    default: () => [],
+  }
+);
+
+const { data: principles } = await useFetch('/api/user/principles', {
   headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
   default: () => [],
 });
 
-const { data: principles } = await useFetch('/api/user/caretakers/principals', {
-  headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
-  default: () => [],
-});
+async function removeCaretaker(id: number) {
+  try {
+    await $fetch(`/api/user/caretakers/${id}`, {
+      method: 'DELETE',
+      headers: { 'Csrf-token': useCsrf().csrf },
+    });
+    fetchCaretakers();
+    toast.success('Caretaker removed successfully.');
+  } catch {
+    toast.error('Failed to remove caretaker. Please try again.');
+  }
+}
+
+async function removePrincipal(id: number) {
+  try {
+    await $fetch(`/api/user/principals/${id}`, {
+      method: 'DELETE',
+      headers: { 'Csrf-token': useCsrf().csrf },
+    });
+    toast.success('Caretaker access removed successfully.');
+  } catch {
+    toast.error('Failed to remove caretaker access. Please try again.');
+  }
+}
 
 const inviteUrl = computed(() => {
   if (!invitation.value?.code) {
@@ -348,7 +376,7 @@ const inviteUrl = computed(() => {
   }
 
   const path = config.public.origin + config.public.baseUrl;
-  return new URL(`${path}/caretaker/${invitation.value.code}`).toString();
+  return new URL(`${path}/invite/${invitation.value.code}`).toString();
 });
 
 async function copyInviteLink() {

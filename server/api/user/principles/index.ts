@@ -1,5 +1,5 @@
 import { getToken } from '#auth';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { caretakerTable, usersTable } from '~~/database/schema';
 import { db } from '~~/server/db';
@@ -13,6 +13,6 @@ export default defineEventHandler(async (event) => {
       username: usersTable.username,
     })
     .from(caretakerTable)
-    .innerJoin(usersTable, eq(caretakerTable.caretakerId, usersTable.id))
-    .where(and(eq(caretakerTable.userId, token.userId)));
+    .innerJoin(usersTable, eq(caretakerTable.principleId, usersTable.id))
+    .where(eq(caretakerTable.caretakerId, token.userId));
 });

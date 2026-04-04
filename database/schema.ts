@@ -396,7 +396,7 @@ export const userNotificationTable = mysqlTable(
 export const caretakerTable = mysqlTable(
   'caretakers',
   {
-    userId: mediumint('user_id', { unsigned: true })
+    principleId: mediumint('principle_id', { unsigned: true })
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
     caretakerId: mediumint('caretaker_id', { unsigned: true })
@@ -404,7 +404,10 @@ export const caretakerTable = mysqlTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex('caretaker_user_idx').on(table.userId, table.caretakerId),
+    uniqueIndex('caretaker_principle_idx').on(
+      table.principleId,
+      table.caretakerId
+    ),
     index('caretaker_caretaker_id_idx').on(table.caretakerId),
   ]
 );
@@ -417,13 +420,13 @@ export const caretakerInviteTable = mysqlTable(
     })
       .primaryKey()
       .notNull(),
-    userId: mediumint('user_id', { unsigned: true })
+    principleId: mediumint('principle_id', { unsigned: true })
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
     expiresAt: datetime('expires_at', { mode: 'date' }).notNull(),
   },
   (table) => [
-    index('caretaker_invite_user_idx').on(table.userId),
+    index('caretaker_invite_principle_idx').on(table.principleId),
     index('caretaker_invite_expiry_idx').on(table.expiresAt),
   ]
 );
@@ -432,7 +435,7 @@ export const caretakerAuditLogTable = mysqlTable(
   'caretaker_audit_log',
   {
     id: int('id').autoincrement().primaryKey().notNull(),
-    userId: mediumint('user_id', { unsigned: true })
+    principleId: mediumint('principle_id', { unsigned: true })
       .references(() => usersTable.id, { onDelete: 'cascade' })
       .notNull(),
     caretakerId: mediumint('caretaker_id', { unsigned: true })
@@ -446,7 +449,7 @@ export const caretakerAuditLogTable = mysqlTable(
       .notNull(),
   },
   (table) => [
-    index('caretaker_audit_user_idx').on(table.userId),
+    index('caretaker_audit_principle_idx').on(table.principleId),
     index('caretaker_audit_caretaker_idx').on(table.caretakerId),
   ]
 );

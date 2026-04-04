@@ -3,15 +3,18 @@ import { and, eq, inArray, not } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
-import {
-  caretakerAuditLogTable,
-  caretakerTable,
-  hatcheryTable,
-} from '~~/database/schema';
+import { caretakerAuditLogTable, hatcheryTable } from '~~/database/schema';
 import { db } from '~~/server/db';
 import buildConflictUpdateColumns from '~~/server/utils/buildConflictUpdateColumns';
 
 export default defineEventHandler(async (event) => {
+  const { principleId } = await getValidatedRouterParams(
+    event,
+    z.object({
+      principleId: z.coerce.number(),
+    }).parse
+  );
+
   const schema = z.array(
     createInsertSchema(hatcheryTable).pick({
       id: true,
@@ -20,36 +23,10 @@ export default defineEventHandler(async (event) => {
     })
   );
 
-  const ownerIdParam = getRouterParam(event, 'ownerId');
-  const ownerId = parseInt(ownerIdParam ?? '');
-
-  if (!ownerId || isNaN(ownerId)) {
-    setResponseStatus(event, 400, 'Bad Request');
-    return 'Bad Request';
-  }
-
   const [token, dragons] = await Promise.all([
     getToken({ event }) as Promise<JWT>,
     readValidatedBody(event, schema.parse),
   ]);
-
-  const [caretakerEntry] = await db
-    .select()
-    .from(caretakerTable)
-    .where(
-      and(
-        eq(caretakerTable.userId, token.userId),
-        eq(caretakerTable.ownerId, ownerId),
-        eq(caretakerTable.approved, true),
-        eq(caretakerTable.blocked, false)
-      )
-    )
-    .limit(1);
-
-  if (!caretakerEntry) {
-    setResponseStatus(event, 403, 'Forbidden');
-    return 'Forbidden';
-  }
 
   return await db.transaction(async (tx) => {
     const dragonIds = dragons.map((d) => d.id);
@@ -65,7 +42,7 @@ export default defineEventHandler(async (event) => {
             .from(hatcheryTable)
             .where(
               and(
-                eq(hatcheryTable.userId, ownerId),
+                eq(hatcheryTable.userId, principleId),
                 inArray(hatcheryTable.id, dragonIds)
               )
             )
@@ -76,7 +53,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           inArray(hatcheryTable.id, dragonIds),
-          not(eq(hatcheryTable.userId, ownerId))
+          not(eq(hatcheryTable.userId, principleId))
         )
       );
 
@@ -86,7 +63,7 @@ export default defineEventHandler(async (event) => {
         .values(
           dragons.map((dragon) => ({
             id: dragon.id,
-            userId: ownerId,
+            userId: principleId,
             inGarden: dragon.inGarden,
             inSeedTray: dragon.inSeedTray,
           }))
@@ -119,9 +96,9 @@ export default defineEventHandler(async (event) => {
     }
 
     await tx.insert(caretakerAuditLogTable).values({
-      userId: token.userId,
-      ownerId,
-      dragons: { added, removed, unchanged },
+      principleId,
+      caretakerId: token.userId,
+      changes: { added, removed, unchanged },
     });
 
     return dragons

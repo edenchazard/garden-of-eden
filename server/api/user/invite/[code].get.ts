@@ -9,27 +9,26 @@ export default defineEventHandler(async (event) => {
   });
 
   const { code } = await getValidatedRouterParams(event, schema.parse);
-  const now = new Date();
 
   const [invite] = await db
     .select({
-      ownerId: caretakerInviteTable.ownerId,
-      ownerUsername: usersTable.username,
+      id: caretakerInviteTable.principleId,
+      username: usersTable.username,
       expiresAt: caretakerInviteTable.expiresAt,
     })
     .from(caretakerInviteTable)
-    .innerJoin(usersTable, eq(caretakerInviteTable.ownerId, usersTable.id))
+    .innerJoin(usersTable, eq(caretakerInviteTable.principleId, usersTable.id))
     .where(
       and(
         eq(caretakerInviteTable.code, code),
-        gt(caretakerInviteTable.expiresAt, now)
+        gt(caretakerInviteTable.expiresAt, new Date())
       )
     )
     .limit(1);
 
   if (!invite) {
     setResponseStatus(event, 404, 'Not Found');
-    return 'Not Found';
+    return null;
   }
 
   return invite;

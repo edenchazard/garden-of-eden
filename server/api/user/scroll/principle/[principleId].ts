@@ -1,66 +1,43 @@
-import { getToken } from '#auth';
-import { and, eq } from 'drizzle-orm';
-import type { JWT } from 'next-auth/jwt';
-import { caretakerTable, hatcheryTable, usersTable } from '~~/database/schema';
+import { eq } from 'drizzle-orm';
+import { hatcheryTable, usersTable } from '~~/database/schema';
 import { db } from '~~/server/db';
 import { dragCaveFetch } from '~~/server/utils/dragCaveFetch';
 import { decrypt } from '~/utils/accessTokenHandling';
 import { isIncubated, isStunned } from '~/utils/calculations';
 import type { DragonData } from '#shared/DragonTypes';
 import { phase } from '~/utils/dragons';
+import z from 'zod';
 
 export default defineEventHandler(async (event) => {
-  const token = (await getToken({ event })) as JWT;
-  const ownerIdParam = getRouterParam(event, 'ownerId');
-  const ownerId = parseInt(ownerIdParam ?? '');
+  const schema = z.object({
+    principleId: z.coerce.number(),
+  });
 
-  if (!ownerId || isNaN(ownerId)) {
-    setResponseStatus(event, 400, 'Bad Request');
-    return 'Bad Request';
-  }
+  const { principleId } = await getValidatedRouterParams(event, schema.parse);
 
-  const { accessTokenPassword } = useRuntimeConfig();
-
-  const [caretakerEntry] = await db
-    .select()
-    .from(caretakerTable)
-    .where(
-      and(
-        eq(caretakerTable.userId, token.userId),
-        eq(caretakerTable.ownerId, ownerId),
-        eq(caretakerTable.approved, true),
-        eq(caretakerTable.blocked, false)
-      )
-    )
-    .limit(1);
-
-  if (!caretakerEntry) {
-    setResponseStatus(event, 403, 'Forbidden');
-    return 'Forbidden';
-  }
-
-  const [owner] = await db
+  const [user] = await db
     .select({
-      id: usersTable.id,
-      username: usersTable.username,
       accessToken: usersTable.accessToken,
+      username: usersTable.username,
     })
     .from(usersTable)
-    .where(eq(usersTable.id, ownerId))
-    .limit(1);
+    .where(eq(usersTable.id, principleId));
 
-  if (!owner?.accessToken) {
-    setResponseStatus(event, 503, 'Owner has no stored access token');
-    return 'Owner has no stored access token';
+  if (!user.accessToken) {
+    setResponseStatus(event, 503, 'Access token unavailable.');
+    return null;
   }
 
-  const decryptedToken = decrypt(owner.accessToken, accessTokenPassword);
+  const decryptedToken = decrypt(
+    user.accessToken,
+    useRuntimeConfig().accessTokenPassword
+  );
 
   const scrollResponse = await dragCaveFetch()<
     DragCaveApiResponse<{ hasNextPage: boolean; endCursor: null | number }> & {
       dragons: Record<string, DragonData>;
     }
-  >(`/user?username=${encodeURIComponent(owner.username)}&filter=GROWING`, {
+  >(`/user?username=${encodeURIComponent(user.username)}&filter=GROWING`, {
     headers: {
       Authorization: `Bearer ${decryptedToken}`,
     },
@@ -81,7 +58,7 @@ export default defineEventHandler(async (event) => {
             isStunned: hatcheryTable.isStunned,
           })
           .from(hatcheryTable)
-          .where(eq(hatcheryTable.userId, ownerId))
+          .where(eq(hatcheryTable.userId, principleId))
       : [];
 
   return {

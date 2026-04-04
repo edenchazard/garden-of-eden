@@ -12,20 +12,15 @@ export default defineEventHandler(async (event) => {
 
   const [token, { caretakerId }] = await Promise.all([
     getToken({ event }) as Promise<JWT>,
-    readValidatedBody(event, schema.parse),
+    getValidatedRouterParams(event, schema.parse),
   ]);
-
-  if (caretakerId === token.userId) {
-    setResponseStatus(event, 400, 'Bad Request');
-    return 'Bad Request';
-  }
 
   await db
     .delete(caretakerTable)
     .where(
       and(
-        eq(caretakerTable.ownerId, token.userId),
-        eq(caretakerTable.userId, caretakerId)
+        eq(caretakerTable.principleId, token.userId),
+        eq(caretakerTable.caretakerId, caretakerId)
       )
     );
 

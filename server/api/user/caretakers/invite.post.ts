@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   await db.insert(caretakerInviteTable).values({
     code,
-    userId: token.userId,
+    principleId: token.userId,
     expiresAt,
   });
 

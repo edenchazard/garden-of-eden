@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "0a7c10f0-bde7-4fc4-ad8a-22f6da9742a1",
+  "id": "5195781b-3d5a-49da-b600-a13cafb9fa9e",
   "prevId": "dbe10081-ba96-48c3-9a2a-f06704803628",
   "tables": {
     "caretaker_audit_log": {
@@ -14,8 +14,8 @@
           "notNull": true,
           "autoincrement": true
         },
-        "user_id": {
-          "name": "user_id",
+        "principle_id": {
+          "name": "principle_id",
           "type": "mediumint unsigned",
           "primaryKey": false,
           "notNull": true,
@@ -45,10 +45,10 @@
         }
       },
       "indexes": {
-        "caretaker_audit_user_idx": {
-          "name": "caretaker_audit_user_idx",
+        "caretaker_audit_principle_idx": {
+          "name": "caretaker_audit_principle_idx",
           "columns": [
-            "user_id"
+            "principle_id"
           ],
           "isUnique": false
         },
@@ -61,12 +61,12 @@
         }
       },
       "foreignKeys": {
-        "caretaker_audit_log_user_id_users_id_fk": {
-          "name": "caretaker_audit_log_user_id_users_id_fk",
+        "caretaker_audit_log_principle_id_users_id_fk": {
+          "name": "caretaker_audit_log_principle_id_users_id_fk",
           "tableFrom": "caretaker_audit_log",
           "tableTo": "users",
           "columnsFrom": [
-            "user_id"
+            "principle_id"
           ],
           "columnsTo": [
             "id"
@@ -109,8 +109,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
+        "principle_id": {
+          "name": "principle_id",
           "type": "mediumint unsigned",
           "primaryKey": false,
           "notNull": true,
@@ -125,10 +125,10 @@
         }
       },
       "indexes": {
-        "caretaker_invite_user_idx": {
-          "name": "caretaker_invite_user_idx",
+        "caretaker_invite_principle_idx": {
+          "name": "caretaker_invite_principle_idx",
           "columns": [
-            "user_id"
+            "principle_id"
           ],
           "isUnique": false
         },
@@ -141,12 +141,12 @@
         }
       },
       "foreignKeys": {
-        "caretaker_invites_user_id_users_id_fk": {
-          "name": "caretaker_invites_user_id_users_id_fk",
+        "caretaker_invites_principle_id_users_id_fk": {
+          "name": "caretaker_invites_principle_id_users_id_fk",
           "tableFrom": "caretaker_invites",
           "tableTo": "users",
           "columnsFrom": [
-            "user_id"
+            "principle_id"
           ],
           "columnsTo": [
             "id"
@@ -169,8 +169,8 @@
     "caretakers": {
       "name": "caretakers",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "principle_id": {
+          "name": "principle_id",
           "type": "mediumint unsigned",
           "primaryKey": false,
           "notNull": true,
@@ -185,10 +185,10 @@
         }
       },
       "indexes": {
-        "caretaker_user_idx": {
-          "name": "caretaker_user_idx",
+        "caretaker_principle_idx": {
+          "name": "caretaker_principle_idx",
           "columns": [
-            "user_id",
+            "principle_id",
             "caretaker_id"
           ],
           "isUnique": true
@@ -202,12 +202,12 @@
         }
       },
       "foreignKeys": {
-        "caretakers_user_id_users_id_fk": {
-          "name": "caretakers_user_id_users_id_fk",
+        "caretakers_principle_id_users_id_fk": {
+          "name": "caretakers_principle_id_users_id_fk",
           "tableFrom": "caretakers",
           "tableTo": "users",
           "columnsFrom": [
-            "user_id"
+            "principle_id"
           ],
           "columnsTo": [
             "id"
