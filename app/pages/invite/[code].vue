@@ -55,11 +55,11 @@ const route = useRoute();
 const { data: authData } = useAuth();
 
 const { data: invitation } = await useFetch(
-  `/api/caretaker/invite/${route.params.code}`
+  `/api/user/invite/${route.params.code}`
 );
 
 const { execute: confirm, status: confirmationStatus } = useFetch(
-  `/api/caretaker/invite/${route.params.code}`,
+  `/api/user/invite/${route.params.code}`,
   {
     method: 'patch',
     immediate: false,
