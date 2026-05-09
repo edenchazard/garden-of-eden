@@ -191,89 +191,93 @@
       </p>
     </form>
 
-    <form>
-      <h2>Trusted caretakers</h2>
-      <fieldset>
-        <p>
-          Caretakers can view your scroll and add or remove your dragons from
-          the hatchery on your behalf. Generate a temporary share link and send
-          it to the person you want to trust. The link will be valid for 1 hour.
-        </p>
+    <div class="flex flex-col gap-y-4">
+      <div>
+        <h2 id="trusted-caretakers">Trusted caretakers</h2>
+        <fieldset class="space-y-4">
+          <p>
+            Caretakers can view your scroll and add or remove your dragons from
+            the hatchery on your behalf. Generate a temporary share link and
+            send it to the person you want to trust. The link will be valid for
+            1 hour.
+          </p>
 
-        <div class="flex gap-2">
-          <template v-if="inviteUrl">
-            <input type="text" class="flex-1" :value="inviteUrl" readonly />
-            <button
-              class="btn-secondary"
-              type="button"
-              @click="copyInviteLink()"
-            >
-              Copy
-            </button>
-          </template>
-          <button
-            class="btn-primary"
-            type="button"
-            :disabled="invitationStatus === 'pending'"
-            @click="generateInvite()"
-          >
-            <LoadingIcon v-if="invitationStatus === 'pending'" class="mr-1" />
-            <template v-if="invitationStatus === 'pending'">
-              Generating...
+          <div class="flex gap-2">
+            <template v-if="inviteUrl">
+              <input type="text" class="flex-1" :value="inviteUrl" readonly />
+              <button
+                class="btn-secondary"
+                type="button"
+                @click="copyInviteLink()"
+              >
+                Copy
+              </button>
             </template>
-            <template v-else>
-              {{ inviteUrl ? 'Generate new invite' : 'Generate invite' }}
-            </template>
-          </button>
-        </div>
-
-        <ul v-if="caretakers.length > 0" class="divide-y mt-4">
-          <li
-            v-for="caretaker in caretakers"
-            :key="caretaker.id"
-            class="py-3 flex items-center gap-3 flex-wrap"
-          >
-            <span class="font-medium">{{ caretaker.username }}</span>
             <button
-              class="btn-secondary text-sm py-1 px-3"
+              class="btn-primary"
               type="button"
-              @click="removeCaretaker(caretaker.id)"
+              :disabled="invitationStatus === 'pending'"
+              @click="generateInvite()"
             >
-              Remove
+              <LoadingIcon v-if="invitationStatus === 'pending'" class="mr-1" />
+              <template v-if="invitationStatus === 'pending'">
+                Generating...
+              </template>
+              <template v-else>
+                {{ inviteUrl ? 'Generate new invite' : 'Generate invite' }}
+              </template>
             </button>
-          </li>
-        </ul>
-        <p v-else class="text-sm mt-4">No caretakers added yet.</p>
-      </fieldset>
+          </div>
 
-      <h2>Caretaker access</h2>
-      <fieldset>
-        <p>
-          If you have confirmed caretaker access for someone else, you can
-          remove it here.
-        </p>
-
-        <ul v-if="principles.length > 0" class="divide-y mt-4">
-          <li
-            v-for="principal in principles"
-            :key="principal.id"
-            class="py-3 flex items-center gap-3 flex-wrap"
-          >
-            <span class="font-medium">{{ principal.username }}</span>
-            <button
-              class="btn-secondary text-sm py-1 px-3"
-              type="button"
-              @click="removePrincipal(principal.id)"
+          <ol v-if="caretakers.length > 0" class="divide-y">
+            <li
+              v-for="caretaker in caretakers"
+              :key="caretaker.id"
+              class="flex items-center gap-3 flex-wrap"
             >
-              Remove
-            </button>
-          </li>
-        </ul>
-        <p v-else class="text-sm mt-4">
-          You are not managing anyone else's scroll.
-        </p>
-      </fieldset>
-    </form>
+              <span class="font-medium">{{ caretaker.username }}</span>
+              <button
+                class="btn-secondary text-sm py-1 px-3"
+                type="button"
+                @click="removeCaretaker(caretaker.id)"
+              >
+                Remove
+              </button>
+            </li>
+          </ol>
+          <p v-else class="text-sm">No caretakers added yet.</p>
+        </fieldset>
+      </div>
+      <div>
+        <h2>Caretaker access</h2>
+        <fieldset class="space-y-4">
+          <p>
+            If you have confirmed caretaker access for someone else, you can
+            remove it here.
+          </p>
+
+          <ul v-if="principles.length > 0" class="space-y-4">
+            <li
+              v-for="principal in principles"
+              :key="principal.id"
+              class="flex items-center gap-3 flex-wrap"
+            >
+              <span class="font-medium">{{ principal.username }}</span>
+              <button
+                class="btn-secondary text-sm py-1 px-3"
+                type="button"
+                @click="removePrincipal(principal.id)"
+              >
+                Remove
+              </button>
+            </li>
+          </ul>
+          <p v-else class="text-sm">
+            You are not managing anyone else's scroll.
+          </p>
+        </fieldset>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -364,7 +368,9 @@ async function removePrincipal(id: number) {
       method: 'DELETE',
       headers: { 'Csrf-token': useCsrf().csrf },
     });
-    principles.value = principles.value.filter(({ id: principleId }) => principleId !== id);
+    principles.value = principles.value.filter(
+      ({ id: principleId }) => principleId !== id
+    );
     toast.success('Caretaker access removed successfully.');
   } catch {
     toast.error('Failed to remove caretaker access. Please try again.');
