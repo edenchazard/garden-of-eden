@@ -360,10 +360,11 @@ async function removeCaretaker(id: number) {
 
 async function removePrincipal(id: number) {
   try {
-    await $fetch(`/api/user/principals/${id}`, {
+    await $fetch(`/api/user/principles/${id}`, {
       method: 'DELETE',
       headers: { 'Csrf-token': useCsrf().csrf },
     });
+    principles.value = principles.value.filter(({ id: principleId }) => principleId !== id);
     toast.success('Caretaker access removed successfully.');
   } catch {
     toast.error('Failed to remove caretaker access. Please try again.');
