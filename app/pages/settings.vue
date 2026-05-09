@@ -202,7 +202,9 @@
             1 hour.
           </p>
 
-          <div class="flex gap-2">
+          <div
+            class="grid gap-2 grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto]"
+          >
             <template v-if="inviteUrl">
               <input type="text" class="flex-1" :value="inviteUrl" readonly />
               <button
@@ -214,7 +216,7 @@
               </button>
             </template>
             <button
-              class="btn-primary"
+              class="btn-primary col-span-full sm:col-span-1"
               type="button"
               :disabled="invitationStatus === 'pending'"
               @click="generateInvite()"
