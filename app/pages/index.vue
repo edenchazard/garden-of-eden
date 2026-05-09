@@ -449,12 +449,6 @@ const { data: caretakerPrincipals } = await useFetch('/api/user/principles', {
 
 const selectedOwnerId = ref<number | null>(null);
 
-const scrollUrl = computed(() =>
-  selectedOwnerId.value
-    ? `/api/user/scroll/principle/${selectedOwnerId.value}`
-    : '/api/user/scroll'
-);
-
 const {
   data: scroll,
   execute: fetchScroll,
@@ -464,23 +458,29 @@ const {
   releaseNotification: null | typeof userNotificationTable.$inferSelect;
   details: { clicksToday: number };
   dragons: ScrollView[];
-}>(scrollUrl, {
-  headers: computed(() => ({
-    'Csrf-token': useCsrf().csrf,
-  })),
-  immediate: !!authData.value?.user,
-  watch: [selectedOwnerId],
-  deep: true,
-  default() {
-    return {
-      releaseNotification: null,
-      details: {
-        clicksToday: 0,
-      },
-      dragons: [],
-    };
-  },
-});
+}>(
+  computed(() =>
+    selectedOwnerId.value
+      ? `/api/user/scroll/principle/${selectedOwnerId.value}`
+      : '/api/user/scroll'
+  ),
+  {
+    headers: computed(() => ({
+      'Csrf-token': useCsrf().csrf,
+    })),
+    immediate: !!authData.value?.user,
+    deep: true,
+    default() {
+      return {
+        releaseNotification: null,
+        details: {
+          clicksToday: 0,
+        },
+        dragons: [],
+      };
+    },
+  }
+);
 
 const {
   data: recentlyAdded,
