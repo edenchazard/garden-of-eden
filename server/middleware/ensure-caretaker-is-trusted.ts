@@ -6,20 +6,20 @@ import { db } from '~~/server/db';
 import type { JWT } from 'next-auth/jwt';
 
 export default defineEventHandler(async (event) => {
-  if (!event.path.startsWith('/api/user/scroll/principle')) {
+  if (!event.path.startsWith('/api/user/scroll/principal')) {
     return;
   }
 
   const schema = z.object({
-    principleId: z.coerce.number(),
+    principalId: z.coerce.number(),
   });
 
-  const [token, { principleId }] = await Promise.all([
+  const [token, { principalId }] = await Promise.all([
     getToken({ event }) as Promise<JWT>,
     schema.parseAsync({
       // Due to a nitro/nuxt limitation, router params are not available in middleware.
       // See: https://github.com/nitrojs/nitro/issues/2136
-      principleId: /[0-9]+/.exec(event.node.req.url ?? '')?.[0],
+      principalId: /[0-9]+/.exec(event.node.req.url ?? '')?.[0],
     }),
   ]);
 
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     .from(caretakerTable)
     .where(
       and(
-        eq(caretakerTable.principleId, principleId),
+        eq(caretakerTable.principalId, principalId),
         eq(caretakerTable.caretakerId, token.userId)
       )
     )

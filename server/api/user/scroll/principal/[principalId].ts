@@ -10,10 +10,10 @@ import z from 'zod';
 
 export default defineEventHandler(async (event) => {
   const schema = z.object({
-    principleId: z.coerce.number(),
+    principalId: z.coerce.number(),
   });
 
-  const { principleId } = await getValidatedRouterParams(event, schema.parse);
+  const { principalId } = await getValidatedRouterParams(event, schema.parse);
 
   const [user] = await db
     .select({
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
       username: usersTable.username,
     })
     .from(usersTable)
-    .where(eq(usersTable.id, principleId));
+    .where(eq(usersTable.id, principalId));
 
   if (!user?.accessToken) {
     setResponseStatus(event, 404, 'Access token or user unavailable.');
@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
             isStunned: hatcheryTable.isStunned,
           })
           .from(hatcheryTable)
-          .where(eq(hatcheryTable.userId, principleId))
+          .where(eq(hatcheryTable.userId, principalId))
       : [];
 
   return {

@@ -12,12 +12,12 @@ export default defineEventHandler(async (event) => {
 
   const [invite] = await db
     .select({
-      id: caretakerInviteTable.principleId,
+      id: caretakerInviteTable.principalId,
       username: usersTable.username,
       expiresAt: caretakerInviteTable.expiresAt,
     })
     .from(caretakerInviteTable)
-    .innerJoin(usersTable, eq(caretakerInviteTable.principleId, usersTable.id))
+    .innerJoin(usersTable, eq(caretakerInviteTable.principalId, usersTable.id))
     .where(
       and(
         eq(caretakerInviteTable.code, code),

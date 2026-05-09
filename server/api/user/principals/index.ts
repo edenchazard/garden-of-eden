@@ -13,6 +13,6 @@ export default defineEventHandler(async (event) => {
       username: usersTable.username,
     })
     .from(caretakerTable)
-    .innerJoin(usersTable, eq(caretakerTable.principleId, usersTable.id))
+    .innerJoin(usersTable, eq(caretakerTable.principalId, usersTable.id))
     .where(eq(caretakerTable.caretakerId, token.userId));
 });

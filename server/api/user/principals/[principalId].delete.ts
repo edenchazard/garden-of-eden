@@ -7,10 +7,10 @@ import { db } from '~~/server/db';
 
 export default defineEventHandler(async (event) => {
   const schema = z.object({
-    principleId: z.coerce.number(),
+    principalId: z.coerce.number(),
   });
 
-  const [token, { principleId }] = await Promise.all([
+  const [token, { principalId }] = await Promise.all([
     getToken({ event }) as Promise<JWT>,
     getValidatedRouterParams(event, schema.parse),
   ]);
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     .delete(caretakerTable)
     .where(
       and(
-        eq(caretakerTable.principleId, principleId),
+        eq(caretakerTable.principalId, principalId),
         eq(caretakerTable.caretakerId, token.userId)
       )
     );

@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     .delete(caretakerTable)
     .where(
       and(
-        eq(caretakerTable.principleId, token.userId),
+        eq(caretakerTable.principalId, token.userId),
         eq(caretakerTable.caretakerId, caretakerId)
       )
     );

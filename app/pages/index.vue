@@ -441,7 +441,7 @@ const formEndVisible = useElementVisibility(useTemplateRef('formEnd'), {
   threshold: 0,
 });
 
-const { data: caretakerPrincipals } = await useFetch('/api/user/principles', {
+const { data: caretakerPrincipals } = await useFetch('/api/user/principals', {
   headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
   immediate: !!authData.value?.user,
   default: () => [],
@@ -461,7 +461,7 @@ const {
 }>(
   computed(() =>
     selectedOwnerId.value
-      ? `/api/user/scroll/principle/${selectedOwnerId.value}`
+      ? `/api/user/scroll/principal/${selectedOwnerId.value}`
       : '/api/user/scroll'
   ),
   {
@@ -489,7 +489,7 @@ const {
 } = useFetch<string[]>(
   () =>
     selectedOwnerId.value
-      ? `/api/user/scroll/principle/${selectedOwnerId.value}`
+      ? `/api/user/scroll/principal/${selectedOwnerId.value}`
       : '/api/user/scroll',
   {
     headers: computed(() => ({

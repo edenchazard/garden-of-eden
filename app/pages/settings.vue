@@ -256,9 +256,9 @@
             remove it here.
           </p>
 
-          <ul v-if="principles.length > 0" class="space-y-4">
+          <ul v-if="principals.length > 0" class="space-y-4">
             <li
-              v-for="principal in principles"
+              v-for="principal in principals"
               :key="principal.id"
               class="flex items-center gap-3 flex-wrap"
             >
@@ -344,7 +344,7 @@ const { data: caretakers, execute: fetchCaretakers } = await useFetch(
   }
 );
 
-const { data: principles } = await useFetch('/api/user/principles', {
+const { data: principals } = await useFetch('/api/user/principals', {
   headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
   default: () => [],
 });
@@ -364,12 +364,12 @@ async function removeCaretaker(id: number) {
 
 async function removePrincipal(id: number) {
   try {
-    await $fetch(`/api/user/principles/${id}`, {
+    await $fetch(`/api/user/principals/${id}`, {
       method: 'DELETE',
       headers: { 'Csrf-token': useCsrf().csrf },
     });
-    principles.value = principles.value.filter(
-      ({ id: principleId }) => principleId !== id
+    principals.value = principals.value.filter(
+      ({ id: principalId }) => principalId !== id
     );
     toast.success('Caretaker access removed successfully.');
   } catch {

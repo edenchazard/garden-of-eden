@@ -17,14 +17,14 @@ export default defineEventHandler(async (event) => {
 
   const [invite] = await db
     .select({
-      principleId: caretakerInviteTable.principleId,
+      principalId: caretakerInviteTable.principalId,
     })
     .from(caretakerInviteTable)
     .where(
       and(
         eq(caretakerInviteTable.code, code),
         gt(caretakerInviteTable.expiresAt, new Date()),
-        not(eq(caretakerInviteTable.principleId, token.userId))
+        not(eq(caretakerInviteTable.principalId, token.userId))
       )
     )
     .limit(1);
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
   await db.transaction(async (tx) => {
     await tx.insert(caretakerTable).values({
-      principleId: invite.principleId,
+      principalId: invite.principalId,
       caretakerId: token.userId,
     });
 

@@ -8,10 +8,10 @@ import { db } from '~~/server/db';
 import buildConflictUpdateColumns from '~~/server/utils/buildConflictUpdateColumns';
 
 export default defineEventHandler(async (event) => {
-  const { principleId } = await getValidatedRouterParams(
+  const { principalId } = await getValidatedRouterParams(
     event,
     z.object({
-      principleId: z.coerce.number(),
+      principalId: z.coerce.number(),
     }).parse
   );
 
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
             .from(hatcheryTable)
             .where(
               and(
-                eq(hatcheryTable.userId, principleId),
+                eq(hatcheryTable.userId, principalId),
                 inArray(hatcheryTable.id, dragonIds)
               )
             )
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
       .where(
         and(
           inArray(hatcheryTable.id, dragonIds),
-          not(eq(hatcheryTable.userId, principleId))
+          not(eq(hatcheryTable.userId, principalId))
         )
       );
 
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
         .values(
           dragons.map((dragon) => ({
             id: dragon.id,
-            userId: principleId,
+            userId: principalId,
             inGarden: dragon.inGarden,
             inSeedTray: dragon.inSeedTray,
           }))
@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
     }
 
     await tx.insert(caretakerAuditLogTable).values({
-      principleId,
+      principalId,
       caretakerId: token.userId,
       changes: { added, removed, unchanged },
     });
