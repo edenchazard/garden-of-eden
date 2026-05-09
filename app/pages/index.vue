@@ -77,7 +77,7 @@
         <select
           id="caretaker-select"
           v-model="selectedOwnerId"
-          class="min-w-40"
+          class="inline-block rounded px-2 !py-1 text-xs"
         >
           <option :value="null">My own scroll</option>
           <option
