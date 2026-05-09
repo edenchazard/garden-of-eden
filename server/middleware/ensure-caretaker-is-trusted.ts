@@ -6,7 +6,7 @@ import { db } from '~~/server/db';
 import type { JWT } from 'next-auth/jwt';
 
 export default defineEventHandler(async (event) => {
-  if (!event.path.startsWith('/api/user/scroll/caretaker')) {
+  if (!event.path.startsWith('/api/user/scroll/principle')) {
     return;
   }
 
@@ -37,5 +37,6 @@ export default defineEventHandler(async (event) => {
   if (!caretakerEntry) {
     setResponseStatus(event, 403, 'Forbidden');
     event.node.res.end();
+    return 'Unauthorised.';
   }
 });

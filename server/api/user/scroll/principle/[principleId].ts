@@ -23,8 +23,8 @@ export default defineEventHandler(async (event) => {
     .from(usersTable)
     .where(eq(usersTable.id, principleId));
 
-  if (!user.accessToken) {
-    setResponseStatus(event, 503, 'Access token unavailable.');
+  if (!user?.accessToken) {
+    setResponseStatus(event, 404, 'Access token or user unavailable.');
     return null;
   }
 

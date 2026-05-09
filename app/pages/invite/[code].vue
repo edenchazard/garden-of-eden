@@ -29,7 +29,7 @@
         </p>
         <p>
           If at any point you want to remove yourself as a trusted caretaker,
-          you can do so from from
+          you can do so from
           <NuxtLink to="/settings#trusted-caretakers">your settings</NuxtLink>.
         </p>
       </template>
