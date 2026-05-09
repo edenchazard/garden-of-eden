@@ -391,7 +391,7 @@ const inviteUrl = computed(() => {
 async function copyInviteLink() {
   try {
     await copy(inviteUrl.value);
-    toast.success('Invite link copied to clipboard.');
+    toast.success('Invite link copied!');
   } catch {
     toast.error('Failed to copy link. Please copy it manually.');
   }
