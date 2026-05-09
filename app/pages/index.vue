@@ -80,9 +80,6 @@
           class="min-w-40"
         >
           <option :value="null">My own scroll</option>
-          {{
-            caretakerPrincipals
-          }}
           <option
             v-for="principal in caretakerPrincipals"
             :key="principal.id"
