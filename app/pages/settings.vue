@@ -203,7 +203,10 @@
           </p>
 
           <div
-            class="grid gap-2 grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto]"
+            class="gap-2 grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto]"
+            :class="{
+              grid: inviteUrl,
+            }"
           >
             <template v-if="inviteUrl">
               <input type="text" class="flex-1" :value="inviteUrl" readonly />
