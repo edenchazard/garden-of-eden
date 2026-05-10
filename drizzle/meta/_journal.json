@@ -218,6 +218,13 @@
       "when": 1761476299444,
       "tag": "0040_item_seeds",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1778359244449,
+      "tag": "0041_spicy_rage",
+      "breakpoints": true
     }
   ]
 }

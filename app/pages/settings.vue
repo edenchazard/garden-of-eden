@@ -181,6 +181,7 @@
           />
         </div>
       </fieldset>
+
       <button type="submit" class="btn-primary self-end" :disabled="canSave">
         <LoadingIcon v-if="saveSettingsStatus === 'pending'" class="mr-1" />
         {{ saveSettingsStatus === 'pending' ? 'Saving...' : 'Save' }}
@@ -189,6 +190,99 @@
         Correct the values highlighted before saving.
       </p>
     </form>
+
+    <div class="flex flex-col gap-y-4">
+      <div>
+        <h2 id="trusted-caretakers">Trusted caretakers</h2>
+        <fieldset class="space-y-4">
+          <p>
+            Caretakers can view your scroll and add or remove your dragons from
+            the hatchery on your behalf. Generate a temporary share link and
+            send it to the person you want to trust. The link will be valid for
+            1 hour.
+          </p>
+
+          <div
+            class="gap-2 grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto]"
+            :class="{
+              grid: inviteUrl,
+            }"
+          >
+            <template v-if="inviteUrl">
+              <input type="text" class="flex-1" :value="inviteUrl" readonly />
+              <button
+                class="btn-secondary"
+                type="button"
+                @click="copyInviteLink()"
+              >
+                Copy
+              </button>
+            </template>
+            <button
+              class="btn-primary col-span-full sm:col-span-1"
+              type="button"
+              :disabled="invitationStatus === 'pending'"
+              @click="generateInvite()"
+            >
+              <LoadingIcon v-if="invitationStatus === 'pending'" class="mr-1" />
+              <template v-if="invitationStatus === 'pending'">
+                Generating...
+              </template>
+              <template v-else>
+                {{ inviteUrl ? 'Generate new invite' : 'Generate invite' }}
+              </template>
+            </button>
+          </div>
+
+          <ol v-if="caretakers.length > 0" class="divide-y">
+            <li
+              v-for="caretaker in caretakers"
+              :key="caretaker.id"
+              class="flex items-center gap-3 flex-wrap"
+            >
+              <span class="font-medium">{{ caretaker.username }}</span>
+              <button
+                class="btn-secondary text-sm py-1 px-3"
+                type="button"
+                @click="removeCaretaker(caretaker.id)"
+              >
+                Remove
+              </button>
+            </li>
+          </ol>
+          <p v-else class="text-sm">No caretakers added yet.</p>
+        </fieldset>
+      </div>
+      <div>
+        <h2>Caretaker access</h2>
+        <fieldset class="space-y-4">
+          <p>
+            If you have confirmed caretaker access for someone else, you can
+            remove it here.
+          </p>
+
+          <ul v-if="principals.length > 0" class="space-y-4">
+            <li
+              v-for="principal in principals"
+              :key="principal.id"
+              class="flex items-center gap-3 flex-wrap"
+            >
+              <span class="font-medium">{{ principal.username }}</span>
+              <button
+                class="btn-secondary text-sm py-1 px-3"
+                type="button"
+                @click="removePrincipal(principal.id)"
+              >
+                Remove
+              </button>
+            </li>
+          </ul>
+          <p v-else class="text-sm">
+            You are not managing anyone else's scroll.
+          </p>
+        </fieldset>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -196,6 +290,7 @@
 import { userSettingsSchema } from '~~/database/schema';
 import { formatHoursLeft } from '#imports';
 import ToggleInput from '~/components/ToggleInput.vue';
+import { useClipboard } from '@vueuse/core';
 
 definePageMeta({
   middleware: 'sidebase-auth',
@@ -204,6 +299,9 @@ definePageMeta({
 useHead({
   title: 'Settings',
 });
+
+const config = useRuntimeConfig();
+const { copy } = useClipboard();
 
 const { userSettings, saveSettingsStatus, saveSettings } = useUserSettings(
   false,
@@ -228,4 +326,77 @@ const invalid = computed(() => {
 const canSave = computed(
   () => saveSettingsStatus.value === 'pending' || invalid.value
 );
+
+const {
+  execute: generateInvite,
+  data: invitation,
+  status: invitationStatus,
+} = useFetch('/api/user/caretakers/invite', {
+  method: 'POST',
+  headers: { 'Csrf-token': useCsrf().csrf },
+  body: {},
+  immediate: false,
+  onResponseError() {
+    toast.error('Failed to generate invite. Please try again.');
+  },
+});
+
+const { data: caretakers, execute: fetchCaretakers } = await useFetch(
+  '/api/user/caretakers',
+  {
+    headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+    default: () => [],
+  }
+);
+
+const { data: principals } = await useFetch('/api/user/principals', {
+  headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+  default: () => [],
+});
+
+async function removeCaretaker(id: number) {
+  try {
+    await $fetch(`/api/user/caretakers/${id}`, {
+      method: 'DELETE',
+      headers: { 'Csrf-token': useCsrf().csrf },
+    });
+    fetchCaretakers();
+    toast.success('Caretaker removed successfully.');
+  } catch {
+    toast.error('Failed to remove caretaker. Please try again.');
+  }
+}
+
+async function removePrincipal(id: number) {
+  try {
+    await $fetch(`/api/user/principals/${id}`, {
+      method: 'DELETE',
+      headers: { 'Csrf-token': useCsrf().csrf },
+    });
+    principals.value = principals.value.filter(
+      ({ id: principalId }) => principalId !== id
+    );
+    toast.success('Caretaker access removed successfully.');
+  } catch {
+    toast.error('Failed to remove caretaker access. Please try again.');
+  }
+}
+
+const inviteUrl = computed(() => {
+  if (!invitation.value?.code) {
+    return '';
+  }
+
+  const path = config.public.origin + config.public.baseUrl;
+  return new URL(`${path}/invite/${invitation.value.code}`).toString();
+});
+
+async function copyInviteLink() {
+  try {
+    await copy(inviteUrl.value);
+    toast.success('Invite link copied!');
+  } catch {
+    toast.error('Failed to copy link. Please copy it manually.');
+  }
+}
 </script>

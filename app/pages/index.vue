@@ -14,7 +14,7 @@
 
     <WarningNewRelease
       v-if="authData?.user && scroll.releaseNotification"
-      class="!mx-0"
+      class="mx-0!"
       :notification="scroll.releaseNotification"
       @dismissed="scroll.releaseNotification = null"
     />
@@ -67,6 +67,28 @@
       class="flex flex-col gap-y-4 *:mx-4 mx-0!"
       @submit.prevent="saveScroll()"
     >
+      <div
+        v-if="caretakerPrincipals && caretakerPrincipals.length > 0"
+        class="order-0 flex items-center gap-3 flex-wrap"
+      >
+        <label for="caretaker-select" class="text-sm font-medium shrink-0"
+          >Managing scroll for:</label
+        >
+        <select
+          id="caretaker-select"
+          v-model="selectedOwnerId"
+          class="inline-block rounded px-2 !py-1 text-xs"
+        >
+          <option :value="null">My own scroll</option>
+          <option
+            v-for="principal in caretakerPrincipals"
+            :key="principal.id"
+            :value="principal.id"
+          >
+            {{ principal.username }}
+          </option>
+        </select>
+      </div>
       <div class="space-y-2 *:max-w-prose order-1">
         <div
           v-if="fetchScrollError"
@@ -419,6 +441,14 @@ const formEndVisible = useElementVisibility(useTemplateRef('formEnd'), {
   threshold: 0,
 });
 
+const { data: caretakerPrincipals } = await useFetch('/api/user/principals', {
+  headers: computed(() => ({ 'Csrf-token': useCsrf().csrf })),
+  immediate: !!authData.value?.user,
+  default: () => [],
+});
+
+const selectedOwnerId = ref<number | null>(null);
+
 const {
   data: scroll,
   execute: fetchScroll,
@@ -428,70 +458,83 @@ const {
   releaseNotification: null | typeof userNotificationTable.$inferSelect;
   details: { clicksToday: number };
   dragons: ScrollView[];
-}>('/api/user/scroll', {
-  headers: computed(() => ({
-    'Csrf-token': useCsrf().csrf,
-  })),
-  immediate: !!authData.value?.user,
-  deep: true,
-  default() {
-    return {
-      releaseNotification: null,
-      details: {
-        clicksToday: 0,
-      },
-      dragons: [],
-    };
-  },
-});
+}>(
+  computed(() =>
+    selectedOwnerId.value
+      ? `/api/user/scroll/principal/${selectedOwnerId.value}`
+      : '/api/user/scroll'
+  ),
+  {
+    headers: computed(() => ({
+      'Csrf-token': useCsrf().csrf,
+    })),
+    immediate: !!authData.value?.user,
+    deep: true,
+    default() {
+      return {
+        releaseNotification: null,
+        details: {
+          clicksToday: 0,
+        },
+        dragons: [],
+      };
+    },
+  }
+);
 
 const {
   data: recentlyAdded,
   execute: saveScroll,
   status: saveScrollStatus,
-} = useFetch('/api/user/scroll', {
-  headers: computed(() => ({
-    'Csrf-token': useCsrf().csrf,
-  })),
-  immediate: false,
-  watch: false,
-  deep: true,
-  default: () => [],
-  method: 'PATCH',
-  body: computed(() =>
-    scroll.value.dragons.map((dragon) => ({
-      id: dragon.id,
-      inSeedTray: dragon.inSeedTray,
-      inGarden: dragon.inGarden,
-    }))
-  ),
-  async onResponse({ response }) {
-    if (!response.ok) {
-      toast.error('Failed to save your scroll. Please try again.');
-      scrollUpdated.value = false;
-      return;
-    }
+} = useFetch<string[]>(
+  () =>
+    selectedOwnerId.value
+      ? `/api/user/scroll/principal/${selectedOwnerId.value}`
+      : '/api/user/scroll',
+  {
+    headers: computed(() => ({
+      'Csrf-token': useCsrf().csrf,
+    })),
+    immediate: false,
+    watch: false,
+    deep: true,
+    default: () => [],
+    method: 'PATCH',
+    body: computed(() =>
+      scroll.value.dragons.map((dragon) => ({
+        id: dragon.id,
+        inSeedTray: dragon.inSeedTray,
+        inGarden: dragon.inGarden,
+      }))
+    ),
+    async onResponse({ response }) {
+      if (!response.ok) {
+        toast.error('Failed to save the scroll. Please try again.');
+        scrollUpdated.value = false;
+        return;
+      }
 
-    savedDragons.seedTray = scroll.value.dragons.filter(
-      (dragon) => dragon.inSeedTray
-    ).length;
+      savedDragons.seedTray = scroll.value.dragons.filter(
+        (dragon) => dragon.inSeedTray
+      ).length;
 
-    savedDragons.garden = scroll.value.dragons.filter(
-      (dragon) => dragon.inGarden
-    ).length;
+      savedDragons.garden = scroll.value.dragons.filter(
+        (dragon) => dragon.inGarden
+      ).length;
 
-    scrollUpdated.value = true;
+      scrollUpdated.value = true;
 
-    if (!formEndVisible.value) {
-      toast.success(
-        `${getUpdatedTexts()} <img class="inline" src="${HappyMatthias}" alt="Happy Matthias" />`,
-        {
-          dangerouslyHTMLString: true,
-        }
-      );
-    }
-  },
-});
+      if (!formEndVisible.value) {
+        toast.success(
+          `${getUpdatedTexts()} <img class="inline" src="${HappyMatthias}" alt="Happy Matthias" />`,
+          {
+            dangerouslyHTMLString: true,
+          }
+        );
+      }
+    },
+  }
+);
 
 const hiddenTableColumns = computed(() => {
   const hidden: string[] = [];

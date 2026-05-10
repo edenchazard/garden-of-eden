@@ -140,7 +140,10 @@ export default defineNuxtConfig({
         'maintenance:flairReleaseCycle',
       ],
       // Every week on Sunday at midnight
-      '0 0 * * 0': ['maintenance:cleanScrollCache'],
+      '0 0 * * 0': [
+        'maintenance:cleanScrollCache',
+        'maintenance:invitationLinks',
+      ],
     },
     storage: {
       cache: {
