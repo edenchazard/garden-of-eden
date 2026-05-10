@@ -1,14 +1,23 @@
-import { and, eq, gt } from 'drizzle-orm';
+import { and, eq, exists, gt, not } from 'drizzle-orm';
 import { z } from 'zod';
-import { caretakerInviteTable, usersTable } from '~~/database/schema';
+import {
+  caretakerInviteTable,
+  caretakerTable,
+  usersTable,
+} from '~~/database/schema';
 import { db } from '~~/server/db';
+import type { JWT } from 'next-auth/jwt';
+import { getToken } from '#auth';
 
 export default defineEventHandler(async (event) => {
   const schema = z.object({
     code: z.uuid(),
   });
 
-  const { code } = await getValidatedRouterParams(event, schema.parse);
+  const [token, { code }] = await Promise.all([
+    getToken({ event }) as Promise<JWT>,
+    getValidatedRouterParams(event, schema.parse),
+  ]);
 
   const [invite] = await db
     .select({
@@ -21,7 +30,23 @@ export default defineEventHandler(async (event) => {
     .where(
       and(
         eq(caretakerInviteTable.code, code),
-        gt(caretakerInviteTable.expiresAt, new Date())
+        gt(caretakerInviteTable.expiresAt, new Date()),
+        not(
+          exists(
+            db
+              .select()
+              .from(caretakerTable)
+              .where(
+                and(
+                  eq(
+                    caretakerTable.principalId,
+                    caretakerInviteTable.principalId
+                  ),
+                  eq(caretakerTable.caretakerId, token.userId)
+                )
+              )
+          )
+        )
       )
     )
     .limit(1);

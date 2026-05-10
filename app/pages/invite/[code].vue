@@ -3,8 +3,9 @@
     <template v-if="!invitation">
       <h1 class="text-2xl font-bold">Invalid caretaker invite</h1>
       <p>
-        This caretaker invite link is invalid or has expired. If you were given
-        this link by another person, you should request a new one.
+        This caretaker invite link is invalid, expired, or you're already a
+        caretaker for this user. If you were given this link by another person,
+        you should request a new one.
       </p>
     </template>
 

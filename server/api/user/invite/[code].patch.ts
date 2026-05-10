@@ -1,5 +1,5 @@
 import { getToken } from '#auth';
-import { and, eq, gt, not } from 'drizzle-orm';
+import { and, eq, exists, gt, not } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { z } from 'zod';
 import { caretakerInviteTable, caretakerTable } from '~~/database/schema';
@@ -24,7 +24,23 @@ export default defineEventHandler(async (event) => {
       and(
         eq(caretakerInviteTable.code, code),
         gt(caretakerInviteTable.expiresAt, new Date()),
-        not(eq(caretakerInviteTable.principalId, token.userId))
+        not(eq(caretakerInviteTable.principalId, token.userId)),
+        not(
+          exists(
+            db
+              .select()
+              .from(caretakerTable)
+              .where(
+                and(
+                  eq(
+                    caretakerTable.principalId,
+                    caretakerInviteTable.principalId
+                  ),
+                  eq(caretakerTable.caretakerId, token.userId)
+                )
+              )
+          )
+        )
       )
     )
     .limit(1);
