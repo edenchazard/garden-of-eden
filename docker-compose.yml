@@ -34,7 +34,7 @@ services:
       - internal
 
   db:
-    image: mariadb:10.9
+    image: mariadb:12.3
     tty: true
     volumes:
       - dbdata:/var/lib/mysql
@@ -105,7 +105,7 @@ services:
       - test
 
   testdb:
-    image: mariadb:10.9
+    image: mariadb:12.3
     tty: true
     tmpfs:
       - /var/lib/mysql
