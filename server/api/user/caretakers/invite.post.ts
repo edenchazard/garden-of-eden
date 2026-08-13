@@ -8,7 +8,7 @@ import { DateTime } from 'luxon';
 export default defineEventHandler(async (event) => {
   const token = (await getToken({ event })) as JWT;
   const code = randomUUID();
-  const expiresAt = DateTime.now().plus({ hours: 1 }).toJSDate();
+  const expiresAt = DateTime.now().plus({ hours: 24 }).toJSDate();
 
   await db.insert(caretakerInviteTable).values({
     code,

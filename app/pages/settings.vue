@@ -199,7 +199,7 @@
             Caretakers can view your scroll and add or remove your dragons from
             the hatchery on your behalf. Generate a temporary share link and
             send it to the person you want to trust. The link will be valid for
-            1 hour.
+            24 hours.
           </p>
 
           <div
