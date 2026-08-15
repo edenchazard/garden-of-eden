@@ -4,7 +4,7 @@ import { lt, sql } from 'drizzle-orm';
 
 export default defineTask({
   meta: {
-    description: 'Delete invitation links that expired more than 24 hours ago.',
+    description: 'Delete invitation links that have fallen into expiry.',
   },
   async run() {
     await db
