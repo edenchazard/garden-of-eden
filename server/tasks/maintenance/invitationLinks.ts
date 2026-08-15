@@ -9,7 +9,7 @@ export default defineTask({
   async run() {
     await db
       .delete(caretakerInviteTable)
-      .where(lt(caretakerInviteTable.expiresAt, sql`NOW() - INTERVAL 24 HOUR`));
+      .where(lt(caretakerInviteTable.expiresAt, sql`NOW()`));
 
     return {
       result: 'success',
