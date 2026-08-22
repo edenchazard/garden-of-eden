@@ -67,5 +67,12 @@
   },
   "overrides": {
     "sharp": "$sharp"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "@parcel/watcher": true,
+    "msgpackr-extract": true,
+    "sharp": true,
+    "unrs-resolver": true
   }
 }
