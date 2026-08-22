@@ -4,12 +4,12 @@ import { lt, sql } from 'drizzle-orm';
 
 export default defineTask({
   meta: {
-    description: 'Delete invitation links expired more than one hour ago.',
+    description: 'Delete invitation links that have fallen into expiry.',
   },
   async run() {
     await db
       .delete(caretakerInviteTable)
-      .where(lt(caretakerInviteTable.expiresAt, sql`NOW() - INTERVAL 1 HOUR`));
+      .where(lt(caretakerInviteTable.expiresAt, sql`NOW()`));
 
     return {
       result: 'success',
