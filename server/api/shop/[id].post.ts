@@ -22,12 +22,17 @@ export default defineEventHandler(async (event) => {
     getValidatedRouterParams(event, schema.parse),
   ]);
 
+  const [user] = await db
+    .select({ money: usersTable.money })
+    .from(usersTable)
+    .where(eq(usersTable.id, token.userId));
+
   const [item] = await db
     .select()
     .from(itemsTable)
     .where(eq(itemsTable.id, params.id));
 
-  if (!item) {
+  if (!item || !user) {
     return setResponseStatus(event, 404);
   }
 
@@ -51,11 +56,6 @@ export default defineEventHandler(async (event) => {
   }
 
   // User has enough money check.
-  const [user] = await db
-    .select({ money: usersTable.money })
-    .from(usersTable)
-    .where(eq(usersTable.id, token.userId));
-
   if (item.cost && user.money < item.cost) {
     return setResponseStatus(event, 404);
   }
