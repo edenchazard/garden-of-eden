@@ -188,7 +188,10 @@ export default defineEventHandler(async (event) => {
     '.webp': 'image/webp',
   };
 
-  const match = getRouterParams(event).request.match(/^(\d+)-([\w\s-%.]+)$/);
+  const request = getRouterParams(event).request;
+  if (!request) return setResponseStatus(event, 404);
+
+  const match = request.match(/^(\d+)-([\w\s-%.]+)$/);
   const query = await querySchema.safeParseAsync(getQuery(event));
 
   if (!match || !query.success) return setResponseStatus(event, 404);

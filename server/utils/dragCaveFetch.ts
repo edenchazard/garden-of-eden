@@ -1,4 +1,7 @@
-const counters: Record<string, number[]> = {
+const counters: {
+  success: number[];
+  failure: number[];
+} = {
   success: [],
   failure: [],
 };
