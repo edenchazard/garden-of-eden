@@ -56,7 +56,7 @@ services:
       - internal
 
   bullboard:
-    image: venatum/bull-board:3.3
+    image: venatum/bull-board:3.4
     depends_on:
       - redis
     ports:
