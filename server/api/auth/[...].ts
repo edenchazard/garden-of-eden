@@ -2,7 +2,7 @@ import { NuxtAuthHandler } from '#auth';
 import type { TokenSet } from 'next-auth';
 import { db } from '~~/server/db';
 import { itemsTable, usersSettingsTable, usersTable } from '~~/database/schema';
-import { eq, getTableColumns } from 'drizzle-orm';
+import { eq, getColumns } from 'drizzle-orm';
 import { encrypt } from '~/utils/accessTokenHandling';
 
 const {
@@ -125,8 +125,8 @@ export default NuxtAuthHandler({
       const userId = token.userId;
       const [user] = await db
         .select({
-          users: getTableColumns(usersTable),
-          user_settings: getTableColumns(usersSettingsTable),
+          users: getColumns(usersTable),
+          user_settings: getColumns(usersSettingsTable),
           items: {
             id: itemsTable.id,
             name: itemsTable.name,
