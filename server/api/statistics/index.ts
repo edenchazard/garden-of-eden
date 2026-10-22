@@ -186,7 +186,7 @@ export default defineEventHandler(async (event) => {
     scrolls,
     dragons,
     clicksAllTimeLeaderboard,
-    [{ clicksTotal: clicksTotalAllTime }],
+    [clicksTotalAllTimeRow],
     weeklies,
     userActivity,
   ] = await Promise.all([
@@ -241,7 +241,7 @@ export default defineEventHandler(async (event) => {
     scrolls,
     dragons,
     clicksAllTimeLeaderboard,
-    clicksTotalAllTime: parseInt(clicksTotalAllTime),
+    clicksTotalAllTime: parseInt(clicksTotalAllTimeRow?.clicksTotal ?? '0'),
     weeklies,
     userActivity,
   };

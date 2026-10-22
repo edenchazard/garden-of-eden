@@ -32,7 +32,8 @@ export default defineEventHandler(async (event) => {
       })
       .from(usersTable)
       .where(eq(usersTable.id, query.userId));
-    if (!user.username || !user.accessToken) {
+
+    if (!user?.username || !user.accessToken) {
       return;
     }
 

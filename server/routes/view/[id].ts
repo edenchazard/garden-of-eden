@@ -1,7 +1,7 @@
 import { getToken } from '#auth';
 import { hatcheryTable } from '~~/database/schema';
 import type { JWT } from 'next-auth/jwt';
-import { createSelectSchema } from 'drizzle-zod';
+import { createSelectSchema } from 'drizzle-orm/zod';
 import { clickRecordQueue } from '~~/server/queue';
 
 export default defineEventHandler(async (event) => {
