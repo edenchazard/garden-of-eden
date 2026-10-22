@@ -1,5 +1,6 @@
 import sharp from 'sharp';
 import { promises as fs } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { ofetch, FetchError } from 'ofetch';
 import {
@@ -13,7 +14,6 @@ import {
 import type { Job } from 'bullmq';
 import type { DragonData } from '../types/DragonTypes';
 import { attributes, phase } from '../app/utils/dragons';
-import fsExists from '../server/utils/fsExists';
 // @ts-expect-error Unfortunately there are no types.
 import WebP from 'node-webpmux';
 
@@ -65,6 +65,7 @@ async function generateBannerToTemporary(
   let startTime = performance.now();
   const start = () => (startTime = performance.now());
   const end = () => performance.now() - startTime;
+  const temporaryFilePath = `${input.filePath}.${randomUUID()}.tmp`;
 
   try {
     const outputDir = path.dirname(input.filePath);
@@ -133,7 +134,7 @@ async function generateBannerToTemporary(
 
       await sharp(saved, { animated: true })
         .webp({ nearLossless: true, quality: 90 })
-        .toFile(`${input.filePath}.tmp`);
+        .toFile(temporaryFilePath);
 
       perfData.gifGenTime = end();
     } else {
@@ -145,24 +146,24 @@ async function generateBannerToTemporary(
 
       start();
 
-      const out = await sharp(bannerBuffer);
+      const out = sharp(bannerBuffer);
 
       if (decorations.length > 0) {
         out.composite(decorations);
       }
 
-      out
+      await out
         .webp({ nearLossless: true, quality: 90 })
-        .toFile(`${input.filePath}.tmp`);
+        .toFile(temporaryFilePath);
 
       perfData.gifGenTime = end();
     }
 
     perfData.totalTime = performance.now() - totalStartTime;
-    await moveBannerFromTemporary(input.filePath);
+    await moveBannerFromTemporary(input.filePath, temporaryFilePath);
   } catch (error) {
     perfData.error = error === 23 ? 'API Timeout' : error;
-    await fs.unlink(`${input.filePath}.tmp`).catch(() => {});
+    await fs.unlink(temporaryFilePath).catch(() => {});
   }
   return perfData;
 }
@@ -699,9 +700,9 @@ async function createFrame(
   return frame.composite(composites);
 }
 
-async function moveBannerFromTemporary(filePath: string) {
-  if (await fsExists(filePath)) {
-    await fs.unlink(filePath);
-  }
-  await fs.rename(`${filePath}.tmp`, filePath);
+async function moveBannerFromTemporary(
+  filePath: string,
+  temporaryFilePath: string
+) {
+  await fs.rename(temporaryFilePath, filePath);
 }
