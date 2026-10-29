@@ -65,13 +65,13 @@ export async function cleanUp() {
 
         // If it didn't come back in the response, we can assume they blocked the Garden.
         // Sucks for them. We'll remove it, and add a note to the user.
-        if (code in apiResponse.dragons === false) {
+        const apiDragon = apiResponse.dragons[code];
+
+        if (!apiDragon) {
           removeFromHatchery.push(code);
           apiBlockedTest.add(hatcheryDragon.userId);
           continue;
         }
-
-        const apiDragon = apiResponse.dragons[code];
 
         if (hatcheryDragon.inSeedTray && apiDragon.hoursleft > 96) {
           hatcheryDragon.inSeedTray = false;

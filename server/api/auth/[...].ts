@@ -2,7 +2,7 @@ import { NuxtAuthHandler } from '#auth';
 import type { TokenSet } from 'next-auth';
 import { db } from '~~/server/db';
 import { itemsTable, usersSettingsTable, usersTable } from '~~/database/schema';
-import { eq, getTableColumns } from 'drizzle-orm';
+import { eq, getColumns } from 'drizzle-orm';
 import { encrypt } from '~/utils/accessTokenHandling';
 
 const {
@@ -125,8 +125,8 @@ export default NuxtAuthHandler({
       const userId = token.userId;
       const [user] = await db
         .select({
-          users: getTableColumns(usersTable),
-          user_settings: getTableColumns(usersSettingsTable),
+          users: getColumns(usersTable),
+          user_settings: getColumns(usersSettingsTable),
           items: {
             id: itemsTable.id,
             name: itemsTable.name,
@@ -141,29 +141,31 @@ export default NuxtAuthHandler({
         )
         .leftJoin(itemsTable, eq(usersSettingsTable.flairId, itemsTable.id));
 
-      // Access tokens were not stored originally, so this is here to provide backwards
-      // compatibility for users who have not logged in since this feature was added.
-      if (!user.users.accessToken && token.sessionToken) {
-        await db
-          .update(usersTable)
-          .set({
-            accessToken: encrypt(token.sessionToken, accessTokenPassword),
-          })
-          .where(eq(usersTable.id, userId));
-      }
+      if (user) {
+        // Access tokens were not stored originally, so this is here to provide backwards
+        // compatibility for users who have not logged in since this feature was added.
+        if (!user.users.accessToken && token.sessionToken) {
+          await db
+            .update(usersTable)
+            .set({
+              accessToken: encrypt(token.sessionToken, accessTokenPassword),
+            })
+            .where(eq(usersTable.id, userId));
+        }
 
-      const {
-        users,
-        user_settings: { userId: _, ...settings },
-        items: flair,
-      } = user;
-      session.user.id = users.id;
-      session.user.username = users.username;
-      session.user.money = users.money;
-      session.user.role = users.role;
-      session.user.apiBlocked = users.apiBlocked;
-      session.user.settings = settings;
-      session.user.flair = flair ?? null;
+        const {
+          users,
+          user_settings: { userId: _, ...settings },
+          items: flair,
+        } = user;
+        session.user.id = users.id;
+        session.user.username = users.username;
+        session.user.money = users.money;
+        session.user.role = users.role;
+        session.user.apiBlocked = users.apiBlocked;
+        session.user.settings = settings;
+        session.user.flair = flair ?? null;
+      }
       return session;
     },
     redirect() {

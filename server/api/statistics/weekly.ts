@@ -14,7 +14,7 @@ import { DateTime, Interval } from 'luxon';
 
 const clicksTotalForWeekCached = defineCachedFunction(
   async (start: DateTime) => {
-    const [{ clicksThisWeek: clicks }] = await db
+    const result = await db
       .select({
         clicksThisWeek:
           sql<string>`0 + SUM(${clicksLeaderboardsTable.clicksGiven})`.as(
@@ -28,6 +28,7 @@ const clicksTotalForWeekCached = defineCachedFunction(
           eq(clicksLeaderboardsTable.start, start.toJSDate())
         )
       );
+    const [{ clicksThisWeek: clicks }] = result;
     return Number(clicks ?? 0);
   },
   {
