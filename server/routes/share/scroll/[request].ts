@@ -116,12 +116,24 @@ async function sendJob(
   // We don't want to rerun these queries if not enough time has passed.
   const existingJob = await shareScrollQueue.getJob(jobId);
 
-  if (existingJob && Date.now() - existingJob.timestamp < expires) {
-    console.log('not met expiry threshold yet.');
-    return;
-  } else {
-    existingJob?.discard();
-    existingJob?.remove();
+  if (existingJob) {
+    if (Date.now() - existingJob.timestamp < expires) {
+      console.log('not met expiry threshold yet.');
+      return;
+    }
+
+    try {
+      await existingJob.remove();
+    } catch (error) {
+      if (
+        !(
+          error instanceof Error &&
+          error.message.includes('is locked by another worker')
+        )
+      ) {
+        throw error;
+      }
+    }
   }
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(user.id);
