@@ -107,6 +107,8 @@
       <ClientOnly>
         <img
           :alt="dragon.id"
+          loading="lazy"
+          fetchpriority="low"
           :src="
             cacheBust
               ? `https://dragcave.net/image/${dragon.id}.gif?cb=${Date.now()}`

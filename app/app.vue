@@ -30,6 +30,10 @@ if (import.meta.server) {
   useHead({
     link: [
       {
+        rel: 'preconnect',
+        href: 'https://dragcave.net',
+      },
+      {
         rel: 'icon',
         type: 'image/png',
         href: `${origin}${baseURL}/favicon-96x96.png`,
