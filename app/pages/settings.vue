@@ -234,7 +234,7 @@
             </button>
           </div>
 
-          <ol v-if="caretakers.length > 0" class="divide-y">
+          <ol v-if="caretakers.length > 0" class="space-y-4">
             <li
               v-for="caretaker in caretakers"
               :key="caretaker.id"
@@ -261,7 +261,7 @@
             remove it here.
           </p>
 
-          <ul v-if="principals.length > 0" class="space-y-4">
+          <ol v-if="principals.length > 0" class="space-y-4">
             <li
               v-for="principal in principals"
               :key="principal.id"
@@ -276,7 +276,7 @@
                 Remove
               </button>
             </li>
-          </ul>
+          </ol>
           <p v-else class="text-sm">
             You are not managing anyone else's scroll.
           </p>

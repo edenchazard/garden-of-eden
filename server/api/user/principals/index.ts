@@ -14,5 +14,6 @@ export default defineEventHandler(async (event) => {
     })
     .from(caretakerTable)
     .innerJoin(usersTable, eq(caretakerTable.principalId, usersTable.id))
-    .where(eq(caretakerTable.caretakerId, token.userId));
+    .where(eq(caretakerTable.caretakerId, token.userId))
+    .orderBy(usersTable.username);
 });
