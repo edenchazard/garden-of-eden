@@ -36,7 +36,8 @@ export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
   );
 
   if (perfData.errors.length > 0) console.error(perfData.errors.join('\n'));
-  if (perfData.errors.includes('API Timeout')) throw new Error('API Timeout');
+  if (perfData.errors.includes(apiTimeoutMessage))
+    throw new Error(apiTimeoutMessage);
 
   return {
     performanceData: perfData,
@@ -46,6 +47,8 @@ export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
 const baseBannerWidth = 327;
 const baseBannerHeight = 61;
 const baseCarouselWidth = 106;
+const apiTimeoutCode = 23;
+const apiTimeoutMessage = 'API Timeout';
 
 async function generateBannerToTemporary(
   input: WorkerInput,
@@ -163,7 +166,9 @@ async function generateBannerToTemporary(
     perfData.totalTime = performance.now() - totalStartTime;
     await moveBannerFromTemporary(input.filePath, temporaryFilePath);
   } catch (error) {
-    perfData.errors.push(error === 23 ? 'API Timeout' : inspect(error));
+    perfData.errors.push(
+      error === apiTimeoutCode ? apiTimeoutMessage : inspect(error)
+    );
     await fs.unlink(temporaryFilePath).catch(() => {});
   }
   return perfData;
@@ -407,7 +412,7 @@ async function getDragonBuffers(dragonIds: string[], secret: string) {
   } catch (error) {
     if (error instanceof FetchError) {
       const code = (error.cause as { code: number })?.code ?? 0;
-      if (code === 23) throw 23;
+      if (code === apiTimeoutCode) throw apiTimeoutCode;
     }
     throw error;
   }
