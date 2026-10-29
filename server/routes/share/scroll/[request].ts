@@ -122,7 +122,18 @@ async function sendJob(
       return;
     }
 
-    await existingJob.remove().catch(() => {});
+    try {
+      await existingJob.remove();
+    } catch (error) {
+      if (
+        !(
+          error instanceof Error &&
+          error.message.includes('is locked by another worker')
+        )
+      ) {
+        throw error;
+      }
+    }
   }
   const { weeklyClicks, weeklyRank, allTimeClicks, allTimeRank, dragons } =
     await getData(user.id);
