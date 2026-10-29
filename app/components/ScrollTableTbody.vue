@@ -106,6 +106,16 @@
       <td v-if="!hiddenColumns.includes('V:UV')">
         {{ formatRatio(dragon.views, dragon.unique) }}
       </td>
+      <td>
+        <NuxtLink
+          v-if="dragon.parent_f && dragon.parent_m"
+          class="underline-offset-2 deep-sea:text-white"
+          :to="`https://dragcave.net/lineage/${dragon.id}`"
+          target="_blank"
+          >LINEAGE</NuxtLink
+        >
+        <span v-else v-tooltip.bottom="`Caveborn`">CB</span>
+      </td>
     </tr>
   </tbody>
 </template>
