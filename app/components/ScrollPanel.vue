@@ -28,7 +28,8 @@
           <ClientOnly>
             <img
               alt=""
-              loading="lazy"
+              loading="eager"
+              fetchpriority="high"
               class="max-w-full max-h-full"
               :src="`https://dragcave.net/image/${dragon.id}/1?cb=${Date.now()}`"
             />
