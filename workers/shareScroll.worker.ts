@@ -1,6 +1,7 @@
 import sharp from 'sharp';
 import { promises as fs } from 'node:fs';
 import { randomUUID } from 'node:crypto';
+import { inspect } from 'node:util';
 import path from 'node:path';
 import { ofetch, FetchError } from 'ofetch';
 import {
@@ -34,8 +35,8 @@ export default async function bannerGen(job: Job<WorkerInput, WorkerFinished>) {
     handler(base, job.data)
   );
 
-  if (perfData.error) console.error(perfData.error);
-  if (perfData.error === 'API Timeout') throw new Error(perfData.error);
+  if (perfData.errors.length > 0) console.error(perfData.errors.join('\n'));
+  if (perfData.errors.includes('API Timeout')) throw new Error('API Timeout');
 
   return {
     performanceData: perfData,
@@ -59,7 +60,7 @@ async function generateBannerToTemporary(
     frameGenTime: null,
     gifGenTime: null,
     totalTime: null,
-    error: null,
+    errors: [],
   };
 
   let startTime = performance.now();
@@ -162,7 +163,7 @@ async function generateBannerToTemporary(
     perfData.totalTime = performance.now() - totalStartTime;
     await moveBannerFromTemporary(input.filePath, temporaryFilePath);
   } catch (error) {
-    perfData.error = error === 23 ? 'API Timeout' : error;
+    perfData.errors.push(error === 23 ? 'API Timeout' : inspect(error));
     await fs.unlink(temporaryFilePath).catch(() => {});
   }
   return perfData;
