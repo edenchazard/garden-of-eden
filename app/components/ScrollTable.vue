@@ -24,6 +24,7 @@
         <th>Clicks</th>
         <th v-if="!hiddenColumns.includes('V:UV')">V:UV</th>
         <th>Lineage</th>
+        <th>FART</th>
       </tr>
     </thead>
 

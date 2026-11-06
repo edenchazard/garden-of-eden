@@ -91,6 +91,7 @@ export default defineNuxtConfig({
     removeLoggers: false,
     rateLimiter: false,
     headers: {
+      crossOriginOpenerPolicy: 'same-origin-allow-popups',
       crossOriginEmbedderPolicy: false,
       referrerPolicy: false,
       contentSecurityPolicy: {

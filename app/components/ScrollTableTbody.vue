@@ -117,6 +117,16 @@
         >
         <span v-else v-tooltip.bottom="`Caveborn`">CB</span>
       </td>
+      <td>
+        <button
+          type="button"
+          :dragon-id="dragon.id"
+          class="text-xs btn-tertiary p-2 inline-flex items-center justify-center gap-1"
+          @click="openIfNotOpenAndAdd({ code: dragon.id })"
+        >
+          Open in FART
+        </button>
+      </td>
     </tr>
   </tbody>
 </template>
@@ -136,4 +146,6 @@ withDefaults(
     disabled: false,
   }
 );
+
+const { openIfNotOpenAndAdd } = useFartWindow();
 </script>

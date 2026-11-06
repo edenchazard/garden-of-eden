@@ -102,6 +102,10 @@
     &.btn-danger {
       @apply bg-red-500 dark:bg-red-900 dark:text-white;
     }
+
+    &.btn-tertiary {
+      @apply bg-green-700 dark:bg-stone-500 dark:text-stone-200 deep-sea:bg-gray-600 deep-sea:text-slate-200;
+    }
   }
 }
 
