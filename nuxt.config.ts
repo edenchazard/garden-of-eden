@@ -73,6 +73,7 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
       origin: process.env.NUXT_PUBLIC_ORIGIN,
+      fartUrl: process.env.NUXT_PUBLIC_FART_URL,
     },
   },
   auth: {

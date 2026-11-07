@@ -10,8 +10,15 @@ type PushDragonMessage = {
 const pendingMessages: PushDragonMessage[] = [];
 
 export default function useFartWindow() {
+  const config = useRuntimeConfig();
+
+  const fartUrl = config.public.fartUrl ?? undefined;
+  const fartOrigin = fartUrl ? new URL(fartUrl).origin : undefined;
+
   function postAddDragon(data: PushDragonMessage) {
-    if (import.meta.server) return;
+    if (import.meta.server || !fartUrl || !fartOrigin) {
+      return;
+    }
 
     // Queue until FART confirms it's ready
     if (!fartWindow || fartWindow.closed || !fartReady) {
@@ -26,13 +33,14 @@ export default function useFartWindow() {
         enabled: true,
         ...data,
       },
-      'http://localhost:3001'
+      fartOrigin
     );
   }
 
   function handleFartMessage(event: MessageEvent) {
-    if (event.origin !== 'http://localhost:3001') return;
-    if (event.source !== fartWindow) return;
+    if (event.origin !== fartOrigin || event.source !== fartWindow) {
+      return;
+    }
 
     if (event.data?.type === 'FART_READY') {
       fartReady = true;
@@ -53,10 +61,7 @@ export default function useFartWindow() {
       // Register before opening the window
       window.addEventListener('message', handleFartMessage);
 
-      fartWindow = window.open(
-        'http://localhost:3001/dc/auto-refresher',
-        'fart'
-      );
+      fartWindow = window.open(fartUrl, 'fart');
     }
 
     return fartWindow;
