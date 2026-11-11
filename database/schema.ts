@@ -393,6 +393,67 @@ export const userNotificationTable = mysqlTable(
   ]
 );
 
+export const caretakerTable = mysqlTable(
+  'caretakers',
+  {
+    principalId: mediumint('principal_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    caretakerId: mediumint('caretaker_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('caretaker_principal_idx').on(
+      table.principalId,
+      table.caretakerId
+    ),
+    index('caretaker_caretaker_id_idx').on(table.caretakerId),
+  ]
+);
+
+export const caretakerInviteTable = mysqlTable(
+  'caretaker_invites',
+  {
+    code: char('code', {
+      length: 36,
+    })
+      .primaryKey()
+      .notNull(),
+    principalId: mediumint('principal_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    expiresAt: datetime('expires_at', { mode: 'date' }).notNull(),
+  },
+  (table) => [
+    index('caretaker_invite_principal_idx').on(table.principalId),
+    index('caretaker_invite_expiry_idx').on(table.expiresAt),
+  ]
+);
+
+export const caretakerAuditLogTable = mysqlTable(
+  'caretaker_audit_log',
+  {
+    id: int('id').autoincrement().primaryKey().notNull(),
+    principalId: mediumint('principal_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    caretakerId: mediumint('caretaker_id', { unsigned: true })
+      .references(() => usersTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    createdAt: datetime('created_at', { mode: 'date' })
+      .default(sql`NOW()`)
+      .notNull(),
+    changes: json('changes')
+      .$type<{ added: string[]; removed: string[]; unchanged: string[] }>()
+      .notNull(),
+  },
+  (table) => [
+    index('caretaker_audit_principal_idx').on(table.principalId),
+    index('caretaker_audit_caretaker_idx').on(table.caretakerId),
+  ]
+);
+
 export const userSettingsSchema = createSelectSchema(usersSettingsTable, {
   gardenFrequency: (schema) => schema.min(15).max(300).default(30),
   gardenPerPage: (schema) => schema.min(10).max(500).default(500),

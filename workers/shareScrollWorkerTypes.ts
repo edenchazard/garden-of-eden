@@ -9,7 +9,7 @@ export type PerformanceData = {
   frameGenTime: number | null; // generating frames for carousel
   gifGenTime: number | null; // putting it all together and creating the gif
   totalTime: number | null;
-  error: unknown; // any error that occurred on the way
+  errors: string[]; // any errors that occurred on the way
 };
 
 export type User = {

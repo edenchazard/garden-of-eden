@@ -28,7 +28,8 @@
           <ClientOnly>
             <img
               alt=""
-              loading="lazy"
+              loading="eager"
+              fetchpriority="high"
               class="max-w-full max-h-full"
               :src="`https://dragcave.net/image/${dragon.id}/1?cb=${Date.now()}`"
             />
@@ -120,6 +121,14 @@
           :icon="['fas', 'venus']"
         />
       </span>
+      <button
+        type="button"
+        :dragon-id="dragon.id"
+        class="text-xs border-none p-0 inline-flex items-center gap-1"
+        @click="openIfNotOpenAndAdd({ code: dragon.id })"
+      >
+        FART <font-awesome-icon :icon="['fas', 'external-link']" class="mr-0" />
+      </button>
     </div>
   </div>
 </template>
@@ -137,4 +146,6 @@ defineProps<{
 }>();
 
 const dragon = defineModel<ScrollView>({ required: true });
+
+const { openIfNotOpenAndAdd } = useFartWindow();
 </script>

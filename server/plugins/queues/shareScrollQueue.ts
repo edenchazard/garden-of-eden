@@ -48,6 +48,9 @@ export default defineNitroPlugin(async () => {
       console.error(`Bannergen job failed: `, job.failedReason);
       console.error(job.stacktrace.join('\n'));
 
+      const errors =
+        job.stacktrace.length > 0 ? job.stacktrace : [job.failedReason];
+
       await db.transaction(async (tx) => {
         const promises: Promise<unknown>[] = [
           tx.insert(userBannerJobTable).values({
@@ -55,7 +58,7 @@ export default defineNitroPlugin(async () => {
             username: job.data.user.username,
             flairPath: job.data.user.flairPath,
             dragonsIncluded: job.data.dragons,
-            error: job.failedReason,
+            error: JSON.stringify(errors),
             requestParams: job.data.requestParameters,
           }),
         ];
@@ -97,7 +100,7 @@ export default defineNitroPlugin(async () => {
         frameGenTime: round(job.returnvalue.performanceData.frameGenTime),
         gifGenTime: round(job.returnvalue.performanceData.gifGenTime),
         totalTime: round(job.returnvalue.performanceData.totalTime),
-        error: JSON.stringify(job.returnvalue.performanceData.error),
+        error: JSON.stringify(job.returnvalue.performanceData.errors),
         requestParams: job.data.requestParameters,
       });
     });
