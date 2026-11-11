@@ -92,17 +92,19 @@ export default defineEventHandler(async (event) => {
   const startOfToday = new Date();
   startOfToday.setDate(startOfToday.getDate() - 1);
 
-  const [[{ clicksToday }], usersDragonsInHatchery, [releaseNotification]] =
+  const clickResult = await db
+    .select({ clicksToday: sql<number>`COUNT(*)`.as('clicks_today') })
+    .from(clicksTable)
+    .where(
+      and(
+        inArray(clicksTable.hatcheryId, alive),
+        gt(clicksTable.clickedOn, startOfToday)
+      )
+    );
+  const clicksToday = clickResult[0]?.clicksToday ?? 0;
+
+  const [usersDragonsInHatchery, releaseNotificationResult] =
     await Promise.all([
-      db
-        .select({ clicksToday: sql<number>`COUNT(*)`.as('clicks_today') })
-        .from(clicksTable)
-        .where(
-          and(
-            inArray(clicksTable.hatcheryId, alive),
-            gt(clicksTable.clickedOn, startOfToday)
-          )
-        ),
       db
         .select({
           id: hatcheryTable.id,
@@ -129,6 +131,7 @@ export default defineEventHandler(async (event) => {
         .orderBy(desc(userNotificationTable.createdAt))
         .limit(1),
     ]);
+  const releaseNotification = releaseNotificationResult[0] ?? null;
 
   return {
     releaseNotification,
@@ -136,7 +139,7 @@ export default defineEventHandler(async (event) => {
       clicksToday,
     },
     dragons: alive.map<ScrollView>((id) => {
-      const apiDragon = scrollResponse.dragons[id];
+      const apiDragon = scrollResponse.dragons[id] as DragonData;
       const hatcheryData = {
         inGarden: false,
         inSeedTray: false,

@@ -2,7 +2,7 @@ import { db } from '~~/server/db';
 import { getToken } from '#auth';
 import { hatcheryTable, clicksTable } from '~~/database/schema';
 import type { JWT } from 'next-auth/jwt';
-import { createSelectSchema } from 'drizzle-zod';
+import { createSelectSchema } from 'drizzle-orm/zod';
 
 export default defineEventHandler(async (event) => {
   const schema = createSelectSchema(hatcheryTable).pick({

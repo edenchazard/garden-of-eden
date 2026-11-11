@@ -1,7 +1,7 @@
 import { db } from '~~/server/db';
 import { getToken } from '#auth';
 import { z } from 'zod';
-import { createInsertSchema } from 'drizzle-zod';
+import { createInsertSchema } from 'drizzle-orm/zod';
 import { hatcheryTable } from '~~/database/schema';
 import { and, eq, inArray, not } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';

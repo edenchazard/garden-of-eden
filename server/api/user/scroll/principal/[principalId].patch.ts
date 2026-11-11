@@ -2,7 +2,7 @@ import { getToken } from '#auth';
 import { and, eq, inArray, not } from 'drizzle-orm';
 import type { JWT } from 'next-auth/jwt';
 import { z } from 'zod';
-import { createInsertSchema } from 'drizzle-zod';
+import { createInsertSchema } from 'drizzle-orm/zod';
 import { caretakerAuditLogTable, hatcheryTable } from '~~/database/schema';
 import { db } from '~~/server/db';
 import buildConflictUpdateColumns from '~~/server/utils/buildConflictUpdateColumns';

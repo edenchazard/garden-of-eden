@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
     releaseNotification: null,
     details: { clicksToday: 0 },
     dragons: alive.map<ScrollView>((id) => {
-      const apiDragon = scrollResponse.dragons[id];
+      const apiDragon = scrollResponse.dragons[id] as DragonData;
       const hatcheryData = {
         inGarden: false,
         inSeedTray: false,

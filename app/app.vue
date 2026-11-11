@@ -17,7 +17,6 @@ if (import.meta.server) {
   useSeoMeta({
     description:
       "A Dragon Cave hatchery with a minty theme. Help yours and other people's dragons flourish in the Garden of Eden.",
-    keywords: 'dragon cave, hatchery, minty theme, garden of eden',
     ogTitle: 'Garden of Eden',
     ogType: 'website',
     ogImage: `${origin}${baseURL}/open-graph.png`,
