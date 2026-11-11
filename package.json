@@ -51,7 +51,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^1.15.2",
+    "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.0.0",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/vite": "^4.2.1",
