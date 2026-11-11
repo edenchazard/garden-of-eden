@@ -50,7 +50,7 @@ services:
       - internal
 
   redis:
-    image: redis:7.4-alpine
+    image: redis:8.0-alpine
     ports:
       - 6379:6379
     networks:
@@ -130,7 +130,7 @@ services:
           - db
 
   testredis:
-    image: redis:7.4-alpine
+    image: redis:8.0-alpine
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
