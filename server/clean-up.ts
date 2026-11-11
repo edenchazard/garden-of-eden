@@ -9,6 +9,8 @@ import type { DragonData } from '#shared/DragonTypes';
 import { blockedApiQueue } from './queue';
 
 export async function cleanUp() {
+  const sqlChunkSize = 200;
+  const dragCaveChunkSize = 400;
   const { clientSecret } = useRuntimeConfig();
 
   const start = new Date().getTime();
@@ -24,11 +26,13 @@ export async function cleanUp() {
     })
     .from(hatcheryTable);
 
-  const removeFromSeedTray: string[] = [];
-  const removeFromHatchery: string[] = [];
-  const updateIncubated: string[] = [];
-  const updateStunned: string[] = [];
-  const apiBlockedTest: Set<number> = new Set();
+  type DragonCode = (typeof hatcheryDragons)[number]['id'];
+
+  const removeFromSeedTray = new Set<DragonCode>();
+  const removeFromHatchery = new Set<DragonCode>();
+  const updateIncubated = new Set<DragonCode>();
+  const updateStunned = new Set<DragonCode>();
+  const apiBlockedTest = new Set<(typeof hatcheryDragons)[number]['userId']>();
   let hatchlings = 0;
   let eggs = 0;
   let adults = 0;
@@ -39,7 +43,7 @@ export async function cleanUp() {
   let caveborn = 0;
   let lineaged = 0;
 
-  const chunkedDragons = chunkArray(hatcheryDragons, 400);
+  const chunkedDragons = chunkArray(hatcheryDragons, dragCaveChunkSize);
 
   const promises = await Promise.allSettled(
     chunkedDragons.map(async (chunk) => {
@@ -66,7 +70,7 @@ export async function cleanUp() {
         // If it didn't come back in the response, we can assume they blocked the Garden.
         // Sucks for them. We'll remove it, and add a note to the user.
         if (code in apiResponse.dragons === false) {
-          removeFromHatchery.push(code);
+          removeFromHatchery.add(code);
           apiBlockedTest.add(hatcheryDragon.userId);
           continue;
         }
@@ -75,14 +79,14 @@ export async function cleanUp() {
 
         if (hatcheryDragon.inSeedTray && apiDragon.hoursleft > 96) {
           hatcheryDragon.inSeedTray = false;
-          removeFromSeedTray.push(code);
+          removeFromSeedTray.add(code);
         }
 
         if (
           apiDragon.hoursleft < 0 ||
           (!hatcheryDragon.inSeedTray && !hatcheryDragon.inGarden)
         ) {
-          removeFromHatchery.push(code);
+          removeFromHatchery.add(code);
         }
 
         if (apiDragon.grow !== '0') {
@@ -117,25 +121,27 @@ export async function cleanUp() {
 
         if (
           hatcheryDragon.isIncubated === false &&
-          !removeFromHatchery.includes(code) &&
+          !removeFromHatchery.has(code) &&
           isIncubated(apiDragon)
         ) {
-          updateIncubated.push(code);
+          updateIncubated.add(code);
         }
 
         if (
           hatcheryDragon.isStunned === false &&
-          !removeFromHatchery.includes(code) &&
+          !removeFromHatchery.has(code) &&
           isStunned(apiDragon)
         ) {
-          updateStunned.push(code);
+          updateStunned.add(code);
         }
       }
     })
   );
 
+  let successfullyRemoved = 0;
+
   await Promise.allSettled(
-    chunkArray(removeFromSeedTray, 200).map(async (chunk) =>
+    chunkArray([...removeFromSeedTray], sqlChunkSize).map(async (chunk) =>
       db
         .update(hatcheryTable)
         .set({ inSeedTray: false })
@@ -143,10 +149,8 @@ export async function cleanUp() {
     )
   );
 
-  let successfullyRemoved = 0;
-
   await Promise.allSettled(
-    chunkArray(removeFromHatchery, 200).map(async (chunk) => {
+    chunkArray([...removeFromHatchery], sqlChunkSize).map(async (chunk) => {
       const [{ affectedRows }] = await db
         .delete(hatcheryTable)
         .where(inArray(hatcheryTable.id, chunk));
@@ -155,7 +159,7 @@ export async function cleanUp() {
   );
 
   await Promise.allSettled(
-    chunkArray(updateIncubated, 200).map(async (chunk) =>
+    chunkArray([...updateIncubated], sqlChunkSize).map(async (chunk) =>
       db
         .update(hatcheryTable)
         .set({ isIncubated: true })
@@ -164,7 +168,7 @@ export async function cleanUp() {
   );
 
   await Promise.allSettled(
-    chunkArray(updateStunned, 200).map(async (chunk) =>
+    chunkArray([...updateStunned], sqlChunkSize).map(async (chunk) =>
       db
         .update(hatcheryTable)
         .set({ isStunned: true })
