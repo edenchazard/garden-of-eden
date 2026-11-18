@@ -107,7 +107,6 @@
       <ClientOnly>
         <img
           :alt="dragon.id"
-          loading="lazy"
           fetchpriority="low"
           :src="
             cacheBust
